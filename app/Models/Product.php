@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Faker\Core\File;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,10 +16,15 @@ class Product extends Model
           return $this->belongsToMany(Category::class);
     }
 
+     public function tags(){
+          return $this->belongsToMany(Tag::class);
+    }
+
 
     public function orders(){
           return $this->belongsToMany(Order::class);
     }
+  
 
 
     public function covers(){
@@ -38,6 +44,23 @@ class Product extends Model
         return $this->belongsTo(Promotion::class);
     }
    
-    
-    
+    // attrivutes 
+
+    public function color(){
+        return $this->hasMany(Color::class);
+    }
+
+
+    public function size(){
+        return $this->hasOne(Size::class);
+    }
+
+    public function materials(){
+        return $this->hasMany(Material::class);
+    }
+
+    public function fit(){
+        return $this->hasOne(Fit::class);
+    }
+     
 }
