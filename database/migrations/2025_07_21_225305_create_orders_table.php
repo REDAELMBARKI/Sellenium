@@ -18,12 +18,11 @@ return new class extends Migration
             $table->integer('order_number')->unsigned();
             $table->foreignIdFor(Product::class);
             $table->foreignIdFor(User::class);
-            $table->string('adress');
+            $table->string('address');
             $table->enum('status',['pending','delivered','canceled'])->default('pending');
-            $table->float('shipping_cost')->unsigned()->nullable(true);
-            $table->float('discount_amount')->unsigned()->nullable(true);
-            $table->string('notes')->nullable(true);
-            $table->integer('order_number')->unsigned();
+            $table->float('shipping_cost')->unsigned()->nullable();
+            $table->float('discount_amount')->unsigned()->nullable();
+            $table->string('notes')->nullable();
             $table->float('total_amount')->unsigned();
             $table->timestamps();
         });

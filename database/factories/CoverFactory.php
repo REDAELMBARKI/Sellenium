@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +20,7 @@ class CoverFactory extends Factory
     {
         return [
             "path"=> $this->faker->url(),
-             'product_id' => 
+            'product_id' => Product::inRandomOrder()->first()->id ?? Category::factory()->create()->id
         ];
     }
 }

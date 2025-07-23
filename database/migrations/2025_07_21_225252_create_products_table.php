@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('name');
             $table->string('brand');
             $table->string('slug');
             $table->string('thumbnail');
-            $table->boolean('is_featured');
+            $table->boolean('is_featured')->default(true);
             $table->integer('rating_count')->unsigned()->default(1)->nullable(true);
             $table->float('rating_average')->unsigned()->default(1.0)->nullable(true);
-            $table->boolean('free_shipping')->default(false)->nullable(true);
+            $table->boolean('free_shipping')->nullable(true)->default(true);
             $table->float('price')->unsigned();
             $table->text('description');
             $table->timestamps();

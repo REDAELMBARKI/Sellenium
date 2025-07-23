@@ -9,4 +9,10 @@ class Fit extends Model
 {
     /** @use HasFactory<\Database\Factories\FitFactory> */
     use HasFactory;
+
+    protected $fillable = ['name' , 'product_id'];
+
+    public function products(){
+          return $this->hasMany(Product::class);
+    }
 }

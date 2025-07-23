@@ -9,4 +9,5 @@ class Promotion extends Model
 {
     /** @use HasFactory<\Database\Factories\PromotionFactory> */
     use HasFactory;
+    protected $fillable = ['product_id' , 'promo_percentage'];
 }

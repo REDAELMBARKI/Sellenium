@@ -14,10 +14,33 @@ class SizeFactory extends Factory
      *
      * @return array<string, mixed>
      */
+private $sizes = [
+    'extra_small' => 'XS',
+    'small'       => 'S',
+    'medium'      => 'M',
+    'large'       => 'L',
+    'extra_large' => 'XL',
+    'xxl'         => 'XXL',
+    'xxxl'        => 'XXXL',
+    '30'        => '30',
+    '31'        => '31',
+    '32'        => '32',
+    '33'        => '33',
+    '34'        => '34',
+    '35'        => '35',
+    '36'        => '36',
+    '37'        => '37',
+    '38'        => '38',
+    '39'        => '39',
+    '40'        => '40',
+
+];
+
     public function definition(): array
     {
         return [
-            //
+            'name' => $size = $this->faker->randomElement($this->sizes),
+            'code' => $this->sizes[$size],
         ];
     }
 }
