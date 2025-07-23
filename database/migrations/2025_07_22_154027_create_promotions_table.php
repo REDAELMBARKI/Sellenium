@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->float('promo_percentage');
             $table->foreignIdFor(Product::class);
+            $table->date('dead_line')->nullable(false);
             $table->timestamps();
         });
     }

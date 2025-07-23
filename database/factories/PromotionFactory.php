@@ -19,7 +19,8 @@ class PromotionFactory extends Factory
     {
         return [
             'promo_percentage' => $this->faker->randomFloat(0,1),
-            'product_id' => Product::inRandomOrder()->first()->id
+            'product_id' => Product::inRandomOrder()->first()->id,
+            'dead_line' => $this->faker->date('')
         ];
     }
 }
