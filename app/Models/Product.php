@@ -11,7 +11,30 @@ class Product extends Model
     use HasFactory;
      protected $fillable = ['name' , 'brand' , 'price' , 'slug' , 'thumbnail' , 'rating_count', 'rating_average' ,'free_shipping' , 'description'];
 
-    public function products(){
-          return $this->hasMany(Product::class);
+    public function categories(){
+          return $this->belongsToMany(Category::class);
     }
+
+
+    public function orders(){
+          return $this->belongsToMany(Order::class);
+    }
+
+
+    public function covers(){
+         return $this->hasMany(Cover::class);
+    }
+
+    public function reviews(){
+        return $this->hasMany(Review::class);
+    }
+ 
+    public function inventory(){
+         return $this->hasMany(Inventory::class);
+    }
+
+
+     
+  
+    
 }
