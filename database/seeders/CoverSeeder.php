@@ -7,7 +7,8 @@ use App\Models\Product;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-use Faker\Factory as Faker ;
+use Faker\Factory as Faker;
+
 class CoverSeeder extends Seeder
 {
     /**
@@ -15,31 +16,28 @@ class CoverSeeder extends Seeder
      */
     public function run(): void
     {
-       $faker = Faker::create();
-       $products = Product::all(); 
-       foreach ($products as $product) {
-           $randomimgs =  collect()->times(4,function () use ($faker){
-                  return $faker->numberBetween(1,10) . '.png';
-           }) ;
+        $faker = Faker::create();
+        $products = Product::all();
+        foreach ($products as $product) {
+            $randomimgs =  collect()->times(4, function () use ($faker) {
+                return $faker->numberBetween(1, 10) . '.png';
+            });
 
-           foreach ($randomimgs as $randomimg) { 
-                $exist = Cover::where('product_id',$product->id)
-                ->where('path' , $randomimg)
-                ->first();
+            foreach ($randomimgs as $randomimg) {
+                $exist = Cover::where('product_id', $product->id)
+                    ->where('path', $randomimg)
+                    ->first();
 
 
-                if($exist) {
+                if ($exist) {
                     $this->command->warn('the cover is exist already');
-                }
-                else{
+                } else {
                     Cover::factory()->create([
-                         'product_id'=> $product->id,
-                         'path'=> $randomimg
+                        'product_id' => $product->id,
+                        'path' => $randomimg
                     ]);
                 }
-           }
-           
-       }
-       
+            }
+        }
     }
 }
