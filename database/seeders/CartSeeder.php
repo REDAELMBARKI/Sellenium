@@ -15,20 +15,24 @@ class CartSeeder extends Seeder
      */
     public function run(): void
     {
-         $users = User::all()->random(3);
-        
+        $users = User::all()->random(3);
+        $products = Product::all();
         foreach ($users as $user) {
-          
-            $products = Product::all()->random(3);  
-             foreach ($products as $product) {
+           
+             $randomproducts =  $products->random(3);  
+             foreach ($randomproducts as $randomproduct) {
                      $product = Cart::where('user_id', $user->id)
-                      ->where('product_id' , $product->id)->first();
+                      ->where('product_id' , $randomproduct->id)->first();
                         if($product){
                             $product->quantity += 1;
                             $product->save();
                         }
                         else{
-                          Cart::factory()->create() ;
+                          Cart::factory()->create([
+                                'user_id'=> $user->id,
+                                'product_id'=> $randomproduct->id,
+                                'quantity'=> 1
+                          ]) ;
                         }
              }
         }      

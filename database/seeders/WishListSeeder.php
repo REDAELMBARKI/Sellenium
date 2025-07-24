@@ -16,22 +16,25 @@ class WishListSeeder extends Seeder
     public function run(): void
     {
         $users = User::all()->random(3);
-        
-        foreach ($users as $user) {
-          
-            $products = Product::all()->random(3);  
-             foreach ($products as $product) {
-                     $product = WishList::where('user_id', $user->id)
-                      ->where('product_id' , $product->id)->first;
-                        if($product){
-                            $product->quantity += 1;
-                            $product->save();
+        $products = Product::all();
+        foreach ($users as $user)
+            $randomproducts = $products->random(3);  
+             foreach ($randomproducts as $randomproduct) {
+                       try{
+                          WishList::factory()->create([
+                            'user_id'=> $user->id,
+                            'product_id' => $randomproduct->id 
+                          ]) ;
+                        } 
+                        catch(\Illuminate\Database\QueryException $e){
+                             if($e->getCode() != '23000'){
+                                 throw $e;
+                             }else{
+                                info('skip');
+                             }
                         }
-                        else{
-                    
-                          WishList::factory()->create() ;
-                        }
-             }
         }      
     }
 }
+
+

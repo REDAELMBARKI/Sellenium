@@ -22,9 +22,7 @@ class CartFactory extends Factory
     {  
         
         return [
-            'user_id' => User::inRandomOrder()->first()->id,
-            'product_id' => Product::inRandomOrder()->first()->id,
-            'quantity' => 1
+           
         ];
     }
 }

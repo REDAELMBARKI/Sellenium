@@ -10,7 +10,7 @@ class WishList extends Model
     /** @use HasFactory<\Database\Factories\WishListFactory> */
     use HasFactory;
 
-
+    protected $table ='wish_lists';
     protected $fillable = ['product_id' , 'user_id'];
 
     public function user() {

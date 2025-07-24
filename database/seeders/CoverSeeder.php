@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Cover;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CoverSeeder extends Seeder
 {
@@ -13,6 +14,8 @@ class CoverSeeder extends Seeder
      */
     public function run(): void
     {
-    Cover::factory()->count(3)->create();
+       $product = Product::inRandomOrder()->first();  
+       $basimg = Str::random()   
+       
     }
 }
