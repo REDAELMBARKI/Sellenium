@@ -20,19 +20,20 @@ class WishListSeeder extends Seeder
         foreach ($users as $user)
             $randomproducts = $products->random(3);  
              foreach ($randomproducts as $randomproduct) {
-                       try{
+                
+                $exists = WishList::where("user_id", $user->id)
+                ->where('product_id' , $randomproduct->id )
+                ->first();
+                if ($exists){
+                     $this->command->warn('this product is already exist in wishllist');
+                }else{
                           WishList::factory()->create([
                             'user_id'=> $user->id,
                             'product_id' => $randomproduct->id 
                           ]) ;
-                        } 
-                        catch(\Illuminate\Database\QueryException $e){
-                             if($e->getCode() != '23000'){
-                                 throw $e;
-                             }else{
-                                info('skip');
-                             }
-                        }
+                }
+                        
+                        
         }      
     }
 }
