@@ -6,10 +6,12 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+use function Laravel\Prompts\table;
+
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Cart>
  */
-class Products_cartFactory extends Factory
+class CartFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,11 +19,12 @@ class Products_cartFactory extends Factory
      * @return array<string, mixed>
      */
     public function definition(): array
-    {
+    {  
+        
         return [
             'user_id' => User::inRandomOrder()->first()->id,
             'product_id' => Product::inRandomOrder()->first()->id,
-            
+            'quantity' => 1
         ];
     }
 }

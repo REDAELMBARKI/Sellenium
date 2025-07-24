@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import '../../css/main.css';
+import '../../css/util.css';
 
 import { 
   Search, 
@@ -24,12 +26,12 @@ const Layout = ({ children, currentPage = 'home' }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const navigation = [
-    { name: 'Home', href: '#', active: currentPage === 'home', submenu: ['Homepage 1', 'Homepage 2', 'Homepage 3'] },
-    { name: 'Shop', href: '#', active: currentPage === 'shop' },
-    { name: 'Features', href: '#', active: currentPage === 'cart', label: 'hot' },
-    { name: 'Blog', href: '#', active: currentPage === 'blog' },
-    { name: 'About', href: '#' },
-    { name: 'Contact', href: '#' }
+    { name: 'Home', href: '/', active: currentPage === 'home'},
+    { name: 'Shop', href: '/shop', active: currentPage === 'shop' },
+    { name: 'Features', href: '/features', active: currentPage === 'cart', label: 'hot' },
+    { name: 'Blog', href: '/blog', active: currentPage === 'blog' },
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' }
   ];
 
   const cartItems = [
@@ -76,7 +78,7 @@ const Layout = ({ children, currentPage = 'home' }) => {
               <nav className="hidden md:flex space-x-8">
                 {navigation.map((item) => (
                   <div key={item.name} className="relative group">
-                    <a
+                    <Link
                       href={item.href}
                       className={`flex items-center px-3 py-2 text-sm font-medium transition-colors ${
                         item.active 
@@ -90,7 +92,7 @@ const Layout = ({ children, currentPage = 'home' }) => {
                           {item.label}
                         </span>
                       )}
-                    </a>
+                    </Link>
                     {item.submenu && (
                       <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                         <div className="py-1">

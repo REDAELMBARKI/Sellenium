@@ -17,19 +17,19 @@ class OrderFactory extends Factory
      * @return array<string, mixed>
      */
 
-    private $product = Product::inRandomOrder()->first() ?? Product::factory()->create();
     public function definition(): array
     {
+        $product = Product::inRandomOrder()->first() ?? Product::factory()->create();
         return [
            'order_number' => $this->faker->numberBetween(1,10),
-           'product_id' => $this->product->id,
-           'user_id' => User::inRandomOrder()->first()->id ?? User::factory()->create()->id,
+           'product_id' => $product->id,
+           'user_id' => User::inRandomOrder()->first()->id,
            'address' => $this->faker->address(),
            'status' => $this->faker->randomElement(['pending','delivered','canceled']),
-           'shipping_cost' => $shipping  =  $this->faker->randomFloat(1,10),
-           'discount_amount' => $discount = $this->faker->randomFloat(1,10),
-           'notes' => $this->faker->text(100),
-           'total_amount' => $this->product->price + $shipping - $discount
+           'shipping_cost' => $shipping  =  $this->faker->randomFloat(2,1.0 , 10.0),
+           'discount_amount' => $discount = $this->faker->randomFloat(2,1.0 , 10.0),
+           'notes' => $this->faker->text(),
+           'total_amount' => $product->price + $shipping - $discount
 
         ];
     }

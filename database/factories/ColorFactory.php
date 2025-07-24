@@ -30,12 +30,12 @@ class ColorFactory extends Factory
         'Cocoa' => 'CCO',
         'Mocha' => 'MCH',
     ];
-    public $color = fake()->randomElement($this->colorCodes) ;
     public function definition(): array
     {
+        $color = fake()->randomElement(array_keys($this->colorCodes)) ;
         return [
-            "name"=> $this->color,
-            "code"=> $this->colorCodes[$this->color] ?? strtoupper(substr($this->color,0,3)),
+            "name"=> $color,
+            "code"=> $this->colorCodes[$color] ?? strtoupper(substr($color,0,3)),
             
         ];
     }

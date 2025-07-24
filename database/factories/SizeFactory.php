@@ -37,9 +37,10 @@ private $sizes = [
 ];
 
     public function definition(): array
-    {
+    {  
+        $size = $this->faker->randomElement(array_keys($this->sizes)) ;
         return [
-            'name' => $size = $this->faker->randomElement($this->sizes),
+            'name' => $size,
             'code' => $this->sizes[$size],
         ];
     }

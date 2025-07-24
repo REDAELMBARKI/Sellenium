@@ -20,7 +20,7 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'name ' => $name = $this->faker->name,
+            'name' => $name = $this->faker->name,
             'brand' => $this->faker->name,
             'slug'=> Str::slug($name),
             'thumbnail' => $this->faker->url,

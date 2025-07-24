@@ -15,15 +15,15 @@ return new class extends Migration
     {
         Schema::create('wish_lists', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->unique('user_id' , 'product_id');
             $table->timestamps();
         });
     }
 
-    /**
+    /** 
      * Reverse the migrations.
      */
     public function down(): void

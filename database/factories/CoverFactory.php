@@ -17,9 +17,10 @@ class CoverFactory extends Factory
      * @return array<string, mixed>
      */
     public function definition(): array
-    {
+    {   
+        $imgbase = $this->faker->numberBetween(1,15);
         return [
-            "path"=> $this->faker->url(),
+            "path"=> "/storage/covers/".$imgbase.'png',
             'product_id' => Product::inRandomOrder()->first()->id ?? Category::factory()->create()->id
         ];
     }

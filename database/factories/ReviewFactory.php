@@ -22,7 +22,7 @@ class ReviewFactory extends Factory
             'user_id' => User::inRandomOrder()->first()->id,
             'product_id' => Product::inRandomOrder()->first()->id,
             'text' => $this->faker->sentence,
-            'rating' => $this->faker->randomFloat(0,5)
+            'rating' => $this->faker->randomElement([2.5,3,3.5,4,4.5,5])
         ];
     }
 }
