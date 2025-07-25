@@ -25,7 +25,7 @@ return new class extends Migration
             $table->foreignIdFor(Fit::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->integer('quantity')->unsigned();
             $table->timestamps();
-            $table->unique(['product_id', 'color_id', 'size_id', 'material_id', 'fit_id'] , 'pcsmf_unique_name');
+            $table->unique(['product_id', 'color_id', 'size_id', 'material_id', 'fit_id'] , 'product_csmf_unique_name');
         });
     }
 

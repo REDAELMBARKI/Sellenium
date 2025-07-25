@@ -17,20 +17,28 @@ class WishListSeeder extends Seeder
     {
         $users = User::all()->random(3);
         $products = Product::all();
-        foreach ($users as $user)
+        foreach ($users as $user) {
             $randomproducts = $products->random(3);
-        foreach ($randomproducts as $randomproduct) {
 
-            $exists = WishList::where("user_id", $user->id)
-                ->where('product_id', $randomproduct->id)
-                ->first();
-            if ($exists) {
-                $this->command->warn('this product is already exist in wishllist');
-            } else {
-                WishList::factory()->create([
-                    'user_id' => $user->id,
-                    'product_id' => $randomproduct->id
-                ]);
+            foreach ($randomproducts as $randomproduct) {
+                // WishList::upsert([
+                //     "user_id" => $user->id,
+                //     "product_id" => $randomproduct->id,
+                // ],
+                // ['user_id' , 'product_id'],[]  );
+                try {
+                    WishList::create([
+                        'user_id' => $user->id,
+                        'product_id' => $randomproduct->id,
+                    ]);
+                } catch (\Illuminate\Database\QueryException $e) {
+                    // 23000 is SQLSTATE code for integrity constraint violation
+                    if ($e->getCode() === '23000') {
+                        $this->command->warn("Duplicate detected for user {$user->id} and product {$randomproduct->id}");
+                    } else {
+                        throw $e; 
+                    }
+                }
             }
         }
     }
