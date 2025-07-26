@@ -28,8 +28,8 @@ class ProductController extends Controller
             "thumbnail.*" => ['bail' ,  'image', 'mimes:png,jpg,jpeg' , 'max:4096'],
 
             "is_featured"=> ['bail' , 'boolean'],
-            "free_shipping"=> ['boolean' , ''],
-            "description"=> "",
+            "free_shipping"=> ['boolean' , 'required'],
+            "description"=> ['bail' , 'regex:/^[\pL\-\]$/'],
             'quantity' => "",
             "color_id" => [ 'bail' ,'required' , 'integer' , Rule::exists((new Color)->getTable() , 'id') ],
             "size_id"=> ['bail' ,'required'  , 'integer', Rule::exists((new Size)->getTable() , 'id')],
