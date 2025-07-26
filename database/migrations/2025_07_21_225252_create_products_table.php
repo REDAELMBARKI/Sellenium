@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('brand');
             $table->string('slug');
-            $table->string('thumbnail');
+            $table->string('thumbnail')->nullable();
             $table->boolean('is_featured')->default(true);
             $table->integer('rating_count')->unsigned()->default(1)->nullable(true);
             $table->float('rating_average')->unsigned()->default(1.0)->nullable(true);
