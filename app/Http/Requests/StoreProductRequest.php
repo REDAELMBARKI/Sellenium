@@ -13,7 +13,11 @@ use Illuminate\Validation\Rule;
 class StoreProductRequest extends FormRequest{
     
     public function rule(){
-        return [
+        $covers = collect(range(1, 4))->mapWithKeys(function ($i) {
+            return ["cover_$i" => ['required', 'bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096']];
+        })->toArray();
+
+        $other_fields =  [
             "name" => [
                 'bail',
                 'required',
@@ -25,9 +29,8 @@ class StoreProductRequest extends FormRequest{
 
             "brand" => ['bail', 'required', 'string', 'min:3'],
 
-            "covers" => ['required', 'array'],
-            "covers.*" => ['bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096'],
-
+            "cover_thumbnail" => ['required', 'bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096'],
+            
             "is_featured" => ['bail', 'boolean'],
             "free_shipping" => ['required', 'boolean'],
 

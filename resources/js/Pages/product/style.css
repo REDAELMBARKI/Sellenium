@@ -1,0 +1,649 @@
+/* Custom styles for enhanced visual effects */
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.color-option {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.selected {
+    ring: 4px;
+    ring-color: rgb(249 115 22);
+    ring-offset: 2px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.variant-option {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.variant-option:hover {
+    transform: scale(1.05);
+}
+
+.variant-option.selected {
+    background: linear-gradient(to right, rgb(254 215 170), rgb(254 202 202));
+    border-color: rgb(249 115 22);
+    color: rgb(194 65 12);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.image-slot {
+    aspect-ratio: 1;
+    border: 2px dashed rgb(203 213 225);
+    border-radius: 1rem;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, rgb(248 250 252), rgb(226 232 240));
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.image-slot:hover {
+    background: linear-gradient(135deg, rgb(243 232 255), rgb(252 231 243));
+    border-color: rgb(168 85 247);
+}
+
+.image-slot.has-image {
+    border-style: solid;
+    border-color: rgb(203 213 225);
+}
+
+.image-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.image-slot:hover img {
+    transform: scale(1.05);
+}
+
+.thumbnail-label {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background: linear-gradient(to right, rgb(147 51 234), rgb(219 39 119));
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.tag-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    background: linear-gradient(to right, rgb(209 250 229), rgb(153 246 228));
+    color: rgb(6 95 70);
+    border: 1px solid rgb(167 243 208);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.tag-remove {
+    margin-left: 0.5rem;
+    color: rgb(5 150 105);
+    cursor: pointer;
+    border-radius: 9999px;
+    width: 1rem;
+    height: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.tag-remove:hover {
+    color: rgb(6 95 70);
+    background-color: rgb(167 243 208);
+}
+
+.suggestion-item {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    transition: colors 0.2s ease;
+    color: rgb(71 85 105);
+}
+
+.suggestion-item:hover {
+    background-color: rgb(236 253 245);
+    color: rgb(5 150 105);
+}
+
+.suggestion-item:first-child {
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+}
+
+.suggestion-item:last-child {
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+}
+
+.variant-card {
+    padding: 1.25rem;
+    background: linear-gradient(to right, rgb(248 250 252), rgb(241 245 249));
+    border-radius: 1rem;
+    border: 1px solid rgb(203 213 225);
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.variant-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+.remove-variant-btn {
+    padding: 0.5rem;
+    color: rgb(239 68 68);
+    background: rgb(254 242 242);
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.remove-variant-btn:hover {
+    background: rgb(239 68 68);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Animation classes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Pulse animation for the add button when disabled */
+button:disabled {
+    animation: none;
+}
+
+/* Custom toast styles */
+.toast {
+    animation: slideInFromRight 0.3s ease-out;
+}
+
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}/* Custom styles for enhanced visual effects */
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.color-option {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.selected {
+    ring: 4px;
+    ring-color: rgb(249 115 22);
+    ring-offset: 2px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.variant-option {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.variant-option:hover {
+    transform: scale(1.05);
+}
+
+.variant-option.selected {
+    background: linear-gradient(to right, rgb(254 215 170), rgb(254 202 202));
+    border-color: rgb(249 115 22);
+    color: rgb(194 65 12);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.image-slot {
+    aspect-ratio: 1;
+    border: 2px dashed rgb(203 213 225);
+    border-radius: 1rem;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, rgb(248 250 252), rgb(226 232 240));
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.image-slot:hover {
+    background: linear-gradient(135deg, rgb(243 232 255), rgb(252 231 243));
+    border-color: rgb(168 85 247);
+}
+
+.image-slot.has-image {
+    border-style: solid;
+    border-color: rgb(203 213 225);
+}
+
+.image-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.image-slot:hover img {
+    transform: scale(1.05);
+}
+
+.thumbnail-label {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background: linear-gradient(to right, rgb(147 51 234), rgb(219 39 119));
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.tag-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    background: linear-gradient(to right, rgb(209 250 229), rgb(153 246 228));
+    color: rgb(6 95 70);
+    border: 1px solid rgb(167 243 208);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.tag-remove {
+    margin-left: 0.5rem;
+    color: rgb(5 150 105);
+    cursor: pointer;
+    border-radius: 9999px;
+    width: 1rem;
+    height: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.tag-remove:hover {
+    color: rgb(6 95 70);
+    background-color: rgb(167 243 208);
+}
+
+.suggestion-item {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    transition: colors 0.2s ease;
+    color: rgb(71 85 105);
+}
+
+.suggestion-item:hover {
+    background-color: rgb(236 253 245);
+    color: rgb(5 150 105);
+}
+
+.suggestion-item:first-child {
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+}
+
+.suggestion-item:last-child {
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+}
+
+.variant-card {
+    padding: 1.25rem;
+    background: linear-gradient(to right, rgb(248 250 252), rgb(241 245 249));
+    border-radius: 1rem;
+    border: 1px solid rgb(203 213 225);
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.variant-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+.remove-variant-btn {
+    padding: 0.5rem;
+    color: rgb(239 68 68);
+    background: rgb(254 242 242);
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.remove-variant-btn:hover {
+    background: rgb(239 68 68);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Animation classes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Pulse animation for the add button when disabled */
+button:disabled {
+    animation: none;
+}
+
+/* Custom toast styles */
+.toast {
+    animation: slideInFromRight 0.3s ease-out;
+}
+
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}/* Custom styles for enhanced visual effects */
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.color-option {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.selected {
+    ring: 4px;
+    ring-color: rgb(249 115 22);
+    ring-offset: 2px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.variant-option {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.variant-option:hover {
+    transform: scale(1.05);
+}
+
+.variant-option.selected {
+    background: linear-gradient(to right, rgb(254 215 170), rgb(254 202 202));
+    border-color: rgb(249 115 22);
+    color: rgb(194 65 12);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.image-slot {
+    aspect-ratio: 1;
+    border: 2px dashed rgb(203 213 225);
+    border-radius: 1rem;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, rgb(248 250 252), rgb(226 232 240));
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.image-slot:hover {
+    background: linear-gradient(135deg, rgb(243 232 255), rgb(252 231 243));
+    border-color: rgb(168 85 247);
+}
+
+.image-slot.has-image {
+    border-style: solid;
+    border-color: rgb(203 213 225);
+}
+
+.image-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.image-slot:hover img {
+    transform: scale(1.05);
+}
+
+.thumbnail-label {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background: linear-gradient(to right, rgb(147 51 234), rgb(219 39 119));
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.tag-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    background: linear-gradient(to right, rgb(209 250 229), rgb(153 246 228));
+    color: rgb(6 95 70);
+    border: 1px solid rgb(167 243 208);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.tag-remove {
+    margin-left: 0.5rem;
+    color: rgb(5 150 105);
+    cursor: pointer;
+    border-radius: 9999px;
+    width: 1rem;
+    height: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.tag-remove:hover {
+    color: rgb(6 95 70);
+    background-color: rgb(167 243 208);
+}
+
+.suggestion-item {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    transition: colors 0.2s ease;
+    color: rgb(71 85 105);
+}
+
+.suggestion-item:hover {
+    background-color: rgb(236 253 245);
+    color: rgb(5 150 105);
+}
+
+.suggestion-item:first-child {
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+}
+
+.suggestion-item:last-child {
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+}
+
+.variant-card {
+    padding: 1.25rem;
+    background: linear-gradient(to right, rgb(248 250 252), rgb(241 245 249));
+    border-radius: 1rem;
+    border: 1px solid rgb(203 213 225);
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.variant-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+.remove-variant-btn {
+    padding: 0.5rem;
+    color: rgb(239 68 68);
+    background: rgb(254 242 242);
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.remove-variant-btn:hover {
+    background: rgb(239 68 68);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Animation classes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Pulse animation for the add button when disabled */
+button:disabled {
+    animation: none;
+}
+
+/* Custom toast styles */
+.toast {
+    animation: slideInFromRight 0.3s ease-out;
+}
+
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

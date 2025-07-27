@@ -35,7 +35,7 @@ Route::get('/blog', function () {
 // });
 
 // products 
-// Route::resource('product', ProductController::class);
+Route::resource('product', ProductController::class);
 
 
 // require __DIR__.'/auth.php';

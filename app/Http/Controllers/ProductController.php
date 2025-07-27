@@ -14,13 +14,14 @@ use App\Models\Product;
 use App\Models\Size;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 
 class ProductController extends Controller
 {
     public function create()
     {
-        // return view("product.create");
+        return inertia::render("product.create");
     }
 
 
@@ -91,7 +92,7 @@ class ProductController extends Controller
 
 
     public function edit(){
-        // return view('product.edit');
+        return inertia::render('product.edit');
     }
 
     public function update(UpdateProductRequest $request, $id)
