@@ -21,7 +21,7 @@ class ProductController extends Controller
 {
     public function create()
     {
-        return inertia::render("product.create");
+        return inertia::render("products/create");
     }
 
 
@@ -92,7 +92,7 @@ class ProductController extends Controller
 
 
     public function edit(){
-        return inertia::render('product.edit');
+        return inertia::render('products/edit');
     }
 
     public function update(UpdateProductRequest $request, $id)

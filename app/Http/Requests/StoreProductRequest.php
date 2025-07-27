@@ -14,10 +14,10 @@ class StoreProductRequest extends FormRequest{
     
     public function rule(){
         $covers = collect(range(1, 4))->mapWithKeys(function ($i) {
-            return ["cover_$i" => ['required', 'bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096']];
+            return ["cover_$i" => ['bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096']];
         })->toArray();
 
-        $other_fields =  [
+        $product_fields =  [
             "name" => [
                 'bail',
                 'required',
@@ -29,7 +29,7 @@ class StoreProductRequest extends FormRequest{
 
             "brand" => ['bail', 'required', 'string', 'min:3'],
 
-            "cover_thumbnail" => ['required', 'bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096'],
+            "thumbnail" => ['required', 'bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096'],
             
             "is_featured" => ['bail', 'boolean'],
             "free_shipping" => ['required', 'boolean'],
@@ -40,14 +40,42 @@ class StoreProductRequest extends FormRequest{
                 'min:10',
                 'regex:/^[\pL0-9\s\-+_.,:;()\'"@!#%&*\/\\\\[\]]+$/u'
             ],
+          ];
+        // any field is required but only if one of other input is present  
+        $inventory_fields = [
+            "inventory" => ['array' ,'bail' , 'required'],
+            "inventory.*.quantity" => ['integer', 'min:0' ,  'required_with:inventory.*.color,
+                                                              inventory.*.size_id,
+                                                              inventory.*.material_id,
+                                                              inventory.*.fit_id'],
+           
+            "inventory.*.color_id" => ['bail', 'required_with:inventory.*.quantity,
+                                                              inventory.*.size_id,
+                                                              inventory.*.material_id,
+                                                              inventory.*.fit_id',
+                                                               'integer', Rule::exists((new Color)->getTable(), 'id')],
+            
+            "inventory.*.size_id" => ['bail', 'required_with:inventory.*.quantity,
+                                                              inventory.*.color_id,
+                                                              inventory.*.material_id,
+                                                              inventory.*.fit_id', 
+                                                              'integer', Rule::exists((new Size)->getTable(), 'id')],
+           
+            "inventory.*.material_id" => ['bail', 'required_with:inventory.*.quantity,
+                                                              inventory.*.color_id,
+                                                              inventory.*.size_id,
+                                                              inventory.*.fit_id', 
+                                                              'integer', Rule::exists((new Material)->getTable(), 'id')],
+            
+            "inventory.*.fit_id" => ['bail', 'required_with:inventory.*.quantity,
+                                                              inventory.*.size_id,
+                                                              inventory.*.material_id,
+                                                              inventory.*.color_id', 
+                                                              'integer', Rule::exists((new Fit)->getTable(), 'id')]
+        ];
+ 
 
-            "quantity" => ['integer', 'min:0'],
-
-            "color_id" => ['bail', 'required', 'integer', Rule::exists((new Color)->getTable(), 'id')],
-            "size_id" => ['bail', 'required', 'integer', Rule::exists((new Size)->getTable(), 'id')],
-            "material_id" => ['bail', 'required', 'integer', Rule::exists((new Material)->getTable(), 'id')],
-            "fit_id" => ['bail', 'required', 'integer', Rule::exists((new Fit)->getTable(), 'id') ]
-          ];    
+        return array_merge($covers, $product_fields , $inventory_fields);
     }
 }
 
