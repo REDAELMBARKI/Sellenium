@@ -51,30 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeEventListeners() {
     // Basic product information
-    document.getElementById('productName').addEventListener('input', (e) => {
-        productData.name = e.target.value;
-    });
-    
-    document.getElementById('productBrand').addEventListener('input', (e) => {
-        productData.brand = e.target.value;
-    });
-    
-    document.getElementById('productPrice').addEventListener('input', (e) => {
-        productData.price = e.target.value;
-    });
-    
-    document.getElementById('productDescription').addEventListener('input', (e) => {
-        productData.description = e.target.value;
-    });
-    
-    // document.getElementById('isFeatured').addEventListener('change', (e) => {
-    //     productData.isFeatured = e.target.checked;
-    // });
-    
-    document.getElementById('freeShipping').addEventListener('change', (e) => {
-        productData.freeShipping = e.target.checked;
-    });
-
+   
     // Tags
     const tagInput = document.getElementById('tagInput');
     tagInput.addEventListener('input', handleTagInput);
@@ -101,27 +78,6 @@ function initializeEventListeners() {
     document.getElementById('saveProduct').addEventListener('click', saveProduct);
 }
 
-function initializeImageSlots() {
-    const imageGrid = document.getElementById('imageGrid');
-    
-    for (let i = 0; i < 5; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'image-slot group';
-        slot.innerHTML = `
-            <div class="w-full h-full flex items-center justify-center">
-                <svg class="w-10 h-10 text-slate-400 group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-            </div>
-            <input type="file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-        `;
-        
-        const fileInput = slot.querySelector('input[type="file"]');
-        fileInput.addEventListener('change', (e) => handleImageUpload(i, e.target.files[0]));
-        
-        imageGrid.appendChild(slot);
-    }
-}
 
 function initializeInventoryOptions() {
     // Colors
@@ -136,124 +92,13 @@ function initializeInventoryOptions() {
         colorOptions.appendChild(button);
     });
 
-    // Sizes
-    const sizeOptions = document.getElementById('sizeOptions');
-    inventoryOptions.sizes.forEach(size => {
-        const button = document.createElement('button');
-        button.className = 'px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200';
-        button.textContent = size;
-        button.dataset.value = size;
-        button.addEventListener('click', () => handleVariantSelection('size', { name: size, value: size }, button));
-        sizeOptions.appendChild(button);
-    });
+   
 
-    // Fits
-    const fitOptions = document.getElementById('fitOptions');
-    inventoryOptions.fits.forEach(fit => {
-        const button = document.createElement('button');
-        button.className = 'px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200';
-        button.textContent = fit;
-        button.dataset.value = fit;
-        button.addEventListener('click', () => handleVariantSelection('fit', { name: fit, value: fit }, button));
-        fitOptions.appendChild(button);
-    });
-
-    // Materials
-    const materialOptions = document.getElementById('materialOptions');
-    inventoryOptions.materials.forEach(material => {
-        const button = document.createElement('button');
-        button.className = 'px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200';
-        button.textContent = material;
-        button.dataset.value = material;
-        button.addEventListener('click', () => handleVariantSelection('material', { name: material, value: material }, button));
-        materialOptions.appendChild(button);
-    });
 }
 
-function handleTagInput(e) {
-    const input = e.target.value;
-    const suggestionsContainer = document.getElementById('tagSuggestions');
-    
-    if (input) {
-        const filteredSuggestions = tagSuggestions.filter(suggestion => 
-            suggestion.toLowerCase().includes(input.toLowerCase()) && !tags.includes(suggestion)
-        );
-        
-        if (filteredSuggestions.length > 0) {
-            suggestionsContainer.innerHTML = '';
-            filteredSuggestions.slice(0, 5).forEach(suggestion => {
-                const button = document.createElement('button');
-                button.className = 'suggestion-item';
-                button.textContent = suggestion;
-                button.addEventListener('click', () => handleTagAdd(suggestion));
-                suggestionsContainer.appendChild(button);
-            });
-            suggestionsContainer.classList.remove('hidden');
-            suggestionsContainer.classList.add('fade-in');
-        } else {
-            suggestionsContainer.classList.add('hidden');
-        }
-    } else {
-        suggestionsContainer.classList.add('hidden');
-    }
-}
 
-function handleTagAdd(tag) {
-    if (tag && !tags.includes(tag)) {
-        tags.push(tag);
-        document.getElementById('tagInput').value = '';
-        document.getElementById('tagSuggestions').classList.add('hidden');
-        renderTags();
-    }
-}
 
-function handleTagRemove(tagToRemove) {
-    tags = tags.filter(tag => tag !== tagToRemove);
-    renderTags();
-}
 
-function renderTags() {
-    const container = document.getElementById('selectedTags');
-    container.innerHTML = '';
-    
-    tags.forEach(tag => {
-        const tagElement = document.createElement('span');
-        tagElement.className = 'tag-item slide-in';
-        tagElement.innerHTML = `
-            ${tag}
-            <button class="tag-remove" onclick="handleTagRemove('${tag}')">×</button>
-        `;
-        container.appendChild(tagElement);
-    });
-}
-
-function handleImageUpload(index, file) {
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            images[index] = e.target.result;
-            renderImageSlot(index);
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-function renderImageSlot(index) {
-    const imageGrid = document.getElementById('imageGrid');
-    const slot = imageGrid.children[index];
-    
-    if (images[index]) {
-        slot.classList.add('has-image');
-        slot.innerHTML = `
-            <img src="${images[index]}" alt="Product ${index + 1}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-            ${index === 0 ? '<div class="thumbnail-label">Thumbnail</div>' : ''}
-            <input type="file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-        `;
-        
-        const fileInput = slot.querySelector('input[type="file"]');
-        fileInput.addEventListener('change', (e) => handleImageUpload(index, e.target.files[0]));
-    }
-}
 
 function handleVariantSelection(type, option, buttonElement) {
     // Clear other selections in the same category
@@ -342,53 +187,6 @@ function resetVariantForm() {
     updateAddVariantButton();
 }
 
-function renderVariantsList() {
-    const variantsList = document.getElementById('variantsList');
-    const variantsContainer = document.getElementById('variantsContainer');
-    const variantCount = document.getElementById('variantCount');
-    
-    if (productVariants.length === 0) {
-        variantsList.classList.add('hidden');
-        return;
-    }
-    
-    variantsList.classList.remove('hidden');
-    variantCount.textContent = `${productVariants.length} variant${productVariants.length !== 1 ? 's' : ''}`;
-    
-    variantsContainer.innerHTML = '';
-    
-    productVariants.forEach(variant => {
-        const variantCard = document.createElement('div');
-        variantCard.className = 'variant-card';
-        
-        const colorObj = inventoryOptions.colors.find(c => c.value === variant.color.value);
-        
-        variantCard.innerHTML = `
-            <div class="flex items-center space-x-4">
-                <div class="w-8 h-8 rounded-full ${colorObj?.color || 'bg-gray-500'} border-2 border-slate-300 shadow-sm"></div>
-                <div class="flex-1">
-                    <div class="font-medium text-slate-800">
-                        ${variant.color.name} / ${variant.size.value} / ${variant.fit.value} / ${variant.material.value}
-                    </div>
-                    <div class="text-sm text-slate-600">
-                        Quantity: <span class="font-medium">${variant.quantity}</span>
-                    </div>
-                </div>
-                <button 
-                    class="remove-variant-btn"
-                    onclick="removeVariant(${variant.id})"
-                    title="Remove variant"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </button>
-            </div>
-        `;
-        
-        variantsContainer.appendChild(variantCard);
-    });
-}
 
 function removeVariant(variantId) {
     productVariants = productVariants.filter(variant => variant.id !== variantId);
@@ -402,7 +200,7 @@ function scrollToVariantForm() {
         variantForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
-
+ 
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-full`;
