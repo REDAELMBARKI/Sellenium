@@ -66,7 +66,9 @@ function VariantsList({
                                         <button
                                             type='button'
                                             className="remove-variant-btn"
-                                            onClick={removeVariant(variant.id)}
+                                            onClick={() => {
+                                                removeVariant(variant.id);
+                                            }}
                                             title="Remove variant"
                                         >
                                             <svg

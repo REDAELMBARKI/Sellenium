@@ -23,6 +23,21 @@ function Create() {
         inventrory: [],
         tags: [],
     });
+
+//    const isReadyToSubmit = Object.entries(data).every(([key, value]) => {
+//        if (Array.isArray(value) && value.length === 0) {
+//            return false;
+//        }
+
+//        return value !== null && value !== "";
+//        });
+    
+
+    
+ 
+    useEffect(() => {
+        console.log(data) 
+    },[data])
     const [tagInputValue, setTagInputValue] = useState("");
     // tags elements
     const [selectedTags, setSelectedTags] = useState([]);
@@ -114,6 +129,7 @@ function Create() {
     function addSuggestedTagToSelectedOnes(tag) {
         setSelectedTags([...selectedTags, tag]);
         setTagInputValue("");
+       
     }
 
     // end tags logic
@@ -127,6 +143,12 @@ function Create() {
                 setImages((prevImages) => ({
                     ...prevImages,
                     [field]: e.target.result,
+                }));
+
+                //fill images data
+                setData((prev) => ({
+                    ...prev,
+                    [field]: file
                 }));
             };
             reader.readAsDataURL(file);
@@ -145,8 +167,22 @@ function Create() {
     function addImagePlaceHolder() {
         const newPlaceHolder = imagesPlaceHolders.length + 1;
         setImagesPlaceHolders([...imagesPlaceHolders, newPlaceHolder]);
+    }
 
-        console.log(imagesPlaceHolders);
+    // remove image 
+    function handleRemoveImage(field) {
+        console.log("remove")
+        // delete ffrom iamges placeholders
+        setImages({
+            ...images,
+            [field] : null
+        })
+
+        // delete from data
+        setData({
+              ...data,
+              [field]: null,
+        });
     }
     
     // inventory logic ===========================
@@ -220,11 +256,37 @@ function Create() {
 
     // remove variant 
     function removeVariant(id){
-        
+        // productVariants
+        setProductVariants(prev => {
+            return prev.filter((el) => el.id !== id)
+        }
+        )
     }
     
     // end inventroy logic  ===============================
 
+    // submit form 
+    function submitForm(e) {
+        e.preventDefault();
+        // fill the basic data
+        setData({
+            ...data,
+            inventrory: [
+                ...data.inventrory,
+                productVariants
+            ],
+            
+        })
+        
+        // fill tags
+         setData({
+             ...data,
+             tags: [...selectedTags]
+         });
+      
+
+        // post("/product")
+    }
     return (
         <Layout currentPage="home">
             {/* info section */}
@@ -258,6 +320,7 @@ function Create() {
                         <AddImagesSection
                             addImagePlaceHolder={addImagePlaceHolder}
                             handleImageUpload={handleImageUpload}
+                            handleRemoveImage={handleRemoveImage}
                             images={images}
                             imagesPlaceHolders={imagesPlaceHolders}
                         />
@@ -307,7 +370,16 @@ function Create() {
                         <div className="pt-8 border-t border-slate-200">
                             <button
                                 id="saveProduct"
-                                className="w-full md:w-auto px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-200 font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                                type="button"
+                                // disabled={true}
+                                onClick={(e) => {
+                                    submitForm(e);
+                                }}
+                                className={`${
+                                    true
+                                        ? "!opacity-100 from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-200 shadow-lg hover:shadow-xl hover:scale-105 transition-all "
+                                        : ""
+                                } opacity-40 duration-200 transform  font-semibold text-lg  bg-gradient-to-r from-blue-900 to-indigo-900 w-full md:w-auto px-10 py-4 text-white rounded-xl `}
                             >
                                 Save Product
                             </button>
