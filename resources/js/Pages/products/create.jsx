@@ -13,31 +13,44 @@ function Create() {
         brand: "",
         price: "",
         thumbnail: "",
-        cover_1: "",
-        cover_2: "",
-        cover_3: "",
-        cover_4: "",
         description: "",
         isFeatured: false,
         free_shipping: false,
         inventrory: [],
         tags: [],
     });
+    // checkeers for data submit 
+    const [imagesValid, setImagesValid] = useState(false);
+    const [tagsValid, setTagsValid] = useState(false);
+    const [inventoryValid, setInventoryValid] = useState(false);
+    const [otherStringFieldsValid, setOtherStringFieldsValid] = useState(true);
+   const [isReadyToSubmit, setIsReadyToSubmit] = useState(false);
 
-//    const isReadyToSubmit = Object.entries(data).every(([key, value]) => {
-//        if (Array.isArray(value) && value.length === 0) {
-//            return false;
-//        }
+ useEffect(() => {
+     const fields = [
+         data.name,
+         data.brand,
+         data.price,
+         data.description,
+         data.thumbnail,
+     ];
 
-//        return value !== null && value !== "";
-//        });
-    
+     const allFilled = fields.every(
+         (field) => field !== "" && field !== null && field !== undefined
+     );
 
+     setOtherStringFieldsValid(allFilled);
+ }, [data]);
     
  
     useEffect(() => {
-        console.log(data) 
-    },[data])
+       
+        setIsReadyToSubmit( [otherStringFieldsValid, imagesValid, tagsValid, inventoryValid].every(
+            (section) => section
+        ))
+
+    }, [otherStringFieldsValid, imagesValid, tagsValid, inventoryValid]);
+    
     const [tagInputValue, setTagInputValue] = useState("");
     // tags elements
     const [selectedTags, setSelectedTags] = useState([]);
@@ -171,7 +184,7 @@ function Create() {
 
     // remove image 
     function handleRemoveImage(field) {
-        console.log("remove")
+         
         // delete ffrom iamges placeholders
         setImages({
             ...images,
@@ -264,7 +277,15 @@ function Create() {
     }
     
     // end inventroy logic  ===============================
+   
+    // check if all fields are good 
+    useEffect(() => {
+        if (selectedTags.length > 0 && productVariants.length > 0 ) {
+            setInventoryValid(true)
+            setInventoryValid(true)
 
+        }
+    },[selectedTags,productVariants])
     // submit form 
     function submitForm(e) {
         e.preventDefault();
@@ -376,7 +397,7 @@ function Create() {
                                     submitForm(e);
                                 }}
                                 className={`${
-                                    true
+                                    isReadyToSubmit
                                         ? "!opacity-100 from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-200 shadow-lg hover:shadow-xl hover:scale-105 transition-all "
                                         : ""
                                 } opacity-40 duration-200 transform  font-semibold text-lg  bg-gradient-to-r from-blue-900 to-indigo-900 w-full md:w-auto px-10 py-4 text-white rounded-xl `}
