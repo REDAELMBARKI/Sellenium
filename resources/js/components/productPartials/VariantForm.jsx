@@ -1,15 +1,33 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+
+    function VariantForm({
+        inventoryOptions,
+        currentVariant,
+        handleVariantSelection,
+        addVariant,
+        isReadyToAdd,
+        setCurrentVariant,
+        variantFormRef
+    }) {
 
 
-function VariantForm({
-    inventoryOptions,
-    currentVariant,
-    handleVariantSelection,
-    addVariant,
-    isReadyToAdd,
-    setCurrentVariant,
-    variantFormRef
-}) {
+
+    const [newSelectedColors, setNewSelectedColors] = useState([]);
+    const [previewColor, setPreviewColor] = useState(null);
+
+    useEffect(() => {
+        console.log(previewColor)
+        console.log(inventoryOptions.colors);
+    }, [newSelectedColors])
+    
+
+    function handleAddColor() {
+        setNewSelectedColors([...newSelectedColors,
+            previewColor
+        ])
+        setPreviewColor(null)
+    }
+
     return (
         <>
             <div
@@ -21,38 +39,129 @@ function VariantForm({
                 </h3>
 
                 {/* <!-- Colors --> */}
+                {/* <!-- Colors --> */}
                 <div className="space-y-4 mb-6">
                     <label className="block text-sm font-semibold text-slate-700">
                         Color
                     </label>
-                    <div className="flex flex-wrap gap-4" id="colorOptions">
-                        {/* <!-- Color options --> */}
-                        {inventoryOptions.colors.map(function (color, index) {
-                            return (
-                                <button
-                                    key={index}
-                                    className={`${
-                                        currentVariant.color !== null &&
-                                        currentVariant.color.value ===
-                                            color.value
-                                            ? "border-orange-500 ring-2 ring-orange-500 scale-110"
-                                            : currentVariant.color !== null
-                                            ? //herre other color are slected so we lower the opcity of othters
-                                              "opacity-40 "
-                                            : ""
-                                    } w-12 h-12 rounded-full ${
-                                        color.color
-                                    } color-option transition-all duration-200 hover:scale-110 ring-2 ring-slate-300 hover:ring-slate-400 shadow-sm`}
-                                    data-value={color.value}
-                                    type="button"
-                                    onClick={() => {
-                                        handleVariantSelection("color", color);
-                                    }}
-                                ></button>
-                            );
-                        })}
+
+                    {/* Color Circles */}
+                    <div className="flex flex-wrap gap-4">
+                        {inventoryOptions.colors
+                            .concat(newSelectedColors)
+                            .map(function (color, index) {
+                                const isCurrent =
+                                    currentVariant.color?.color === color.color;
+                               
+                                return (
+                                    <div
+                                        className="relative w-8 h-8 rounded-full"
+                                        key={index}
+                                    >
+                                        {/* Button fills parent */}
+                                        <button
+                                            style={{
+                                                backgroundColor: color.color,
+                                            }}
+                                            className={`w-full h-full rounded-full color-option
+      ring-2 ring-slate-400 transition-all duration-200 hover:scale-110 shadow-sm
+      ${isCurrent ? "scale-110" : "opacity-40"}
+    `}
+                                            data-value={color.value}
+                                            type="button"
+                                            onClick={() =>
+                                                handleVariantSelection(
+                                                    "color",
+                                                    color
+                                                )
+                                            }
+                                        />
+
+                                        {/* Ring overlay */}
+                                        {isCurrent && (
+                                            <span
+                                                className="pointer-events-none absolute top-1/2 left-1/2"
+                                                style={{
+                                                    width: "70%", // 90% of 8px = 7.2px ring diameter approx
+                                                    height: "70%",
+                                                    borderRadius: "50%",
+                                                    border: "5px solid", // thinner border for small circle
+                                                    borderColor:
+                                                        color.color.toLowerCase() ===
+                                                            "#ffffff" ||
+                                                        color.color.toLowerCase() ===
+                                                            "white"
+                                                            ? "black"
+                                                            : "white",
+                                                    transform:
+                                                        "translate(-50%, -50%)",
+                                                    boxSizing: "border-box",
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                );
+                            })}
                     </div>
-                    <p className="text-xs text-slate-500">
+
+                    {/* Custom Color Preview & Picker */}
+                    <div className="flex items-center gap-4 mt-6">
+                        {/* Preview Circle */}
+                        {previewColor && (
+                            <div
+                                className="w-12 h-12 rounded-full ring-4 ring-purple-500 shadow-md transition-transform duration-200 hover:scale-110"
+                                style={{ backgroundColor: previewColor.color }}
+                                title="Preview color"
+                            ></div>
+                        )}
+
+                        {/* Color Picker Button */}
+                        <div
+                            onClick={() =>
+                                document
+                                    .getElementById("custom-color-input")
+                                    .click()
+                            }
+                            className="w-12 h-12 rounded-full  
+                            bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 
+                            flex items-center justify-center 
+                            text-white text-xl font-bold 
+                            ring-2 ring-slate-300 hover:ring-slate-400 
+                            shadow-sm transition-all duration-200 hover:scale-110 
+                            cursor-pointer"
+                        >
+                            +
+                            <input
+                                id="custom-color-input"
+                                type="color"
+                                className="absolute opacity-0 pointer-events-none"
+                                onChange={(e) => {
+                                    
+                                    setPreviewColor({
+                                        ...previewColor,
+                                        color: e.target.value,
+                                        name: e.target.value,
+                                        value: e.target.value,
+                                    });
+                                }}
+                            />
+                        </div>
+
+                        {/* Add Button */}
+                        {previewColor && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    handleAddColor();
+                                }}
+                                className="px-3 py-2 rounded bg-orange-500 text-white hover:bg-orange-600 ring-2 ring-orange-300 animate-pulse"
+                            >
+                                + Add this color
+                            </button>
+                        )}
+                    </div>
+
+                    <p className="text-xs text-slate-500 mt-2">
                         Select one color for this variant
                     </p>
                 </div>

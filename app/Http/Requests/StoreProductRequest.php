@@ -28,7 +28,7 @@ class StoreProductRequest extends FormRequest{
             "price" => ['bail', 'required', 'numeric', 'min:1'],
 
             "brand" => ['bail', 'required', 'string', 'min:3'],
-
+            
             "thumbnail" => ['required', 'bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096'],
             
             "is_featured" => ['bail', 'boolean'],
@@ -41,6 +41,10 @@ class StoreProductRequest extends FormRequest{
                 'regex:/^[\pL0-9\s\-+_.,:;()\'"@!#%&*\/\\\\[\]]+$/u'
             ],
           ];
+        $tagsField = [
+            'tags' => ['bail', 'required', 'array'],
+            'tags.*' => ['regex:/^[a-zA-Z0-9\s\-+_.,:;()@!#%&*\/\\\\[\]]+$/']
+        ];
         // any field is required but only if one of other input is present  
         $inventory_fields = [
             "inventory" => ['array' ,'bail' , 'required'],
@@ -75,7 +79,7 @@ class StoreProductRequest extends FormRequest{
         ];
  
 
-        return array_merge($covers, $product_fields , $inventory_fields);
+        return array_merge($covers, $product_fields , $inventory_fields , $tagsField);
     }
 }
 

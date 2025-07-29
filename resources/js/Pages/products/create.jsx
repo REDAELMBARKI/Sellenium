@@ -7,8 +7,9 @@ import VariantForm from "@/components/productPartials/VariantForm";
 import VariantsList from "@/components/productPartials/VariantsList";
 import AddImagesSection from "@/components/productPartials/AddImagesSection";
 import BasicInformationsSection from "@/components/productPartials/BasicInformationsSection";
-function Create() {
-    const { data, setData } = useForm({
+
+function Create({ tagSuggestions, inventoryOptions }) {
+    const { data, setData, post } = useForm({
         name: "",
         brand: "",
         price: "",
@@ -19,93 +20,37 @@ function Create() {
         inventrory: [],
         tags: [],
     });
-    // checkeers for data submit 
+    // checkeers for data submit
     const [imagesValid, setImagesValid] = useState(false);
     const [tagsValid, setTagsValid] = useState(false);
     const [inventoryValid, setInventoryValid] = useState(false);
     const [otherStringFieldsValid, setOtherStringFieldsValid] = useState(true);
-   const [isReadyToSubmit, setIsReadyToSubmit] = useState(false);
+    const [isReadyToSubmit, setIsReadyToSubmit] = useState({
+        bool: false,
+        name: false,
+        brand: false,
+        description: false,
+        price: false,
+        tags: false,
+        thumbnail: false,
+        inventory: false,
+    });
 
- useEffect(() => {
-     const fields = [
-         data.name,
-         data.brand,
-         data.price,
-         data.description,
-         data.thumbnail,
-     ];
-
-     const allFilled = fields.every(
-         (field) => field !== "" && field !== null && field !== undefined
-     );
-
-     setOtherStringFieldsValid(allFilled);
- }, [data]);
-    
- 
-    useEffect(() => {
-       
-        setIsReadyToSubmit( [otherStringFieldsValid, imagesValid, tagsValid, inventoryValid].every(
-            (section) => section
-        ))
-
-    }, [otherStringFieldsValid, imagesValid, tagsValid, inventoryValid]);
-    
     const [tagInputValue, setTagInputValue] = useState("");
     // tags elements
     const [selectedTags, setSelectedTags] = useState([]);
     const [suggestedTags, setSuggestedTags] = useState([]);
     const [images, setImages] = useState({});
     const [imagesPlaceHolders, setImagesPlaceHolders] = useState([]);
-    const tagSuggestions = [
-        "Electronics",
-        "Fashion",
-        "Sports",
-        "Home",
-        "Beauty",
-        "Books",
-        "Toys",
-        "Automotive",
-        "Health",
-        "Garden",
-        "Kitchen",
-        "Office",
-    ];
-    const variantFormRef = useRef(null)
+
+    const variantFormRef = useRef(null);
 
     // inventory ====================================================================
-    const inventoryOptions = {
-        colors: [
-            { name: "Red", value: "red", color: "bg-red-500" },
-            { name: "Blue", value: "blue", color: "bg-blue-500" },
-            { name: "Green", value: "green", color: "bg-green-500" },
-            { name: "Black", value: "black", color: "bg-black" },
-            {
-                name: "White",
-                value: "white",
-                color: "bg-white border-2 border-gray-300",
-            },
-            { name: "Yellow", value: "yellow", color: "bg-yellow-500" },
-            { name: "Purple", value: "purple", color: "bg-purple-500" },
-            { name: "Pink", value: "pink", color: "bg-pink-500" },
-        ],
-        sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-        fits: ["Slim", "Regular", "Loose", "Oversized"],
-        materials: [
-            "Cotton",
-            "Polyester",
-            "Silk",
-            "Wool",
-            "Linen",
-            "Denim",
-            "Leather",
-            "Canvas",
-        ],
-    };
+   
     const [productVariants, setProductVariants] = useState([]);
     // variants
     const [currentVariant, setCurrentVariant] = useState({
-        color: null,
+        colors: [],
         size: null,
         fit: null,
         material: null,
@@ -142,7 +87,6 @@ function Create() {
     function addSuggestedTagToSelectedOnes(tag) {
         setSelectedTags([...selectedTags, tag]);
         setTagInputValue("");
-       
     }
 
     // end tags logic
@@ -161,7 +105,7 @@ function Create() {
                 //fill images data
                 setData((prev) => ({
                     ...prev,
-                    [field]: file
+                    [field]: file,
                 }));
             };
             reader.readAsDataURL(file);
@@ -182,54 +126,58 @@ function Create() {
         setImagesPlaceHolders([...imagesPlaceHolders, newPlaceHolder]);
     }
 
-    // remove image 
+    // remove image
     function handleRemoveImage(field) {
-         
         // delete ffrom iamges placeholders
         setImages({
             ...images,
-            [field] : null
-        })
+            [field]: null,
+        });
 
         // delete from data
         setData({
-              ...data,
-              [field]: null,
+            ...data,
+            [field]: null,
         });
     }
-    
+
     // inventory logic ===========================
     function addVariant() {
         // Check if variant already exists
-        const variantExists = productVariants.some(
-            function (variant) {
+        let variantExists = false;
+        if (Array.isArray(currentVariant.colors) && Array.isArray(productVariants.colors)) {
+            if (currentVariant.colors.length === productVariants.colors.length) {
+                    variantExists = productVariants.some(function (
+                      variant
+                    ) {
                       return (
-                          variant.color.value === currentVariant.color.value &&
+                          currentVariant.colors.some((currentColor) =>
+                              variant.colors.includes(currentColor)
+                          ) &&
                           variant.size === currentVariant.size &&
                           variant.fit === currentVariant.fit &&
                           variant.material === currentVariant.material
                       );
-                }
-                      
-            );
-            
-            if (variantExists) {
-                    alert(
-                            "This variant combination already exists! Please select different options."
-                    );
-               
-                    return;
+                  });
             }
-         
-             
+        }
+       
+
+        if (variantExists) {
+            alert(
+                "This variant combination already exists! Please select different options."
+            );
+
+            return;
+        }
 
         // // Add variant to list
         const newVariant = {
             id: Date.now(),
             color: currentVariant.color,
             size: currentVariant.size,
-            fit: currentVariant.fit ,
-            material: currentVariant.material ,
+            fit: currentVariant.fit,
+            material: currentVariant.material,
             quantity: currentVariant.quantity,
         };
         setProductVariants([...productVariants, newVariant]);
@@ -240,9 +188,9 @@ function Create() {
         // showToast("Variant added successfully!", "success");
     }
     useEffect(() => {
-        console.log(productVariants)
-    }, [productVariants])
-    
+        console.log(productVariants);
+    }, [productVariants]);
+
     function resetVariantForm() {
         // Reset current variant
         setCurrentVariant({
@@ -260,53 +208,123 @@ function Create() {
             [type]: option,
         }));
     }
-   
+
     function scrollToVariantForm() {
         if (variantFormRef) {
-            variantFormRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+            variantFormRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
         }
     }
 
-    // remove variant 
-    function removeVariant(id){
+    // remove variant
+    function removeVariant(id) {
         // productVariants
-        setProductVariants(prev => {
-            return prev.filter((el) => el.id !== id)
-        }
-        )
+        setProductVariants((prev) => {
+            return prev.filter((el) => el.id !== id);
+        });
     }
-    
-    // end inventroy logic  ===============================
-   
-    // check if all fields are good 
-    useEffect(() => {
-        if (selectedTags.length > 0 && productVariants.length > 0 ) {
-            setInventoryValid(true)
-            setInventoryValid(true)
 
+    // end inventroy logic  ===============================
+
+    // check if all fields are good
+    useEffect(() => {
+        if (selectedTags.length > 0) {
+            setTagsValid(true);
+        } else {
+            setTagsValid(false);
         }
-    },[selectedTags,productVariants])
-    // submit form 
+
+        if (productVariants.length > 0) {
+            setInventoryValid(true);
+        } else {
+            setInventoryValid(false);
+        }
+    }, [selectedTags, productVariants]);
+
+    // chck info fields info and thumbnail
+    useEffect(() => {
+        const fields = [
+            data.name,
+            data.brand,
+            data.price,
+            data.description,
+            data.thumbnail,
+        ];
+
+        const allFilled = fields.every(
+            (field) => field !== "" && field !== null && field !== undefined
+        );
+
+        setOtherStringFieldsValid(allFilled);
+
+        // for missing fields tracking
+        const updatedState = {};
+
+        Object.keys(isReadyToSubmit)
+            .filter((el) => el !== "bool")
+            .forEach(function (field) {
+                if (field === "tags") {
+                    updatedState["tags"] = selectedTags.length > 0;
+                } else if (field === "inventory") {
+                    updatedState["inventory"] = productVariants.length > 0;
+                } else {
+                    updatedState[field] =
+                        data[field] !== "" &&
+                        data[field] !== null &&
+                        data[field] !== undefined;
+                }
+            });
+
+        setIsReadyToSubmit((prev) => ({
+            ...prev,
+            ...updatedState,
+        }));
+
+        // sice tembnail is set also so
+        setImagesValid(allFilled);
+    }, [data, selectedTags, productVariants]);
+
+    useEffect(() => {
+        console.log(data);
+    }, [data]);
+
+    // check if the all ready to submit
+    useEffect(() => {
+        setIsReadyToSubmit((prev) => ({
+            ...prev,
+            bool: [
+                otherStringFieldsValid,
+                imagesValid,
+                tagsValid,
+                inventoryValid,
+            ].every((section) => section === true),
+        }));
+    }, [otherStringFieldsValid, imagesValid, tagsValid, inventoryValid]);
+
+    // submit form
     function submitForm(e) {
         e.preventDefault();
         // fill the basic data
         setData({
             ...data,
-            inventrory: [
-                ...data.inventrory,
-                productVariants
-            ],
-            
-        })
-        
-        // fill tags
-         setData({
-             ...data,
-             tags: [...selectedTags]
-         });
-      
+            inventrory: [...data.inventrory, productVariants],
+        });
 
-        // post("/product")
+        // fill tags
+        setData({
+            ...data,
+            tags: [...selectedTags],
+        });
+
+        // fill inventory
+        setData({
+            ...data,
+            inventrory: [...productVariants],
+        });
+
+        post("/products");
     }
     return (
         <Layout currentPage="home">
@@ -397,13 +415,32 @@ function Create() {
                                     submitForm(e);
                                 }}
                                 className={`${
-                                    isReadyToSubmit
+                                    isReadyToSubmit.bool
                                         ? "!opacity-100 from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-200 shadow-lg hover:shadow-xl hover:scale-105 transition-all "
                                         : ""
                                 } opacity-40 duration-200 transform  font-semibold text-lg  bg-gradient-to-r from-blue-900 to-indigo-900 w-full md:w-auto px-10 py-4 text-white rounded-xl `}
                             >
-                                Save Product
+                                {isReadyToSubmit.bool
+                                    ? " Save Product"
+                                    : "try to fill all the fields bellow "}
                             </button>
+                            <ul className="mt-4 px-4 py-2 bg-orange-50 border border-orange-300 rounded-lg">
+                                {Object.keys(isReadyToSubmit)
+                                    .filter((key) => key !== "bool")
+                                    .map((key) =>
+                                        !isReadyToSubmit[key] ? (
+                                            <li
+                                                key={key}
+                                                className="text-sm text-orange-600 font-medium py-1 pl-2 flex items-center gap-2"
+                                            >
+                                                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                                                <span className="capitalize">
+                                                    {key} is missing
+                                                </span>
+                                            </li>
+                                        ) : null
+                                    )}
+                            </ul>
                         </div>
                     </form>
                 </div>
