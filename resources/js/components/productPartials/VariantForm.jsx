@@ -7,315 +7,325 @@ import React, { useEffect, useState } from 'react'
         addVariant,
         isReadyToAdd,
         setCurrentVariant,
-        variantFormRef
+        variantFormRef,
+        newSelectedColors,
+        setNewSelectedColors,
     }) {
+        const [previewColor, setPreviewColor] = useState(null);
 
+        // useEffect(() => {
+        //     console.log(previewColor);
+        //     console.log(inventoryOptions.colors);
+        // }, [newSelectedColors]);
 
+        function handleAddColor() {
+            setNewSelectedColors([...newSelectedColors, previewColor]);
+            setPreviewColor(null);
+        }
 
-    const [newSelectedColors, setNewSelectedColors] = useState([]);
-    const [previewColor, setPreviewColor] = useState(null);
+        return (
+            <>
+                <div
+                    ref={variantFormRef}
+                    className="bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-xl p-6 border border-slate-200"
+                >
+                    <h3 className="text-lg font-semibold text-slate-800 mb-6">
+                        Create Product Variant
+                    </h3>
 
-    useEffect(() => {
-        console.log(previewColor)
-        console.log(inventoryOptions.colors);
-    }, [newSelectedColors])
-    
+                    {/* <!-- Colors --> */}
+                    {/* <!-- Colors --> */}
+                    <div className="space-y-4 mb-6">
+                        <label className="block text-sm font-semibold text-slate-700">
+                            Color
+                        </label>
 
-    function handleAddColor() {
-        setNewSelectedColors([...newSelectedColors,
-            previewColor
-        ])
-        setPreviewColor(null)
-    }
+                        {/* Color Circles */}
+                        <div className="flex flex-wrap gap-4">
+                            {inventoryOptions.colors
+                                .concat(newSelectedColors)
+                                .map(function (color, index) {
+                                    const isCurrent =
+                                        currentVariant.colors?.includes(
+                                            color.color
+                                        );
+                                     console.log(isCurrent)
 
-    return (
-        <>
-            <div
-                ref={variantFormRef}
-                className="bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-xl p-6 border border-slate-200"
-            >
-                <h3 className="text-lg font-semibold text-slate-800 mb-6">
-                    Create Product Variant
-                </h3>
-
-                {/* <!-- Colors --> */}
-                {/* <!-- Colors --> */}
-                <div className="space-y-4 mb-6">
-                    <label className="block text-sm font-semibold text-slate-700">
-                        Color
-                    </label>
-
-                    {/* Color Circles */}
-                    <div className="flex flex-wrap gap-4">
-                        {inventoryOptions.colors
-                            .concat(newSelectedColors)
-                            .map(function (color, index) {
-                                const isCurrent =
-                                    currentVariant.color?.color === color.color;
-                               
-                                return (
-                                    <div
-                                        className="relative w-8 h-8 rounded-full"
-                                        key={index}
-                                    >
-                                        {/* Button fills parent */}
-                                        <button
-                                            style={{
-                                                backgroundColor: color.color,
-                                            }}
-                                            className={`w-full h-full rounded-full color-option
-      ring-2 ring-slate-400 transition-all duration-200 hover:scale-110 shadow-sm
-      ${isCurrent ? "scale-110" : "opacity-40"}
-    `}
-                                            data-value={color.value}
-                                            type="button"
-                                            onClick={() =>
-                                                handleVariantSelection(
-                                                    "color",
-                                                    color
-                                                )
-                                            }
-                                        />
-
-                                        {/* Ring overlay */}
-                                        {isCurrent && (
-                                            <span
-                                                className="pointer-events-none absolute top-1/2 left-1/2"
+                                    return (
+                                        <div
+                                            className="relative w-8 h-8 rounded-full"
+                                            key={index}
+                                        >
+                                            {/* Button fills parent */}
+                                            <button
                                                 style={{
-                                                    width: "70%", // 90% of 8px = 7.2px ring diameter approx
-                                                    height: "70%",
-                                                    borderRadius: "50%",
-                                                    border: "5px solid", // thinner border for small circle
-                                                    borderColor:
-                                                        color.color.toLowerCase() ===
-                                                            "#ffffff" ||
-                                                        color.color.toLowerCase() ===
-                                                            "white"
-                                                            ? "black"
-                                                            : "white",
-                                                    transform:
-                                                        "translate(-50%, -50%)",
-                                                    boxSizing: "border-box",
+                                                    backgroundColor:
+                                                        color.color,
                                                 }}
+                                                className={`w-full h-full rounded-full color-option
+                                                ring-2 ring-slate-400 transition-all duration-200 hover:scale-110 shadow-sm
+                                                ${
+                                                    isCurrent
+                                                        ? "scale-110"
+                                                        : "opacity-40"
+                                                }
+                                                `}
+                                                data-value={color.value}
+                                                type="button"
+                                                onClick={() =>
+                                                    handleVariantSelection(
+                                                        "colors",
+                                                        color
+                                                    )
+                                                }
                                             />
-                                        )}
-                                    </div>
-                                );
-                            })}
-                    </div>
 
-                    {/* Custom Color Preview & Picker */}
-                    <div className="flex items-center gap-4 mt-6">
-                        {/* Preview Circle */}
-                        {previewColor && (
+                                            {/* Ring overlay */}
+                                            {isCurrent && (
+                                                <span
+                                                    className="pointer-events-none absolute top-1/2 left-1/2"
+                                                    style={{
+                                                        width: "70%", // 90% of 8px = 7.2px ring diameter approx
+                                                        height: "70%",
+                                                        borderRadius: "50%",
+                                                        border: "5px solid", // thinner border for small circle
+                                                        borderColor:
+                                                            color.color.toLowerCase() ===
+                                                                "#ffffff" ||
+                                                            color.color.toLowerCase() ===
+                                                                "white"
+                                                                ? "black"
+                                                                : "white",
+                                                        transform:
+                                                            "translate(-50%, -50%)",
+                                                        boxSizing: "border-box",
+                                                    }}
+                                                />
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                        </div>
+
+                        {/* Custom Color Preview & Picker */}
+                        <div className="flex items-center gap-4 mt-6">
+                            {/* Preview Circle */}
+                            {previewColor && (
+                                <div
+                                    className="w-12 h-12 rounded-full ring-4 ring-purple-500 shadow-md transition-transform duration-200 hover:scale-110"
+                                    style={{
+                                        backgroundColor: previewColor.color,
+                                    }}
+                                    title="Preview color"
+                                ></div>
+                            )}
+
+                            {/* Color Picker Button */}
                             <div
-                                className="w-12 h-12 rounded-full ring-4 ring-purple-500 shadow-md transition-transform duration-200 hover:scale-110"
-                                style={{ backgroundColor: previewColor.color }}
-                                title="Preview color"
-                            ></div>
-                        )}
-
-                        {/* Color Picker Button */}
-                        <div
-                            onClick={() =>
-                                document
-                                    .getElementById("custom-color-input")
-                                    .click()
-                            }
-                            className="w-12 h-12 rounded-full  
+                                onClick={() =>
+                                    document
+                                        .getElementById("custom-color-input")
+                                        .click()
+                                }
+                                className="w-12 h-12 rounded-full  
                             bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 
                             flex items-center justify-center 
                             text-white text-xl font-bold 
                             ring-2 ring-slate-300 hover:ring-slate-400 
                             shadow-sm transition-all duration-200 hover:scale-110 
                             cursor-pointer"
-                        >
-                            +
-                            <input
-                                id="custom-color-input"
-                                type="color"
-                                className="absolute opacity-0 pointer-events-none"
-                                onChange={(e) => {
-                                    
-                                    setPreviewColor({
-                                        ...previewColor,
-                                        color: e.target.value,
-                                        name: e.target.value,
-                                        value: e.target.value,
-                                    });
-                                }}
-                            />
+                            >
+                                +
+                                <input
+                                    id="custom-color-input"
+                                    type="color"
+                                    className="absolute opacity-0 pointer-events-none"
+                                    onChange={(e) => {
+                                        setPreviewColor({
+                                            ...previewColor,
+                                            color: e.target.value,
+                                            name: e.target.value,
+                                            value: e.target.value,
+                                        });
+                                    }}
+                                />
+                            </div>
+
+                            {/* Add Button */}
+                            {previewColor && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        handleAddColor();
+                                    }}
+                                    className="px-3 py-2 rounded bg-orange-500 text-white hover:bg-orange-600 ring-2 ring-orange-300 animate-pulse"
+                                >
+                                    + Add this color
+                                </button>
+                            )}
                         </div>
 
-                        {/* Add Button */}
-                        {previewColor && (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    handleAddColor();
-                                }}
-                                className="px-3 py-2 rounded bg-orange-500 text-white hover:bg-orange-600 ring-2 ring-orange-300 animate-pulse"
-                            >
-                                + Add this color
-                            </button>
-                        )}
+                        <p className="text-xs text-slate-500 mt-2">
+                            Select one color for this variant
+                        </p>
                     </div>
 
-                    <p className="text-xs text-slate-500 mt-2">
-                        Select one color for this variant
-                    </p>
-                </div>
-
-                {/* <!-- Sizes --> */}
-                <div className="space-y-4 mb-6">
-                    <label className="block text-sm font-semibold text-slate-700">
-                        Size
-                    </label>
-                    <div className="flex flex-wrap gap-3" id="sizeOptions">
-                        {/* <!-- Size options --> */}
-                        {inventoryOptions.sizes.map(function (size, index) {
-                            return (
-                                <button
-                                    type="button"
-                                    key={index}
-                                    className={`${
-                                        currentVariant.size === size
-                                            ? "selected"
-                                            : ""
-                                    }  px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
-                                    data-value={size}
-                                    onClick={() => {
-                                        handleVariantSelection("size", size);
-                                    }}
-                                >
-                                    {size}
-                                </button>
-                            );
-                        })}
+                    {/* <!-- Sizes --> */}
+                    <div className="space-y-4 mb-6">
+                        <label className="block text-sm font-semibold text-slate-700">
+                            Size
+                        </label>
+                        <div className="flex flex-wrap gap-3" id="sizeOptions">
+                            {/* <!-- Size options --> */}
+                            {inventoryOptions.sizes.map(function (size, index) {
+                                return (
+                                    <button
+                                        type="button"
+                                        key={index}
+                                        className={`${
+                                            currentVariant.size === size
+                                                ? "selected"
+                                                : ""
+                                        }  px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
+                                        data-value={size}
+                                        onClick={() => {
+                                            handleVariantSelection(
+                                                "size",
+                                                size
+                                            );
+                                        }}
+                                    >
+                                        {size}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        <p className="text-xs text-slate-500">
+                            Select one size for this variant
+                        </p>
                     </div>
-                    <p className="text-xs text-slate-500">
-                        Select one size for this variant
-                    </p>
-                </div>
 
-                {/* <!-- Fits --> */}
-                <div className="space-y-4 mb-6">
-                    <label className="block text-sm font-semibold text-slate-700">
-                        Fit
-                    </label>
-                    <div className="flex flex-wrap gap-3" id="fitOptions">
-                        {/* <!-- Fit options --> */}
-                        {inventoryOptions.fits.map(function (fit, index) {
-                            return (
-                                <button
-                                    type="button"
-                                    key={index}
-                                    className={`${
-                                        currentVariant.fit === fit
-                                            ? "selected"
-                                            : ""
-                                    }  px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
-                                    data-value={fit}
-                                    onClick={() => {
-                                        handleVariantSelection("fit", fit);
-                                    }}
-                                >
-                                    {fit}
-                                </button>
-                            );
-                        })}
+                    {/* <!-- Fits --> */}
+                    <div className="space-y-4 mb-6">
+                        <label className="block text-sm font-semibold text-slate-700">
+                            Fit
+                        </label>
+                        <div className="flex flex-wrap gap-3" id="fitOptions">
+                            {/* <!-- Fit options --> */}
+                            {inventoryOptions.fits.map(function (fit, index) {
+                                return (
+                                    <button
+                                        type="button"
+                                        key={index}
+                                        className={`${
+                                            currentVariant.fit === fit
+                                                ? "selected"
+                                                : ""
+                                        }  px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
+                                        data-value={fit}
+                                        onClick={() => {
+                                            handleVariantSelection("fit", fit);
+                                        }}
+                                    >
+                                        {fit}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        <p className="text-xs text-slate-500">
+                            Select one fit for this variant
+                        </p>
                     </div>
-                    <p className="text-xs text-slate-500">
-                        Select one fit for this variant
-                    </p>
-                </div>
 
-                {/* <!-- Materials --> */}
-                <div className="space-y-4 mb-6">
-                    <label className="block text-sm font-semibold text-slate-700">
-                        Material
-                    </label>
-                    <div className="flex flex-wrap gap-3" id="materialOptions">
-                        {/* <!-- Material options --> */}
-                        {inventoryOptions.materials.map(function (
-                            material,
-                            index
-                        ) {
-                            return (
-                                <button
-                                    type="button"
-                                    key={index}
-                                    className={`${
-                                        currentVariant.material === material
-                                            ? "selected"
-                                            : ""
-                                    } px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
-                                    data-value={material}
-                                    onClick={() => {
-                                        handleVariantSelection(
-                                            "material",
-                                            material
-                                        );
-                                    }}
-                                >
-                                    {material}
-                                </button>
-                            );
-                        })}
+                    {/* <!-- Materials --> */}
+                    <div className="space-y-4 mb-6">
+                        <label className="block text-sm font-semibold text-slate-700">
+                            Material
+                        </label>
+                        <div
+                            className="flex flex-wrap gap-3"
+                            id="materialOptions"
+                        >
+                            {/* <!-- Material options --> */}
+                            {inventoryOptions.materials.map(function (
+                                material,
+                                index
+                            ) {
+                                return (
+                                    <button
+                                        type="button"
+                                        key={index}
+                                        className={`${
+                                            currentVariant.material === material
+                                                ? "selected"
+                                                : ""
+                                        } px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
+                                        data-value={material}
+                                        onClick={() => {
+                                            handleVariantSelection(
+                                                "material",
+                                                material
+                                            );
+                                        }}
+                                    >
+                                        {material}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        <p className="text-xs text-slate-500">
+                            Select one material for this variant
+                        </p>
                     </div>
-                    <p className="text-xs text-slate-500">
-                        Select one material for this variant
-                    </p>
-                </div>
 
-                {/* <!-- Quantity --> */}
-                <div className="space-y-4 mb-6">
-                    <label className="block text-sm font-semibold text-slate-700">
-                        Quantity
-                    </label>
-                    <input
-                        type="number"
-                        id="variantQuantity"
-                        value={currentVariant.quantity}
-                        onChange={(e) => {
-                            setCurrentVariant({
-                                ...currentVariant,
-                                quantity: e.target.value,
-                            });
+                    {/* <!-- Quantity --> */}
+                    <div className="space-y-4 mb-6">
+                        <label className="block text-sm font-semibold text-slate-700">
+                            Quantity
+                        </label>
+                        <input
+                            type="number"
+                            id="variantQuantity"
+                            value={currentVariant.quantity}
+                            onChange={(e) => {
+                                setCurrentVariant({
+                                    ...currentVariant,
+                                    quantity: e.target.value,
+                                });
+                            }}
+                            className="w-32 p-3 border border-slate-200 rounded-xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 bg-white/80"
+                            placeholder="0"
+                            min="0"
+                        />
+                        <p className="text-xs text-slate-500">
+                            Enter the quantity for this variant
+                        </p>
+                    </div>
+
+                    {/* <!-- Add Variant Button --> */}
+                    <button
+                        id="addVariantBtn"
+                        type="button"
+                        onClick={() => {
+                            addVariant();
                         }}
-                        className="w-32 p-3 border border-slate-200 rounded-xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 bg-white/80"
-                        placeholder="0"
-                        min="0"
-                    />
-                    <p className="text-xs text-slate-500">
-                        Enter the quantity for this variant
-                    </p>
-                </div>
-
-                {/* <!-- Add Variant Button --> */}
-                <button
-                    id="addVariantBtn"
-                    type="button"
-                    onClick={() => {
-                        addVariant();
-                    }}
-                    className={`btn-16 px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 transform
+                        className={`btn-16 px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 transform
                                             ${
                                                 isReadyToAdd
                                                     ? "hover:from-orange-600 hover:to-red-600 focus:ring-4 focus:ring-orange-200 hover:shadow-xl hover:scale-105 glow-ready"
                                                     : "opacity-50 cursor-not-allowed"
                                             }
                                         `}
-                    disabled={!isReadyToAdd}
-                >
-                    {isReadyToAdd
-                        ? "Add Variant"
-                        : "Select all options and enter quantity"}
-                </button>
-            </div>
-        </>
-    );
-}
+                        disabled={!isReadyToAdd}
+                    >
+                        {isReadyToAdd
+                            ? "Add Variant"
+                            : "Select all options and enter quantity"}
+                    </button>
+                </div>
+            </>
+        );
+    }
 
 
 

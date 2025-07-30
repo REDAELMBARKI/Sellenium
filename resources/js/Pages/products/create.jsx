@@ -25,6 +25,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
     const [tagsValid, setTagsValid] = useState(false);
     const [inventoryValid, setInventoryValid] = useState(false);
     const [otherStringFieldsValid, setOtherStringFieldsValid] = useState(true);
+    const [newSelectedColors, setNewSelectedColors] = useState([]);
+    
     const [isReadyToSubmit, setIsReadyToSubmit] = useState({
         bool: false,
         name: false,
@@ -144,24 +146,39 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // inventory logic ===========================
     function addVariant() {
         // Check if variant already exists
-        let variantExists = false;
-        if (Array.isArray(currentVariant.colors) && Array.isArray(productVariants.colors)) {
-            if (currentVariant.colors.length === productVariants.colors.length) {
-                    variantExists = productVariants.some(function (
-                      variant
-                    ) {
-                      return (
-                          currentVariant.colors.some((currentColor) =>
-                              variant.colors.includes(currentColor)
-                          ) &&
-                          variant.size === currentVariant.size &&
-                          variant.fit === currentVariant.fit &&
-                          variant.material === currentVariant.material
-                      );
-                  });
+    
+        const  sameColorsVariant = (arr1 ,arr2) => {
+            let arr1_Set = new Set(arr1);
+            let arr2_Set = new Set(arr2);
+            if (arr1_Set.size !== arr2_Set.size) {
+                return false;
             }
-        }
+ 
+            for (let val of arr1_Set) {
+                if (!arr2_Set.has(val)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        };
+         
+        const sameColor = productVariants.some(function (variant) {
+             return (
+                 Array.isArray(currentVariant.colors) &&
+                 Array.isArray(variant.colors) &&
+                 sameColorsVariant(currentVariant.colors ,variant.colors)
+             );
+         });
        
+
+        
+        let variantExists =
+            sameColor &&
+             variant.size === currentVariant.size &&
+             variant.fit === currentVariant.fit &&
+             variant.material === currentVariant.material
+         
 
         if (variantExists) {
             alert(
@@ -174,7 +191,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
         // // Add variant to list
         const newVariant = {
             id: Date.now(),
-            color: currentVariant.color,
+            color: currentVariant.colors,
             size: currentVariant.size,
             fit: currentVariant.fit,
             material: currentVariant.material,
@@ -188,13 +205,14 @@ function Create({ tagSuggestions, inventoryOptions }) {
         // showToast("Variant added successfully!", "success");
     }
     useEffect(() => {
-        console.log(productVariants);
-    }, [productVariants]);
+        console.log("currentVariant" + currentVariant);
+        // console.log("productVariants" + productVariants);
+    }, [currentVariant]);
 
     function resetVariantForm() {
         // Reset current variant
         setCurrentVariant({
-            color: null,
+            colors: [],
             size: null,
             fit: null,
             material: null,
@@ -206,6 +224,12 @@ function Create({ tagSuggestions, inventoryOptions }) {
         setCurrentVariant((prev) => ({
             ...prev,
             [type]: option,
+        }));
+
+
+        setCurrentVariant((prev) => ({
+            ...prev,
+            colors : [...newSelectedColors]
         }));
     }
 
@@ -396,6 +420,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                 isReadyToAdd={isReadyToAdd}
                                 setCurrentVariant={setCurrentVariant}
                                 variantFormRef={variantFormRef}
+                                newSelectedColors={newSelectedColors}
+                                setNewSelectedColors={setNewSelectedColors}
                             />
                             {/* <!-- Variants List --> */}
                             <VariantsList
