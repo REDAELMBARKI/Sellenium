@@ -26,7 +26,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
     const [inventoryValid, setInventoryValid] = useState(false);
     const [otherStringFieldsValid, setOtherStringFieldsValid] = useState(true);
     const [newSelectedColors, setNewSelectedColors] = useState([]);
-    
+    const [updateVariantMode , setUpdateVariantMode] = useState(false)
     const [isReadyToSubmit, setIsReadyToSubmit] = useState({
         bool: false,
         name: false,
@@ -52,6 +52,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
     const [productVariants, setProductVariants] = useState([]);
     // variants
     const [currentVariant, setCurrentVariant] = useState({
+        // id:null,
         colors: [],
         size: null,
         fit: null,
@@ -146,39 +147,40 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // inventory logic ===========================
     function addVariant() {
         // Check if variant already exists
-    
-        const  sameColorsVariant = (arr1 ,arr2) => {
+       
+        const sameColorsVariant = (arr1, arr2) => {
             let arr1_Set = new Set(arr1);
             let arr2_Set = new Set(arr2);
             if (arr1_Set.size !== arr2_Set.size) {
                 return false;
             }
- 
+
             for (let val of arr1_Set) {
                 if (!arr2_Set.has(val)) {
                     return false;
                 }
             }
-            
+
             return true;
         };
-         
+
         const sameColor = productVariants.some(function (variant) {
-             return (
-                 Array.isArray(currentVariant.colors) &&
-                 Array.isArray(variant.colors) &&
-                 sameColorsVariant(currentVariant.colors ,variant.colors)
-             );
-         });
-       
+            return (
+                Array.isArray(currentVariant.colors) &&
+                Array.isArray(variant.colors) &&
+                sameColorsVariant(currentVariant.colors, variant.colors)
+            );
+        });
 
         
         let variantExists =
             sameColor &&
-             variant.size === currentVariant.size &&
-             variant.fit === currentVariant.fit &&
-             variant.material === currentVariant.material
-         
+            
+            productVariants.every(variant => {
+                return (variant.size === currentVariant.size &&
+                        variant.fit === currentVariant.fit &&
+                        variant.material === currentVariant.material)
+            })
 
         if (variantExists) {
             alert(
@@ -188,31 +190,35 @@ function Create({ tagSuggestions, inventoryOptions }) {
             return;
         }
 
-        // // Add variant to list
+
+        if (updateVariantMode) {
+            console.log("update")
+            
+            setUpdateVariantMode(false)
+        } else {
+            
         const newVariant = {
             id: Date.now(),
-            color: currentVariant.colors,
+            colors: currentVariant.colors,
             size: currentVariant.size,
             fit: currentVariant.fit,
             material: currentVariant.material,
             quantity: currentVariant.quantity,
         };
         setProductVariants([...productVariants, newVariant]);
-
+      
+       }
         // Reset form
         resetVariantForm();
         // Show success message
         // showToast("Variant added successfully!", "success");
     }
-    useEffect(() => {
-        console.log(currentVariant);
-        console.log(newSelectedColors);
-        // console.log("productVariants" + productVariants);
-    }, [newSelectedColors,currentVariant]);
+   
 
     function resetVariantForm() {
         // Reset current variant
         setCurrentVariant({
+            // id:null,
             colors: [],
             size: null,
             fit: null,
@@ -222,17 +228,42 @@ function Create({ tagSuggestions, inventoryOptions }) {
     }
 
     function handleVariantSelection(type, option) {
-        
+        // option is an object
+       
         if (type === 'colors') {
-             setCurrentVariant((prev) => ({
-            ...prev,
-             colors : [...prev.colors ,option]
-            }));
+            let colorExist = false;
+
+            for (let obj of currentVariant.colors) {
+                if (obj.color === option.color) {
+                    colorExist = true;
+                }
+            }
+
+            if (colorExist) {
+                    setCurrentVariant((prev) => ({
+                        ...prev,
+                        colors:   currentVariant.colors.filter(obj => obj.color !== option.color)
+                    }));
+            } else {
+                 setCurrentVariant((prev) => ({
+                    ...prev,
+                       colors : [...prev.colors ,option]
+                    }));
+                
+              }
         } else {
-            setCurrentVariant((prev) => ({
+            if (currentVariant[type] === option) {
+                 setCurrentVariant((prev) => ({
+                     ...prev,
+                     [type]: null,
+                 }));
+                
+            } else {
+                 setCurrentVariant((prev) => ({
                 ...prev,
                 [type]: option,
-            }));
+              }));
+            }
         }
 
        
@@ -313,6 +344,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
 
         // sice tembnail is set also so
         setImagesValid(allFilled);
+
     }, [data, selectedTags, productVariants]);
 
     useEffect(() => {
@@ -336,25 +368,22 @@ function Create({ tagSuggestions, inventoryOptions }) {
     function submitForm(e) {
         e.preventDefault();
         // fill the basic data
-        setData({
-            ...data,
-            inventrory: [...data.inventrory, productVariants],
-        });
-
+       
+      
         // fill tags
-        setData({
-            ...data,
-            tags: [...selectedTags],
-        });
-
         // fill inventory
         setData({
             ...data,
             inventrory: [...productVariants],
+            tags: [...selectedTags],
         });
 
-        post("/products");
+        // post("/products");
     }
+
+
+
+
     return (
         <Layout currentPage="home">
             {/* info section */}
@@ -427,12 +456,16 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                 variantFormRef={variantFormRef}
                                 newSelectedColors={newSelectedColors}
                                 setNewSelectedColors={setNewSelectedColors}
+                                updateVariantMode={updateVariantMode}
                             />
                             {/* <!-- Variants List --> */}
                             <VariantsList
                                 removeVariant={removeVariant}
                                 productVariants={productVariants}
                                 scrollToVariantForm={scrollToVariantForm}
+                                setCurrentVariant={setCurrentVariant}
+                                currentVariant={currentVariant}
+                                setUpdateVariantMode={setUpdateVariantMode}
                             />
                         </div>
 

@@ -10,13 +10,9 @@ import React, { useEffect, useState } from 'react'
         variantFormRef,
         newSelectedColors,
         setNewSelectedColors,
+        updateVariantMode,
     }) {
         const [previewColor, setPreviewColor] = useState(null);
-
-        // useEffect(() => {
-        //     console.log(previewColor);
-        //     console.log(inventoryOptions.colors);
-        // }, [newSelectedColors]);
 
         function handleAddColor() {
             setNewSelectedColors([...newSelectedColors, previewColor]);
@@ -45,15 +41,16 @@ import React, { useEffect, useState } from 'react'
                             {inventoryOptions.colors
                                 .concat(newSelectedColors)
                                 .map(function (color, index) {
-                                        const hexColors = [];
-                                        for(let obj of currentVariant.colors) {
-                                            if (obj.color) {
-                                                hexColors.push(obj.color);
-                                            }
-                                         }
-                                       const isCurrent = hexColors.includes(color.color);
-                                
-                                     
+                                    const hexColors = [];
+                                    for (let obj of currentVariant.colors) {
+                                        if (obj.color) {
+                                            hexColors.push(obj.color);
+                                        }
+                                    }
+                                    const isCurrent = hexColors.includes(
+                                        color.color
+                                    );
+
                                     return (
                                         <div
                                             className="relative w-8 h-8 rounded-full"
@@ -305,26 +302,30 @@ import React, { useEffect, useState } from 'react'
                         </p>
                     </div>
 
-                    {/* <!-- Add Variant Button --> */}
-                    <button
-                        id="addVariantBtn"
-                        type="button"
-                        onClick={() => {
-                            addVariant();
-                        }}
-                        className={`btn-16 px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 transform
+                    {/* <!-- update Variant Button --> */}
+                    
+            
+                        <button
+                            id="addVariantBtn"
+                            type="button"
+                            onClick={() => {
+                                addVariant();
+                            }}
+                            className={`btn-16 px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 transform
                                             ${
                                                 isReadyToAdd
                                                     ? "hover:from-orange-600 hover:to-red-600 focus:ring-4 focus:ring-orange-200 hover:shadow-xl hover:scale-105 glow-ready"
                                                     : "opacity-50 cursor-not-allowed"
                                             }
                                         `}
-                        disabled={!isReadyToAdd}
-                    >
-                        {isReadyToAdd
-                            ? "Add Variant"
-                            : "Select all options and enter quantity"}
-                    </button>
+                            disabled={!isReadyToAdd}
+                        >
+                        {updateVariantMode ? 'update variant' :
+                            isReadyToAdd
+                                ? "Add Variant"
+                                : "Select all options and enter quantity"}
+                        </button>
+                     
                 </div>
             </>
         );
