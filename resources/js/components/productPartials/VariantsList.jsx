@@ -11,7 +11,6 @@ function VariantsList({
     function editVariant(id) {
         setUpdateVariantMode(true)
         const variant = productVariants?.find((variant) => variant.id === id);
-        
         setCurrentVariant({
             ...currentVariant,
             id:variant.id,
@@ -65,19 +64,66 @@ function VariantsList({
                                         <div
                                             className={`w-8 h-8 rounded-full ${"bg-gray-500"} border-2 border-slate-300 shadow-sm`}
                                         ></div>
-                                        <div className="flex-1">
-                                            <div className="font-medium text-slate-800">
-                                                ${variant.colors.name} / $
-                                                {variant.size} / ${variant.fit}{" "}
-                                                / ${variant.material}
+                                        <div className="flex-1 space-y-1 text-sm text-slate-700">
+                                            {/* Color Circles */}
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-semibold text-slate-800">
+                                                    Colors:
+                                                </span>
+                                                {variant.colors.map(
+                                                    (color, index) => (
+                                                        <span
+                                                            key={index}
+                                                            className="w-4 h-4 rounded-full border border-slate-300"
+                                                            style={{
+                                                                backgroundColor:
+                                                                    color.color,
+                                                            }}
+                                                            title={color}
+                                                        ></span>
+                                                    )
+                                                )}
                                             </div>
-                                            <div className="text-sm text-slate-600">
-                                                Quantity:{" "}
-                                                <span className="font-medium">
-                                                    ${variant.quantity}
+
+                                            {/* Attributes */}
+                                            <div className="flex flex-wrap gap-3 text-slate-600">
+                                                <div>
+                                                    <span className="text-xs uppercase text-slate-400">
+                                                        Size:
+                                                    </span>{" "}
+                                                    <span className="font-medium text-slate-700">
+                                                        {variant.size}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-xs uppercase text-slate-400">
+                                                        Fit:
+                                                    </span>{" "}
+                                                    <span className="font-medium text-slate-700">
+                                                        {variant.fit}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-xs uppercase text-slate-400">
+                                                        Material:
+                                                    </span>{" "}
+                                                    <span className="font-medium text-slate-700">
+                                                        {variant.material}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Quantity */}
+                                            <div className="text-slate-600">
+                                                <span className="text-xs uppercase text-slate-400">
+                                                    Quantity:
+                                                </span>{" "}
+                                                <span className="font-semibold text-slate-700">
+                                                    {variant.quantity}
                                                 </span>
                                             </div>
                                         </div>
+
                                         <div className="flex items-center space-x-2">
                                             {/* Edit Button */}
                                             <button

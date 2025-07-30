@@ -122,7 +122,7 @@ function BasicInformationsSection({
                         <input
                             value={data.free_shipping}
                             onChange={function (e) {
-                                setData("free_shipping", e.target.value);
+                                setData("free_shipping", e.target.checked);
                             }}
                             type="checkbox"
                             id="freeShipping"

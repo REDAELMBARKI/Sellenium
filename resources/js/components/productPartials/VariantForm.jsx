@@ -19,6 +19,8 @@ import React, { useEffect, useState } from 'react'
             setPreviewColor(null);
         }
 
+        console.log()
+
         return (
             <>
                 <div
@@ -28,7 +30,6 @@ import React, { useEffect, useState } from 'react'
                     <h3 className="text-lg font-semibold text-slate-800 mb-6">
                         Create Product Variant
                     </h3>
-
                     {/* <!-- Colors --> */}
                     {/* <!-- Colors --> */}
                     <div className="space-y-4 mb-6">
@@ -53,7 +54,7 @@ import React, { useEffect, useState } from 'react'
 
                                     return (
                                         <div
-                                            className="relative w-8 h-8 rounded-full"
+                                            className="relative w-8 h-8 rounded-full "
                                             key={index}
                                         >
                                             {/* Button fills parent */}
@@ -66,8 +67,11 @@ import React, { useEffect, useState } from 'react'
                                                 ring-2 ring-slate-400 transition-all duration-200 hover:scale-110 shadow-sm
                                                 ${
                                                     isCurrent
-                                                        ? "scale-110"
-                                                        : "opacity-40"
+                                                        ? "scale-140 "
+                                                        : currentVariant.colors
+                                                              ?.length > 0
+                                                        ? "opacity-40"
+                                                        : ""
                                                 }
                                                 `}
                                                 data-value={color.value}
@@ -85,10 +89,10 @@ import React, { useEffect, useState } from 'react'
                                                 <span
                                                     className="pointer-events-none absolute top-1/2 left-1/2"
                                                     style={{
-                                                        width: "70%", // 90% of 8px = 7.2px ring diameter approx
+                                                        width: "70%",
                                                         height: "70%",
                                                         borderRadius: "50%",
-                                                        border: "5px solid", // thinner border for small circle
+                                                        border: "5px solid",
                                                         borderColor:
                                                             color.color.toLowerCase() ===
                                                                 "#ffffff" ||
@@ -169,7 +173,6 @@ import React, { useEffect, useState } from 'react'
                             Select one color for this variant
                         </p>
                     </div>
-
                     {/* <!-- Sizes --> */}
                     <div className="space-y-4 mb-6">
                         <label className="block text-sm font-semibold text-slate-700">
@@ -204,7 +207,6 @@ import React, { useEffect, useState } from 'react'
                             Select one size for this variant
                         </p>
                     </div>
-
                     {/* <!-- Fits --> */}
                     <div className="space-y-4 mb-6">
                         <label className="block text-sm font-semibold text-slate-700">
@@ -236,7 +238,6 @@ import React, { useEffect, useState } from 'react'
                             Select one fit for this variant
                         </p>
                     </div>
-
                     {/* <!-- Materials --> */}
                     <div className="space-y-4 mb-6">
                         <label className="block text-sm font-semibold text-slate-700">
@@ -277,7 +278,6 @@ import React, { useEffect, useState } from 'react'
                             Select one material for this variant
                         </p>
                     </div>
-
                     {/* <!-- Quantity --> */}
                     <div className="space-y-4 mb-6">
                         <label className="block text-sm font-semibold text-slate-700">
@@ -298,34 +298,32 @@ import React, { useEffect, useState } from 'react'
                             min="0"
                         />
                         <p className="text-xs text-slate-500">
-                            Enter the quantity for this variant
+                            Enter the quantity for this variant id{" "}
+                            {currentVariant.id}
                         </p>
                     </div>
-
                     {/* <!-- update Variant Button --> */}
-                    
-            
-                        <button
-                            id="addVariantBtn"
-                            type="button"
-                            onClick={() => {
-                                addVariant();
-                            }}
-                            className={`btn-16 px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 transform
+                    <button
+                        id="addVariantBtn"
+                        type="button"
+                        onClick={() => {
+                            addVariant(currentVariant.id);
+                        }}
+                        className={`btn-16 px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 transform
                                             ${
                                                 isReadyToAdd
                                                     ? "hover:from-orange-600 hover:to-red-600 focus:ring-4 focus:ring-orange-200 hover:shadow-xl hover:scale-105 glow-ready"
                                                     : "opacity-50 cursor-not-allowed"
                                             }
                                         `}
-                            disabled={!isReadyToAdd}
-                        >
-                        {updateVariantMode ? 'update variant' :
-                            isReadyToAdd
-                                ? "Add Variant"
-                                : "Select all options and enter quantity"}
-                        </button>
-                     
+                        disabled={!isReadyToAdd}
+                    >
+                        {updateVariantMode
+                            ? "update variant"
+                            : isReadyToAdd
+                            ? "Add Variant"
+                            : "Select all options and enter quantity"}
+                    </button>
                 </div>
             </>
         );

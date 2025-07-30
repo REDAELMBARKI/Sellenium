@@ -17,7 +17,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
         description: "",
         isFeatured: false,
         free_shipping: false,
-        inventrory: [],
+        inventory: [],
         tags: [],
     });
     // checkeers for data submit
@@ -26,7 +26,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
     const [inventoryValid, setInventoryValid] = useState(false);
     const [otherStringFieldsValid, setOtherStringFieldsValid] = useState(true);
     const [newSelectedColors, setNewSelectedColors] = useState([]);
-    const [updateVariantMode , setUpdateVariantMode] = useState(false)
+    const [updateVariantMode, setUpdateVariantMode] = useState(false)
     const [isReadyToSubmit, setIsReadyToSubmit] = useState({
         bool: false,
         name: false,
@@ -52,7 +52,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
     const [productVariants, setProductVariants] = useState([]);
     // variants
     const [currentVariant, setCurrentVariant] = useState({
-        // id:null,
+        id: null,
         colors: [],
         size: null,
         fit: null,
@@ -61,8 +61,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
     });
 
     // add variant button
-    const isReadyToAdd = Object.values(currentVariant).every(
-        (value) => value !== null && value !== ""
+    const isReadyToAdd = Object.entries(currentVariant).filter(([key]) => key !== 'id').every(
+        ([, value]) => value !== null && value !== "" && (!Array.isArray(value) || value.length > 0) 
     );
     // end inventry variablles ================================================================
 
@@ -145,9 +145,9 @@ function Create({ tagSuggestions, inventoryOptions }) {
     }
 
     // inventory logic ===========================
-    function addVariant() {
+    function addVariant(id=null) {
         // Check if variant already exists
-       
+        console.log(id)
         const sameColorsVariant = (arr1, arr2) => {
             let arr1_Set = new Set(arr1);
             let arr2_Set = new Set(arr2);
@@ -173,14 +173,41 @@ function Create({ tagSuggestions, inventoryOptions }) {
         });
 
         
-        let variantExists =
-            sameColor &&
-            
-            productVariants.every(variant => {
-                return (variant.size === currentVariant.size &&
+        let variantExists;
+         
+
+        // this checkes if the uodateded values are difffirence then the originals before
+        // if we update and no changes the elements styls the same 
+        // if only changes made then we update 
+        if (updateVariantMode) {
+            var updatedVariant = productVariants.find(
+                (variant) => variant.id === id
+            );
+            console.log(updatedVariant);
+       
+
+            variantExists =
+                sameColor &&
+                productVariants
+                    .filter((obj) => obj.id !== updatedVariant.id)
+                    .some((variant) => {
+                        return (
+                            variant.size === currentVariant.size &&
+                            variant.fit === currentVariant.fit &&
+                            variant.material === currentVariant.material
+                        );
+                    });
+        } else {
+            variantExists =
+                sameColor &&
+                productVariants.some((variant) => {
+                    return (
+                        variant.size === currentVariant.size &&
                         variant.fit === currentVariant.fit &&
-                        variant.material === currentVariant.material)
-            })
+                        variant.material === currentVariant.material
+                    );
+                });
+        }
 
         if (variantExists) {
             alert(
@@ -190,24 +217,29 @@ function Create({ tagSuggestions, inventoryOptions }) {
             return;
         }
 
-
         if (updateVariantMode) {
-            console.log("update")
-            
+            // just update 
+           setProductVariants(
+               productVariants.map((variant) =>
+                   variant.id === currentVariant.id
+                       ? { ...variant, ...currentVariant }
+                       : variant
+               )
+           );
+          
             setUpdateVariantMode(false)
         } else {
-            
-        const newVariant = {
-            id: Date.now(),
-            colors: currentVariant.colors,
-            size: currentVariant.size,
-            fit: currentVariant.fit,
-            material: currentVariant.material,
-            quantity: currentVariant.quantity,
-        };
-        setProductVariants([...productVariants, newVariant]);
+            const newVariant = {
+                id: Date.now(),
+                colors: currentVariant.colors,
+                size: currentVariant.size,
+                fit: currentVariant.fit,
+                material: currentVariant.material,
+                quantity: currentVariant.quantity,
+            };
+            setProductVariants([...productVariants, newVariant]);
+        }
       
-       }
         // Reset form
         resetVariantForm();
         // Show success message
@@ -218,7 +250,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
     function resetVariantForm() {
         // Reset current variant
         setCurrentVariant({
-            // id:null,
+            id:null,
             colors: [],
             size: null,
             fit: null,
@@ -374,7 +406,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
         // fill inventory
         setData({
             ...data,
-            inventrory: [...productVariants],
+            inventory: [...productVariants],
             tags: [...selectedTags],
         });
 
