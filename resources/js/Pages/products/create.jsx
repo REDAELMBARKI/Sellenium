@@ -205,9 +205,10 @@ function Create({ tagSuggestions, inventoryOptions }) {
         // showToast("Variant added successfully!", "success");
     }
     useEffect(() => {
-        console.log("currentVariant" + currentVariant);
+        console.log(currentVariant);
+        console.log(newSelectedColors);
         // console.log("productVariants" + productVariants);
-    }, [currentVariant]);
+    }, [newSelectedColors,currentVariant]);
 
     function resetVariantForm() {
         // Reset current variant
@@ -221,16 +222,20 @@ function Create({ tagSuggestions, inventoryOptions }) {
     }
 
     function handleVariantSelection(type, option) {
-        setCurrentVariant((prev) => ({
+        
+        if (type === 'colors') {
+             setCurrentVariant((prev) => ({
             ...prev,
-            [type]: option,
-        }));
+             colors : [...prev.colors ,option]
+            }));
+        } else {
+            setCurrentVariant((prev) => ({
+                ...prev,
+                [type]: option,
+            }));
+        }
 
-
-        setCurrentVariant((prev) => ({
-            ...prev,
-            colors : [...newSelectedColors]
-        }));
+       
     }
 
     function scrollToVariantForm() {

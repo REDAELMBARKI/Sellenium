@@ -45,12 +45,15 @@ import React, { useEffect, useState } from 'react'
                             {inventoryOptions.colors
                                 .concat(newSelectedColors)
                                 .map(function (color, index) {
-                                    const isCurrent =
-                                        currentVariant.colors?.includes(
-                                            color.color
-                                        );
-                                     console.log(isCurrent)
-
+                                        const hexColors = [];
+                                        for(let obj of currentVariant.colors) {
+                                            if (obj.color) {
+                                                hexColors.push(obj.color);
+                                            }
+                                         }
+                                       const isCurrent = hexColors.includes(color.color);
+                                
+                                     
                                     return (
                                         <div
                                             className="relative w-8 h-8 rounded-full"
