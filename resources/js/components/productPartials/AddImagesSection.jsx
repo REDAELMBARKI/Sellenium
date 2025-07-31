@@ -5,12 +5,19 @@ function AddImagesSection({
     images,
     handleImageUpload,
     imagesPlaceHolders,
-    handleRemoveImage
+    handleRemoveImage,
+    errors
 }) {
     return (
         <>
             <div className="space-y-6">
-                <div className="flex items-center space-x-3 pb-4 border-b border-slate-200">
+                <div
+                    className={`flex items-center space-x-3 p-4 border-b rounded-md ${
+                        errors.thumbnail
+                            ? "bg-red-50 border-red-300"
+                            : "border-slate-200"
+                    }`}
+                >
                     <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
                         <svg
                             className="w-4 h-4 text-white"
@@ -26,9 +33,17 @@ function AddImagesSection({
                             />
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-800">
-                        Product Images
-                    </h2>
+
+                    <div className="flex items-center space-x-2 flex-grow">
+                        <h2 className="text-2xl font-bold text-slate-800">
+                            Product Images
+                        </h2>
+                        {errors.thumbnail && (
+                            <span className="text-red-600 text-sm font-medium">
+                                (required)
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 <ul
@@ -239,7 +254,6 @@ function AddImagesSection({
                             );
                         })}
                 </ul>
-
                 <button
                     type="button"
                     onClick={() => {
@@ -263,6 +277,14 @@ function AddImagesSection({
                     </svg>
                     Add Placeholder
                 </button>
+            </div>
+
+            <div>
+                {errors.thumbnail && (
+                    <span className="text-red-600 text-sm font-medium">
+                        {errors.thumbnail}
+                    </span>
+                )}
             </div>
         </>
     );

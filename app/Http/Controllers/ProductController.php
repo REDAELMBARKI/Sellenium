@@ -80,7 +80,7 @@ class ProductController extends Controller
         $validated = $request->validated();    
 
         $products = collect($validated);
-
+        dd($products);
         $inventory_columns = [
             "quanity",
             'color_id',
@@ -103,8 +103,10 @@ class ProductController extends Controller
         $products_data = $products->except([...$inventory_columns, ...$covers_columns , 'tags']);
         $tags = $products->only('tags');
 
+
+        dd($products_data);
         // store to  products table  and return it 
-        $product = Product::create($products_data);
+        $product = Product::create([]);
 
         
         // store  the covers to covers table with foreign key product_id

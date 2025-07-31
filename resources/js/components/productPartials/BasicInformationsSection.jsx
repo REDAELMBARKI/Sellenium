@@ -9,12 +9,21 @@ function BasicInformationsSection({
     suggestedTags,
     selectedTags,
     handleTagRemove,
-    
+    errors
 }) {
     return (
         <>
             <div className="space-y-8">
-                <div className="flex items-center space-x-3 pb-4 border-b border-slate-200">
+                <div
+                    className={`flex items-center space-x-3 p-4 border-b rounded-lg ${
+                        errors.name ||
+                        errors.brand ||
+                        errors.description ||
+                        errors.price
+                            ? "bg-red-50 border-red-300"
+                            : "border-slate-200"
+                    }`}
+                >
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
                         <svg
                             className="w-4 h-4 text-white"
@@ -33,6 +42,14 @@ function BasicInformationsSection({
                     <h2 className="text-2xl font-bold text-slate-800">
                         Product Information
                     </h2>
+                    {(errors.name ||
+                        errors.brand ||
+                        errors.description ||
+                        errors.price) && (
+                        <span className="ml-auto text-sm font-medium text-red-600">
+                            (required)
+                        </span>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -50,6 +67,12 @@ function BasicInformationsSection({
                             className="w-full p-4 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm hover:bg-white/80"
                             placeholder="Enter product name"
                         />
+                        {/* errors */}
+                        {errors.name && (
+                            <div className="text-red-500 text-sm">
+                                {errors.name}
+                            </div>
+                        )}
                     </div>
 
                     <div>
@@ -66,6 +89,12 @@ function BasicInformationsSection({
                             className="w-full p-4 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm hover:bg-white/80"
                             placeholder="Enter brand name"
                         />
+                        {/* errors */}
+                        {errors.brand && (
+                            <div className="text-red-500 text-sm">
+                                {errors.brand}
+                            </div>
+                        )}
                     </div>
 
                     <div>
@@ -83,6 +112,12 @@ function BasicInformationsSection({
                             placeholder="0.00"
                             step="0.01"
                         />
+                        {/* errors */}
+                        {errors.price && (
+                            <div className="text-red-500 text-sm">
+                                {errors.price}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -100,6 +135,12 @@ function BasicInformationsSection({
                         className="w-full p-4 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm hover:bg-white/80 resize-none"
                         placeholder="Enter product description"
                     ></textarea>
+                    {/* errors */}
+                    {errors.description && (
+                        <div className="text-red-500 text-sm mt-3">
+                            {errors.description}
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex flex-wrap gap-8">
@@ -137,7 +178,13 @@ function BasicInformationsSection({
 
             {/* <!-- Tags Section --> */}
             <div className="space-y-6">
-                <div className="flex items-center space-x-3 pb-4 border-b border-slate-200">
+                <div
+                    className={`flex items-center space-x-3 p-4 border-b rounded-md ${
+                        errors.tags
+                            ? "bg-red-50 border-red-300"
+                            : "border-slate-200"
+                    }`}
+                >
                     <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
                         <svg
                             className="w-4 h-4 text-white"
@@ -153,7 +200,17 @@ function BasicInformationsSection({
                             />
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-800">Tags</h2>
+
+                    <div className="flex items-center space-x-2 flex-grow">
+                        <h2 className="text-2xl font-bold text-slate-800">
+                            Tags
+                        </h2>
+                        {errors.tags && (
+                            <span className="text-red-600 text-sm font-medium">
+                                (required)
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 <div className="relative">
@@ -167,6 +224,11 @@ function BasicInformationsSection({
                         className="w-full p-4 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white/50 backdrop-blur-sm hover:bg-white/80"
                         placeholder="Type to search tags..."
                     />
+                    {errors.tags && (
+                        <div className="text-red-500 text-sm">
+                            {errors.tags}
+                        </div>
+                    )}
 
                     <div
                         id="tagSuggestions"

@@ -11,6 +11,8 @@ import React, { useEffect, useState } from 'react'
         newSelectedColors,
         setNewSelectedColors,
         updateVariantMode,
+        errors
+        
     }) {
         const [previewColor, setPreviewColor] = useState(null);
 
@@ -22,7 +24,42 @@ import React, { useEffect, useState } from 'react'
         console.log()
 
         return (
-            <>
+            <> 
+                
+                 <div
+                                className={`flex items-center space-x-3 p-4 border-b rounded-md ${
+                                    errors.inventory
+                                        ? "bg-red-50 border-red-300"
+                                        : "border-slate-200"
+                                }`}
+                            >
+                                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                                    <svg
+                                        className="w-4 h-4 text-white"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div className="flex items-center space-x-2 flex-grow">
+                                    <h2 className="text-2xl font-bold text-slate-800">
+                                        Inventory Management
+                                    </h2>
+                                    {errors.inventory && (
+                                        <span className="text-red-600 text-sm font-medium">
+                                            (required)
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                 <div
                     ref={variantFormRef}
                     className="bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-xl p-6 border border-slate-200"
@@ -316,7 +353,7 @@ import React, { useEffect, useState } from 'react'
                                                     : "opacity-50 cursor-not-allowed"
                                             }
                                         `}
-                        disabled={!isReadyToAdd}
+                        // disabled={!isReadyToAdd}
                     >
                         {updateVariantMode
                             ? "update variant"

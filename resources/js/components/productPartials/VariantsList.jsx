@@ -7,6 +7,7 @@ function VariantsList({
     setCurrentVariant,
     currentVariant,
     setUpdateVariantMode
+    
 }) {
     function editVariant(id) {
         setUpdateVariantMode(true)

@@ -2,14 +2,15 @@ import React, { useState, useRef, useEffect } from "react";
 // import '../../logic/createProduct';
 import "../../../css/createProduct.css";
 import Layout from "@/Layouts/Layout";
-import { useForm } from "@inertiajs/react";
+import { useForm ,usePage } from "@inertiajs/react";
 import VariantForm from "@/components/productPartials/VariantForm";
 import VariantsList from "@/components/productPartials/VariantsList";
 import AddImagesSection from "@/components/productPartials/AddImagesSection";
 import BasicInformationsSection from "@/components/productPartials/BasicInformationsSection";
+import axios from "axios";
 
 function Create({ tagSuggestions, inventoryOptions }) {
-    const { data, setData, post } = useForm({
+    const { data, setData, post ,errors  } = useForm({
         name: "",
         brand: "",
         price: "",
@@ -20,6 +21,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
         inventory: [],
         tags: [],
     });
+
+    
     // checkeers for data submit
     const [imagesValid, setImagesValid] = useState(false);
     const [tagsValid, setTagsValid] = useState(false);
@@ -147,7 +150,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // inventory logic ===========================
     function addVariant(id=null) {
         // Check if variant already exists
-        console.log(id)
+      
         const sameColorsVariant = (arr1, arr2) => {
             let arr1_Set = new Set(arr1);
             let arr2_Set = new Set(arr2);
@@ -183,8 +186,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
             var updatedVariant = productVariants.find(
                 (variant) => variant.id === id
             );
-            console.log(updatedVariant);
-       
+            
 
             variantExists =
                 sameColor &&
@@ -225,7 +227,9 @@ function Create({ tagSuggestions, inventoryOptions }) {
                        ? { ...variant, ...currentVariant }
                        : variant
                )
-           );
+            );
+            
+
           
             setUpdateVariantMode(false)
         } else {
@@ -238,6 +242,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
                 quantity: currentVariant.quantity,
             };
             setProductVariants([...productVariants, newVariant]);
+            // update the evariants ib data
+           
         }
       
         // Reset form
@@ -246,6 +252,14 @@ function Create({ tagSuggestions, inventoryOptions }) {
         // showToast("Variant added successfully!", "success");
     }
    
+    useEffect(() => {
+        // update the evariants ib data
+        setData({
+            ...data,
+            inventory: productVariants,
+            tags : selectedTags
+        });
+    },[productVariants , selectedTags])
 
     function resetVariantForm() {
         // Reset current variant
@@ -404,13 +418,43 @@ function Create({ tagSuggestions, inventoryOptions }) {
       
         // fill tags
         // fill inventory
-        setData({
+    //     setData({
+    //         ...data,
+    //         inventory: [...productVariants],
+    //         tags: [...selectedTags],
+    //     });
+
+     
+        //    post("/products");
+        
+
+                
+        const Submit = (async () => {
+            
+
+           
+            setData({
             ...data,
-            inventory: [...productVariants],
-            tags: [...selectedTags],
+            inventory: productVariants,
+            tags: selectedTags,
         });
 
-        // post("/products");
+      
+           try {
+                   post("/products");
+               
+            } catch (error) {
+                console.error(
+                    "Error submitting product:",
+                    error.response?.data || error.message
+                );
+                // Optional: show error to user
+            }
+        })()
+       
+
+        
+
     }
 
 
@@ -444,6 +488,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
                             data={data}
                             selectedTags={selectedTags}
                             suggestedTags={suggestedTags}
+                            // sunmit
+                            errors={errors}
                         />
                         {/* <!-- Images Section --> */}
                         <AddImagesSection
@@ -452,30 +498,12 @@ function Create({ tagSuggestions, inventoryOptions }) {
                             handleRemoveImage={handleRemoveImage}
                             images={images}
                             imagesPlaceHolders={imagesPlaceHolders}
+                            errors={errors}
                         />
 
                         {/* <!-- Inventory Section variantForm --> */}
                         <div className="space-y-8">
-                            <div className="flex items-center space-x-3 pb-4 border-b border-slate-200">
-                                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
-                                    <svg
-                                        className="w-4 h-4 text-white"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                                        />
-                                    </svg>
-                                </div>
-                                <h2 className="text-2xl font-bold text-slate-800">
-                                    Inventory Management
-                                </h2>
-                            </div>
+                           
 
                             {/* <!-- Variant Creation Form --> */}
                             <VariantForm
@@ -489,6 +517,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                 newSelectedColors={newSelectedColors}
                                 setNewSelectedColors={setNewSelectedColors}
                                 updateVariantMode={updateVariantMode}
+                                //submision errors
+                                errors={errors}
                             />
                             {/* <!-- Variants List --> */}
                             <VariantsList

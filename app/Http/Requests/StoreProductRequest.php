@@ -8,11 +8,20 @@ use App\Models\Size;
 use App\Models\Fit;
 use App\Models\Material;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class StoreProductRequest extends FormRequest{
+
     
-    public function rule(){
+    protected function prepareForValidation()
+    {
+
+      
+    }
+    public function rules(){
+
+        dd(request()->all());
         $covers = collect(range(1, 4))->mapWithKeys(function ($i) {
             return ["cover_$i" => ['bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096']];
         })->toArray();
