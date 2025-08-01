@@ -16,12 +16,7 @@ class StoreProductRequest extends FormRequest{
 
     public function rules(){
 
-       
-
-        // dd($this->all());   
-      
-        // dd($this->file(key: "thumbnail"));
-       
+    
         return array_merge(
             $this->product_images(),
                     $this->product_infos(), 
@@ -78,24 +73,25 @@ class StoreProductRequest extends FormRequest{
         return $validated_images;
     }
 
-
+ 
 
     private function product_inventory(){
         return [
             "inventory" => ['array', 'bail', 'required'],
+
             "inventory.*.quantity" => ['integer', 'min:0',  'required_with:inventory.*.color,
                                                               inventory.*.size_id,
                                                               inventory.*.material_id,
                                                               inventory.*.fit_id'],
 
-            "inventory.*.color_id" => [
-                'bail',
-                'required_with:inventory.*.quantity,
+            "inventory.*.colors" => [                        
+                                                             'bail',
+                                                             'required_with:inventory.*.quantity,
                                                               inventory.*.size_id,
                                                               inventory.*.material_id,
                                                               inventory.*.fit_id',
-                'integer',
-                Rule::exists((new Color)->getTable(), 'id')
+             
+                                                               Rule::exists((new Color)->getTable(), 'id')
             ],
 
             "inventory.*.size_id" => [

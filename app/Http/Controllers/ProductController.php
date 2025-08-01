@@ -39,37 +39,20 @@ class ProductController extends Controller
         "Kitchen",
         "Office",
     ];
-        $tags = Tag::whereAny(['name' , 'slug'], 'like' , "%".'tag'."%");
-        $colors = Color::all();
-        $sizes = Size::all();
-        $fits = Fit::all();
-        $materials = Material::all();
+        $suggested_tags = Tag::whereAny(['name' , 'slug'], 'like' , "%".'tag'."%");
+        $colors = Color::select('id', 'hex')->distinct()->get();
+
+        $sizes = Size::select('id', 'name')->distinct()->get();
+        $fits = Fit::select('id', 'name')->distinct()->get();
+        $materials = Material::select('id', 'name')->distinct()->get();;
 
         
 
     $inventoryOptions = [
-            'colors' => [
-                ["name" => "Red",    "value" => "1",      "color" => "#ef4444"], // red-500
-                ["name" => "Blue",   "value" => "1",      "color" => "#3b82f6"], // blue-500
-                ["name" => "Green",  "value" => "1",      "color" => "#22c55e"], // green-500
-                ["name" => "Black",  "value" => "1",      "color" => "#000000"],
-                ["name" => "White",  "value" => "white",  "color" => "#ffffff"],
-                ["name" => "Yellow", "value" => "yellow", "color" => "#eab308"], // yellow-500
-                ["name" => "Purple", "value" => "purple", "color" => "#8b5cf6"], // purple-500
-                ["name" => "Pink",   "value" => "pink",   "color" => "#ec4899"]  // pink-500
-            ],
-        'sizes' => ["XS", "S", "M", "L", "XL", "XXL"],
-        'fits' =>  ["Slim", "Regular", "Loose", "Oversized"],
-        'materials' => [
-            "Cotton",
-            "Polyester",
-            "Silk",
-            "Wool",
-            "Linen",
-            "Denim",
-            "Leather",
-            "Canvas",
-        ],
+        'colors' => $colors,
+        'sizes' => $sizes,
+        'fits' =>  $fits,
+        'materials' => $materials,
     ];
 
 

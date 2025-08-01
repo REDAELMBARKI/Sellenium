@@ -21,7 +21,6 @@ import React, { useEffect, useState } from 'react'
             setPreviewColor(null);
         }
 
-        console.log()
 
         return (
             <> 
@@ -80,13 +79,14 @@ import React, { useEffect, useState } from 'react'
                                 .concat(newSelectedColors)
                                 .map(function (color, index) {
                                     const hexColors = [];
+                                   
                                     for (let obj of currentVariant.colors) {
-                                        if (obj.color) {
-                                            hexColors.push(obj.color);
+                                        if (obj?.hex) {
+                                            hexColors.push(obj?.hex);
                                         }
                                     }
                                     const isCurrent = hexColors.includes(
-                                        color.color
+                                        color?.hex
                                     );
 
                                     return (
@@ -98,7 +98,7 @@ import React, { useEffect, useState } from 'react'
                                             <button
                                                 style={{
                                                     backgroundColor:
-                                                        color.color,
+                                                        color?.hex,
                                                 }}
                                                 className={`w-full h-full rounded-full color-option
                                                 ring-2 ring-slate-400 transition-all duration-200 hover:scale-110 shadow-sm
@@ -111,12 +111,13 @@ import React, { useEffect, useState } from 'react'
                                                         : ""
                                                 }
                                                 `}
-                                                data-value={color.value}
+                                                data-value={color?.hex}
                                                 type="button"
                                                 onClick={() =>
                                                     handleVariantSelection(
                                                         "colors",
-                                                        color
+                                                        color,
+                                                       
                                                     )
                                                 }
                                             />
@@ -131,9 +132,9 @@ import React, { useEffect, useState } from 'react'
                                                         borderRadius: "50%",
                                                         border: "5px solid",
                                                         borderColor:
-                                                            color.color.toLowerCase() ===
+                                                            color.hex.toLowerCase() ===
                                                                 "#ffffff" ||
-                                                            color.color.toLowerCase() ===
+                                                            color.hex.toLowerCase() ===
                                                                 "white"
                                                                 ? "black"
                                                                 : "white",
@@ -155,7 +156,7 @@ import React, { useEffect, useState } from 'react'
                                 <div
                                     className="w-12 h-12 rounded-full ring-4 ring-purple-500 shadow-md transition-transform duration-200 hover:scale-110"
                                     style={{
-                                        backgroundColor: previewColor.color,
+                                        backgroundColor: previewColor.hex,
                                     }}
                                     title="Preview color"
                                 ></div>
@@ -184,9 +185,7 @@ import React, { useEffect, useState } from 'react'
                                     onChange={(e) => {
                                         setPreviewColor({
                                             ...previewColor,
-                                            color: e.target.value,
-                                            name: e.target.value,
-                                            value: e.target.value,
+                                            hex: e.target.value,
                                         });
                                     }}
                                 />
@@ -223,19 +222,20 @@ import React, { useEffect, useState } from 'react'
                                         type="button"
                                         key={index}
                                         className={`${
-                                            currentVariant.size === size
+                                            currentVariant.size?.name === size.name
                                                 ? "selected"
                                                 : ""
                                         }  px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
-                                        data-value={size}
+                                        data-value={size.name}
                                         onClick={() => {
                                             handleVariantSelection(
                                                 "size",
-                                                size
+                                                size,
+                                                
                                             );
                                         }}
                                     >
-                                        {size}
+                                        {size.name}
                                     </button>
                                 );
                             })}
@@ -257,16 +257,16 @@ import React, { useEffect, useState } from 'react'
                                         type="button"
                                         key={index}
                                         className={`${
-                                            currentVariant.fit === fit
+                                            currentVariant.fit?.name === fit.name
                                                 ? "selected"
                                                 : ""
                                         }  px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
-                                        data-value={fit}
+                                        data-value={fit.name}
                                         onClick={() => {
                                             handleVariantSelection("fit", fit);
                                         }}
                                     >
-                                        {fit}
+                                        {fit.name}
                                     </button>
                                 );
                             })}
@@ -294,11 +294,11 @@ import React, { useEffect, useState } from 'react'
                                         type="button"
                                         key={index}
                                         className={`${
-                                            currentVariant.material === material
+                                            currentVariant.material?.name === material.name
                                                 ? "selected"
                                                 : ""
                                         } px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
-                                        data-value={material}
+                                        data-value={material.name}
                                         onClick={() => {
                                             handleVariantSelection(
                                                 "material",
@@ -306,7 +306,7 @@ import React, { useEffect, useState } from 'react'
                                             );
                                         }}
                                     >
-                                        {material}
+                                        {material.name}
                                     </button>
                                 );
                             })}

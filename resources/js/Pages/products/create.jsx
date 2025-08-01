@@ -10,7 +10,7 @@ import BasicInformationsSection from "@/components/productPartials/BasicInformat
 import axios from "axios";
 
 function Create({ tagSuggestions, inventoryOptions }) {
-    const { data, setData, post ,errors  } = useForm({
+    const { data, setData, post, errors } = useForm({
         name: "",
         brand: "",
         price: "",
@@ -22,14 +22,13 @@ function Create({ tagSuggestions, inventoryOptions }) {
         tags: [],
     });
 
-    
     // checkeers for data submit
     const [imagesValid, setImagesValid] = useState(false);
     const [tagsValid, setTagsValid] = useState(false);
     const [inventoryValid, setInventoryValid] = useState(false);
     const [otherStringFieldsValid, setOtherStringFieldsValid] = useState(true);
     const [newSelectedColors, setNewSelectedColors] = useState([]);
-    const [updateVariantMode, setUpdateVariantMode] = useState(false)
+    const [updateVariantMode, setUpdateVariantMode] = useState(false);
     const [isReadyToSubmit, setIsReadyToSubmit] = useState({
         bool: false,
         name: false,
@@ -51,7 +50,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
     const variantFormRef = useRef(null);
 
     // inventory ====================================================================
-   
+
     const [productVariants, setProductVariants] = useState([]);
     // variants
     const [currentVariant, setCurrentVariant] = useState({
@@ -64,9 +63,14 @@ function Create({ tagSuggestions, inventoryOptions }) {
     });
 
     // add variant button
-    const isReadyToAdd = Object.entries(currentVariant).filter(([key]) => key !== 'id').every(
-        ([, value]) => value !== null && value !== "" && (!Array.isArray(value) || value.length > 0) 
-    );
+    const isReadyToAdd = Object.entries(currentVariant)
+        .filter(([key]) => key !== "id")
+        .every(
+            ([, value]) =>
+                value !== null &&
+                value !== "" &&
+                (!Array.isArray(value) || value.length > 0)
+        );
     // end inventry variablles ================================================================
 
     useEffect(() => {
@@ -148,9 +152,9 @@ function Create({ tagSuggestions, inventoryOptions }) {
     }
 
     // inventory logic ===========================
-    function addVariant(id=null) {
+    function addVariant(id = null) {
         // Check if variant already exists
-      
+
         const sameColorsVariant = (arr1, arr2) => {
             let arr1_Set = new Set(arr1);
             let arr2_Set = new Set(arr2);
@@ -175,18 +179,15 @@ function Create({ tagSuggestions, inventoryOptions }) {
             );
         });
 
-        
         let variantExists;
-         
 
         // this checkes if the uodateded values are difffirence then the originals before
-        // if we update and no changes the elements styls the same 
-        // if only changes made then we update 
+        // if we update and no changes the elements styls the same
+        // if only changes made then we update
         if (updateVariantMode) {
             var updatedVariant = productVariants.find(
                 (variant) => variant.id === id
             );
-            
 
             variantExists =
                 sameColor &&
@@ -220,18 +221,16 @@ function Create({ tagSuggestions, inventoryOptions }) {
         }
 
         if (updateVariantMode) {
-            // just update 
-           setProductVariants(
-               productVariants.map((variant) =>
-                   variant.id === currentVariant.id
-                       ? { ...variant, ...currentVariant }
-                       : variant
-               )
+            // just update
+            setProductVariants(
+                productVariants.map((variant) =>
+                    variant.id === currentVariant.id
+                        ? { ...variant, ...currentVariant }
+                        : variant
+                )
             );
-            
 
-          
-            setUpdateVariantMode(false)
+            setUpdateVariantMode(false);
         } else {
             const newVariant = {
                 id: Date.now(),
@@ -243,28 +242,27 @@ function Create({ tagSuggestions, inventoryOptions }) {
             };
             setProductVariants([...productVariants, newVariant]);
             // update the evariants ib data
-           
         }
-      
+
         // Reset form
         resetVariantForm();
         // Show success message
         // showToast("Variant added successfully!", "success");
     }
-   
+
     useEffect(() => {
         // update the evariants ib data
         setData({
             ...data,
             inventory: productVariants,
-            tags : selectedTags
+            tags: selectedTags,
         });
-    },[productVariants , selectedTags])
+    }, [productVariants, selectedTags]);
 
     function resetVariantForm() {
         // Reset current variant
         setCurrentVariant({
-            id:null,
+            id: null,
             colors: [],
             size: null,
             fit: null,
@@ -273,46 +271,44 @@ function Create({ tagSuggestions, inventoryOptions }) {
         });
     }
 
-    function handleVariantSelection(type, option) {
+    function handleVariantSelection(type, option, opt_id) {
         // option is an object
-       
-        if (type === 'colors') {
+        //    opt_id ia optioon id like option is hex and op_id is its id
+        if (type === "colors") {
             let colorExist = false;
 
             for (let obj of currentVariant.colors) {
-                if (obj.color === option.color) {
+                if (obj.hex === option.hex) {
                     colorExist = true;
                 }
             }
 
             if (colorExist) {
-                    setCurrentVariant((prev) => ({
-                        ...prev,
-                        colors:   currentVariant.colors.filter(obj => obj.color !== option.color)
-                    }));
-            } else {
-                 setCurrentVariant((prev) => ({
+                setCurrentVariant((prev) => ({
                     ...prev,
-                       colors : [...prev.colors ,option]
-                    }));
-                
-              }
+                    colors: currentVariant.colors.filter(
+                        (obj) => obj.hex !== option.hex
+                    ),
+                }));
+            } else {
+                setCurrentVariant((prev) => ({
+                    ...prev,
+                    colors: [...prev.colors, option],
+                }));
+            }
         } else {
             if (currentVariant[type] === option) {
-                 setCurrentVariant((prev) => ({
-                     ...prev,
-                     [type]: null,
-                 }));
-                
+                setCurrentVariant((prev) => ({
+                    ...prev,
+                    [type]: null,
+                }));
             } else {
-                 setCurrentVariant((prev) => ({
-                ...prev,
-                [type]: option,
-              }));
+                setCurrentVariant((prev) => ({
+                    ...prev,
+                    [type]: option,
+                }));
             }
         }
-
-       
     }
 
     function scrollToVariantForm() {
@@ -390,13 +386,15 @@ function Create({ tagSuggestions, inventoryOptions }) {
 
         // sice tembnail is set also so
         setImagesValid(allFilled);
-
     }, [data, selectedTags, productVariants]);
 
     useEffect(() => {
-        console.log(data);
-    }, [data]);
+        console.log(currentVariant);
+    }, [currentVariant]);
 
+    // useEffect(() => {
+    //     console.log(data);
+    // }, [data]);
     // check if the all ready to submit
     useEffect(() => {
         setIsReadyToSubmit((prev) => ({
@@ -413,12 +411,10 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // submit form
     function submitForm(e) {
         e.preventDefault();
-                 
-          (async () => {
-      
-           try {
-                   post("/products");
-               
+
+        (async () => {
+            try {
+                post("/products");
             } catch (error) {
                 console.error(
                     "Error submitting product:",
@@ -426,15 +422,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
                 );
                 // Optional: show error to user
             }
-        })()
-       
-
-        
-
+        })();
     }
-
-
-
 
     return (
         <Layout currentPage="home">

@@ -16,27 +16,20 @@ class ColorFactory extends Factory
      * @return array<string, mixed>
      */
     public     $colorCodes = [
-        'Black' => 'BLK',
-        'White' => 'WHT',
-        'Ivory' => 'IVR',
-        'Cream' => 'CRM',
-        'Beige' => 'BEIG',
-        'Taupe' => 'TP',
-        'Gray' => 'GRY',
-        'Charcoal' => 'CHRC',
-        'Silver' => 'SLV',
-        'Stone' => 'STN',
-        'Brown' => 'BRWN',
-        'Cocoa' => 'CCO',
-        'Mocha' => 'MCH',
+        "#ef4444", // red-500
+        "#3b82f6", // blue-500
+        "#22c55e", // green-500
+        "#000000",
+        "#ffffff",
+        "#eab308", // yellow-500
+        "#8b5cf6", // purple-500
+        "#ec4899"
     ];
     public function definition(): array
     {
-        $color = fake()->randomElement(array_keys($this->colorCodes)) ;
+   
         return [
-            "name"=> $color,
-            "code"=> $this->colorCodes[$color] ?? strtoupper(substr($color,0,3)),
-            
+            "hex" => fake()->randomElement($this->colorCodes)
         ];
     }
 }

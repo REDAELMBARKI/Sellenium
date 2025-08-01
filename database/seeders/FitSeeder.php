@@ -13,6 +13,7 @@ class FitSeeder extends Seeder
      */
     public function run(): void
     {
-        Fit::factory()->count(10)->create();    
+        $fits  = Fit::factory()->count(10)->make()->toArray();
+        Fit::insertOrIgnore($fits);
     }
 }

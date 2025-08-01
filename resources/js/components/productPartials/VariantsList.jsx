@@ -71,16 +71,16 @@ function VariantsList({
                                                 <span className="font-semibold text-slate-800">
                                                     Colors:
                                                 </span>
-                                                {variant.colors.map(
+                                                {variant?.colors.map(
                                                     (color, index) => (
                                                         <span
                                                             key={index}
                                                             className="w-4 h-4 rounded-full border border-slate-300"
                                                             style={{
                                                                 backgroundColor:
-                                                                    color.color,
+                                                                    color?.hex,
                                                             }}
-                                                            title={color}
+                                                            title={color?.hex}
                                                         ></span>
                                                     )
                                                 )}
@@ -93,7 +93,7 @@ function VariantsList({
                                                         Size:
                                                     </span>{" "}
                                                     <span className="font-medium text-slate-700">
-                                                        {variant.size}
+                                                        {variant?.size?.name}
                                                     </span>
                                                 </div>
                                                 <div>
@@ -101,7 +101,7 @@ function VariantsList({
                                                         Fit:
                                                     </span>{" "}
                                                     <span className="font-medium text-slate-700">
-                                                        {variant.fit}
+                                                        {variant?.fit?.name}
                                                     </span>
                                                 </div>
                                                 <div>
@@ -109,7 +109,7 @@ function VariantsList({
                                                         Material:
                                                     </span>{" "}
                                                     <span className="font-medium text-slate-700">
-                                                        {variant.material}
+                                                        {variant?.material?.name}
                                                     </span>
                                                 </div>
                                             </div>
@@ -120,7 +120,7 @@ function VariantsList({
                                                     Quantity:
                                                 </span>{" "}
                                                 <span className="font-semibold text-slate-700">
-                                                    {variant.quantity}
+                                                    {variant?.quantity}
                                                 </span>
                                             </div>
                                         </div>
@@ -131,7 +131,7 @@ function VariantsList({
                                                 type="button"
                                                 className="p-2 rounded hover:bg-blue-100 text-blue-600 transition-colors"
                                                 onClick={() =>
-                                                    editVariant(variant.id)
+                                                    editVariant(variant?.id)
                                                 }
                                                 title="Edit variant"
                                             >
@@ -155,7 +155,7 @@ function VariantsList({
                                                 type="button"
                                                 className="p-2 rounded hover:bg-red-100 text-red-600 transition-colors"
                                                 onClick={() =>
-                                                    removeVariant(variant.id)
+                                                    removeVariant(variant?.id)
                                                 }
                                                 title="Remove variant"
                                             >

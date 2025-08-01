@@ -13,6 +13,8 @@ class ColorSeeder extends Seeder
      */
     public function run(): void
     {
-        Color::factory()->count(10)->create();
+        
+        $Colors =  Color::factory()->count(10)->make()->toArray();
+        Color::insertOrIgnore($Colors);
     }
 }

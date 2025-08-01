@@ -13,6 +13,8 @@ class MaterialSeeder extends Seeder
      */
     public function run(): void
     {
-        Material::factory()->count(10)->create();
+       
+        $Materials =  Material::factory()->count(10)->make()->toArray();
+        Material::insertOrIgnore($Materials);
     }
 }
