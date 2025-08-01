@@ -306,7 +306,7 @@ function BasicInformationsSection({
                                                 : "border border-slate-200 bg-slate-100 text-slate-700"
                                         } hover:bg-white`}
                                     >
-                                        {tag}
+                                        {tag?.name}
                                     </li>
                                 ))}
                             </ul>
@@ -322,7 +322,7 @@ function BasicInformationsSection({
                                       className="tag-item slide-in"
                                       key={index}
                                   >
-                                      {tag}
+                                      {tag?.name}
 
                                       <button
                                           type="button"

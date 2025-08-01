@@ -29,6 +29,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
     const [otherStringFieldsValid, setOtherStringFieldsValid] = useState(true);
     const [newSelectedColors, setNewSelectedColors] = useState([]);
     const [updateVariantMode, setUpdateVariantMode] = useState(false);
+    const [isFlashing, setIsFlashing] = useState(false);
     const [isReadyToSubmit, setIsReadyToSubmit] = useState({
         bool: false,
         name: false,
@@ -154,6 +155,22 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // inventory logic ===========================
     function addVariant(id = null) {
         // Check if variant already exists
+       
+        let allfieldsFilled = Object.values(currentVariant).every(function (
+            fieldValue
+        ) {
+            return (
+                fieldValue?.name !== "" &&
+                fieldValue?.name !== null &&
+                (!Array.isArray(fieldValue) || fieldValue.length > 0)
+            );
+        });
+
+       
+        if (! allfieldsFilled) {
+            return;
+        }
+
 
         const sameColorsVariant = (arr1, arr2) => {
             let arr1_Set = new Set(arr1);
@@ -271,9 +288,10 @@ function Create({ tagSuggestions, inventoryOptions }) {
         });
     }
 
-    function handleVariantSelection(type, option, opt_id) {
+    function handleVariantSelection(type, option) {
         // option is an object
         //    opt_id ia optioon id like option is hex and op_id is its id
+       
         if (type === "colors") {
             let colorExist = false;
 
@@ -483,6 +501,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                 updateVariantMode={updateVariantMode}
                                 //submision errors
                                 errors={errors}
+                                isFlashing={isFlashing}
                             />
                             {/* <!-- Variants List --> */}
                             <VariantsList
@@ -492,6 +511,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                 setCurrentVariant={setCurrentVariant}
                                 currentVariant={currentVariant}
                                 setUpdateVariantMode={setUpdateVariantMode}
+                                setIsFlashing={setIsFlashing}
                             />
                         </div>
 

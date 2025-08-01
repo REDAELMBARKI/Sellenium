@@ -694,12 +694,15 @@ button:disabled {
 }
 .btn-16:hover {
   color: #ffffff;
+
 }
 .btn-16:hover:after {
   left: auto;
   right: 0;
   width: 100%;
+    border-radius: 12px;
 }
 .btn-16:active {
   top: 2px;
 }
+

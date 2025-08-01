@@ -24,22 +24,14 @@ class ProductController extends Controller
     public function create()
     {
      $tagSuggestions = [
-        "Electronics",
-        "Fashion",
-        "Sports",
-        "springs",
-        "sparta",
-        "Home",
-        "Beauty",
-        "Books",
-        "Toys",
-        "Automotive",
-        "Health",
-        "Garden",
-        "Kitchen",
-        "Office",
+        ["id"=>1 , "name"=>"Electronics"],
+        ["id"=>2 , "name"=> "Fashion"],
+        ["id"=>3 , "name"=> "Sports"],
+        ["id"=>4 , "name"=>"sprint"],
+        ["id"=>5 , "name"=>"sparta"],
     ];
-        $suggested_tags = Tag::whereAny(['name' , 'slug'], 'like' , "%".'tag'."%");
+
+
         $colors = Color::select('id', 'hex')->distinct()->get();
 
         $sizes = Size::select('id', 'name')->distinct()->get();

@@ -6,10 +6,11 @@ function VariantsList({
     scrollToVariantForm,
     setCurrentVariant,
     currentVariant,
-    setUpdateVariantMode
-    
+    setUpdateVariantMode,
+    setIsFlashing
 }) {
     function editVariant(id) {
+        setIsFlashing(true)
         setUpdateVariantMode(true)
         const variant = productVariants?.find((variant) => variant.id === id);
         setCurrentVariant({
@@ -21,6 +22,11 @@ function VariantsList({
             size:variant.size,
             material:variant.material
         });
+        setTimeout(() => {
+        setIsFlashing(false);
+           
+       },100)
+
     }
 
     return (

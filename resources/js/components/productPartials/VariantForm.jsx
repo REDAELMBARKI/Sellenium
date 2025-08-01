@@ -11,7 +11,8 @@ import React, { useEffect, useState } from 'react'
         newSelectedColors,
         setNewSelectedColors,
         updateVariantMode,
-        errors
+        errors,
+        isFlashing
         
     }) {
         const [previewColor, setPreviewColor] = useState(null);
@@ -23,45 +24,46 @@ import React, { useEffect, useState } from 'react'
 
 
         return (
-            <> 
-                
-                 <div
-                                className={`flex items-center space-x-3 p-4 border-b rounded-md ${
-                                    errors.inventory
-                                        ? "bg-red-50 border-red-300"
-                                        : "border-slate-200"
-                                }`}
-                            >
-                                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
-                                    <svg
-                                        className="w-4 h-4 text-white"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                                        />
-                                    </svg>
-                                </div>
+            <>
+                <div
+                    className={`flex items-center  space-x-3 p-4 border-b rounded-md ${
+                        errors.inventory
+                            ? "bg-red-50 border-red-300"
+                            : "border-slate-200"
+                    }`}
+                >
+                    <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                        <svg
+                            className="w-4 h-4 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                            />
+                        </svg>
+                    </div>
 
-                                <div className="flex items-center space-x-2 flex-grow">
-                                    <h2 className="text-2xl font-bold text-slate-800">
-                                        Inventory Management
-                                    </h2>
-                                    {errors.inventory && (
-                                        <span className="text-red-600 text-sm font-medium">
-                                            (required)
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
+                    <div className="flex items-center space-x-2 flex-grow">
+                        <h2 className="text-2xl font-bold text-slate-800">
+                            Inventory Management
+                        </h2>
+                        {errors.inventory && (
+                            <span className="text-red-600 text-sm font-medium">
+                                (required)
+                            </span>
+                        )}
+                    </div>
+                </div>
                 <div
                     ref={variantFormRef}
-                    className="bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-xl p-6 border border-slate-200"
+                    className={`bg-gradient-to-br from-slate-50 relative ${
+                        isFlashing ? "bg-orange-100 border-2 border-orange-200" : ""
+                    } to-blue-50/50 rounded-xl p-6 border border-slate-200`}
                 >
                     <h3 className="text-lg font-semibold text-slate-800 mb-6">
                         Create Product Variant
@@ -79,7 +81,7 @@ import React, { useEffect, useState } from 'react'
                                 .concat(newSelectedColors)
                                 .map(function (color, index) {
                                     const hexColors = [];
-                                   
+
                                     for (let obj of currentVariant.colors) {
                                         if (obj?.hex) {
                                             hexColors.push(obj?.hex);
@@ -97,8 +99,7 @@ import React, { useEffect, useState } from 'react'
                                             {/* Button fills parent */}
                                             <button
                                                 style={{
-                                                    backgroundColor:
-                                                        color?.hex,
+                                                    backgroundColor: color?.hex,
                                                 }}
                                                 className={`w-full h-full rounded-full color-option
                                                 ring-2 ring-slate-400 transition-all duration-200 hover:scale-110 shadow-sm
@@ -116,8 +117,7 @@ import React, { useEffect, useState } from 'react'
                                                 onClick={() =>
                                                     handleVariantSelection(
                                                         "colors",
-                                                        color,
-                                                       
+                                                        color
                                                     )
                                                 }
                                             />
@@ -132,9 +132,9 @@ import React, { useEffect, useState } from 'react'
                                                         borderRadius: "50%",
                                                         border: "5px solid",
                                                         borderColor:
-                                                            color.hex.toLowerCase() ===
+                                                            color?.hex.toLowerCase() ===
                                                                 "#ffffff" ||
-                                                            color.hex.toLowerCase() ===
+                                                            color?.hex.toLowerCase() ===
                                                                 "white"
                                                                 ? "black"
                                                                 : "white",
@@ -222,20 +222,20 @@ import React, { useEffect, useState } from 'react'
                                         type="button"
                                         key={index}
                                         className={`${
-                                            currentVariant.size?.name === size.name
+                                            currentVariant?.size?.name ===
+                                            size?.name
                                                 ? "selected"
                                                 : ""
                                         }  px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
-                                        data-value={size.name}
+                                        data-value={size?.name}
                                         onClick={() => {
                                             handleVariantSelection(
                                                 "size",
-                                                size,
-                                                
+                                                size
                                             );
                                         }}
                                     >
-                                        {size.name}
+                                        {size?.name}
                                     </button>
                                 );
                             })}
@@ -257,16 +257,17 @@ import React, { useEffect, useState } from 'react'
                                         type="button"
                                         key={index}
                                         className={`${
-                                            currentVariant.fit?.name === fit.name
+                                            currentVariant?.fit?.name ===
+                                            fit?.name
                                                 ? "selected"
                                                 : ""
                                         }  px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
-                                        data-value={fit.name}
+                                        data-value={fit?.name}
                                         onClick={() => {
                                             handleVariantSelection("fit", fit);
                                         }}
                                     >
-                                        {fit.name}
+                                        {fit?.name}
                                     </button>
                                 );
                             })}
@@ -294,11 +295,12 @@ import React, { useEffect, useState } from 'react'
                                         type="button"
                                         key={index}
                                         className={`${
-                                            currentVariant.material?.name === material.name
+                                            currentVariant?.material?.name ===
+                                            material?.name
                                                 ? "selected"
                                                 : ""
                                         } px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
-                                        data-value={material.name}
+                                        data-value={material?.name}
                                         onClick={() => {
                                             handleVariantSelection(
                                                 "material",
@@ -306,7 +308,7 @@ import React, { useEffect, useState } from 'react'
                                             );
                                         }}
                                     >
-                                        {material.name}
+                                        {material?.name}
                                     </button>
                                 );
                             })}
@@ -344,7 +346,7 @@ import React, { useEffect, useState } from 'react'
                         id="addVariantBtn"
                         type="button"
                         onClick={() => {
-                            addVariant(currentVariant.id);
+                            addVariant(currentVariant?.id);
                         }}
                         className={`btn-16 px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 transform
                                             ${
