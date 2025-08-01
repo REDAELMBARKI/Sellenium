@@ -27,6 +27,8 @@ class ProductController extends Controller
         "Electronics",
         "Fashion",
         "Sports",
+        "springs",
+        "sparta",
         "Home",
         "Beauty",
         "Books",

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 function BasicInformationsSection({
     tagInputValue,
@@ -8,9 +8,37 @@ function BasicInformationsSection({
     addSuggestedTagToSelectedOnes,
     suggestedTags,
     selectedTags,
+    setSelectedTags,
     handleTagRemove,
     errors
 }) {
+
+
+
+    function addTag() {
+        if (tagInputValue.trim().length < 1) {
+            return;
+        }
+        setSelectedTags([...selectedTags, tagInputValue]);
+    }
+
+    function addHighlightedTag() {
+    
+        if (suggestedTags.length > 0) {
+            setSelectedTags([...selectedTags, suggestedTags[0]]);
+            setTagInputValue('')
+        } else {
+              setSelectedTags([...selectedTags, tagInputValue]);
+              setTagInputValue("");
+            
+        }
+    }
+
+    useEffect(() => { 
+        console.log(selectedTags);
+    },[selectedTags])
+
+
     return (
         <>
             <div className="space-y-8">
@@ -201,29 +229,56 @@ function BasicInformationsSection({
                         </svg>
                     </div>
 
-                    <div className="flex items-center space-x-2 flex-grow">
-                        <h2 className="text-2xl font-bold text-slate-800">
-                            Tags
-                        </h2>
-                        {errors.tags && (
-                            <span className="text-red-600 text-sm font-medium">
-                                (required)
-                            </span>
-                        )}
+                    <div className="flex flex-col w-full">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-bold text-slate-800">
+                                Tags
+                            </h2>
+                            {errors.tags && (
+                                <span className="text-red-600 text-sm font-medium">
+                                    (required)
+                                </span>
+                            )}
+                            <a
+                                href="/tags/create"
+                                className="text-sm font-medium text-emerald-600 hover:text-emerald-700 border border-emerald-200 hover:border-emerald-400 px-3 py-1.5 rounded-xl transition duration-150"
+                            >
+                                + Add new tags
+                            </a>
+                        </div>
+
+                        <p className="mt-1 text-xs text-slate-500 italic">
+                            New tags you add will be saved to the database and
+                            available for you later on.
+                        </p>
                     </div>
                 </div>
 
                 <div className="relative">
-                    <input
-                        type="text"
-                        id="tagInput"
-                        value={tagInputValue}
-                        onChange={function (e) {
-                            setTagInputValue(e.target.value);
-                        }}
-                        className="w-full p-4 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white/50 backdrop-blur-sm hover:bg-white/80"
-                        placeholder="Type to search tags..."
-                    />
+                    <div className="relative w-full">
+                        <input
+                            type="text"
+                            id="tagInput"
+                            value={tagInputValue}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    addHighlightedTag();
+                                }
+                            }}
+                            onChange={(e) => setTagInputValue(e.target.value)}
+                            className="w-full p-4 pr-16 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white/50 backdrop-blur-sm hover:bg-white/80"
+                            placeholder="Type to search or add tags..."
+                        />
+
+                        <button
+                            type="button"
+                            onClick={addTag}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm px-3 py-1.5 rounded-lg shadow"
+                        >
+                            Add
+                        </button>
+                    </div>
+
                     {errors.tags && (
                         <div className="text-red-500 text-sm">
                             {errors.tags}
@@ -233,24 +288,29 @@ function BasicInformationsSection({
                     <div
                         id="tagSuggestions"
                         className={`absolute z-10 w-full mt-2 bg-white/95 backdrop-blur-sm border border-slate-200 rounded-xl shadow-xl ${
-                            suggestedTags ? "" : "hidden"
+                            suggestedTags.length > 0 ? "" : "hidden"
                         }`}
                     >
-                        {suggestedTags &&
-                            suggestedTags.map(function (tag, index) {
-                                return (
-                                    <button
+                        {suggestedTags && (
+                            <ul className="flex flex-wrap gap-2 p-2">
+                                {suggestedTags.map((tag, index) => (
+                                    <li
                                         type="button"
                                         key={index}
-                                        onClick={() => {
-                                            addSuggestedTagToSelectedOnes(tag);
-                                        }}
-                                        className="suggestion-item"
+                                        onClick={() =>
+                                            addSuggestedTagToSelectedOnes(tag)
+                                        }
+                                        className={`px-3 py-1 rounded-full text-sm cursor-pointer transition-all duration-150 ${
+                                            index === 0
+                                                ? "border border-emerald-400 bg-slate-100 text-slate-800 shadow-sm"
+                                                : "border border-slate-200 bg-slate-100 text-slate-700"
+                                        } hover:bg-white`}
                                     >
                                         {tag}
-                                    </button>
-                                );
-                            })}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </div>
                 </div>
 

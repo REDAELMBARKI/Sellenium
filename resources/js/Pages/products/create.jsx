@@ -413,32 +413,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // submit form
     function submitForm(e) {
         e.preventDefault();
-        // fill the basic data
-       
-      
-        // fill tags
-        // fill inventory
-    //     setData({
-    //         ...data,
-    //         inventory: [...productVariants],
-    //         tags: [...selectedTags],
-    //     });
-
-     
-        //    post("/products");
-        
-
-                
-        const Submit = (async () => {
-            
-
-           
-            setData({
-            ...data,
-            inventory: productVariants,
-            tags: selectedTags,
-        });
-
+                 
+          (async () => {
       
            try {
                    post("/products");
@@ -488,7 +464,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
                             data={data}
                             selectedTags={selectedTags}
                             suggestedTags={suggestedTags}
-                            // sunmit
+                            setSelectedTags={setSelectedTags}
+                            // sunmition eerrors
                             errors={errors}
                         />
                         {/* <!-- Images Section --> */}
@@ -503,8 +480,6 @@ function Create({ tagSuggestions, inventoryOptions }) {
 
                         {/* <!-- Inventory Section variantForm --> */}
                         <div className="space-y-8">
-                           
-
                             {/* <!-- Variant Creation Form --> */}
                             <VariantForm
                                 inventoryOptions={inventoryOptions}
