@@ -7,6 +7,7 @@ use App\Models\Color;
 use App\Models\Size;
 use App\Models\Fit;
 use App\Models\Material;
+use App\Models\Tag;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -24,7 +25,6 @@ class StoreProductRequest extends FormRequest{
                     $this->product_tags()
                 );
     }
-
 
     private function product_infos()
     {
@@ -73,54 +73,58 @@ class StoreProductRequest extends FormRequest{
         return $validated_images;
     }
 
- 
-
+    
     private function product_inventory(){
         return [
             "inventory" => ['array', 'bail', 'required'],
 
-            "inventory.*.quantity" => ['integer', 'min:0',  'required_with:inventory.*.color,
-                                                              inventory.*.size_id,
-                                                              inventory.*.material_id,
-                                                              inventory.*.fit_id'],
+            "inventory.*.quantity" => ['integer', 'min:0',  'required_with:inventory.*.color,inventory.*.size_id,inventory.*.material_id,inventory.*.fit_id'],
 
-            "inventory.*.colors" => [                        
-                                                             'bail',
-                                                             'required_with:inventory.*.quantity,
-                                                              inventory.*.size_id,
-                                                              inventory.*.material_id,
-                                                              inventory.*.fit_id',
-             
-                                                               Rule::exists((new Color)->getTable(), 'id')
+            // validated the  color
+
+            "inventory.*.colors" => ['array','required_with:inventory.*.quantity,inventory.*.size_id,inventory.*.material_id,inventory.*.fit_id'],
+
+            // validate nested arrays {id , hex}
+            "inventory.*.colors.*" => ['array'],
+          
+
+            //validate coolor id in each nested array
+            "inventory.*.colors.*.id" => [                        
+                                    'bail',
+                                   'integer',
+                                    Rule::exists((new Color)->getTable(), 'id')
+            ],
+            //validate coolor hez in each nested array
+
+            "inventory.*.colors.*.hex" => [
+                'bail',
+
+                'regex:/^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/' ],
+
+           
+
+            // size validation 
+            "inventory.*.size" => ['array' ,'required_with:inventory.*.quantity,inventory.*.color_id,inventory.*.material_id,inventory.*.fit_id', ],
+            // each id should be existed already in the db
+            "inventory.*.size.id" => [
+                'bail',
+                'integer',
+                 Rule::exists((new Size)->getTable(), 'id')
+            ],
+            
+
+            // material validation
+            "inventory.*.material" => ['array' ,'required_with:inventory.*.quantity,inventory.*.color_id,inventory.*.size_id,inventory.*.fit_id'],
+            "inventory.*.material.*.id" => [
+                'bail',
+                'integer',
+                 Rule::exists((new Material)->getTable(), 'id')
             ],
 
-            "inventory.*.size_id" => [
-                'bail',
-                'required_with:inventory.*.quantity,
-                                                              inventory.*.color_id,
-                                                              inventory.*.material_id,
-                                                              inventory.*.fit_id',
-                'integer',
-                Rule::exists((new Size)->getTable(), 'id')
-            ],
-
-            "inventory.*.material_id" => [
-                'bail',
-                'required_with:inventory.*.quantity,
-                                                              inventory.*.color_id,
-                                                              inventory.*.size_id,
-                                                              inventory.*.fit_id',
-                'integer',
-                Rule::exists((new Material)->getTable(), 'id')
-            ],
-
-            "inventory.*.fit_id" => [
-                'bail',
-                'required_with:inventory.*.quantity,
-                                                              inventory.*.size_id,
-                                                              inventory.*.material_id,
-                                                              inventory.*.color_id',
-                'integer',
+            // fit validation
+            "inventory.*.fit" => ['array' ,'required_with:inventory.*.quantity,inventory.*.size_id,inventory.*.material_id,inventory.*.color_id', 'integer'] ,
+            "inventory.*.fit.id" => [
+            'bail',
                 Rule::exists((new Fit)->getTable(), 'id')
             ]
         ];
@@ -128,12 +132,16 @@ class StoreProductRequest extends FormRequest{
 
 
  
-
+ 
 
     private function product_tags(){
         return [
             'tags' => ['bail', 'required', 'array'],
-            'tags.*' => ['regex:/^[a-zA-Z0-9\s\-+_.,:;()@!#%&*\/\\\\[\]]+$/']
+           
+            'tags.*' => ['array'],
+            'tags.*.id' => ['nullable' , Rule::exists((new Tag)->getTable() , 'id')],
+            'tags.*.name' => ['required_if:tags.*.id,null' ,'min:1' , 'regex:/^[a-zA-Z0-9\s\-+_.,:;()@!#%&*\/\\\\[\]]+$/ ' ,'string',
+             Rule::unique((new Tag)->getTable() , 'name')]
         ];
     }
 }
