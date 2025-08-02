@@ -8,9 +8,13 @@ use Illuminate\Http\Request;
 class TagsController extends Controller
 {
      public function suggest(Request $request){
-          $query = $request->get("query" , '');
+          $query = $request->get("q");
+          if (empty($query)) {
+               return response()->json([], 200); // return nothing if empty
+          }
 
-        $tags = Tag::select('id', 'name')
+
+          $tags = Tag::select('id', 'name')
             ->where('name', 'like', "%{$query}%")
             ->limit(10)
             ->get();

@@ -49,25 +49,22 @@ function BasicInformationsSection({
 
 
     useEffect(() => {
-       async function  getTags() {
-           try{ const { data: tagsData } = await axios.get("/tags/suggest", {
-               params: { query: tagInputValue },
-           });
+        async function getTags() {
+               try {
+                   const { data: tagsData } = await axios.get("/tags/suggest", {
+                       params: { q: tagInputValue },
+                   });
 
-           
-           if (tagsData) {
-               console.log(tagsData)
-            //    setSuggestedTags([...suggestedTags, 
-            //       tagsData
-            //    ])
+                   if (tagsData.length > 0) {
+                       setSuggestedTags([...tagsData]);
+                   }
+               } catch (error) {
+                   console.log(error);
                }
-           } catch (error) {
-               console.log(error)
-           }
         }
         
         
-        if (tagInputValue.length > 0) {
+        if (tagInputValue.length > 1) {
             getTags();
         }
     },[tagInputValue])
