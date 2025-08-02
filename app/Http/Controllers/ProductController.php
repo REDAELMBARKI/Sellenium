@@ -23,15 +23,7 @@ class ProductController extends Controller
 {
     public function create()
     {
-     $tagSuggestions = [
-        ["id"=>1 , "name"=>"Electronics"],
-        ["id"=>2 , "name"=> "Fashion"],
-        ["id"=>3 , "name"=> "Sports"],
-        ["id"=>4 , "name"=>"sprint"],
-        ["id"=>5 , "name"=>"sparta"],
-    ];
-
-
+    
         $colors = Color::select('id', 'hex')->distinct()->get();
 
         $sizes = Size::select('id', 'name')->distinct()->get();
@@ -48,7 +40,7 @@ class ProductController extends Controller
     ];
 
 
-        return inertia::render("products/create" , ['tagSuggestions' => $tagSuggestions , 'inventoryOptions' => $inventoryOptions]);
+        return inertia::render("products/create" , ['inventoryOptions' => $inventoryOptions]);
     }
 
 

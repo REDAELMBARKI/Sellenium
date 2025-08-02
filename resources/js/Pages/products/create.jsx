@@ -76,12 +76,14 @@ function Create({ tagSuggestions, inventoryOptions }) {
 
     useEffect(() => {
         if (tagInputValue.length >= 2) {
-            const filteredSuggestions = tagSuggestions.filter(
+            const filteredSuggestions = tagSuggestions?.filter(
                 (suggestion) =>
-                    suggestion
+                    suggestion.name
                         .toLowerCase()
                         .includes(tagInputValue.toLowerCase()) &&
-                    !selectedTags.includes(suggestion)
+                    !selectedTags.some((selectedTag) =>
+                        selectedTag.name === suggestion.name
+                    )
             );
             setSuggestedTags(filteredSuggestions);
         } else {
@@ -474,6 +476,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
                             setSelectedTags={setSelectedTags}
                             // sunmition eerrors
                             errors={errors}
+                            setSuggestedTags={setSuggestedTags}
                         />
                         {/* <!-- Images Section --> */}
                         <AddImagesSection

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useEffect } from 'react'
 
 function BasicInformationsSection({
@@ -7,6 +8,7 @@ function BasicInformationsSection({
     setData,
     addSuggestedTagToSelectedOnes,
     suggestedTags,
+    setSuggestedTags,
     selectedTags,
     setSelectedTags,
     handleTagRemove,
@@ -19,26 +21,57 @@ function BasicInformationsSection({
         if (tagInputValue.trim().length < 1) {
             return;
         }
-        setSelectedTags([...selectedTags, tagInputValue]);
+        setSelectedTags([
+            ...selectedTags,
+            {
+                id: null,
+                name: tagInputValue,
+            },
+        ]);
     }
 
     function addHighlightedTag() {
     
-        if (suggestedTags.length > 0) {
+        if (suggestedTags?.length > 0) {
             setSelectedTags([...selectedTags, suggestedTags[0]]);
             setTagInputValue('')
         } else {
-              setSelectedTags([...selectedTags, tagInputValue]);
+            
+            setSelectedTags([...selectedTags, {
+                id:null,
+                name:tagInputValue
+            }]);
               setTagInputValue("");
             
         }
     }
 
-    useEffect(() => { 
-        console.log(selectedTags);
-    },[selectedTags])
 
 
+    useEffect(() => {
+       async function  getTags() {
+           try{ const { data: tagsData } = await axios.get("/tags/suggest", {
+               params: { query: tagInputValue },
+           });
+
+           
+           if (tagsData) {
+               console.log(tagsData)
+            //    setSuggestedTags([...suggestedTags, 
+            //       tagsData
+            //    ])
+               }
+           } catch (error) {
+               console.log(error)
+           }
+        }
+        
+        
+        if (tagInputValue.length > 0) {
+            getTags();
+        }
+    },[tagInputValue])
+  
     return (
         <>
             <div className="space-y-8">
@@ -288,7 +321,7 @@ function BasicInformationsSection({
                     <div
                         id="tagSuggestions"
                         className={`absolute z-10 w-full mt-2 bg-white/95 backdrop-blur-sm border border-slate-200 rounded-xl shadow-xl ${
-                            suggestedTags.length > 0 ? "" : "hidden"
+                            suggestedTags?.length > 0 ? "" : "hidden"
                         }`}
                     >
                         {suggestedTags && (
