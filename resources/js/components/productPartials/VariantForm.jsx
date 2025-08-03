@@ -62,7 +62,9 @@ import React, { useEffect, useState } from 'react'
                 <div
                     ref={variantFormRef}
                     className={`bg-gradient-to-br from-slate-50 relative ${
-                        isFlashing ? "bg-orange-100 border-2 border-orange-200" : ""
+                        isFlashing
+                            ? "bg-orange-100 border-2 border-orange-200"
+                            : ""
                     } to-blue-50/50 rounded-xl p-6 border border-slate-200`}
                 >
                     <h3 className="text-lg font-semibold text-slate-800 mb-6">
@@ -286,24 +288,28 @@ import React, { useEffect, useState } from 'react'
                             id="materialOptions"
                         >
                             {/* <!-- Material options --> */}
+                           
                             {inventoryOptions.materials.map(function (
                                 material,
                                 index
                             ) {
+                                const isCurrent =
+                                    currentVariant?.materials?.some(
+                                        (curr_material) =>
+                                            curr_material.id === material.id
+                                    );
+
                                 return (
                                     <button
                                         type="button"
                                         key={index}
                                         className={`${
-                                            currentVariant?.material?.name ===
-                                            material?.name
-                                                ? "selected"
-                                                : ""
+                                            isCurrent ? "selected" : ""
                                         } px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
                                         data-value={material?.name}
                                         onClick={() => {
                                             handleVariantSelection(
-                                                "material",
+                                                "materials",
                                                 material
                                             );
                                         }}

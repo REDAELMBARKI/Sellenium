@@ -16,8 +16,7 @@ class StoreProductRequest extends FormRequest{
 
 
     public function rules(){
-
-    
+        dd($this->all());
         return array_merge(
             $this->product_images(),
                     $this->product_infos(), 
@@ -114,8 +113,8 @@ class StoreProductRequest extends FormRequest{
             
 
             // material validation
-            "inventory.*.material" => ['array' ,'required_with:inventory.*.quantity,inventory.*.color_id,inventory.*.size_id,inventory.*.fit_id'],
-            "inventory.*.material.*.id" => [
+            "inventory.*.materials" => ['array' ,'required_with:inventory.*.quantity,inventory.*.color_id,inventory.*.size_id,inventory.*.fit_id'],
+            "inventory.*.materials.*.id" => [
                 'bail',
                 'integer',
                  Rule::exists((new Material)->getTable(), 'id')

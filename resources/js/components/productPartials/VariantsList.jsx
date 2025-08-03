@@ -20,7 +20,7 @@ function VariantsList({
             quantity: variant.quantity,
             fit:variant.fit,
             size:variant.size,
-            material:variant.material
+            materials:variant.materials
         });
         setTimeout(() => {
         setIsFlashing(false);
@@ -112,10 +112,22 @@ function VariantsList({
                                                 </div>
                                                 <div>
                                                     <span className="text-xs uppercase text-slate-400">
-                                                        Material:
+                                                        Material
+                                                        {variant?.materials
+                                                            ?.length > 1
+                                                            ? "s"
+                                                            : ""}
+                                                        :
                                                     </span>{" "}
                                                     <span className="font-medium text-slate-700">
-                                                        {variant?.material?.name}
+                                                        {variant?.materials
+                                                            ?.map(function (
+                                                                material,
+                                                                index
+                                                            ) {
+                                                                return material.name;
+                                                            })
+                                                            .join(" | ")}
                                                     </span>
                                                 </div>
                                             </div>

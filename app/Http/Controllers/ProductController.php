@@ -46,10 +46,10 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request)
     {
-        $validated = $request->validated();    
-
+        dd($request);    
+        $validated = $request->validated();
         $products = collect($validated);
-        dd($products);
+     
         $inventory_columns = [
             "quanity",
             'color_id',
