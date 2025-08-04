@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Http\Requests\StoreProductRequest;
+
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Color;
 use App\Models\Cover;
@@ -44,12 +45,12 @@ class ProductController extends Controller
     }
 
 
-    public function store(StoreProductRequest $request)
+    public function store(StoreProductRequest $request): never
     {
-        dd($request);    
+        dd('hello');
         $validated = $request->validated();
         $products = collect($validated);
-     
+        dd($products);
         $inventory_columns = [
             "quanity",
             'color_id',
