@@ -10,6 +10,7 @@ use App\Models\Material;
 use App\Models\Tag;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class StoreProductRequest extends FormRequest{
@@ -31,11 +32,35 @@ class StoreProductRequest extends FormRequest{
     public function withValidator($validator){
         $validator->after(function ($validator) {
 
-    
-            foreach ($this->input("tags" , []) as $tag){
-                
-            }
+            //tags
+            foreach ($this->input("tags" , []) as $index => $tag){
+                if(empty($tag["id"])){
 
+                    if(empty($tag["name"])){
+
+                        $this->errors()->add('tags', 'the tag name is required for new added tags');   
+                    }
+                }
+            }
+           
+       
+            /// inventory 'inv'
+            $fields = ['colors' , 'materials' , 'size' , 'fit'];
+            foreach($this->input('inventory' , []) as $index => $variant){
+                $filledFields = array_filter($fields , function($field)  use($variant) {
+                           return ! empty($variant[$field]);
+                });
+         
+
+                if(count($filledFields) > 0){
+                      foreach($fields as $field){
+                            if(empty($variant[$field])){
+                                $this->errors()->add("inventory.$index.$field", "The $field is required when any inventory field is filled.");
+                            
+                            }
+                      }
+                }
+            }
         });
     }
 
@@ -154,7 +179,7 @@ class StoreProductRequest extends FormRequest{
             'tags.*.id' => ['nullable' , Rule::exists((new Tag)->getTable() , 'id')],
             'tags.*.name' => [
                 'nullable' , 'string','min:1' , 'regex:/^[a-zA-Z0-9\s\-+_.,:;()@!#%&*\/\\\\[\]]+$/' ,'string',
-             Rule::unique((new Tag)->getTable() , 'name')]
+            ]
         ];
     }
 }
