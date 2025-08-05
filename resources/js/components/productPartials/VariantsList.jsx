@@ -7,8 +7,11 @@ function VariantsList({
     setCurrentVariant,
     currentVariant,
     setUpdateVariantMode,
-    setIsFlashing
+    setIsFlashing,
+    errors
 }) {
+
+    console.log(errors)
     function editVariant(id) {
         setIsFlashing(true)
         setUpdateVariantMode(true)

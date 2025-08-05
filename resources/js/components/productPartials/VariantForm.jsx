@@ -361,7 +361,7 @@ import React, { useEffect, useState } from 'react'
                                                     : "opacity-50 cursor-not-allowed"
                                             }
                                         `}
-                        // disabled={!isReadyToAdd}
+                        disabled={!isReadyToAdd}
                     >
                         {updateVariantMode
                             ? "update variant"

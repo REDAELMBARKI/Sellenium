@@ -38,7 +38,7 @@ class StoreProductRequest extends FormRequest{
 
                     if(empty($tag["name"])){
 
-                        $this->errors()->add('tags', 'the tag name is required for new added tags');   
+                        $validator->errors()->add('tags', 'the tag name is required for new added tags');   
                     }
                 }
             }
@@ -55,7 +55,8 @@ class StoreProductRequest extends FormRequest{
                 if(count($filledFields) > 0){
                       foreach($fields as $field){
                             if(empty($variant[$field])){
-                                $this->errors()->add("inventory.$index.$field", "The $field is required when any inventory field is filled.");
+                            $strEnd = str_ends_with('s',$field) ? 'are' : 'is'; 
+                                $validator->errors()->add("inventory.$index.$field", "$field $strEnd  required in variant " . $index + 1);
                             
                             }
                       }
@@ -141,7 +142,7 @@ class StoreProductRequest extends FormRequest{
             ],
 
             // size
-            "inventory.*.size" => ['array'],
+            
             "inventory.*.size.id" => [
                 'bail',
                 'integer',
@@ -158,7 +159,7 @@ class StoreProductRequest extends FormRequest{
             ],
 
             // fit
-            "inventory.*.fit" => ['array'],
+          
             "inventory.*.fit.id" => [
                 'bail',
                 Rule::exists((new Fit)->getTable(), 'id')

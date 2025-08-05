@@ -65,14 +65,15 @@ function Create({ tagSuggestions, inventoryOptions }) {
     });
 
     // add variant button
-    const isReadyToAdd = Object.entries(currentVariant)
-        .filter(([key]) => key !== "id")
-        .every(
-            ([, value]) =>
-                value !== null &&
-                value !== "" &&
-                (!Array.isArray(value) || value.length > 0)
-        );
+    const isReadyToAdd = true;
+    // const isReadyToAdd = Object.entries(currentVariant)
+    //     .filter(([key]) => key !== "id")
+    //     .every(
+    //         ([, value]) =>
+    //             value !== null &&
+    //             value !== "" &&
+    //             (!Array.isArray(value) || value.length > 0)
+    //     );
     // end inventry variablles ================================================================
 
     useEffect(() => {
@@ -170,9 +171,9 @@ function Create({ tagSuggestions, inventoryOptions }) {
         });
 
        
-        if (! allfieldsFilled) {
-            return;
-        }
+        // if (! allfieldsFilled) {
+        //     return;
+        // }
 
 
         const sameMaterialVariant = (curr_materials, variant_materials) => {
@@ -574,6 +575,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                 currentVariant={currentVariant}
                                 setUpdateVariantMode={setUpdateVariantMode}
                                 setIsFlashing={setIsFlashing}
+                                errors={errors}
                             />
                         </div>
 
