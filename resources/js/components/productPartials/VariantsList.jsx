@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 function VariantsList({
     removeVariant,
@@ -7,11 +7,13 @@ function VariantsList({
     setCurrentVariant,
     currentVariant,
     setUpdateVariantMode,
-    setIsFlashing,
+    setIsFlashing, 
     errors
 }) {
+   
 
-    console.log(errors)
+    const [hasErrors, setHasErrors] = useState(false);
+    
     function editVariant(id) {
         setIsFlashing(true)
         setUpdateVariantMode(true)
@@ -31,6 +33,8 @@ function VariantsList({
        },100)
 
     }
+
+     
 
     return (
         <>
@@ -63,16 +67,33 @@ function VariantsList({
                         </button>
                     </div>
                 </div>
-                <div id="variantsContainer" className="space-y-4">
+                <div id="variantsContainer" className="space-y-4 ">
                     {/* <!-- Variants will be added here --> */}
 
                     {productVariants &&
                         productVariants.map(function (variant, index) {
+                       
+                        const keys = ["colors", "materials", "fit", "size"];
+                        const hasInvError = keys.some((key) => {
+                           const error = errors[`inventory.${index}.${key}`];
+                           return (
+                               typeof error === "string" && error.trim() !== ""
+                           );
+                       });
+
+                       setHasErrors(hasInvError);
+                            
                             return (
-                                <div key={index} className="variant-card">
-                                    <div className="flex items-center space-x-4">
+                                <div
+                                    key={index}
+                                    className={`variant-card    ${hasErrors
+                                            ? "border-3 !border-red-500"
+                                            : ""
+                                    }  `}
+                                >
+                                    <div className="flex items-center space-x-4 ">
                                         <div
-                                            className={`w-8 h-8 rounded-full ${"bg-gray-500"} border-2 border-slate-300 shadow-sm`}
+                                            className={`w-8 h-8 rounded-full ${"bg-gray-500"}  border-2 border-slate-300 shadow-sm`}
                                         ></div>
                                         <div className="flex-1 space-y-1 text-sm text-slate-700">
                                             {/* Color Circles */}
