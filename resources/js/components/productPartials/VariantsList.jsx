@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 
 function VariantsList({
     removeVariant,
@@ -7,35 +7,28 @@ function VariantsList({
     setCurrentVariant,
     currentVariant,
     setUpdateVariantMode,
-    setIsFlashing, 
-    errors
-}) {
-   
-
-    const [hasErrors, setHasErrors] = useState(false);
+    setIsFlashing,
     
+}) {
     function editVariant(id) {
-        setIsFlashing(true)
-        setUpdateVariantMode(true)
+        setIsFlashing(true);
+        setUpdateVariantMode(true);
         const variant = productVariants?.find((variant) => variant.id === id);
         setCurrentVariant({
             ...currentVariant,
-            id:variant.id,
-            colors:[...variant.colors],
+            id: variant.id,
+            colors: [...variant.colors],
             quantity: variant.quantity,
-            fit:variant.fit,
-            size:variant.size,
-            materials:variant.materials
+            fit: variant.fit,
+            size: variant.size,
+            materials: variant.materials,
         });
         setTimeout(() => {
-        setIsFlashing(false);
-           
-       },100)
-
+            setIsFlashing(false);
+        }, 100);
     }
 
-     
-
+  
     return (
         <>
             <div
@@ -72,22 +65,13 @@ function VariantsList({
 
                     {productVariants &&
                         productVariants.map(function (variant, index) {
-                       
-                        const keys = ["colors", "materials", "fit", "size"];
-                        const hasInvError = keys.some((key) => {
-                           const error = errors[`inventory.${index}.${key}`];
-                           return (
-                               typeof error === "string" && error.trim() !== ""
-                           );
-                       });
-
-                       setHasErrors(hasInvError);
                             
                             return (
                                 <div
                                     key={index}
-                                    className={`variant-card    ${hasErrors
-                                            ? "border-3 !border-red-500"
+                                    className={`variant-card    ${
+                                            variant.hasErrors
+                                            ? "border-2 !border-red-500 !bg-red-500"
                                             : ""
                                     }  `}
                                 >

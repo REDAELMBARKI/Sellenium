@@ -486,10 +486,37 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // submit form
     function submitForm(e) {
         e.preventDefault();
-
+        
         (async () => {
             try {
-                post("/products");
+                post("/products", {
+                    preserveScroll: true,
+                    onError: (errors) => {
+                        const keys = ["colors", "materials", "fit", "size"];
+
+                        setProductVariants((prevVariants) =>
+                            prevVariants.map((variant, index) => {
+                                const hasErrors = keys.some((key) => {
+                                    const error =
+                                        errors[`inventory.${index}.${key}`];
+                                    return (
+                                        typeof error === "string" &&
+                                        error.trim() !== ""
+                                    );
+                                });
+
+                                return {
+                                    ...variant,
+                                    hasErrors,
+                                };
+                            })
+                        );
+                    },
+                });
+
+
+                 
+                  
             } catch (error) {
                 console.error(
                     "Error submitting product:",
@@ -498,6 +525,14 @@ function Create({ tagSuggestions, inventoryOptions }) {
                 // Optional: show error to user
             }
         })();
+
+
+
+       
+
+        
+        
+       
     }
 
     return (
@@ -571,6 +606,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                 setUpdateVariantMode={setUpdateVariantMode}
                                 setIsFlashing={setIsFlashing}
                                 errors={errors}
+                                setProductVariants={setProductVariants}
                             />
                         </div>
 
