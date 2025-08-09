@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 
 use App\Http\Requests\UpdateProductRequest;
+use App\Http\Services\ColorServices;
 use App\Models\Color;
 use App\Models\Cover;
 use App\Models\Fit;
@@ -47,9 +48,9 @@ class ProductController extends Controller
     }
 
 
-    public function store(StoreProductRequest $request)
+    public function store(StoreProductRequest $request , ColorServices $colorService)
     {
-      
+       
         $validated = $request->validated();
         $product_input_data = collect($validated);
         
@@ -130,7 +131,14 @@ class ProductController extends Controller
                 'product_id'=> $product->id,
             ])->toArray();
 
-            
+            // store new colors (none existing ones );
+            $colorService->storeNewColors($variant);
+           
+            // getVariant colorr idies 
+
+           $colors_ids =  $colorService->getVariantColorsIdies($variant);
+           
+           
         }
         
 
