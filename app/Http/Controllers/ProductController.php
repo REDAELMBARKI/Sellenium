@@ -7,6 +7,7 @@ use App\Http\Requests\StoreProductRequest;
 
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Services\ColorServices;
+use App\Http\Services\MaterialServices;
 use App\Models\Color;
 use App\Models\Cover;
 use App\Models\Fit;
@@ -48,7 +49,9 @@ class ProductController extends Controller
     }
 
 
-    public function store(StoreProductRequest $request , ColorServices $colorService)
+    public function store(StoreProductRequest $request ,
+                           ColorServices $colorService ,
+                            MaterialServices  $materialService)
     {
        
         $validated = $request->validated();
@@ -109,7 +112,16 @@ class ProductController extends Controller
         // store product related tags and store the none existed tags to tags table 
         foreach($tags as $tag) {
         
-            $exist = Tag::where ('name' ,$tag['name'])->first();
+          
+            $exist = Tag::where(function($q) use($tag) {
+                     if(! empty($tag['id'])){
+                             $q->orWhere('id', $tag['id']);
+                     }
+                     if(! empty($tag['name'])){
+                        $q->orWhere('name','like','%'. $tag['name'] .'%');
+                     }
+            })->exists();
+            
             if ($exist) {
                  $product->tags()->attach($exist->id);
             }
@@ -133,12 +145,35 @@ class ProductController extends Controller
 
             // store new colors (none existing ones );
             $colorService->storeNewColors($variant);
-           
-            // getVariant colorr idies 
 
-           $colors_ids =  $colorService->getVariantColorsIdies($variant);
-           
-           
+            // getVariant colorr idies 
+            $quantity = $variant['quantity'];
+            $size_id = $variant['size']['id'];
+            $fit_id = $variant['fit']['id'];
+            $colors_ids =  $colorService->getVariantColorsIdies($variant);
+            $materials_ids =  $materialService->getVariantMaterialsIdies($variant);
+            $variantDataCollection = collect();
+
+            foreach ($colors_ids as $color_id) {
+                foreach ($materials_ids as $material_id) {
+                    $variantDataCollection->push(
+                            [
+                                'product_id' => $product->id,
+                                'color_id' => $color_id,
+                                'size_id' => $size_id,
+                                'fit_id' => $fit_id,
+                                'material_id' => $material_id,
+                                'quantity' => $quantity,
+                            ]
+                       );
+                }
+
+            }
+
+            // for each variant insert all combination 
+            
+            Inventory::insert($variantDataCollection->toArray());  
+         
         }
         
 
