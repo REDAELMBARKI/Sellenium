@@ -468,7 +468,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
         setImagesValid(allFilled);
     }, [data, selectedTags, productVariants]);
 
-  
+   useEffect(()=>{console.log(data)},[data])
 
     // check if the all ready to submit
     useEffect(() => {

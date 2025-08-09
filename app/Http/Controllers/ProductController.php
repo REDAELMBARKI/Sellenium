@@ -16,7 +16,9 @@ use App\Models\Size;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 
@@ -45,21 +47,13 @@ class ProductController extends Controller
     }
 
 
-    public function store(StoreProductRequest $request): never
+    public function store(StoreProductRequest $request)
     {
-        dd('hello');
+      
         $validated = $request->validated();
-        $products = collect($validated);
-        dd($products);
-        $inventory_columns = [
-            "quanity",
-            'color_id',
-            'size_id',
-            'fit_id',
-            'material_id'
-        ];
+        $product_input_data = collect($validated);
         
-        
+    
         // collumns for each table
         $availableCovers = [];
         foreach($request->all() as $key => $value) {
@@ -68,19 +62,23 @@ class ProductController extends Controller
             }
         }
 
+       
+        $covers_data= $product_input_data->only($availableCovers)->toArray();
+        $product_info = $product_input_data->except(['inventory', ...$availableCovers , 'tags'])->toArray();
+        $tags = $product_input_data->get('tags');
+        $inventory_data = $product_input_data->get('inventory');
 
-        $covers_columns = $products->only($availableCovers);
-        $products_data = $products->except([...$inventory_columns, ...$covers_columns , 'tags']);
-        $tags = $products->only('tags');
 
+        // Products basic Info =======================================================================================
 
-        dd($products_data);
         // store to  products table  and return it 
-        $product = Product::create([]);
+
+        $product = Product::create($product_info);
 
         
+        // Covers =======================================================================================
         // store  the covers to covers table with foreign key product_id
-    
+
         //check the directory if exist of create it 
         if(! Storage::exists('public/images/products')){
             Storage::makeDirectory('pulic/images/products');
@@ -106,33 +104,36 @@ class ProductController extends Controller
                 'path' => $relative_path,
             ]);
         }
-
+        // Tags =======================================================================================
         // store product related tags and store the none existed tags to tags table 
-        foreach($tags as $tag) { 
-            $exist = Tag::where ('name' ,$tag)->first();
+        foreach($tags as $tag) {
+        
+            $exist = Tag::where ('name' ,$tag['name'])->first();
             if ($exist) {
                  $product->tags()->attach($exist->id);
             }
             else{
                 $newtagAdded = Tag::create([
-                    'name' => $tag,
+                    'name' => $tag['name'],
+                    'slug' => Str::slug($tag['name']),
                 ]);
                 $product->tags()->attach($newtagAdded->id);
             }
         }
 
 
-
+        // Inventory =======================================================================================
         // store  the inventry's data to covers table with foreign key product_id
-        // [
-        //     [color_id , size_id , fit_id , material_id],
-        //     []
-        // ]
-        $inventory_data = $products->only($inventory_columns)->merge([
-            'product_id' => $product->id
-        ])->all();
-        dd($inventory_data);
-        // Inventory::insert($inventory_data);
+       
+        foreach($inventory_data  as $variant){
+            $variant = collect($variant)->merge([
+                'product_id'=> $product->id,
+            ])->toArray();
+
+            
+        }
+        
+
     }
 
 

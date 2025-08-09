@@ -22,7 +22,7 @@ class ProductFactory extends Factory
         return [
             'name' => $name = $this->faker->name,
             'brand' => $this->faker->name,
-            'slug'=> Str::slug($name),
+            
             'thumbnail' => $this->faker->url,
             'rating_count' => $this->faker->numberBetween(1,40),
             'rating_average' =>  $this->faker->numberBetween(1,5),
