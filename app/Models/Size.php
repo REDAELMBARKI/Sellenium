@@ -9,4 +9,6 @@ class Size extends Model
 {
     /** @use HasFactory<\Database\Factories\SizeFactory> */
     use HasFactory;
+
+    protected $fillable = ['name' , 'abbr'];
 }

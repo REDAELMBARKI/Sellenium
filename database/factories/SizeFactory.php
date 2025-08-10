@@ -41,7 +41,7 @@ private $sizes = [
         $size = $this->faker->randomElement(array_keys($this->sizes)) ;
         return [
             'name' => $size,
-            'code' => $this->sizes[$size],
+            'abbr' => $this->sizes[$size],
         ];
     }
 }

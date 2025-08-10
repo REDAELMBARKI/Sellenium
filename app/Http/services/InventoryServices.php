@@ -3,8 +3,9 @@ namespace App\Http\Services;
 
 
 use App\Models\Color;
+use App\Models\Material;
 
-class ColorServices {
+class InventoryServices {
     public  function storeNewColors($variant)
     {
         // store none existed colors 
@@ -39,7 +40,7 @@ class ColorServices {
 
         Color::insert($newColors);
     }
-
+    
 
     public function getVariantColorsIdies($variant){
         $color_idies = [];
@@ -73,6 +74,31 @@ class ColorServices {
         }
 
         
+        return $ids;
+    }
+
+
+
+    public function getVariantMaterialsIdies($variant)
+    {
+
+        $material_idies = [];
+
+        foreach ($variant['materials'] as $material) {
+            if (! empty($material['id'])) {
+                $material_idies[] = $material['id'];
+            }
+        }
+
+
+
+        if (! empty($material_idies)) {
+            $ids = Material::whereIn('id', $material_idies)->pluck('id');
+        } else {
+            $ids = collect();
+        }
+
+
         return $ids;
     }
 }

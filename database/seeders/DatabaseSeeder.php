@@ -21,16 +21,13 @@ class DatabaseSeeder extends Seeder
            SizeSeeder::class,
            ColorSeeder::class,
            MaterialSeeder::class,
-           ProductSeeder::class,
-           CoverSeeder::class,
            FitSeeder::class,
            UserSeeder::class,
-           OrderSeeder::class,
-           InventorySeeder::class,
-           PromotionSeeder::class,
-           ReviewSeeder::class,
-           CartSeeder::class,
-           WishListSeeder::class,
+          //  OrderSeeder::class,
+          //  PromotionSeeder::class,
+          //  ReviewSeeder::class,
+          //  CartSeeder::class,
+          //  WishListSeeder::class,
     
         // Add more seeders here...
       ]);

@@ -19,7 +19,6 @@ class FitFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
-             'product_id' => Product::inRandomOrder()->first()->id ?? Product::factory()->create()->id,
         ];
     }
 }

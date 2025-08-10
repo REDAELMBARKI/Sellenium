@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 
 use App\Http\Requests\UpdateProductRequest;
-use App\Http\Services\ColorServices;
+use App\Http\Services\InventoryServices;
 use App\Http\Services\MaterialServices;
 use App\Models\Color;
 use App\Models\Cover;
@@ -50,9 +50,10 @@ class ProductController extends Controller
 
 
     public function store(StoreProductRequest $request ,
-                           ColorServices $colorService ,
-                            MaterialServices  $materialService)
-    {
+                            InventoryServices $inventoryServices ,
+                           )
+                           {
+        
        
         $validated = $request->validated();
         $product_input_data = collect($validated);
@@ -66,66 +67,83 @@ class ProductController extends Controller
             }
         }
 
-       
-        $covers_data= $product_input_data->only($availableCovers)->toArray();
         $product_info = $product_input_data->except(['inventory', ...$availableCovers , 'tags'])->toArray();
-        $tags = $product_input_data->get('tags');
-        $inventory_data = $product_input_data->get('inventory');
-
-
+        
         // Products basic Info =======================================================================================
 
         // store to  products table  and return it 
 
         $product = Product::create($product_info);
 
-        
         // Covers =======================================================================================
         // store  the covers to covers table with foreign key product_id
+        $this->storeCovers($request->allFiles() , $product->id);
+        // Tags =======================================================================================
+        // store product related tags and store the none existed tags to tags table 
+        $this->storeTags($product_input_data , $product);
 
+        // Inventory =======================================================================================
+        // store  the inventry's data to covers table with foreign key product_id
+
+        $this->storeToInventory($product_input_data,$product->id, $inventoryServices);
+        
+
+    }
+     
+    public function storeCovers($request_files , $product_id){
+        
         //check the directory if exist of create it 
-        if(! Storage::exists('public/images/products')){
-            Storage::makeDirectory('pulic/images/products');
+        if (! Storage::exists('public/images/products')) {
+            Storage::makeDirectory('public/images/products');
         }
 
         // store covers in covers table 
         $covers = [];
 
 
-        foreach ($request->allFiles() as $key => $file) {
+        foreach ($request_files as $key => $file) {
             if (str_starts_with($key, 'cover_')) {
                 $covers[] = $file;
             }
         }
 
+        $coversDataCollection = collect();
         foreach ($covers as $cover) {
             $fileName = uniqid() . '.' . $cover->getClientOriginalExtension();
             $path = $cover->storeAs('products', $fileName, 'public');
             $relative_path = 'storage/' . $path;
 
-            Cover::create([
-                'product_id' => $product->id,
+
+
+            $coversDataCollection->push([
+                'product_id' => $product_id,
                 'path' => $relative_path,
             ]);
         }
-        // Tags =======================================================================================
-        // store product related tags and store the none existed tags to tags table 
-        foreach($tags as $tag) {
+
+
+       
+        Cover::insert($coversDataCollection->toArray());
+    }
+    public function storeTags($product_input_data , $product){
+        $tags = $product_input_data->get('tags');
         
-          
-            $exist = Tag::where(function($q) use($tag) {
-                     if(! empty($tag['id'])){
-                             $q->orWhere('id', $tag['id']);
-                     }
-                     if(! empty($tag['name'])){
-                        $q->orWhere('name','like','%'. $tag['name'] .'%');
-                     }
-            })->exists();
-            
+        foreach ($tags as $tag) {
+
+
+            $exist = Tag::where(function ($q) use ($tag) {
+                if (! empty($tag['id'])) {
+                    $q->orWhere('id', $tag['id']);
+                }
+                if (! empty($tag['name'])) {
+                    $q->orWhere('name', 'like', '%' . $tag['name'] . '%');
+                }
+            })->first();
+
+
             if ($exist) {
-                 $product->tags()->attach($exist->id);
-            }
-            else{
+                $product->tags()->attach($exist->id);
+            } else {
                 $newtagAdded = Tag::create([
                     'name' => $tag['name'],
                     'slug' => Str::slug($tag['name']),
@@ -133,51 +151,49 @@ class ProductController extends Controller
                 $product->tags()->attach($newtagAdded->id);
             }
         }
+    }
 
 
-        // Inventory =======================================================================================
-        // store  the inventry's data to covers table with foreign key product_id
-       
-        foreach($inventory_data  as $variant){
+     public function storeToInventory($product_input_data ,$product_id , $inventoryServices){
+
+        $inventory_data = $product_input_data->get('inventory');
+        foreach ($inventory_data  as $variant) {
             $variant = collect($variant)->merge([
-                'product_id'=> $product->id,
+                'product_id' => $product_id,
             ])->toArray();
 
             // store new colors (none existing ones );
-            $colorService->storeNewColors($variant);
+            $inventoryServices->storeNewColors($variant);
 
             // getVariant colorr idies 
             $quantity = $variant['quantity'];
             $size_id = $variant['size']['id'];
             $fit_id = $variant['fit']['id'];
-            $colors_ids =  $colorService->getVariantColorsIdies($variant);
-            $materials_ids =  $materialService->getVariantMaterialsIdies($variant);
+            $colors_ids =  $inventoryServices->getVariantColorsIdies($variant);
+            $materials_ids =  $inventoryServices->getVariantMaterialsIdies($variant);
             $variantDataCollection = collect();
 
             foreach ($colors_ids as $color_id) {
                 foreach ($materials_ids as $material_id) {
                     $variantDataCollection->push(
-                            [
-                                'product_id' => $product->id,
-                                'color_id' => $color_id,
-                                'size_id' => $size_id,
-                                'fit_id' => $fit_id,
-                                'material_id' => $material_id,
-                                'quantity' => $quantity,
-                            ]
-                       );
+                        [
+                            'product_id' => $product_id,
+                            'color_id' => $color_id,
+                            'size_id' => $size_id,
+                            'fit_id' => $fit_id,
+                            'material_id' => $material_id,
+                            'quantity' => $quantity,
+                        ]
+                    );
                 }
-
             }
 
             // for each variant insert all combination 
-            
-            Inventory::insert($variantDataCollection->toArray());  
-         
-        }
-        
 
-    }
+            Inventory::insert($variantDataCollection->toArray());
+        }
+     }
+
 
 
     public function edit(){

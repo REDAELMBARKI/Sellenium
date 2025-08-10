@@ -15,10 +15,9 @@ return new class extends Migration
         Schema::create('fits', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
             $table->timestamps();
 
-            $table->unique(['name','product_id']);
+            $table->unique(['name']);
         });
     }
 
