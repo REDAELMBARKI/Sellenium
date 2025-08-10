@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Inventory;
 use App\Models\Product;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,9 +16,9 @@ return new class extends Migration
         Schema::create('covers', function (Blueprint $table) {
             $table->id();
             $table->string('path');
-            $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Inventory::class)->constrained()->cascadeOnDelete();
             $table->timestamps();
-            $table->unique(['path','product_id']);
+            $table->unique(['path','variant_id']);
         });
     }
 

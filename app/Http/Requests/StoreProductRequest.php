@@ -93,10 +93,10 @@ class StoreProductRequest extends FormRequest{
     {
         $product_images = collect();
 
-
+        dd(request()->input("inventory"));
         $i = 1;
 
-        while (request()->hasFile("cover_$i")) {
+        while (request()->input("inventory")) {
             $product_images->push("cover_$i");
             $i++;
         }
@@ -109,6 +109,7 @@ class StoreProductRequest extends FormRequest{
             $validated_images[$image_name] = ['required', 'bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096'];
         
         }
+        
         return $validated_images;
     }
 

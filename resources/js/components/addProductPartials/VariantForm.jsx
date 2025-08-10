@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import AddImagesSection from './AddImagesSection';
 
     function VariantForm({
         inventoryOptions,
@@ -12,8 +13,14 @@ import React, { useEffect, useState } from 'react'
         setNewSelectedColors,
         updateVariantMode,
         errors,
-        isFlashing
-        
+        isFlashing,
+        // for covers
+        addImagePlaceHolder,
+        handleImageUpload ,
+        handleRemoveImage,
+        images,
+        imagesPlaceHolders,
+        placeHolderNotFilled
     }) {
         const [previewColor, setPreviewColor] = useState(null);
 
@@ -21,7 +28,6 @@ import React, { useEffect, useState } from 'react'
             setNewSelectedColors([...newSelectedColors, previewColor]);
             setPreviewColor(null);
         }
-
 
         return (
             <>
@@ -70,6 +76,21 @@ import React, { useEffect, useState } from 'react'
                     <h3 className="text-lg font-semibold text-slate-800 mb-6">
                         Create Product Variant
                     </h3>
+
+                    <div className="space-y-4 mb-6">
+                        <AddImagesSection
+                            forInventory={true}
+                            title="Product Variant Images"
+                            addImagePlaceHolder={addImagePlaceHolder}
+                            handleImageUpload={handleImageUpload}
+                            handleRemoveImage={handleRemoveImage}
+                            images={images}
+                            imagesPlaceHolders={imagesPlaceHolders}
+                            errors={errors}
+                            placeHolderNotFilled={placeHolderNotFilled}
+                            currentVariant={currentVariant}
+                        />
+                    </div>
                     {/* <!-- Colors --> */}
                     {/* <!-- Colors --> */}
                     <div className="space-y-4 mb-6">
@@ -288,7 +309,7 @@ import React, { useEffect, useState } from 'react'
                             id="materialOptions"
                         >
                             {/* <!-- Material options --> */}
-                           
+
                             {inventoryOptions.materials.map(function (
                                 material,
                                 index
