@@ -55,25 +55,10 @@ class ProductController extends Controller
                            {
         
        
-        $validated = $request->validated();
-        $product_input_data = collect($validated);
-        
-    
-        // collumns for each table
-        $availableCovers = [];
-        foreach($request->all() as $key => $value) {
-           if(str_starts_with($key,'cover_')) {
-                $availableCovers[] = $key;
-            }
-        }
-
-        $product_info = $product_input_data->except(['inventory', ...$availableCovers , 'tags'])->toArray();
-        
+        $product_input_data = collect($request->validated());
         // Products basic Info =======================================================================================
-
         // store to  products table  and return it 
-
-        $product = Product::create($product_info);
+        $product = $this->storeProductData($product_input_data , $request->allFiles());
 
         // Covers =======================================================================================
         // store  the covers to covers table with foreign key product_id
@@ -89,24 +74,43 @@ class ProductController extends Controller
         
 
     }
+    public function storeProductData($product_input_data , $request_files){
+        // store thumbnail
+        if (! Storage::exists('public/images/products/thumbnails')) {
+            Storage::makeDirectory('public/images/products/thumbnails');
+        }
+        $thum_fileName = uniqid() . '-thumbnail' . '.' . $request_files['thumbnail']->getClientOriginalExtension();
+        $thum_path = $request_files['thumbnail']->storeAs('/products/thumbnails', $thum_fileName, 'public');
+        $thum_relative_path = 'storage/' . $thum_path;
+
+
+        $product_info = $product_input_data->only(['name' , 'brand' , 'description' , 'price' , 'is_featured' , 'free_shipping'])->toArray();
+        $product_info['thumbnail'] = $thum_relative_path;
+
+    
+        return  Product::create($product_info);
+    }
      
     public function storeCovers($request_files , $product_id){
+        
         
         //check the directory if exist of create it 
         if (! Storage::exists('public/images/products')) {
             Storage::makeDirectory('public/images/products');
         }
 
+     
         // store covers in covers table 
         $covers = [];
 
-
+        
         foreach ($request_files as $key => $file) {
             if (str_starts_with($key, 'cover_')) {
                 $covers[] = $file;
             }
         }
 
+        
         $coversDataCollection = collect();
         foreach ($covers as $cover) {
             $fileName = uniqid() . '.' . $cover->getClientOriginalExtension();
@@ -124,6 +128,8 @@ class ProductController extends Controller
 
        
         Cover::insert($coversDataCollection->toArray());
+
+        
     }
     public function storeTags($product_input_data , $product){
         $tags = $product_input_data->get('tags');
@@ -204,6 +210,26 @@ class ProductController extends Controller
     {
 
 
+    }
+
+
+    public function destroy(UpdateProductRequest $request, $id){
+
+    }
+
+
+    public function show($id){
+       
+       $product = Product::findOrFail($id);
+       $covers = $product->covers;
+        
+        // $covers[] = ;
+
+        
+    //    $variants = $product->variants;
+
+        
+       return inertia::render('products/show', ['productData' => $product]);
     }
     
    
