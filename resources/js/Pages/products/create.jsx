@@ -51,7 +51,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
     const [imagesPlaceHolders, setImagesPlaceHolders] = useState([]);
     const [isVariantCoverPreview, setIsVariantCoverPreview] = useState(false);
     const variantFormRef = useRef(null);
-
+    const [isCurrentVariantActive, setIsCurrentVariantActive] = useState(false);
+    const [fileToPass ,setFileToPass]= useState(null);
     // inventory ====================================================================
 
     const [productVariants, setProductVariants] = useState([]);
@@ -110,60 +111,73 @@ function Create({ tagSuggestions, inventoryOptions }) {
 
     //start image uploads
     function fileToDataUrl(file) {
-        return new Promise((resolve, reject) => {
+        if (file) {
+            return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result);
             reader.onerror = reject;
             reader.readAsDataURL(file);
         });
+       }
     }
     function handleImageUpload(field, file) {
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setImages((prevImages) => ({
-                    ...prevImages,
-                    [field]: e.target.result,
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const base64 = e.target.result;
+
+            setImages((prevImages) => ({
+                ...prevImages,
+                [field]: base64,
+            }));
+
+            if (field === "thumbnail") {
+                setData((prev) => ({
+                    ...prev,
+                    [field]: file,
                 }));
+                setFileToPass(file);
+                setIsVariantCoverPreview(true);
+            } else if (field.startsWith("cover_")) {
+                setCurrentVariant((prev) => ({
+                    ...prev,
+                    covers: [...(prev.covers || []), { [field]: file }],
+                }));
+                setIsVariantCoverPreview(false);
+            }
+        };
 
-                if (field ===
-                    'thumbnail'
-                ) {
-                    //fill images data
-                    setData((prev) => ({
-                        ...prev,
-                        [field]: file,
-                    }));
-
-                      (async function updateImagesWithBase64() {
-                        
-                          const base64 = await fileToDataUrl(file);
-                          setImages((prev) => ({
-                              ...prev,
-                              cover_1: base64,
-                          }));
-                          setIsVariantCoverPreview(true)
-                      })();
-                    
-                }
-
-                if (field.startsWith('cover_')){
-                    setCurrentVariant((prev) => ({
-                        ...prev,
-                        covers: [
-                            ...prev.covers,
-                            {
-                                [field]: file,
-                            },
-                        ],
-                    }));
-                    setIsVariantCoverPreview(false);
-
-                }
-            };
-            reader.readAsDataURL(file);
-        }
+        reader.readAsDataURL(file);
     }
+
+
+ useEffect(() => {
+     let isMounted = true;
+
+     if (!isCurrentVariantActive) {
+         setImages((prev) => ({
+             ...prev,
+             cover_1: null,
+         }));
+     } else {
+         (async function updateImagesWithBase64() {
+             const base64 = await fileToDataUrl(fileToPass);
+             if (isMounted && isCurrentVariantActive) {
+                 setImages((prev) => ({
+                     ...prev,
+                     cover_1: base64,
+                 }));
+             }
+         })();
+     }
+
+     return () => {
+         isMounted = false;
+     };
+ }, [currentVariant, isCurrentVariantActive]);
+
 
     useEffect(() => {
         const temp = [];
@@ -217,12 +231,16 @@ function Create({ tagSuggestions, inventoryOptions }) {
             const covers = currentVariant.covers.filter(function (cover) {
                return !cover.hasOwnProperty(field);
             });
-           
             
             setCurrentVariant((prev) => ({
                 ...prev,
                  covers : covers
             }));
+
+            setImages({
+                ...images,
+                [field] : null
+            });
         }
     }
 
@@ -437,7 +455,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
         });
         
         // reset images 
-        setImages((prev) => {
+        (async () => {
+            setImages((prev) => {
             return Object.fromEntries(
                 Object.entries(prev).map(
                     ([key, value]) =>
@@ -448,6 +467,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
             );
         });
    
+        })()
 
         // reset placeHolders to one placeholder cover_1
         setImagesPlaceHolders([1])
@@ -739,12 +759,13 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                 handleImageUpload={handleImageUpload}
                                 handleRemoveImage={handleRemoveImage}
                                 images={images}
+                                setImages={setImages}
                                 imagesPlaceHolders={imagesPlaceHolders}
                                 placeHolderNotFilled={placeHolderNotFilled}
                                 isVariantCoverPreview={isVariantCoverPreview}
-                                setIsVariantCoverPreview={
-                                    setIsVariantCoverPreview
-                                }
+                                setIsVariantCoverPreview={ setIsVariantCoverPreview}
+                                isCurrentVariantActive={isCurrentVariantActive}
+                                setIsCurrentVariantActive={setIsCurrentVariantActive}
                             />
                             {/* <!-- Variants List --> */}
                             <VariantsList

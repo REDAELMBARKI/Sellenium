@@ -1,10 +1,11 @@
-import React, { useState} from 'react'
+import React, { useEffect, useState} from 'react'
 
 function AddImagesSection({
     title,
     forInventory,
     addImagePlaceHolder,
     images,
+    setImages,
     handleImageUpload,
     imagesPlaceHolders,
     handleRemoveImage,
@@ -12,9 +13,55 @@ function AddImagesSection({
     placeHolderNotFilled,
     currentVariant,
     isVariantCoverPreview,
-    
+    isCurrentVariantActive,
+    setIsCurrentVariantActive,
 }) {
-   
+
+    useEffect(() => {
+        if (
+              typeof setIsCurrentVariantActive !== "function"
+        ) {
+              return;
+        }
+        
+        if (!currentVariant || typeof currentVariant !== "object") {
+            setIsCurrentVariantActive(false);
+            return;
+        }
+
+        const filled = Object.entries(currentVariant)
+            .filter(([key]) => key !== "quantity")
+            .some(([_, f]) => {
+                if (typeof f === "string") return f.trim() !== "";
+                if (Array.isArray(f)) return f.length > 0;
+                if (f && typeof f === "object")
+                    return Object.keys(f).length > 0;
+                return !!f;
+            });
+
+        setIsCurrentVariantActive(filled);
+    }, [currentVariant]);
+
+    useEffect(() => {
+        if (
+            typeof setImages !== "function" &&
+            typeof setIsCurrentVariantActive !== "function"
+        ) {
+            return;
+        }
+
+        if (isCurrentVariantActive && images.thumbnail) {
+            setImages((prevImages) => ({
+                ...prevImages,
+                cover_1: prevImages.thumbnail,
+            }));
+        } else if (!isCurrentVariantActive) {
+            setImages((prevImages) => ({
+                ...prevImages,
+                cover_1: null,
+            }));
+        }
+    }, [isCurrentVariantActive, images.thumbnail]);
 
     return (
         <>
@@ -170,7 +217,7 @@ function AddImagesSection({
                             />
                         </li>
                     )}
-                   {/* // other covers */}
+                    {/* // other covers */}
                     {imagesPlaceHolders.length > 0 &&
                         imagesPlaceHolders.map(function (index, i) {
                             return (
@@ -201,7 +248,9 @@ function AddImagesSection({
                                             src={images[`cover_${index}`]}
                                             className={`w-full h-full  object-cover group-hover:scale-105 transition-transform duration-300
                                                         ${
-                                                            isVariantCoverPreview ? 'opacity-50' : ''
+                                                            isVariantCoverPreview
+                                                                ? "opacity-50"
+                                                                : ""
                                                         }
                                                      `}
                                             alt={`cover_${index}`}

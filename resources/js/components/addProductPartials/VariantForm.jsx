@@ -16,14 +16,17 @@ import AddImagesSection from './AddImagesSection';
         isFlashing,
         // for covers
         addImagePlaceHolder,
-        handleImageUpload ,
+        handleImageUpload,
         handleRemoveImage,
         images,
+        setImages,
         imagesPlaceHolders,
         placeHolderNotFilled,
         isVariantCoverPreview,
         setIsVariantCoverPreview,
-        data
+        data,
+        isCurrentVariantActive,
+        setIsCurrentVariantActive,
     }) {
         const [previewColor, setPreviewColor] = useState(null);
         function handleAddColor() {
@@ -87,6 +90,7 @@ import AddImagesSection from './AddImagesSection';
                             handleImageUpload={handleImageUpload}
                             handleRemoveImage={handleRemoveImage}
                             images={images}
+                            setImages={setImages}
                             imagesPlaceHolders={imagesPlaceHolders}
                             errors={errors}
                             placeHolderNotFilled={placeHolderNotFilled}
@@ -94,6 +98,10 @@ import AddImagesSection from './AddImagesSection';
                             isVariantCoverPreview={isVariantCoverPreview}
                             setIsVariantCoverPreview={setIsVariantCoverPreview}
                             data={data}
+                            isCurrentVariantActive={isCurrentVariantActive}
+                            setIsCurrentVariantActive={
+                                setIsCurrentVariantActive
+                            }
                         />
                     </div>
                     {/* <!-- Colors --> */}
