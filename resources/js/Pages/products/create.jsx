@@ -49,7 +49,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
     const [suggestedTags, setSuggestedTags] = useState([]);
     const [images, setImages] = useState({});
     const [imagesPlaceHolders, setImagesPlaceHolders] = useState([]);
-
+    const [isVariantCoverPreview, setIsVariantCoverPreview] = useState(false);
     const variantFormRef = useRef(null);
 
     // inventory ====================================================================
@@ -109,7 +109,14 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // end tags logic
 
     //start image uploads
-
+    function fileToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
     function handleImageUpload(field, file) {
         if (file) {
             const reader = new FileReader();
@@ -119,14 +126,25 @@ function Create({ tagSuggestions, inventoryOptions }) {
                     [field]: e.target.result,
                 }));
 
-                if (field === 
+                if (field ===
                     'thumbnail'
-                ){
+                ) {
                     //fill images data
                     setData((prev) => ({
                         ...prev,
                         [field]: file,
                     }));
+
+                      (async function updateImagesWithBase64() {
+                        
+                          const base64 = await fileToDataUrl(file);
+                          setImages((prev) => ({
+                              ...prev,
+                              cover_1: base64,
+                          }));
+                          setIsVariantCoverPreview(true)
+                      })();
+                    
                 }
 
                 if (field.startsWith('cover_')){
@@ -139,6 +157,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
                             },
                         ],
                     }));
+                    setIsVariantCoverPreview(false);
+
                 }
             };
             reader.readAsDataURL(file);
@@ -186,6 +206,12 @@ function Create({ tagSuggestions, inventoryOptions }) {
                 ...data,
                 [field]: null,
             });
+
+
+            if (isVariantCoverPreview) {
+                setImages({})
+                setIsVariantCoverPreview(false);
+            }
         }
         else {
             const covers = currentVariant.covers.filter(function (cover) {
@@ -224,7 +250,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
        
         const sameCoversVariant = (curr_covers, variant_covers) => {
            
-             console.log(curr_covers)
+            
               if (curr_covers.length !== variant_covers.length) {
                   return false;
               }
@@ -358,12 +384,14 @@ function Create({ tagSuggestions, inventoryOptions }) {
 
         if (updateVariantMode) {
             // just update
-            setProductVariants(
-                productVariants.map((variant) =>
-                    variant.id === currentVariant.id
-                        ? { ...variant, ...currentVariant }
-                        : variant
-                )
+            setProductVariants((prevVariants) =>
+                prevVariants.map((variant) => {
+                    if (variant.id === currentVariant.id) {
+                        const updated = { ...variant, ...currentVariant };
+                        return updated;
+                    }
+                    return variant;
+                })
             );
 
             setUpdateVariantMode(false);
@@ -408,10 +436,22 @@ function Create({ tagSuggestions, inventoryOptions }) {
             covers : []
         });
         
-        
+        // reset images 
         setImages((prev) => {
-           return Object.entries(prev).map(([key, value]) => key.startsWith('cover_') ? [key,null] : [key ,value]);
+            return Object.fromEntries(
+                Object.entries(prev).map(
+                    ([key, value]) =>
+                        key.startsWith("cover_")
+                            ? [key, null] 
+                            : [key, value] 
+                )
+            );
         });
+   
+
+        // reset placeHolders to one placeholder cover_1
+        setImagesPlaceHolders([1])
+       
 
     }
 
@@ -490,9 +530,17 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // remove variant
     function removeVariant(id) {
         // productVariants
+        
         setProductVariants((prev) => {
             return prev.filter((el) => el.id !== id);
         });
+
+        
+        if (id === currentVariant?.id) {
+            resetVariantForm()
+        }
+
+        setUpdateVariantMode(false)
     }
 
     // end inventroy logic  ===============================
@@ -693,6 +741,10 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                 images={images}
                                 imagesPlaceHolders={imagesPlaceHolders}
                                 placeHolderNotFilled={placeHolderNotFilled}
+                                isVariantCoverPreview={isVariantCoverPreview}
+                                setIsVariantCoverPreview={
+                                    setIsVariantCoverPreview
+                                }
                             />
                             {/* <!-- Variants List --> */}
                             <VariantsList
@@ -705,6 +757,13 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                 setIsFlashing={setIsFlashing}
                                 errors={errors}
                                 setProductVariants={setProductVariants}
+                                setImages={setImages}
+                                images={images}
+                                setImagesPlaceHolders={setImagesPlaceHolders}
+                                setIsVariantCoverPreview={
+                                    setIsVariantCoverPreview
+                                }
+                                data={data}
                             />
                         </div>
 

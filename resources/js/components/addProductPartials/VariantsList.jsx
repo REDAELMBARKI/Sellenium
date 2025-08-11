@@ -8,8 +8,20 @@ function VariantsList({
     currentVariant,
     setUpdateVariantMode,
     setIsFlashing,
-    
+    setImages,
+    images,
+    setImagesPlaceHolders,
+    setIsVariantCoverPreview,
 }) {
+    function fileToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
     function editVariant(id) {
         setIsFlashing(true);
         setUpdateVariantMode(true);
@@ -22,13 +34,47 @@ function VariantsList({
             fit: variant.fit,
             size: variant.size,
             materials: variant.materials,
+            covers: variant.covers,
         });
+
+        (async function updateImagesWithBase64() {
+            const newImages = {};
+
+            for (const coverObj of variant.covers) {
+                const coverKey = Object.keys(coverObj)[0];
+                const file = Object.values(coverObj)[0];
+                const base64 = await fileToDataUrl(file);
+                newImages[coverKey] = base64;
+            }
+
+            setImages((prev) => ({
+                ...prev,
+                ...newImages,
+            }));
+        })();
+        const editedVariantPlaceHolders = [];
+        for (let i = 1; i <= variant.covers.length; i++) {
+            editedVariantPlaceHolders.push(i);
+        }
+
+        if (variant.covers.length === 0 && images.thumbnail) {
+            setIsVariantCoverPreview(true);
+            setImages({
+                ...images,
+                cover_1: images.thumbnail,
+            });
+        }
+
+        setImagesPlaceHolders(
+            editedVariantPlaceHolders.length > 1
+                ? editedVariantPlaceHolders
+                : [1]
+        );
         setTimeout(() => {
             setIsFlashing(false);
         }, 100);
     }
 
-  
     return (
         <>
             <div
@@ -65,12 +111,11 @@ function VariantsList({
 
                     {productVariants &&
                         productVariants.map(function (variant, index) {
-                            
                             return (
                                 <div
                                     key={index}
                                     className={`variant-card    ${
-                                            variant.hasErrors
+                                        variant.hasErrors
                                             ? "border-2 !border-red-500 !bg-red-500"
                                             : ""
                                     }  `}

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState} from 'react'
 
 function AddImagesSection({
     title,
@@ -11,7 +11,11 @@ function AddImagesSection({
     errors,
     placeHolderNotFilled,
     currentVariant,
+    isVariantCoverPreview,
+    
 }) {
+   
+
     return (
         <>
             <div className="space-y-6">
@@ -166,7 +170,7 @@ function AddImagesSection({
                             />
                         </li>
                     )}
-
+                   {/* // other covers */}
                     {imagesPlaceHolders.length > 0 &&
                         imagesPlaceHolders.map(function (index, i) {
                             return (
@@ -182,7 +186,8 @@ function AddImagesSection({
                                             : "border-2 border-dashed border-slate-300"
                                     }
                                         ${
-                                            placeHolderNotFilled && (i === imagesPlaceHolders.length - 1)
+                                            placeHolderNotFilled &&
+                                            i === imagesPlaceHolders.length - 1
                                                 ? "border-2 !border-red-500"
                                                 : ""
                                         }
@@ -190,10 +195,15 @@ function AddImagesSection({
                                         `}
                                 >
                                     {/* Show image if exists */}
+
                                     {images[`cover_${index}`] && (
                                         <img
                                             src={images[`cover_${index}`]}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            className={`w-full h-full  object-cover group-hover:scale-105 transition-transform duration-300
+                                                        ${
+                                                            isVariantCoverPreview ? 'opacity-50' : ''
+                                                        }
+                                                     `}
                                             alt={`cover_${index}`}
                                         />
                                     )}

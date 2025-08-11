@@ -20,10 +20,12 @@ import AddImagesSection from './AddImagesSection';
         handleRemoveImage,
         images,
         imagesPlaceHolders,
-        placeHolderNotFilled
+        placeHolderNotFilled,
+        isVariantCoverPreview,
+        setIsVariantCoverPreview,
+        data
     }) {
         const [previewColor, setPreviewColor] = useState(null);
-
         function handleAddColor() {
             setNewSelectedColors([...newSelectedColors, previewColor]);
             setPreviewColor(null);
@@ -89,6 +91,9 @@ import AddImagesSection from './AddImagesSection';
                             errors={errors}
                             placeHolderNotFilled={placeHolderNotFilled}
                             currentVariant={currentVariant}
+                            isVariantCoverPreview={isVariantCoverPreview}
+                            setIsVariantCoverPreview={setIsVariantCoverPreview}
+                            data={data}
                         />
                     </div>
                     {/* <!-- Colors --> */}
