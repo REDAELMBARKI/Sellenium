@@ -52,7 +52,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
     const [isVariantCoverPreview, setIsVariantCoverPreview] = useState(false);
     const variantFormRef = useRef(null);
     const [isCurrentVariantActive, setIsCurrentVariantActive] = useState(false);
-    const [fileToPass ,setFileToPass]= useState(null);
+    const [fileToPass, setFileToPass] = useState(null);
+    const [isAllcoversDeleted, setIsAllcoversDeleted] = useState(false);
     // inventory ====================================================================
 
     const [productVariants, setProductVariants] = useState([]);
@@ -64,13 +65,13 @@ function Create({ tagSuggestions, inventoryOptions }) {
         fit: null,
         materials: [],
         quantity: 1,
-        covers:[]
+        covers: [],
     });
 
     // add variant button
-   
+
     const isReadyToAdd = Object.entries(currentVariant)
-        .filter(([key]) => (key !== "id" && key !== 'covers'))
+        .filter(([key]) => key !== "id" && key !== "covers")
         .every(
             ([, value]) =>
                 value !== null &&
@@ -86,8 +87,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
                     suggestion.name
                         .toLowerCase()
                         .includes(tagInputValue.toLowerCase()) &&
-                    !selectedTags.some((selectedTag) =>
-                        selectedTag.name === suggestion.name
+                    !selectedTags.some(
+                        (selectedTag) => selectedTag.name === suggestion.name
                     )
             );
             setSuggestedTags(filteredSuggestions);
@@ -113,12 +114,12 @@ function Create({ tagSuggestions, inventoryOptions }) {
     function fileToDataUrl(file) {
         if (file) {
             return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-       }
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
     }
     function handleImageUpload(field, file) {
         if (!file) return;
@@ -138,9 +139,15 @@ function Create({ tagSuggestions, inventoryOptions }) {
                     ...prev,
                     [field]: file,
                 }));
-                setFileToPass(file);
-                setIsVariantCoverPreview(true);
-            } else if (field.startsWith("cover_")) {
+                setFileToPass(base64);
+
+                if (!images.cover_1) {
+                     setIsVariantCoverPreview(true);
+                }
+            }
+
+            //  other covers
+            else if (field.startsWith("cover_")) {
                 setCurrentVariant((prev) => ({
                     ...prev,
                     covers: [...(prev.covers || []), { [field]: file }],
@@ -153,32 +160,44 @@ function Create({ tagSuggestions, inventoryOptions }) {
     }
 
 
- useEffect(() => {
-     let isMounted = true;
+    useEffect(() => {
+        if (typeof setImages !== "function") return;
 
-     if (!isCurrentVariantActive) {
-         setImages((prev) => ({
-             ...prev,
-             cover_1: null,
-         }));
-     } else {
-         (async function updateImagesWithBase64() {
-             const base64 = await fileToDataUrl(fileToPass);
-             if (isMounted && isCurrentVariantActive) {
-                 setImages((prev) => ({
-                     ...prev,
-                     cover_1: base64,
-                 }));
-             }
-         })();
-     }
-
-     return () => {
-         isMounted = false;
-     };
- }, [currentVariant, isCurrentVariantActive]);
+        // If variant inactive → remove cover_1
+        if (!isCurrentVariantActive) {
+            setImages((prev) => ({
+                ...prev,
+                cover_1: null,
+            }));
+        }
+        // If active and no manual cover, use thumbnail
+        else if (images.thumbnail && !images.cover_1) {
+            setImages((prevImages) => ({
+                ...prevImages,
+                cover_1: prevImages.thumbnail,
+            }));
+        }
+    }, [isCurrentVariantActive, images.thumbnail]);
 
 
+    // Optional: Async fileToPass logic, but only if no manual cover exists
+
+    useEffect(() => {
+        if (!isCurrentVariantActive ) return;
+
+        if (!images.cover_1 && fileToPass !== null) {
+            if (isCurrentVariantActive && isAllcoversDeleted) {
+                setImages((prev) => ({
+                    ...prev,
+                    cover_1: fileToPass,
+                }));
+            }
+        }
+    }, [isAllcoversDeleted, isCurrentVariantActive]);
+ 
+
+
+    // initial palce holders
     useEffect(() => {
         const temp = [];
         for (let i = 1; i < 2; i++) {
@@ -189,25 +208,24 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // add other place holders
 
     function addImagePlaceHolder() {
-       
         const cover_field = Object.keys(currentVariant.covers);
-        // prevent adding place holders if a place holder a vailiable 
+        // prevent adding place holders if a place holder a vailiable
         if (cover_field.length === imagesPlaceHolders.length) {
             const newPlaceHolder = imagesPlaceHolders.length + 1;
             setImagesPlaceHolders([...imagesPlaceHolders, newPlaceHolder]);
         } else {
-            setPlaceHolderNotFilled(true); 
+            setPlaceHolderNotFilled(true);
 
             setTimeout(() => {
-                  setPlaceHolderNotFilled(false);
-
-            },200)
-            
+                setPlaceHolderNotFilled(false);
+            }, 200);
         }
     }
 
     // remove image
     function handleRemoveImage(field) {
+        
+        
         // delete ffrom iamges placeholders
         setImages({
             ...images,
@@ -215,85 +233,84 @@ function Create({ tagSuggestions, inventoryOptions }) {
         });
 
         // delete from data
-        if (field === 'thumbnail') {
+        if (field === "thumbnail") {
             setData({
                 ...data,
                 [field]: null,
             });
 
-
             if (isVariantCoverPreview) {
-                setImages({})
+                setImages({});
                 setIsVariantCoverPreview(false);
             }
-        }
-        else {
+        } else {
             const covers = currentVariant.covers.filter(function (cover) {
-               return !cover.hasOwnProperty(field);
+                return !cover.hasOwnProperty(field);
             });
-            
+
             setCurrentVariant((prev) => ({
                 ...prev,
-                 covers : covers
+                covers: covers,
             }));
 
             setImages({
                 ...images,
-                [field] : null
+                [field]: null,
             });
+
+            if (currentVariant.covers.length - 1 === 0) {
+                console.log(isAllcoversDeleted)
+                setIsAllcoversDeleted(true);
+            }
         }
+
+
+        // remove place holderrs is after deleting the cover
+        
+   
     }
 
     // inventory logic ===========================
     function addVariant(id = null) {
         // Check if variant already exists
-       
         let allfieldsFilled = Object.entries(currentVariant)
-            .filter(([key]) => key !== 'covers')
-            .every(function (
-            [_,fieldValue]
-        ) {
-            return (
-                fieldValue?.name !== "" &&
-                fieldValue?.name !== null &&
-                (!Array.isArray(fieldValue) || fieldValue.length > 0)
-            );
-        });
+            .filter(([key]) => key !== "covers")
+            .every(function ([_, fieldValue]) {
+                return (
+                    fieldValue?.name !== "" &&
+                    fieldValue?.name !== null &&
+                    (!Array.isArray(fieldValue) || fieldValue.length > 0)
+                );
+            });
 
-       
-        if (! allfieldsFilled) {
+        if (!allfieldsFilled) {
             return;
         }
 
-       
         const sameCoversVariant = (curr_covers, variant_covers) => {
-           
-            
-              if (curr_covers.length !== variant_covers.length) {
-                  return false;
-              }
+            if (curr_covers.length !== variant_covers.length) {
+                return false;
+            }
 
-              return (
-                  variant_covers.every((var_cover) =>
-                      curr_covers.some((curr_cover) =>
-                          isEqual(curr_cover, var_cover)
-                      )
-                  ) &&
-                  curr_covers.every((curr_cover) =>
-                      variant_covers.some((var_cover) =>
-                          isEqual(var_cover, curr_cover)
-                      )
-                  )
-              );
-            
+            return (
+                variant_covers.every((var_cover) =>
+                    curr_covers.some((curr_cover) =>
+                        isEqual(curr_cover, var_cover)
+                    )
+                ) &&
+                curr_covers.every((curr_cover) =>
+                    variant_covers.some((var_cover) =>
+                        isEqual(var_cover, curr_cover)
+                    )
+                )
+            );
         };
 
         const sameMaterialVariant = (curr_materials, variant_materials) => {
             if (curr_materials.length !== variant_materials.length) {
                 return false;
             }
-             
-           
+
             return (
                 variant_materials.every((var_mat) =>
                     curr_materials.some((curr_mat) =>
@@ -306,10 +323,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
                     )
                 )
             );
-            
-        
         };
-       
+
         const sameColorVariant = (curr_colors, variant_colors) => {
             if (curr_colors.length !== variant_colors.length) {
                 return false;
@@ -328,7 +343,6 @@ function Create({ tagSuggestions, inventoryOptions }) {
                 )
             );
         };
-       
 
         const sameColor = productVariants.some(function (variant) {
             return (
@@ -337,8 +351,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
                 sameColorVariant(currentVariant.colors, variant.colors)
             );
         });
-    
-        const  sameMaterial = productVariants.some(function (variant) {
+
+        const sameMaterial = productVariants.some(function (variant) {
             return (
                 Array.isArray(currentVariant.materials) &&
                 Array.isArray(variant.materials) &&
@@ -346,16 +360,15 @@ function Create({ tagSuggestions, inventoryOptions }) {
             );
         });
 
-
         const sameCovers = productVariants.some(function (variant) {
             // console.log(variant);
-             return (
-                 Array.isArray(currentVariant.covers) &&
-                 Array.isArray(variant.covers) &&
-                 sameCoversVariant(currentVariant.covers, variant.covers)
-             );
-         });
-    
+            return (
+                Array.isArray(currentVariant.covers) &&
+                Array.isArray(variant.covers) &&
+                sameCoversVariant(currentVariant.covers, variant.covers)
+            );
+        });
+
         let variantExists;
 
         // this checkes if the uodateded values are difffirence then the originals before
@@ -376,7 +389,6 @@ function Create({ tagSuggestions, inventoryOptions }) {
                         return (
                             variant.size === currentVariant.size &&
                             variant.fit === currentVariant.fit
-                            
                         );
                     });
         } else {
@@ -421,7 +433,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
                 fit: currentVariant.fit,
                 materials: currentVariant.materials,
                 quantity: currentVariant.quantity,
-                covers:currentVariant.covers
+                covers: currentVariant.covers,
             };
             setProductVariants([...productVariants, newVariant]);
             // update the evariants ib data
@@ -451,34 +463,28 @@ function Create({ tagSuggestions, inventoryOptions }) {
             fit: null,
             materials: [],
             quantity: 1,
-            covers : []
+            covers: [],
         });
-        
-        // reset images 
+
+        // reset images
         (async () => {
             setImages((prev) => {
-            return Object.fromEntries(
-                Object.entries(prev).map(
-                    ([key, value]) =>
-                        key.startsWith("cover_")
-                            ? [key, null] 
-                            : [key, value] 
-                )
-            );
-        });
-   
-        })()
+                return Object.fromEntries(
+                    Object.entries(prev).map(([key, value]) =>
+                        key.startsWith("cover_") ? [key, null] : [key, value]
+                    )
+                );
+            });
+        })();
 
         // reset placeHolders to one placeholder cover_1
-        setImagesPlaceHolders([1])
-       
-
+        setImagesPlaceHolders([1]);
     }
 
     function handleVariantSelection(type, option) {
         // option is an object
         //    opt_id ia optioon id like option is hex and op_id is its id
-       
+
         if (type === "colors") {
             let colorExist = false;
 
@@ -528,7 +534,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
                 setCurrentVariant((prev) => ({
                     ...prev,
                     [type]: null,
-                })); 
+                }));
             } else {
                 setCurrentVariant((prev) => ({
                     ...prev,
@@ -550,17 +556,16 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // remove variant
     function removeVariant(id) {
         // productVariants
-        
+
         setProductVariants((prev) => {
             return prev.filter((el) => el.id !== id);
         });
 
-        
         if (id === currentVariant?.id) {
-            resetVariantForm()
+            resetVariantForm();
         }
 
-        setUpdateVariantMode(false)
+        setUpdateVariantMode(false);
     }
 
     // end inventroy logic  ===============================
@@ -623,7 +628,6 @@ function Create({ tagSuggestions, inventoryOptions }) {
         setImagesValid(allFilled);
     }, [data, selectedTags, productVariants]);
 
-   
     // check if the all ready to submit
     useEffect(() => {
         setIsReadyToSubmit((prev) => ({
@@ -640,7 +644,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // submit form
     function submitForm(e) {
         e.preventDefault();
-        
+
         (async () => {
             try {
                 post("/products", {
@@ -667,10 +671,6 @@ function Create({ tagSuggestions, inventoryOptions }) {
                         );
                     },
                 });
-
-
-                 
-                  
             } catch (error) {
                 console.error(
                     "Error submitting product:",
@@ -679,19 +679,10 @@ function Create({ tagSuggestions, inventoryOptions }) {
                 // Optional: show error to user
             }
         })();
-
-
-
-       
-
-        
-        
-       
     }
 
-
     // consoles
-    
+
     return (
         <Layout currentPage="home">
             {/* info section */}
@@ -763,9 +754,13 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                 imagesPlaceHolders={imagesPlaceHolders}
                                 placeHolderNotFilled={placeHolderNotFilled}
                                 isVariantCoverPreview={isVariantCoverPreview}
-                                setIsVariantCoverPreview={ setIsVariantCoverPreview}
+                                setIsVariantCoverPreview={
+                                    setIsVariantCoverPreview
+                                }
                                 isCurrentVariantActive={isCurrentVariantActive}
-                                setIsCurrentVariantActive={setIsCurrentVariantActive}
+                                setIsCurrentVariantActive={
+                                    setIsCurrentVariantActive
+                                }
                             />
                             {/* <!-- Variants List --> */}
                             <VariantsList
@@ -785,6 +780,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
                                     setIsVariantCoverPreview
                                 }
                                 data={data}
+                               
                             />
                         </div>
 

@@ -23,6 +23,7 @@ function VariantsList({
     }
 
     function editVariant(id) {
+        scrollToVariantForm()
         setIsFlashing(true);
         setUpdateVariantMode(true);
         const variant = productVariants?.find((variant) => variant.id === id);
@@ -37,6 +38,8 @@ function VariantsList({
             covers: variant.covers,
         });
 
+
+ 
         (async function updateImagesWithBase64() {
             const newImages = {};
 
@@ -51,19 +54,23 @@ function VariantsList({
                 ...prev,
                 ...newImages,
             }));
+
+
+            if (variant.covers.length === 0 && images.thumbnail) {
+                 setIsVariantCoverPreview(true);
+                 setImages({
+                     ...images,
+                     cover_1: images.thumbnail,
+                 });
+            }
         })();
+
         const editedVariantPlaceHolders = [];
         for (let i = 1; i <= variant.covers.length; i++) {
             editedVariantPlaceHolders.push(i);
         }
 
-        if (variant.covers.length === 0 && images.thumbnail) {
-            setIsVariantCoverPreview(true);
-            setImages({
-                ...images,
-                cover_1: images.thumbnail,
-            });
-        }
+       
 
         setImagesPlaceHolders(
             editedVariantPlaceHolders.length > 1

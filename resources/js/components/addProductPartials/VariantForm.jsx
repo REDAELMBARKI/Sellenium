@@ -34,6 +34,33 @@ import AddImagesSection from './AddImagesSection';
             setPreviewColor(null);
         }
 
+
+          // here we check if a field is filled like active currect variant
+            useEffect(() => {
+                if (
+                      typeof setIsCurrentVariantActive !== "function"
+                ) {
+                      return;
+                }
+                
+                if (!currentVariant || typeof currentVariant !== "object") {
+                    setIsCurrentVariantActive(false);
+                    return;
+                }
+        
+                const filled = Object.entries(currentVariant)
+                    .filter(([key]) => key !== "quantity")
+                    .some(([_, f]) => {
+                        if (typeof f === "string") return f.trim() !== "";
+                        if (Array.isArray(f)) return f.length > 0;
+                        if (f && typeof f === "object")
+                            return Object.keys(f).length > 0;
+                        return !!f;
+                    });
+        
+                setIsCurrentVariantActive(filled);
+            }, [currentVariant]);
+
         return (
             <>
                 <div
