@@ -17,6 +17,11 @@ class Inventory extends Model
     {
         return $this->belongsTo(Product::class);
     }
-    
-    
+
+
+    public function covers()
+    {
+        return $this->hasMany(Cover::class , 'variant_id');
+    }
+   
 }

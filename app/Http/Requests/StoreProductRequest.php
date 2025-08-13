@@ -20,10 +20,10 @@ class StoreProductRequest extends FormRequest{
         return true; 
     }
     public function rules(){
-       
+ 
         return array_merge(
             $this->product_infos(), 
-                    $this->product_images(),
+                 
                     $this->product_tags(),
                     $this->product_inventory()
                 );
@@ -45,8 +45,14 @@ class StoreProductRequest extends FormRequest{
            
        
             /// inventory 'inv'
+            
             $fields = ['colors' , 'materials' , 'size' , 'fit'];
-            foreach($this->input('inventory' , []) as $index => $variant){
+            foreach($this->input('inventory') as $index => $variant){
+                // validate the images for variant 
+                $variantFiles = $this->file('inventory')[$index];
+                
+                $VariantValidatedImages = $this->product_images($variantFiles);
+                
                 $filledFields = array_filter($fields , function($field)  use($variant) {
                            return ! empty($variant[$field]);
                 });
@@ -62,6 +68,9 @@ class StoreProductRequest extends FormRequest{
                       }
                 }
             }
+
+           
+
         });
     }
 
@@ -74,6 +83,9 @@ class StoreProductRequest extends FormRequest{
                 'min:3',
                 'regex:/^[a-zA-Z0-9\s\-+_.,:;()@!#%&*\/\\\[\]]+$/'
             ],
+
+           'thumbnail' => ['required', 'bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096'],
+
 
             "price" => ['bail', 'required', 'numeric', 'min:1'],
 
@@ -89,26 +101,20 @@ class StoreProductRequest extends FormRequest{
             ],
         ];
     }
-    private function product_images()
+    private function product_images($variant)
     {
-        $product_images = collect();
-
-        dd(request()->input("inventory"));
-        $i = 1;
-
-        while (request()->input("inventory")) {
-            $product_images->push("cover_$i");
-            $i++;
-        }
-
-        $product_images->push("thumbnail");
-
-        $validated_images = [];
-
-        foreach ($product_images as $image_name) {
-            $validated_images[$image_name] = ['required', 'bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096'];
         
-        }
+       
+        $product_images = collect();
+        $validated_images = [];
+    
+                foreach($variant['covers'] as $cover){
+                        $product_images->push(...array_keys($cover));
+                }
+
+                foreach ($product_images as $image_name) {
+                    $validated_images[$image_name] = ['bail', 'image', 'mimes:png,jpg,jpeg', 'max:4096'];
+                }
         
         return $validated_images;
     }
@@ -141,9 +147,18 @@ class StoreProductRequest extends FormRequest{
                 'bail',
                 'regex:/^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'
             ],
+ 
+            //cover array
+            "inventory.*.covers" => [
+                'array',
+            ],
+            "inventory.*.covers.*" => [
+                'array',
+            ],
+
 
             // size
-            
+
             "inventory.*.size.id" => [
                 'bail',
                 'integer',

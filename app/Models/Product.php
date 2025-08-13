@@ -16,7 +16,7 @@ class Product extends Model
           return $this->belongsToMany(Category::class);
     }
 
-     public function tags(){
+    public function tags(){
           return $this->belongsToMany(Tag::class);
     }
 
@@ -27,10 +27,7 @@ class Product extends Model
   
 
 
-    public function covers(){
-         return $this->hasMany(Cover::class);
-    }
-
+  
     public function reviews(){
         return $this->hasMany(Review::class);
     }

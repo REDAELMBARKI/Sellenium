@@ -111,16 +111,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // end tags logic
 
     //start image uploads
-    function fileToDataUrl(file) {
-        if (file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-    }
+  
     function handleImageUpload(field, file) {
         if (!file) return;
 
@@ -437,14 +428,17 @@ function Create({ tagSuggestions, inventoryOptions }) {
             };
             setProductVariants([...productVariants, newVariant]);
             // update the evariants ib data
+           
         }
-
+        
+       
         // Reset form
         resetVariantForm();
         // Show success message
         // showToast("Variant added successfully!", "success");
     }
 
+    
     useEffect(() => {
         // update the evariants ib data
         setData({
@@ -650,7 +644,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
                 post("/products", {
                     preserveScroll: true,
                     onError: (errors) => {
-                        const keys = ["colors", "materials", "fit", "size"];
+                        const keys = ["colors", "materials", "fit", "size" ,"covers"];
 
                         setProductVariants((prevVariants) =>
                             prevVariants.map((variant, index) => {

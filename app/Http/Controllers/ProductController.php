@@ -53,8 +53,8 @@ class ProductController extends Controller
                             InventoryServices $inventoryServices ,
                            )
                            {
-        
-       
+
+    
         $product_input_data = collect($request->validated());
         // Products basic Info =======================================================================================
         // store to  products table  and return it 
@@ -90,7 +90,7 @@ class ProductController extends Controller
     }
      
     public function storeCovers($covers , $variant_id){
-        
+
         
         //check the directory if exist of create it 
         if (! Storage::exists('public/images/products')) {
@@ -99,8 +99,9 @@ class ProductController extends Controller
 
     
         $coversDataCollection = collect();
+        $i = 1;
         foreach ($covers as $cover) {
-
+            $cover = $cover["cover_$i"];
             $fileName = uniqid() . '.' . $cover->getClientOriginalExtension();
             $path = $cover->storeAs('products', $fileName, 'public');
             $relative_path = 'storage/' . $path;
@@ -111,10 +112,9 @@ class ProductController extends Controller
                 'variant_id' => $variant_id,
                 'path' => $relative_path,
             ]);
+            $i++;
         }
 
-
-       
         Cover::insert($coversDataCollection->toArray());
 
         
@@ -152,19 +152,10 @@ class ProductController extends Controller
 
         $inventory_data = $product_input_data->get('inventory');
 
-        
+    
         foreach ($inventory_data  as $variant) {
             // store covers in covers table 
-            $variant_covers = [];
-            dd($variant);
-
-            foreach ($variant as $key => $file) {
-                if (str_starts_with($key, 'cover_')) {
-                    $variant_covers[] = $file;
-                }
-            }
-
-
+           
 
             // store new colors (none existing ones );
             $inventoryServices->storeNewColors($variant);
@@ -197,7 +188,13 @@ class ProductController extends Controller
             // store varaint's images
             // Covers =======================================================================================
             // store  the covers to covers table with foreign key product_id
-            $this->storeCovers($variant_covers, $db_Variant->id);
+             $variant_covers_data = collect();
+            
+            foreach ($variant['covers'] as $cover) {
+                $variant_covers_data->push($cover);
+            }
+
+            $this->storeCovers($variant_covers_data, $db_Variant->id);
             
         }
 
@@ -224,9 +221,16 @@ class ProductController extends Controller
     public function show($id){
        
        $product = Product::findOrFail($id);
-       $covers = $product->covers->pluck('path');
+        $covers = collect();
+       foreach($product->inventory as $inventory) {
+           $covers->push($inventory->covers);
+
+       }
+
+
+        dd($covers);
         
-       $covers[] = $product->thumbnail;
+    //    $covers[] = $product->thumbnail;
 
         
         

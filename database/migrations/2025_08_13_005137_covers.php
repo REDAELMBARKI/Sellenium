@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('covers', function (Blueprint $table) {
             $table->id();
             $table->string('path');
-            $table->foreignIdFor(Inventory::class)->constrained()->cascadeOnDelete();
+            $table->foreignId('variant_id')->references('id')->on('inventories')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
-            $table->unique(['path','variant_id']);
+            $table->unique(['path', 'variant_id']);
         });
     }
 
