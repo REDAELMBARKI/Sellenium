@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Star, Heart, ShoppingCart, Eye } from 'lucide-react';
 import Layout from '../Layouts/Layout';
+import { ProductCard } from './products/ProductCard';
 
 const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -46,78 +47,92 @@ const HomePage = () => {
   ];
 
   const products = [
-    {
-      id: 1,
-      name: 'Esprit Ruffle Shirt',
-      price: 16.64,
-      image: 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=300',
-      category: 'women',
-      rating: 4.5,
-      reviews: 12
-    },
-    {
-      id: 2,
-      name: 'Herschel Supply',
-      price: 35.31,
-      image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=300',
-      category: 'women',
-      rating: 4.2,
-      reviews: 8
-    },
-    {
-      id: 3,
-      name: 'Only Check Trouser',
-      price: 25.50,
-      image: 'https://images.pexels.com/photos/1183266/pexels-photo-1183266.jpeg?auto=compress&cs=tinysrgb&w=300',
-      category: 'men',
-      rating: 4.8,
-      reviews: 15
-    },
-    {
-      id: 4,
-      name: 'Classic Trench Coat',
-      price: 75.00,
-      image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=300',
-      category: 'women',
-      rating: 4.6,
-      reviews: 22
-    },
-    {
-      id: 5,
-      name: 'Front Pocket Jumper',
-      price: 34.75,
-      image: 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg?auto=compress&cs=tinysrgb&w=300',
-      category: 'women',
-      rating: 4.3,
-      reviews: 9
-    },
-    {
-      id: 6,
-      name: 'Vintage Inspired Classic',
-      price: 93.20,
-      image: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=300',
-      category: 'watches',
-      rating: 4.7,
-      reviews: 18
-    },
-    {
-      id: 7,
-      name: 'Shirt in Stretch Cotton',
-      price: 52.66,
-      image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=300',
-      category: 'women',
-      rating: 4.4,
-      reviews: 11
-    },
-    {
-      id: 8,
-      name: 'Pieces Metallic Printed',
-      price: 18.96,
-      image: 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=300',
-      category: 'women',
-      rating: 4.1,
-      reviews: 7
-    }
+      {
+          id: 1,
+          name: "Esprit Ruffle Shirt",
+          price: 16.64,
+          originalPrice: 23,
+          image: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=300",
+          category: "women",
+          rating: 4.5,
+          reviews: 12,
+      },
+      {
+          id: 2,
+          name: "Herschel Supply",
+          originalPrice: 40,
+
+          price: 35.31,
+          image: "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=300",
+          category: "women",
+          rating: 4.2,
+          reviews: 8,
+      },
+      {
+          id: 3,
+          name: "Only Check Trouser",
+          originalPrice: 34,
+          price: 25.5,
+          image: "https://images.pexels.com/photos/1183266/pexels-photo-1183266.jpeg?auto=compress&cs=tinysrgb&w=300",
+          category: "men",
+          rating: 4.8,
+          reviews: 15,
+      },
+      {
+          id: 4,
+          name: "Classic Trench Coat",
+          price: 75.0,
+          originalPrice: 200,
+
+          image: "https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=300",
+          category: "women",
+          rating: 4.6,
+          reviews: 22,
+      },
+      {
+          id: 5,
+          name: "Front Pocket Jumper",
+          originalPrice: 234,
+
+          price: 34.75,
+          image: "https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg?auto=compress&cs=tinysrgb&w=300",
+          category: "women",
+          rating: 4.3,
+          reviews: 9,
+      },
+      {
+          id: 6,
+          name: "Vintage Inspired Classic",
+          originalPrice: 111,
+
+          price: 93.2,
+          image: "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=300",
+          category: "watches",
+          rating: 4.7,
+          reviews: 18,
+      },
+      {
+          id: 7,
+          name: "Shirt in Stretch Cotton",
+          originalPrice: 111,
+
+          price: 52.66,
+          image: "https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=300",
+          category: "women",
+          rating: 4.4,
+          reviews: 11,
+      },
+      {
+          id: 8,
+          name: "Pieces Metallic Printed",
+          originalPrice: 23,
+
+          price: 18.96,
+          image: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=300",
+          category: "women",
+          rating: 4.1,
+          reviews: 7,
+      },
   ];
 
   const filters = [
@@ -259,58 +274,64 @@ const HomePage = () => {
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="group">
-                <div className="relative overflow-hidden rounded-lg bg-gray-100 mb-4">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
+            {filteredProducts.map((product , index) => (
+            //   <div key={product.id} className="group">
+            //     <div className="relative overflow-hidden rounded-lg bg-gray-100 mb-4">
+            //       <img
+            //         src={product.image}
+            //         alt={product.name}
+            //         className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500"
+            //       />
                   
-                  {/* Product Actions */}
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex space-x-2">
-                      <button className="bg-white text-gray-900 p-3 rounded-full hover:bg-gray-100 transition-colors">
-                        <ShoppingCart className="w-5 h-5" />
-                      </button>
-                      <button className="bg-white text-gray-900 p-3 rounded-full hover:bg-gray-100 transition-colors">
-                        <Eye className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
+            //       {/* Product Actions */}
+            //       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+            //         <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex space-x-2">
+            //           <button className="bg-white text-gray-900 p-3 rounded-full hover:bg-gray-100 transition-colors">
+            //             <ShoppingCart className="w-5 h-5" />
+            //           </button>
+            //           <button className="bg-white text-gray-900 p-3 rounded-full hover:bg-gray-100 transition-colors">
+            //             <Eye className="w-5 h-5" />
+            //           </button>
+            //         </div>
+            //       </div>
 
-                  {/* Wishlist Button */}
-                  <button className="absolute top-4 right-4 bg-white bg-opacity-90 text-gray-600 p-2 rounded-full hover:bg-white hover:text-red-500 transition-colors">
-                    <Heart className="w-4 h-4" />
-                  </button>
-                </div>
+            //       {/* Wishlist Button */}
+            //       <button className="absolute top-4 right-4 bg-white bg-opacity-90 text-gray-600 p-2 rounded-full hover:bg-white hover:text-red-500 transition-colors">
+            //         <Heart className="w-4 h-4" />
+            //       </button>
+            //     </div>
 
-                <div className="space-y-2">
-                  <h3 className="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                    {product.name}
-                  </h3>
+            //     <div className="space-y-2">
+            //       <h3 className="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+            //         {product.name}
+            //       </h3>
                   
-                  {/* Rating */}
-                  <div className="flex items-center space-x-2">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-4 h-4 ${
-                            i < Math.floor(product.rating)
-                              ? 'text-yellow-400 fill-current'
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-500">({product.reviews})</span>
-                  </div>
+            //       {/* Rating */}
+            //       <div className="flex items-center space-x-2">
+            //         <div className="flex items-center">
+            //           {[...Array(5)].map((_, i) => (
+            //             <Star
+            //               key={i}
+            //               className={`w-4 h-4 ${
+            //                 i < Math.floor(product.rating)
+            //                   ? 'text-yellow-400 fill-current'
+            //                   : 'text-gray-300'
+            //               }`}
+            //             />
+            //           ))}
+            //         </div>
+            //         <span className="text-sm text-gray-500">({product.reviews})</span>
+            //       </div>
 
-                  <p className="text-xl font-bold text-gray-900">${product.price}</p>
-                </div>
-              </div>
+            //       <p className="text-xl font-bold text-gray-900">${product.price}</p>
+            //     </div>
+            //   </div>
+              // 
+              
+              <ProductCard
+              key={index}
+              product={product}
+              />
             ))}
           </div>
 

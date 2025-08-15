@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Cli\Invoker;
 use Faker\Core\File;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,7 +33,7 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
  
-    public function inventory(){
+    public function inventories(){
          return $this->hasMany(Inventory::class);
     }
 
@@ -40,24 +41,32 @@ class Product extends Model
     public function promotion(){
         return $this->belongsTo(Promotion::class);
     }
-   
+
     // attrivutes 
 
-    public function color(){
-        return $this->hasMany(Color::class);
+    public function covers()
+    {
+        return $this->hasManyThrough(Cover::class, Inventory::class,'variant_id');
+    }
+
+    public function colors()
+    {
+        return $this->hasManyThrough(Color::class, Inventory::class ,'product_id' , 'id' , 'id' , 'id' );
     }
 
 
-    public function size(){
+    public function size()
+    {
         return $this->hasOne(Size::class);
     }
 
-    public function materials(){
-        return $this->hasMany(Material::class);
+    public function materials()
+    {
+        return $this->hasManyThrough(Material::class, Inventory::class);
     }
 
-    public function fit(){
+    public function fit()
+    {
         return $this->hasOne(Fit::class);
     }
-     
 }

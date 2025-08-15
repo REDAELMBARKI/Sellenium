@@ -19,9 +19,10 @@ class Inventory extends Model
     }
 
 
-    public function covers()
-    {
-        return $this->hasMany(Cover::class , 'variant_id');
+    public function color(){
+           return $this->belongsTo(Color::class);
     }
+
+
    
 }

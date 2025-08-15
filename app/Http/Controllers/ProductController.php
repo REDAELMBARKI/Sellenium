@@ -219,25 +219,16 @@ class ProductController extends Controller
 
 
     public function show($id){
-       
-       $product = Product::findOrFail($id);
-        $covers = collect();
-       foreach($product->inventory as $inventory) {
-           $covers->push($inventory->covers);
 
-       }
-
-
-        dd($covers);
+        $product = Product::findOrFail($id);
+ 
+        dd($product->colors()->select('hex')->get()->toArray());
         
     //    $covers[] = $product->thumbnail;
-
+      
         
         
     //    $variants = $product->variants;
-       return inertia::render('products/show', ['productData' => $product]);
+       return inertia::render('products/show', ['product' => $product]);
     }
-    
-   
- 
 }
