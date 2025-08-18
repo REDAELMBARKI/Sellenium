@@ -19,7 +19,7 @@ export const variants = [
       { id: 1, name: "Standard" },
       { id: 2, name: "Large" },
     ],
-    materials: [
+    materials: [ 
       { id: 1, name: "Premium Leather" },
       { id: 2, name: "Memory Foam" },
     ],

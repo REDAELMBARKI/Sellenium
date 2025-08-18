@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
+use function PHPUnit\Framework\isArray;
+
 class StoreProductRequest extends FormRequest{
 
     public function authorize()
@@ -45,13 +47,20 @@ class StoreProductRequest extends FormRequest{
            
        
             /// inventory 'inv'
-            
-            $fields = ['colors' , 'materials' , 'size' , 'fit'];
+            $fields = ['colors' , 'materials' , 'sizes' , 'fits'];
             foreach($this->input('inventory') as $index => $variant){
                 // validate the images for variant 
-                $variantFiles = $this->file('inventory')[$index];
+
+                // here we scipe the variant that doesnot have covers 
+                if(is_array($this->file('inventory')) &&  (count($this->file('inventory')) >= $index + 1)){
+                    
+                    
+                        $variantFiles = $this->file('inventory')[$index];
+                        $this->product_images($variantFiles);
+
+                    
+                }
                 
-                $VariantValidatedImages = $this->product_images($variantFiles);
                 
                 $filledFields = array_filter($fields , function($field)  use($variant) {
                            return ! empty($variant[$field]);
@@ -103,8 +112,8 @@ class StoreProductRequest extends FormRequest{
     }
     private function product_images($variant)
     {
+
         
-       
         $product_images = collect();
         $validated_images = [];
     
@@ -158,8 +167,8 @@ class StoreProductRequest extends FormRequest{
 
 
             // size
-
-            "inventory.*.size.id" => [
+            "inventory.*.sizes" => ['array'],
+            "inventory.*.sizes.*.id" => [
                 'bail',
                 'integer',
                 Rule::exists((new Size)->getTable(), 'id')
@@ -175,8 +184,9 @@ class StoreProductRequest extends FormRequest{
             ],
 
             // fit
-          
-            "inventory.*.fit.id" => [
+            "inventory.*.fits" => ['array'],
+
+            "inventory.*.fits.*.id" => [
                 'bail',
                 Rule::exists((new Fit)->getTable(), 'id')
             ],

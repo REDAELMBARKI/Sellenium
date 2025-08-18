@@ -23,6 +23,18 @@ class Inventory extends Model
            return $this->belongsTo(Color::class);
     }
 
+    public function covers(){
+        return $this->belongsToMany(Cover::class);
+    }
 
+
+    public function fit(){
+        return $this->belongsTo(Fit::class);
+    }
+
+    public function size()
+    {
+        return $this->belongsTo(Fit::class);
+    }
    
 }

@@ -32,8 +32,8 @@ function VariantsList({
             id: variant.id,
             colors: [...variant.colors],
             quantity: variant.quantity,
-            fit: variant.fit,
-            size: variant.size,
+            fits: variant.fits,
+            sizes: variant.sizes,
             materials: variant.materials,
             covers: variant.covers,
         });
@@ -156,18 +156,42 @@ function VariantsList({
                                             <div className="flex flex-wrap gap-3 text-slate-600">
                                                 <div>
                                                     <span className="text-xs uppercase text-slate-400">
-                                                        Size:
+                                                        Size
+                                                        {variant?.sizes
+                                                            ?.length > 1
+                                                            ? "s"
+                                                            : ""}
+                                                        :
                                                     </span>{" "}
                                                     <span className="font-medium text-slate-700">
-                                                        {variant?.size?.name}
+                                                        {variant?.sizes
+                                                            ?.map(function (
+                                                                size,
+                                                                index
+                                                            ) {
+                                                                return size.name;
+                                                            })
+                                                            .join(" | ")}
                                                     </span>
                                                 </div>
                                                 <div>
                                                     <span className="text-xs uppercase text-slate-400">
-                                                        Fit:
+                                                        Fit
+                                                        {variant?.fits?.length >
+                                                        1
+                                                            ? "s"
+                                                            : ""}
+                                                        :
                                                     </span>{" "}
                                                     <span className="font-medium text-slate-700">
-                                                        {variant?.fit?.name}
+                                                        {variant?.fits
+                                                            ?.map(function (
+                                                                fit,
+                                                                index
+                                                            ) {
+                                                                return fit.name;
+                                                            })
+                                                            .join(" | ")}
                                                     </span>
                                                 </div>
                                                 <div>

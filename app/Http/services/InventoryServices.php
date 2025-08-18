@@ -3,7 +3,9 @@ namespace App\Http\Services;
 
 
 use App\Models\Color;
+use App\Models\Fit;
 use App\Models\Material;
+use App\Models\Size;
 
 class InventoryServices {
     public  function storeNewColors($variant)
@@ -94,6 +96,51 @@ class InventoryServices {
 
         if (! empty($material_idies)) {
             $ids = Material::whereIn('id', $material_idies)->pluck('id');
+        } else {
+            $ids = collect();
+        }
+
+
+        return $ids;
+    }
+
+
+    public function getVariantFitsIdies($variant)  {
+        $fit_idies = [];
+
+        foreach ($variant['fits'] as $fit) {
+            if (! empty($fit['id'])) {
+                $fit_idies[] = $fit['id'];
+            }
+        }
+
+
+
+        if (! empty($fit_idies)) {
+            $ids = Fit::whereIn('id', $fit_idies)->pluck('id');
+        } else {
+            $ids = collect();
+        }
+
+
+        return $ids;
+    }
+
+
+    public function getVariantSizesIdies($variant)
+    {
+        $size_idies = [];
+
+        foreach ($variant['sizes'] as $size) {
+            if (! empty($size['id'])) {
+                $size_idies[] = $size['id'];
+            }
+        }
+
+
+
+        if (! empty($size_idies)) {
+            $ids = Size::whereIn('id', $size_idies)->pluck('id');
         } else {
             $ids = collect();
         }

@@ -12,7 +12,13 @@ class Fit extends Model
 
     protected $fillable = ['name'];
 
-    public function products(){
-          return $this->hasMany(Product::class);
+    public  function inventories()
+    {
+        return $this->hasMany(Inventory::class);
+    }
+
+    public function products()
+    {
+        return $this->hasManyThrough(Product::class, Inventory::class, 'fit_id', 'id', 'id', 'product_id');
     }
 }

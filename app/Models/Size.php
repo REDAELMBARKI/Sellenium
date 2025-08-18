@@ -11,4 +11,12 @@ class Size extends Model
     use HasFactory;
 
     protected $fillable = ['name' , 'abbr'];
+
+    public  function inventories(){
+        return $this->hasMany(Inventory::class);
+    }
+
+    public function products(){
+        return $this->hasManyThrough(Product::class ,Inventory::class , 'size_id' , 'id' , 'id' , 'product_id');
+    }
 }

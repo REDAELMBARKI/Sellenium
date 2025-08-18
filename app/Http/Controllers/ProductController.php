@@ -19,13 +19,16 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-
+use PHPUnit\TextUI\Configuration\Merger;
 
 class ProductController extends Controller
 {
+
+
     public function create()
     {
     
@@ -54,8 +57,9 @@ class ProductController extends Controller
                            )
                            {
 
-    
+        
         $product_input_data = collect($request->validated());
+       
         // Products basic Info =======================================================================================
         // store to  products table  and return it 
         $product = $this->storeProductData($product_input_data , $request->allFiles());
@@ -89,34 +93,41 @@ class ProductController extends Controller
         return  Product::create($product_info);
     }
      
-    public function storeCovers($covers , $variant_id){
-
-        
+    public function storeAttachCover($variant_covers , $variant_ids){
         //check the directory if exist of create it 
         if (! Storage::exists('public/images/products')) {
             Storage::makeDirectory('public/images/products');
         }
 
-    
-        $coversDataCollection = collect();
+        $covers_ids = [];
         $i = 1;
-        foreach ($covers as $cover) {
+        foreach ($variant_covers as $cover) {
             $cover = $cover["cover_$i"];
             $fileName = uniqid() . '.' . $cover->getClientOriginalExtension();
             $path = $cover->storeAs('products', $fileName, 'public');
             $relative_path = 'storage/' . $path;
 
-
-
-            $coversDataCollection->push([
-                'variant_id' => $variant_id,
-                'path' => $relative_path,
+            $cover = Cover::create([
+                'path' => $relative_path
             ]);
+
+            $covers_ids[] = $cover->id;
+             
+            
             $i++;
         }
+ 
 
-        Cover::insert($coversDataCollection->toArray());
 
+        foreach($variant_ids as $inventory_id){
+              foreach($covers_ids  as $cover_id){
+                DB::table('inventory_cover')->insert([
+                    'cover_id' => $cover_id ,
+                    'inventory_id' => $inventory_id
+                ]);
+              }
+        }
+    
         
     }
     public function storeTags($product_input_data , $product){
@@ -162,39 +173,52 @@ class ProductController extends Controller
 
             // getVariant  idies 
             $quantity = $variant['quantity'];
-            $size_id = $variant['size']['id'];
-            $fit_id = $variant['fit']['id'];
+          
+            $sizes_ids =  $inventoryServices->getVariantSizesIdies($variant);
+            $fits_ids =  $inventoryServices->getVariantFitsIdies($variant);
+
             $colors_ids =  $inventoryServices->getVariantColorsIdies($variant);
             $materials_ids =  $inventoryServices->getVariantMaterialsIdies($variant);
-            
-
+ 
             // get variant covers
-
+            $variant_ids = [];
+            $variantRows = []; 
             foreach ($colors_ids as $color_id) {
                 foreach ($materials_ids as $material_id) {
-                    $db_Variant =  Inventory::create(
-                        [
-                            'product_id' => $product_id,
-                            'color_id' => $color_id,
-                            'size_id' => $size_id,
-                            'fit_id' => $fit_id,
-                            'material_id' => $material_id,
-                            'quantity' => $quantity,
-                        ]
-                    );
+                     foreach($sizes_ids as $size_id){
+                          foreach($fits_ids as $fit_id){
+                            $inventory = Inventory::create(
+                                [
+                                    'product_id' => $product_id,
+                                    'color_id' => $color_id,
+                                    'size_id' => $size_id,
+                                    'fit_id' => $fit_id,
+                                    'material_id' => $material_id,
+                                    'quantity' => $quantity,
+                                ]);
+
+                            $variant_ids[] = $inventory->id;
+                          }
+                     }
                 }
             }
 
+
+          
             // store varaint's images
             // Covers =======================================================================================
             // store  the covers to covers table with foreign key product_id
-             $variant_covers_data = collect();
+            $variant_covers_data = collect();
             
-            foreach ($variant['covers'] as $cover) {
-                $variant_covers_data->push($cover);
+            if(isset($variant['covers'])){
+                foreach ($variant['covers'] as $cover) {
+                    $variant_covers_data->push($cover);
+                }
             }
+            
+            
 
-            $this->storeCovers($variant_covers_data, $db_Variant->id);
+            $this->storeAttachCover($variant_covers_data, $variant_ids);
             
         }
 
@@ -221,9 +245,20 @@ class ProductController extends Controller
     public function show($id){
 
         $product = Product::findOrFail($id);
- 
-        dd($product->colors()->select('hex')->get()->toArray());
+
+        $product_colors = $product->colors()->select( 'color_id' ,'hex' )->get()->toArray();
+        $product_covers = $product->covers()->select('covers.id as cover_id', 'covers.path')->get()->toArray();
+        $product_materials = $product->materials()->select('materials.id', 'materials.name')->get()->toArray();
+        $product_fits = $product->fits()->select('fits.id', 'fits.name')->get()->toArray();
+        $product_sizes = $product->sizes()->select('sizes.id', 'sizes.name')->get()->toArray();
+
+        $product['covers'] = $product_covers;
+        $product['colors'] = $product_colors; 
+        $product['materials'] = $product_materials;
+        $product['sizes'] = $product_sizes;
+        $product['fits'] = $product_fits;
         
+        dd($product->toArray());
     //    $covers[] = $product->thumbnail;
       
         

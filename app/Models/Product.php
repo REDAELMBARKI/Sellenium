@@ -12,7 +12,14 @@ class Product extends Model
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
      protected $fillable = ['name' , 'brand' , 'price' , 'slug' , 'thumbnail' ,'free_shipping' , 'description'];
+     protected $hidden = ['created_at','updated_at'];   
 
+    public static function getColumsToselect(){
+        return array_merge(
+            ['id'],
+            (new Static)->getFillable()
+        );
+    }
     public function categories(){
           return $this->belongsToMany(Category::class);
     }
@@ -46,27 +53,37 @@ class Product extends Model
 
     public function covers()
     {
-        return $this->hasManyThrough(Cover::class, Inventory::class,'variant_id');
+        return $this->hasManyThrough(Cover::class, Inventory::class, 'product_id', 'inventory_id', 'id', 'id')
+        ;
     }
 
     public function colors()
     {
-        return $this->hasManyThrough(Color::class, Inventory::class ,'product_id' , 'id' , 'id' , 'id' );
+        return $this->hasManyThrough(Color::class, Inventory::class ,'product_id' , 'id' , 'id' , 'id' )
+                    ->select('colors.id as color_id' , 'colors.hex');
     }
 
 
-    public function size()
+    public function sizes()
     {
-        return $this->hasOne(Size::class);
+        return $this->hasManyThrough(Size::class , Inventory::class , 'product_id' , 'id' , 'id' , 'id');
     }
 
     public function materials()
     {
-        return $this->hasManyThrough(Material::class, Inventory::class);
+        return $this->hasManyThrough(Material::class, Inventory::class, 'product_id', 'id', 'id', 'id')
+        ->select('materials.id as material_iid' , 'name');
     }
 
-    public function fit()
+    public function fits()
     {
-        return $this->hasOne(Fit::class);
+        return $this->hasManyThrough(Fit::class, Inventory::class, 'product_id', 'id', 'id', 'id');
     }
+
+
+    // protected function casts(){
+    //     return [
+    //         'timestamps'
+    //     ];
+    // }
 }

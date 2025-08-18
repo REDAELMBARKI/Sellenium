@@ -11,10 +11,15 @@ class Cover extends Model
     use HasFactory;
 
 
-     protected $fillable = ['path' , 'variant_id'];
+     protected $fillable = ['path'];
 
     public function product(){
           return $this->belongsTo(Product::class);
     }
+
+    public function inventory(){
+        return $this->belongsToMany(Inventory::class);
+    }
+ 
 
 }

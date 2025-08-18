@@ -61,8 +61,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
     const [currentVariant, setCurrentVariant] = useState({
         id: null,
         colors: [],
-        size: null,
-        fit: null,
+        sizes: [],
+        fits: [],
         materials: [],
         quantity: 1,
         covers: [],
@@ -278,6 +278,22 @@ function Create({ tagSuggestions, inventoryOptions }) {
             return;
         }
 
+
+        // this function returns the array productvariants that should we deal with in case update and in normal cases 
+        const productVariantsHandler = () => {
+            if (updateVariantMode) {
+                var updatedVariant = productVariants.find(
+                    (variant) => variant.id === id
+                );
+
+                return productVariants.filter(
+                    (v) => v.id !== updatedVariant.id
+                );
+            } else {
+                return productVariants;
+            }
+        };
+
         const sameCoversVariant = (curr_covers, variant_covers) => {
             if (curr_covers.length !== variant_covers.length) {
                 return false;
@@ -297,7 +313,49 @@ function Create({ tagSuggestions, inventoryOptions }) {
             );
         };
 
-        const sameMaterialVariant = (curr_materials, variant_materials) => {
+
+
+        const sameSizesVariant = (curr_sizes, variant_sizes) => {
+            if (curr_sizes.length !== variant_sizes.length) {
+                return false;
+            }
+
+            return (
+                variant_sizes.every((var_size) =>
+                    curr_sizes.some((curr_size) =>
+                        isEqual(curr_size, var_size)
+                    )
+                ) &&
+                curr_sizes.every((curr_size) =>
+                    variant_sizes.some((var_size) =>
+                        isEqual(var_size, curr_size)
+                    )
+                )
+            );
+        };
+
+
+         const sameFitsVariant = (curr_fits, variant_fits) => {
+             if (curr_fits.length !== variant_fits.length) {
+                 return false;
+             }
+
+             return (
+                 variant_fits.every((var_fit) =>
+                     curr_fits.some((curr_fit) =>
+                         isEqual(curr_fit, var_fit)
+                     )
+                 ) &&
+                 curr_fits.every((curr_fit) =>
+                     variant_fits.some((var_fit) =>
+                         isEqual(var_fit, curr_fit)
+                     )
+                 )
+             );
+         };
+        
+
+        const sameMaterialsVariant = (curr_materials, variant_materials) => {
             if (curr_materials.length !== variant_materials.length) {
                 return false;
             }
@@ -316,7 +374,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
             );
         };
 
-        const sameColorVariant = (curr_colors, variant_colors) => {
+        const sameColorsVariant = (curr_colors, variant_colors) => {
             if (curr_colors.length !== variant_colors.length) {
                 return false;
             }
@@ -335,24 +393,46 @@ function Create({ tagSuggestions, inventoryOptions }) {
             );
         };
 
-        const sameColor = productVariants.some(function (variant) {
+
+
+        const sameColors = productVariantsHandler().some(function (variant) {
             return (
                 Array.isArray(currentVariant.colors) &&
                 Array.isArray(variant.colors) &&
-                sameColorVariant(currentVariant.colors, variant.colors)
+                sameColorsVariant(currentVariant.colors, variant.colors)
             );
         });
 
-        const sameMaterial = productVariants.some(function (variant) {
+        const sameMaterials = productVariantsHandler().some(function (variant) {
             return (
                 Array.isArray(currentVariant.materials) &&
                 Array.isArray(variant.materials) &&
-                sameMaterialVariant(currentVariant.materials, variant.materials)
+                sameMaterialsVariant(currentVariant.materials, variant.materials)
             );
         });
 
-        const sameCovers = productVariants.some(function (variant) {
-            // console.log(variant);
+        const sameSizes = productVariantsHandler().some(function (variant) {
+              return (
+                  Array.isArray(currentVariant.sizes) &&
+                  Array.isArray(variant.sizes) &&
+                  sameSizesVariant(
+                      currentVariant.sizes,
+                      variant.sizes
+                  )
+              );
+        });
+        
+        const sameFits = productVariantsHandler().some(function (variant) {
+            return (
+                Array.isArray(currentVariant.fits) &&
+                Array.isArray(variant.fits) &&
+                sameFitsVariant(
+                    currentVariant.fits,
+                    variant.fits
+                )
+            );
+        });
+        const sameCovers = productVariantsHandler().some(function (variant) {
             return (
                 Array.isArray(currentVariant.covers) &&
                 Array.isArray(variant.covers) &&
@@ -360,40 +440,19 @@ function Create({ tagSuggestions, inventoryOptions }) {
             );
         });
 
-        let variantExists;
-
+        let variantExists =
+        sameCovers &&
+        sameColors &&
+        sameMaterials &&
+        sameSizes &&
+        sameFits
+        
         // this checkes if the uodateded values are difffirence then the originals before
         // if we update and no changes the elements styls the same
         // if only changes made then we update
-        if (updateVariantMode) {
-            var updatedVariant = productVariants.find(
-                (variant) => variant.id === id
-            );
+       
+      
 
-            variantExists =
-                sameCovers &&
-                sameColor &&
-                sameMaterial &&
-                productVariants
-                    .filter((obj) => obj.id !== updatedVariant.id)
-                    .some((variant) => {
-                        return (
-                            variant.size === currentVariant.size &&
-                            variant.fit === currentVariant.fit
-                        );
-                    });
-        } else {
-            variantExists =
-                sameCovers &&
-                sameColor &&
-                sameMaterial &&
-                productVariants.some((variant) => {
-                    return (
-                        variant.size === currentVariant.size &&
-                        variant.fit === currentVariant.fit
-                    );
-                });
-        }
 
         if (variantExists) {
             alert(
@@ -420,8 +479,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
             const newVariant = {
                 id: Date.now(),
                 colors: currentVariant.colors,
-                size: currentVariant.size,
-                fit: currentVariant.fit,
+                sizes: currentVariant.sizes,
+                fits: currentVariant.fits,
                 materials: currentVariant.materials,
                 quantity: currentVariant.quantity,
                 covers: currentVariant.covers,
@@ -453,8 +512,8 @@ function Create({ tagSuggestions, inventoryOptions }) {
         setCurrentVariant({
             id: null,
             colors: [],
-            size: null,
-            fit: null,
+            sizes: [],
+            fits: [],
             materials: [],
             quantity: 1,
             covers: [],
@@ -523,16 +582,48 @@ function Create({ tagSuggestions, inventoryOptions }) {
                     materials: [...prev.materials, option],
                 }));
             }
-        } else {
-            if (currentVariant[type] === option) {
+        } else if (type === "fits") {
+            let fitExist = false;
+
+            for (let obj of currentVariant.fits) {
+                if (obj.id === option.id) {
+                    fitExist = true;
+                }
+            }
+
+            if (fitExist) {
                 setCurrentVariant((prev) => ({
                     ...prev,
-                    [type]: null,
+                    fits: currentVariant.fits.filter(
+                        (obj) => obj.id !== option.id
+                    ),
                 }));
             } else {
                 setCurrentVariant((prev) => ({
                     ...prev,
-                    [type]: option,
+                    fits: [...prev.fits, option],
+                }));
+            }
+        } else if (type === "sizes") {
+            let sizeExist = false;
+
+            for (let obj of currentVariant.sizes) {
+                if (obj.id === option.id) {
+                    sizeExist = true;
+                }
+            }
+
+            if (sizeExist) {
+                setCurrentVariant((prev) => ({
+                    ...prev,
+                    sizes: currentVariant.sizes.filter(
+                        (obj) => obj.id !== option.id
+                    ),
+                }));
+            } else {
+                setCurrentVariant((prev) => ({
+                    ...prev,
+                    sizes: [...prev.sizes, option],
                 }));
             }
         }
@@ -561,7 +652,7 @@ function Create({ tagSuggestions, inventoryOptions }) {
 
         setUpdateVariantMode(false);
     }
-
+ 
     // end inventroy logic  ===============================
 
     // check if all fields are good
@@ -638,13 +729,12 @@ function Create({ tagSuggestions, inventoryOptions }) {
     // submit form
     function submitForm(e) {
         e.preventDefault();
-
         (async () => {
             try {
                 post("/products", {
                     preserveScroll: true,
                     onError: (errors) => {
-                        const keys = ["colors", "materials", "fit", "size" ,"covers"];
+                        const keys = ["colors", "materials", "fits", "sizes" ,"covers"];
 
                         setProductVariants((prevVariants) =>
                             prevVariants.map((variant, index) => {

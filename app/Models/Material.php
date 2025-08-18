@@ -11,7 +11,13 @@ class Material extends Model
     use HasFactory;
      protected $fillable = ['name' , 'slug'];
 
-    public function products(){
-          return $this->hasMany(Product::class);
+    public  function inventories()
+    {
+        return $this->hasMany(Inventory::class);
+    }
+
+    public function products()
+    {
+        return $this->hasManyThrough(Product::class, Inventory::class, 'material_id', 'id', 'id', 'product_id');
     }
 }

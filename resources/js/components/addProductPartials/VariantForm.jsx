@@ -280,20 +280,22 @@ import AddImagesSection from './AddImagesSection';
                         <div className="flex flex-wrap gap-3" id="sizeOptions">
                             {/* <!-- Size options --> */}
                             {inventoryOptions.sizes.map(function (size, index) {
+                                 const isCurrent = currentVariant?.sizes?.some(
+                                     (curr_size) => curr_size.id === size.id
+                                 );
                                 return (
                                     <button
                                         type="button"
                                         key={index}
                                         className={`${
-                                            currentVariant?.size?.name ===
-                                            size?.name
+                                            isCurrent
                                                 ? "selected"
                                                 : ""
                                         }  px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
                                         data-value={size?.name}
                                         onClick={() => {
                                             handleVariantSelection(
-                                                "size",
+                                                "sizes",
                                                 size
                                             );
                                         }}
@@ -315,19 +317,23 @@ import AddImagesSection from './AddImagesSection';
                         <div className="flex flex-wrap gap-3" id="fitOptions">
                             {/* <!-- Fit options --> */}
                             {inventoryOptions.fits.map(function (fit, index) {
+                                const isCurrent =
+                                    currentVariant?.fits?.some(
+                                        (curr_fit) =>
+                                            curr_fit.id === fit.id
+                                    );
                                 return (
                                     <button
                                         type="button"
                                         key={index}
                                         className={`${
-                                            currentVariant?.fit?.name ===
-                                            fit?.name
+                                               isCurrent
                                                 ? "selected"
                                                 : ""
                                         }  px-4 py-3 rounded-xl border-2 font-medium variant-option bg-white/50 border-slate-300 text-slate-700 hover:bg-white hover:border-slate-400 shadow-sm transition-all duration-200`}
                                         data-value={fit?.name}
                                         onClick={() => {
-                                            handleVariantSelection("fit", fit);
+                                            handleVariantSelection("fits", fit);
                                         }}
                                     >
                                         {fit?.name}
