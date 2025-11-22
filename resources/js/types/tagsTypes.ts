@@ -1,5 +1,5 @@
 export interface TagSuggestion {
-    id: number;
+    id: number | null;
     name: string;
 }
 
@@ -8,7 +8,7 @@ export interface TagSuggestion {
 
 // tags Types
 export  interface Tag {
-    id: string;
+    id: string | null;
     name: string;
 }
 

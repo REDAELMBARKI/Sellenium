@@ -177,7 +177,10 @@ function VariantsList() {
                                                 type="button"
                                                 className="p-2 rounded hover:bg-blue-100 text-blue-600 transition-colors"
                                                 onClick={() =>
-                                                    editVariant(variant?.id)
+                                                    {
+                                                        if (!currentVariant.id) return;
+                                                        editVariant(currentVariant.id)
+                                                    }
                                                 }
                                                 title="Edit variant"
                                             >
@@ -201,7 +204,10 @@ function VariantsList() {
                                                 type="button"
                                                 className="p-2 rounded hover:bg-red-100 text-red-600 transition-colors"
                                                 onClick={() =>
-                                                    removeVariant(variant?.id)
+                                                    {
+                                                        if(!variant?.id) return ;
+                                                        removeVariant(variant?.id)
+                                                    }
                                                 }
                                                 title="Remove variant"
                                             >

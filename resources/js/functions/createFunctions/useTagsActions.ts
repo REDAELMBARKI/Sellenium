@@ -1,11 +1,11 @@
 import { useTags } from "@/contextHooks/useTags";
-import { Tag } from "@/types/createPageTypes";
+import { Tag } from "@/types/tagsTypes";
 
 
 
 
 export const useTagsActions = () => {
-    const { selectedTags, setSelectedTags, setTagInputValue } = useTags();
+    const { selectedTags, setSelectedTags, setTagInputValue ,tagInputValue  , suggestedTags } = useTags();
 
     const handleTagRemove = (tagToRemove: number) => {
         const tags = selectedTags.filter((_, index) => index !== tagToRemove);

@@ -1,20 +1,14 @@
 
-// media Types
-export interface ImagePlaceholder {
-    id: string;
-    url: string;
-    file?: File;
-}
 
 export interface ImagesMap {
-    [key: string]: File | string;
+    [key: string]: File | string | null;
 }
 
 export interface MediaContextType {
     images: ImagesMap;
     setImages: React.Dispatch<React.SetStateAction<ImagesMap>>;
-    imagesPlaceHolders: ImagePlaceholder[];
-    setImagesPlaceHolders: React.Dispatch<React.SetStateAction<ImagePlaceholder[]>>;
+    imagesPlaceHolders: number[];
+    setImagesPlaceHolders: React.Dispatch<React.SetStateAction<number[]>>;
     imagesValid: boolean;
     setImagesValid: React.Dispatch<React.SetStateAction<boolean>>;
     isVariantCoverPreview: boolean;

@@ -22,6 +22,7 @@ import VariantsList from "@/components/addProductPartials/VariantsList";
 import { TagSuggestion } from "@/types/tagsTypes";
 import { InventoryOptions } from "@/types/inventoryTypes";
 import { UIProvider } from "@/contextProvoders/UiProvider";
+import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 
 
 interface CreatePageProps {
@@ -46,6 +47,9 @@ export default function Create({ tagSuggestions, inventoryOptions }: CreatePageP
         </UIProvider>
     );
 }
+
+
+Create.layout = (page) => <AdminLayout  children={page} />
 
 function CreateContent({ tagSuggestions, inventoryOptions }: CreatePageProps) {
 

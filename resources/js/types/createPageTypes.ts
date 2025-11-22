@@ -28,6 +28,7 @@ export interface ProductFormContextType {
         free_shipping: boolean;
         inventory: InventoryItem[];
         tags: string[];
+         [key: string]: unknown;
     };
     setData: (key: string, value: unknown) => void;
     post: (url: string) => void;

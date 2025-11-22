@@ -40,7 +40,7 @@ export const useFormActions = () => {
         }
     };
 
-    const submitForm = (e: FormEvent<HTMLFormElement>) => {
+    const submitForm = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
         post("/products", {

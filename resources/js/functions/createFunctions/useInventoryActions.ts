@@ -24,8 +24,10 @@ export const useInventoryActions = () => {
     const {fileToDataUrl} = useMediaActions()  
     const {setIsFlashing} = useUIContext()
 
-    const productVariantsHandler = (id: number | null = null): ProductVariant[] => {
+    const productVariantsHandler = (id: string): ProductVariant[] => {
+
         if (updateVariantMode && id) {
+        
             return productVariants.filter((v) => v.id !== id);
         }
         return productVariants;
@@ -39,7 +41,7 @@ export const useInventoryActions = () => {
         );
     };
 
-    const addVariant = (id: number | null = null) => {
+    const addVariant = (id: string) => {
         const allFieldsFilled = Object.entries(currentVariant)
             .filter(([key]) => key !== "covers" && key !== "id")
             .every(([, fieldValue]) => {
@@ -152,9 +154,9 @@ export const useInventoryActions = () => {
 
     const newImages: Record<string, string> = {};
 
-    for (const coverObj of variant.covers) {
+    for (const coverObj  of variant.covers) {
         const coverKey = Object.keys(coverObj)[0];
-        const file = Object.values(coverObj)[0] as File;
+        const file = Object.values(coverObj)[0] as unknown as File;
         const base64 = await fileToDataUrl(file);
         newImages[coverKey] = base64;
     }

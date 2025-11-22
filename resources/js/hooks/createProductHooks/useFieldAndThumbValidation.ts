@@ -4,6 +4,11 @@ import { useProductForm } from "@/contextHooks/useProductForm";
 import { useTags } from "@/contextHooks/useTags";
 import { useEffect } from "react";
 
+interface ReadyState {
+  tags: boolean;
+  inventory: boolean;
+  [key: string]: boolean;
+}
 
 
 export const useFieldAndThumbValidation  = ()=> {
@@ -30,7 +35,7 @@ export const useFieldAndThumbValidation  = ()=> {
         setOtherStringFieldsValid(allFilled);
 
         // for missing fields tracking
-        const updatedState = {};
+        const updatedState : Partial<ReadyState>  = {};
 
         Object.keys(isReadyToSubmit)
             .filter((el) => el !== "bool")

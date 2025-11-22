@@ -154,7 +154,7 @@ function BasicInformationsSection({
                         onChange={function (e) {
                             setData("description", e.target.value);
                         }}
-                        rows="5"
+                        rows={5}
                         className="w-full p-4 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm hover:bg-white/80 resize-none"
                         placeholder="Enter product description"
                     ></textarea>
@@ -170,7 +170,7 @@ function BasicInformationsSection({
                     <label className="flex items-center group cursor-pointer">
                         <input
                             type="checkbox"
-                            value={data.isFeatured}
+                            checked={data.isFeatured}
                             onChange={function (e) {
                                 setData("isFeatured", e.target.checked);
                             }}
@@ -184,7 +184,7 @@ function BasicInformationsSection({
 
                     <label className="flex items-center group cursor-pointer">
                         <input
-                            value={data.free_shipping}
+                            checked={data.free_shipping}
                             onChange={function (e) {
                                 setData("free_shipping", e.target.checked);
                             }}
@@ -290,7 +290,7 @@ function BasicInformationsSection({
                             <ul className="flex flex-wrap gap-2 p-2">
                                 {suggestedTags.map((tag, index) => (
                                     <li
-                                        type="button"
+                                       
                                         key={index}
                                         onClick={() =>
                                             addSuggestedTagToSelectedOnes(tag)

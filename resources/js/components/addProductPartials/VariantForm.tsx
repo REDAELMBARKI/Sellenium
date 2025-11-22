@@ -85,7 +85,7 @@ const VariantForm = ({
                 </div>
             </div>
 
-            <div
+            <form
                 ref={variantFormRef}
                 className={`bg-gradient-to-br from-slate-50 relative ${
                     isFlashing ? "bg-orange-100 border-2 border-orange-200" : ""
@@ -280,7 +280,7 @@ const VariantForm = ({
                 {/* Add/Update Variant Button */}
                 <button
                     type="button"
-                    onClick={() => addVariant(currentVariant.id)}
+                    onClick={() => addVariant(Number(currentVariant.id))}
                     className={`px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 transform ${
                         isReadyToAdd
                             ? "hover:from-orange-600 hover:to-red-600 focus:ring-4 focus:ring-orange-200 hover:shadow-xl hover:scale-105"
@@ -294,7 +294,7 @@ const VariantForm = ({
                         ? "Add Variant"
                         : "Select all options and enter quantity"}
                 </button>
-            </div>
+            </form>
         </>
     );
 };
