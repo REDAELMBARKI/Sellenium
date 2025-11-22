@@ -24,7 +24,7 @@ class Inventory extends Model
     }
 
     public function covers(){
-        return $this->belongsToMany(Cover::class);
+        return $this->belongsToMany(Cover::class , 'cover_inventory' , 'inventory_id' , 'cover_id');
     }
 
 

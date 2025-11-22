@@ -11,8 +11,9 @@ import VariantSelector from '@/components/showProductPage/VariantSelector';
 import AddToCartSection from '@/components/showProductPage/AddToCartSection';
 import ReviewsSection from '@/components/showProductPage/ReviewsSection';
 import RelatedProducts from '@/components/showProductPage/RelatedProducts';
+import axios from 'axios';
 
-function ProductDetails({ productData }) {
+function ProductDetails({ product }) {
     const [selectedColor, setSelectedColor] = useState(variants[0].color.id);
     const [selectedSize, setSelectedSize] = useState(null);
     const [selectedMaterial, setSelectedMaterial] = useState(null);
@@ -26,40 +27,11 @@ function ProductDetails({ productData }) {
     }, [selectedColor]);
 
     // Get available options for current color
-    const availableOptions = useMemo(() => {
-        const colorVariants = variants.filter(
-            (v) => v.color.id === selectedColor
-        );
-
-        const sizes = colorVariants.reduce((acc, variant) => {
-            variant.sizes.forEach((size) => {
-                if (!acc.find((s) => s.id === size.id)) {
-                    acc.push(size);
-                }
-            });
-            return acc;
-        }, []);
-
-        const materials = colorVariants.reduce((acc, variant) => {
-            variant.materials.forEach((material) => {
-                if (!acc.find((m) => m.id === material.id)) {
-                    acc.push(material);
-                }
-            });
-            return acc;
-        }, []);
-
-        const fits = colorVariants.reduce((acc, variant) => {
-            variant.fits.forEach((fit) => {
-                if (!acc.find((f) => f.id === fit.id)) {
-                    acc.push(fit);
-                }
-            });
-            return acc;
-        }, []);
-
-        return { sizes, materials, fits };
-    }, [selectedColor]);
+    // const availableOptions = useMemo(() => {
+    //     axios.post('/api/variant',{id:selectedColor.id} ,  {
+            
+    //     })
+    // }, [selectedColor]);
 
     // Calculate average rating
     const averageRating = useMemo(() => {
@@ -78,16 +50,18 @@ function ProductDetails({ productData }) {
     };
 
     const handleAddToCart = (quantity) => {
-        console.log("Added to cart:", {
-            product: productData,
-            variant: currentVariant,
-            selectedSize,
-            selectedMaterial,
-            selectedFit,
-            quantity,
-        });
+        // console.log("Added to cart:", {
+        //     product: product,
+        //     variant: currentVariant,
+        //     selectedSize,
+        //     selectedMaterial,
+        //     selectedFit,
+        //     quantity,
+        // });
         alert(`Added ${quantity} item(s) to cart!`);
     };
+
+
 
     return (
         <div className="min-h-screen bg-white">
@@ -97,8 +71,9 @@ function ProductDetails({ productData }) {
                     {/* Image Gallery */}
                     <div>
                         <ImageGallery
-                            images={currentVariant.images}
-                            productName={productData.name}
+                            images={product.covers}
+                            product={product}
+                            productName={product.name}
                         />
                     </div>
 
@@ -107,21 +82,22 @@ function ProductDetails({ productData }) {
                         {/* Title and Rating */}
                         <div>
                             <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
-                             {productData.name}
+                                {product.name}
                             </h1>
                             <div className="flex items-center space-x-4 mb-4">
-                                <StarRating rating={productData.rating_average} />
+                                <StarRating rating={product.rating_average} />
                                 <span className="text-gray-600">
                                     ({reviews.length} reviews)
                                 </span>
                             </div>
                             <p className="text-gray-700 leading-relaxed">
-                                {productData.description}
+                                {product.description}
                             </p>
                         </div>
 
                         {/* Variant Selection */}
                         <VariantSelector
+                            product={product}
                             variants={variants}
                             selectedColor={selectedColor}
                             selectedSize={selectedSize}
@@ -131,16 +107,17 @@ function ProductDetails({ productData }) {
                             onSizeChange={setSelectedSize}
                             onMaterialChange={setSelectedMaterial}
                             onFitChange={setSelectedFit}
-                            availableSizes={availableOptions.sizes}
-                            availableMaterials={availableOptions.materials}
-                            availableFits={availableOptions.fits}
+                            availableSizes={product.sizes}
+                            availableMaterials={product.materials}
+                            availableFits={product.fits}
+                            availableColors={product.colors}
                         />
 
                         {/* Add to Cart Section */}
                         <div className="border-t pt-6">
                             <AddToCartSection
                                 stock={currentVariant.stock}
-                                price={productData.price}
+                                price={product.price}
                                 onAddToCart={handleAddToCart}
                             />
                         </div>

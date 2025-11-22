@@ -45,18 +45,16 @@ class Product extends Model
     }
 
 
-    public function promotion(){
-        return $this->belongsTo(Promotion::class);
-    }
-
-    // attrivutes 
-
     public function covers()
     {
-        return $this->hasManyThrough(Cover::class, Inventory::class, 'product_id', 'inventory_id', 'id', 'id')
-        ;
+        return $this->hasManyThrough(Cover::class, Inventory::class, 'product_id', 'inventory_id', 'id', 'id');
+            // ->join('cover_inventory as cv', 'cv.cover_id', '=', 'covers.id');
     }
 
+    public function promotion()
+    {
+        return $this->belongsTo(Promotion::class);
+    }
     public function colors()
     {
         return $this->hasManyThrough(Color::class, Inventory::class ,'product_id' , 'id' , 'id' , 'id' )

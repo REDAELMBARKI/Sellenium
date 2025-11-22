@@ -1,6 +1,7 @@
 import React from "react";
 
 const VariantSelector = ({
+    product,
     variants,
     selectedColor,
     selectedSize,
@@ -13,13 +14,9 @@ const VariantSelector = ({
     availableSizes,
     availableMaterials,
     availableFits,
+    availableColors,
 }) => {
-    const uniqueColors = variants.reduce((acc, variant) => {
-        if (!acc.find((c) => c.id === variant.color.id)) {
-            acc.push(variant.color);
-        }
-        return acc;
-    }, []);
+
 
     return (
         <div className="space-y-6">
@@ -29,9 +26,9 @@ const VariantSelector = ({
                     Color
                 </h3>
                 <div className="flex flex-wrap gap-3">
-                    {uniqueColors.map((color) => (
+                    {availableColors.map((color, index) => (
                         <button
-                            key={color.id}
+                            key={index}
                             onClick={() => onColorChange(color.id)}
                             className={`relative w-10 h-10 rounded-full border-2 transition-all duration-200 ${
                                 selectedColor === color.id
@@ -53,7 +50,7 @@ const VariantSelector = ({
                     ))}
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                    {uniqueColors.find((c) => c.id === selectedColor)?.name}
+                    {availableColors.find((c) => c.id === selectedColor)?.name}
                 </p>
             </div>
 

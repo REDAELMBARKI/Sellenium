@@ -1,23 +1,23 @@
+import { useMedia } from '@/contextHooks/useMedia';
+import { useProductForm } from '@/contextHooks/useProductForm';
+import { useMediaActions } from '@/functions/createFunctions/useMediaActions';
 import React, { useEffect, useState} from 'react'
 
 function AddImagesSection({
     title,
     forInventory,
-    addImagePlaceHolder,
-    images,
-    setImages,
-    handleImageUpload,
-    imagesPlaceHolders,
-    handleRemoveImage,
-    errors,
-    placeHolderNotFilled,
-    currentVariant,
-    isVariantCoverPreview,
-    isCurrentVariantActive,
-    setIsCurrentVariantActive,
-}) {
+}:{title : string , forInventory : boolean}) {
    
   
+    
+       const {images , imagesPlaceHolders  , isVariantCoverPreview ,placeHolderNotFilled 
+     
+       } = useMedia()
+    
+       const { errors  } = useProductForm()
+   
+       const {addImagePlaceHolder ,handleImageUpload ,handleRemoveImage} =  useMediaActions()
+
     return (
         <>
             <div className="space-y-6">

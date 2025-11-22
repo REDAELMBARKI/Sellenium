@@ -12,13 +12,14 @@ class Cover extends Model
 
 
      protected $fillable = ['path'];
-
+    protected $hidden = ['created_at', 'updated_at'];
     public function product(){
-          return $this->belongsTo(Product::class);
+          return $this->belongsTo(Product::class)
+                 ;
     }
 
     public function inventory(){
-        return $this->belongsToMany(Inventory::class);
+        return $this->belongsToMany(Inventory::class , 'cover_inventory' , 'cover_id' , 'inventory_id');
     }
  
 

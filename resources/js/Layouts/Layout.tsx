@@ -19,6 +19,7 @@ import {
   Filter,
   ChevronUp
 } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
 const Layout = ({ children, currentPage = 'home' }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

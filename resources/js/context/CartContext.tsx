@@ -1,4 +1,4 @@
-import { React, createContext, useReducer } from 'react';
+import {  createContext, useReducer } from 'react';
 
 
 
@@ -15,6 +15,7 @@ const cartReducer = (state , action) => {
 }
 
 const initialState = [];
+
 export default function cartProvider({children}){
     const [cartProducts, dispatch] = useReducer(cartReducer, initialState);
     const [cartData, setCartData] = useState([]);

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
-
-const ImageGallery = ({ images, productName }) => {
-    const [selectedImage, setSelectedImage] = useState(0);
+const ImageGallery = ({ images, product, productName }) => {
+    const [selectedImage, setSelectedImage] = useState(product?.thumbnail);
 
     useEffect(() => {
-        setSelectedImage(0);
+    //     setSelectedImage(0);
+    console.log(images);
     }, [images]);
-
+    const backendURl = 'http://localhost:8000/'
     return (
         <div className="space-y-4">
             {/* Main Image */}
             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                 <img
-                    src={images[selectedImage]}
+                    src={`${backendURl}${selectedImage}`}
                     alt={productName}
                     className="w-full h-full object-cover transition-opacity duration-300"
                 />
@@ -32,7 +32,7 @@ const ImageGallery = ({ images, productName }) => {
                             }`}
                         >
                             <img
-                                src={image}
+                                src={`${backendURl}${image[0].path}`}
                                 alt={`${productName} view ${index + 1}`}
                                 className="w-full h-full object-cover"
                             />

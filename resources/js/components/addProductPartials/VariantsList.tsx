@@ -1,87 +1,31 @@
+import { useInventory } from '@/contextHooks/useInventory';
+import { useMedia } from '@/contextHooks/useMedia';
+import { useUIContext } from '@/contextHooks/useUiContext';
+import { useFormActions } from '@/functions/createFunctions/useFormActions';
+import { useInventoryActions } from '@/functions/createFunctions/useInventoryActions';
 import React, { useState,useEffect } from 'react'
 
-function VariantsList({
-    removeVariant,
-    productVariants,
-    scrollToVariantForm,
-    setCurrentVariant,
-    currentVariant,
-    setUpdateVariantMode,
-    setIsFlashing,
-    setImages,
-    images,
-    setImagesPlaceHolders,
-    setIsVariantCoverPreview,
-}) {
-    function fileToDataUrl(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }
-
-    function editVariant(id) {
-        scrollToVariantForm()
-        setIsFlashing(true);
-        setUpdateVariantMode(true);
-        const variant = productVariants?.find((variant) => variant.id === id);
-        setCurrentVariant({
-            ...currentVariant,
-            id: variant.id,
-            colors: [...variant.colors],
-            quantity: variant.quantity,
-            fits: variant.fits,
-            sizes: variant.sizes,
-            materials: variant.materials,
-            covers: variant.covers,
-        });
+function VariantsList() { 
 
 
- 
-        (async function updateImagesWithBase64() {
-            const newImages = {};
+    const {currentVariant ,productVariants 
+      , setCurrentVariant  , setUpdateVariantMode ,
+   
+      } = useInventory()
+   
+      const {images , setImages , setImagesPlaceHolders 
+    , setIsVariantCoverPreview 
+      } = useMedia()
+    
 
-            for (const coverObj of variant.covers) {
-                const coverKey = Object.keys(coverObj)[0];
-                const file = Object.values(coverObj)[0];
-                const base64 = await fileToDataUrl(file);
-                newImages[coverKey] = base64;
-            }
-
-            setImages((prev) => ({
-                ...prev,
-                ...newImages,
-            }));
+     const  {removeVariant , editVariant} = useInventoryActions()
+    const { scrollToVariantForm } =  useFormActions()
+        
 
 
-            if (variant.covers.length === 0 && images.thumbnail) {
-                 setIsVariantCoverPreview(true);
-                 setImages({
-                     ...images,
-                     cover_1: images.thumbnail,
-                 });
-            }
-        })();
 
-        const editedVariantPlaceHolders = [];
-        for (let i = 1; i <= variant.covers.length; i++) {
-            editedVariantPlaceHolders.push(i);
-        }
-
-       
-
-        setImagesPlaceHolders(
-            editedVariantPlaceHolders.length > 1
-                ? editedVariantPlaceHolders
-                : [1]
-        );
-        setTimeout(() => {
-            setIsFlashing(false);
-        }, 100);
-    }
-
+   
+   
     return (
         <>
             <div

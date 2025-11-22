@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use PHPUnit\Framework\MockObject\Stub\ReturnReference;
 use PHPUnit\TextUI\Configuration\Merger;
 
 class ProductController extends Controller
@@ -37,15 +38,15 @@ class ProductController extends Controller
         $sizes = Size::select('id', 'name')->distinct()->get();
         $fits = Fit::select('id', 'name')->distinct()->get();
         $materials = Material::select('id', 'name')->distinct()->get();;
+    
+        $inventoryOptions = [
+            'colors' => $colors,
+            'sizes' => $sizes,
+            'fits' =>  $fits,
+            'materials' => $materials,
+        ];
 
         
-
-    $inventoryOptions = [
-        'colors' => $colors,
-        'sizes' => $sizes,
-        'fits' =>  $fits,
-        'materials' => $materials,
-    ];
 
 
         return inertia::render("products/create" , ['inventoryOptions' => $inventoryOptions]);
@@ -121,7 +122,7 @@ class ProductController extends Controller
 
         foreach($variant_ids as $inventory_id){
               foreach($covers_ids  as $cover_id){
-                DB::table('inventory_cover')->insert([
+                DB::table('cover_inventory')->insert([
                     'cover_id' => $cover_id ,
                     'inventory_id' => $inventory_id
                 ]);
@@ -245,23 +246,28 @@ class ProductController extends Controller
     public function show($id){
 
         $product = Product::findOrFail($id);
+        $product_covers = [];
 
+        // this one works with a loop 
+        // foreach ($product->inventories as $inventory) {
+        //     $product_covers[] = $inventory->covers()->distinct('id', 'path')->get()->toArray();
+        // };
+        $product_covers[] = $product->covers()->with('inventories')->get()->toArray();
         $product_colors = $product->colors()->select( 'color_id' ,'hex' )->get()->toArray();
-        $product_covers = $product->covers()->select('covers.id as cover_id', 'covers.path')->get()->toArray();
+        
         $product_materials = $product->materials()->select('materials.id', 'materials.name')->get()->toArray();
         $product_fits = $product->fits()->select('fits.id', 'fits.name')->get()->toArray();
         $product_sizes = $product->sizes()->select('sizes.id', 'sizes.name')->get()->toArray();
 
+        dd($product_covers);
         $product['covers'] = $product_covers;
+        
         $product['colors'] = $product_colors; 
         $product['materials'] = $product_materials;
         $product['sizes'] = $product_sizes;
         $product['fits'] = $product_fits;
         
-        dd($product->toArray());
-    //    $covers[] = $product->thumbnail;
-      
-        
+
         
     //    $variants = $product->variants;
        return inertia::render('products/show', ['product' => $product]);

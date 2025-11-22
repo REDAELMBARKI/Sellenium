@@ -1,53 +1,18 @@
+import { useProductForm } from '@/contextHooks/useProductForm';
+import { useTags } from '@/contextHooks/useTags';
+import { useTagsActions } from '@/functions/createFunctions/useTagsActions';
+import { useForm } from '@inertiajs/react';
 import axios from 'axios';
 import React, { useEffect } from 'react'
 
 function BasicInformationsSection({
-    tagInputValue,
-    setTagInputValue,
-    data,
-    setData,
-    addSuggestedTagToSelectedOnes,
-    suggestedTags,
-    setSuggestedTags,
-    selectedTags,
-    setSelectedTags,
-    handleTagRemove,
-    errors
+ 
 }) {
 
-
-
-    function addTag() {
-        if (tagInputValue.trim().length < 1) {
-            return;
-        }
-        setSelectedTags([
-            ...selectedTags,
-            {
-                id: null,
-                name: tagInputValue,
-            },
-        ]);
-    }
-
-    function addHighlightedTag() {
     
-        if (suggestedTags?.length > 0) {
-            setSelectedTags([...selectedTags, suggestedTags[0]]);
-            setTagInputValue('')
-        } else {
-            
-            setSelectedTags([...selectedTags, {
-                id:null,
-                name:tagInputValue
-            }]);
-              setTagInputValue("");
-            
-        }
-    }
-
-
-
+    const {selectedTags ,setSuggestedTags , tagInputValue ,  setTagInputValue , suggestedTags} = useTags()
+    const {errors , data ,  setData , } = useProductForm()
+    const {addHighlightedTag ,addTag  , handleTagRemove ,addSuggestedTagToSelectedOnes} = useTagsActions()
     useEffect(() => {
         async function getTags() {
                try {

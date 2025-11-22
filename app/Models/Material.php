@@ -9,7 +9,7 @@ class Material extends Model
 {
     /** @use HasFactory<\Database\Factories\MaterialFactory> */
     use HasFactory;
-     protected $fillable = ['name' , 'slug'];
+    protected $fillable = ['name', 'slug'];
 
     public  function inventories()
     {
