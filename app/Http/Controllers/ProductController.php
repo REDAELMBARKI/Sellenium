@@ -227,8 +227,26 @@ class ProductController extends Controller
 
 
 
-    public function edit(){
-        return inertia::render('products/edit');
+    public function edit(){ 
+        $product =  Product::with('tags')-> find(1) ;
+        
+        $colors = Color::select('id', 'hex')->distinct()->get();
+
+        $sizes = Size::select('id', 'name')->distinct()->get();
+        $fits = Fit::select('id', 'name')->distinct()->get();
+        $materials = Material::select('id', 'name')->distinct()->get();;
+    
+        $inventoryOptions = [
+            'colors' => $colors,
+            'sizes' => $sizes,
+            'fits' =>  $fits,
+            'materials' => $materials,
+        ];
+
+
+      
+        
+        return inertia::render('products/edit' , compact('product' , 'inventoryOptions'));
     }
 
     public function update(UpdateProductRequest $request, $id)

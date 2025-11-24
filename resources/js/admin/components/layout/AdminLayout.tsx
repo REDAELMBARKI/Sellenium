@@ -6,8 +6,22 @@ import { useAuth } from "../../hooks/useAuth";
 import { Header } from "./Header";
 import { Inertia } from "@inertiajs/inertia";
 import { AppSidebar } from "./AppSidebar";
+import { AuthProvider } from "@/admin/context/AuthContext";
+import { ThemeProvider } from "@/admin/context/ThemeContext";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
+
+  return<>
+  <ThemeProvider>
+      <AuthProvider>
+           <AdminLayoutContent children={children} />
+       </AuthProvider>
+  </ThemeProvider>
+  </>
+}
+
+
+const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
   const { admin, isLoading } = useAuth();
 
   if (isLoading) {
@@ -18,22 +32,28 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!admin) {
-    Inertia.visit("/admin/login"); 
-    return null;
-  }
+  // if (!admin) {
+  //   // Inertia.visit("/admin/login"); 
+  //   return null;
+  // }
 
   return (
     <div className="flex h-screen">
+      {/* Sidebar: fixed width, full height */}
       <AppSidebar />
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col h-screen">
+        {/* Header fixed height */}
         <Header />
 
-        <main className="flex-1 overflow-y-auto bg-gray-100 p-6">
+        {/* Scrollable content */}
+        <main >
           {children}
         </main>
       </div>
     </div>
   );
-}
+};
+export default AdminLayoutContent;
+

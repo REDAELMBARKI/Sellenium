@@ -1,5 +1,5 @@
 import { Bell, User, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,22 +7,36 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+} from "../ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "../../hooks/useAuth";
 import { getInitials } from "../../utils/helpers";
 
 export function Header() {
-  const { admin, logout } = useAuth();
+  const { admin } = useAuth();
+
+  const toggleSidebar = () => {
+    console.log("Sidebar toggled");
+    // Implement your sidebar toggle logic here, e.g. updating state or triggering a class
+  };
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b bg-background px-6">
+      {/* Left: Sidebar Toggle */}
       <div className="flex items-center gap-4">
-        <SidebarTrigger data-testid="button-sidebar-toggle" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9"
+          onClick={toggleSidebar}
+        >
+          ☰
+          <span className="sr-only">Toggle Sidebar</span>
+        </Button>
       </div>
 
+      {/* Right: Actions */}
       <div className="flex items-center gap-2">
         <Button
           variant="ghost"
@@ -70,7 +84,7 @@ export function Header() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={logout}
+              // onClick={logout}
               data-testid="menu-item-logout"
               className="text-destructive focus:text-destructive"
             >

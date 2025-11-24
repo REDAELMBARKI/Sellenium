@@ -5,6 +5,7 @@ import { useProductForm } from "@/contextHooks/useProductForm";
 import { useInventoryActions } from "@/functions/createFunctions/useInventoryActions";
 import { Color, InventoryOptions } from "@/types/inventoryTypes";
 import { useUIContext } from "@/contextHooks/useUiContext";
+import InventoryImages from "./InventoryImages";
 
 interface VariantFormProps {
     inventoryOptions: InventoryOptions;
@@ -94,7 +95,7 @@ const VariantForm = ({
                 <h3 className="text-lg font-semibold text-slate-800 mb-6">Create Product Variant</h3>
 
                 <div className="space-y-4 mb-6">
-                    <AddImagesSection forInventory={true} title="Product Variant Images" />
+                    <InventoryImages />
                 </div>
 
                 {/* Colors */}
@@ -280,7 +281,9 @@ const VariantForm = ({
                 {/* Add/Update Variant Button */}
                 <button
                     type="button"
-                    onClick={() => addVariant(Number(currentVariant.id))}
+                    onClick={() => {
+                        addVariant(currentVariant.id!)
+                    }}
                     className={`px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 transform ${
                         isReadyToAdd
                             ? "hover:from-orange-600 hover:to-red-600 focus:ring-4 focus:ring-orange-200 hover:shadow-xl hover:scale-105"
@@ -293,6 +296,7 @@ const VariantForm = ({
                         : isReadyToAdd
                         ? "Add Variant"
                         : "Select all options and enter quantity"}
+                    
                 </button>
             </form>
         </>

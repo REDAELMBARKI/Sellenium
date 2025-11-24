@@ -19,7 +19,7 @@ function AddImagesSection({
        const {addImagePlaceHolder ,handleImageUpload ,handleRemoveImage} =  useMediaActions()
 
     return (
-        <>
+        <div className='p-3'>
             <div className="space-y-6">
                 <div
                     className={`flex items-center space-x-3 p-4 border-b rounded-md ${
@@ -172,171 +172,21 @@ function AddImagesSection({
                             />
                         </li>
                     )}
-                    {/* // other covers */}
-                    {imagesPlaceHolders.length > 0 &&
-                        imagesPlaceHolders.map(function (index, i) {
-                            return (
-                                <li
-                                    key={i}
-                                    className={`${
-                                        forInventory
-                                            ? "!w-[100px] !h-[100px]"
-                                            : ""
-                                    } group  relative rounded-xl overflow-hidden transition-all duration-300 ${
-                                        images[`cover_${index}`]
-                                            ? "border border-purple-400 shadow-sm"
-                                            : "border-2 border-dashed border-slate-300"
-                                    }
-                                        ${
-                                            placeHolderNotFilled &&
-                                            i === imagesPlaceHolders.length - 1
-                                                ? "border-2 !border-red-500"
-                                                : ""
-                                        }
-                                    
-                                        `}
-                                >
-                                    {/* Show image if exists */}
-
-                                    {images[`cover_${index}`] && (
-                                        <img
-                                            src={images[`cover_${index}`]}
-                                            className={`w-full h-full  object-cover group-hover:scale-105 transition-transform duration-300
-                                                        ${
-                                                            isVariantCoverPreview
-                                                                ? "opacity-50"
-                                                                : ""
-                                                        }
-                                                     `}
-                                            alt={`cover_${index}`}
-                                        />
-                                    )}
-
-                                    {/* Drop Image Overlay on hover — only if image exists */}
-                                    {images[`cover_${index}`] && (
-                                        <div
-                                            role="button"
-                                            onClick={() => {
-                                                handleRemoveImage(
-                                                    `cover_${index}`
-                                                );
-                                            }}
-                                            className="absolute  cursor-pointer inset-0 bg-black/40 text-white flex items-center justify-center text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                                        >
-                                            Drop Image
-                                        </div>
-                                    )}
-
-                                    {/* Remove Image Button — only if image exists */}
-                                    {images[`cover_${index}`] && (
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                handleRemoveImage(
-                                                    `cover_${index}`
-                                                )
-                                            }
-                                            className="absolute  top-1 right-1 z-20 bg-white/80 hover:bg-red-500 text-red-500 hover:text-white rounded-full p-1 shadow hidden group-hover:block transition"
-                                            title="Remove Image"
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-4 w-4"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                                strokeWidth={2}
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    d="M6 18L18 6M6 6l12 12"
-                                                />
-                                            </svg>
-                                        </button>
-                                    )}
-
-                                    {/* Overlay for hover icon if no image */}
-                                    {!images[`cover_${index}`] && (
-                                        <div className="image-slot  group w-full h-full flex items-center justify-center">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="32"
-                                                height="32"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                className="lucide lucide-image-up-icon lucide-image-up"
-                                            >
-                                                <path d="M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10l-3.1-3.1a2 2 0 0 0-2.814.014L6 21" />
-                                                <path d="m14 19.5 3-3 3 3" />
-                                                <path d="M17 22v-5.5" />
-                                                <circle cx="9" cy="9" r="2" />
-                                            </svg>
-                                        </div>
-                                    )}
-
-                                    {/* File input on top */}
-                                    <input
-                                        type={`${
-                                            !images[`cover_${index}`]
-                                                ? "file"
-                                                : "button"
-                                        }`}
-                                        accept="image/*"
-                                        className={`${
-                                            images[`cover_${index}`]
-                                                ? "pointer-events-none"
-                                                : ""
-                                        } absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30`}
-                                        onChange={(e) =>
-                                            handleImageUpload(
-                                                `cover_${index}`,
-                                                e.target.files[0]
-                                            )
-                                        }
-                                    />
-                                </li>
-                            );
-                        })}
+                    
+                
                 </ul>
-                {forInventory && (
-                    <button
-                        type="button"
-                        onClick={() => {
-                            addImagePlaceHolder();
-                        }}
-                        className="image-slot group flex items-center justify-center px-4 py-2 text-white text-sm font-medium rounded-lg shadow-sm transition-all duration-200"
-                    >
-                        <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 4v16m8-8H4"
-                            />
-                        </svg>
-                    </button>
+            
+            </div>
+        
+            <div>
+                {errors.thumbnail && (
+                    <span className="text-red-600 text-sm font-medium">
+                        {errors.thumbnail}
+                    </span>
                 )}
             </div>
-            {!forInventory && (
-                <div>
-                    {errors.thumbnail && (
-                        <span className="text-red-600 text-sm font-medium">
-                            {errors.thumbnail}
-                        </span>
-                    )}
-                </div>
-            )}
-        </>
+        
+        </div>
     );
 }
 

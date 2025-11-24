@@ -35,7 +35,7 @@ function BasicInformationsSection({
     },[tagInputValue])
   
     return (
-        <>
+        <div className='p-3'>
             <div className="space-y-8">
                 <div
                     className={`flex items-center space-x-3 p-4 border-b rounded-lg ${
@@ -334,7 +334,7 @@ function BasicInformationsSection({
                         : ""}
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 

@@ -2,6 +2,7 @@
 
 export interface ImagesMap {
     [key: string]: File | string | null;
+    
 }
 
 export interface MediaContextType {

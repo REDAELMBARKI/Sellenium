@@ -49,7 +49,7 @@ export default function Create({ tagSuggestions, inventoryOptions }: CreatePageP
 }
 
 
-Create.layout = (page) => <AdminLayout  children={page} />
+Create.layout = page => <AdminLayout  children={page} />
 
 function CreateContent({ tagSuggestions, inventoryOptions }: CreatePageProps) {
 
@@ -86,7 +86,7 @@ function CreateContent({ tagSuggestions, inventoryOptions }: CreatePageProps) {
     useFinalSubmitFormValidationCheck();
 
     return (
-        <Layout currentPage="home">
+        <>
             <div className="py-8 px-6">
                 <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-8">
@@ -98,7 +98,7 @@ function CreateContent({ tagSuggestions, inventoryOptions }: CreatePageProps) {
                         </p>
                     </div>
 
-                    <form className="bg-white rounded-xl shadow-md border border-slate-200 p-8 space-y-8">
+                    <section className="bg-white rounded-xl shadow-md border border-slate-200 p-8 space-y-8">
                         <BasicInformationsSection />
 
                         <AddImagesSection title="Thumbnail" forInventory={false} />
@@ -143,9 +143,9 @@ function CreateContent({ tagSuggestions, inventoryOptions }: CreatePageProps) {
                                     )}
                             </ul>
                         </div>
-                    </form>
+                    </section>
                 </div>
             </div>
-        </Layout>
+        </>
     );
 }
