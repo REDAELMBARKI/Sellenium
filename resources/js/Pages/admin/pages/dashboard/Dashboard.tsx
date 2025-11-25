@@ -1,5 +1,6 @@
 // admin/pages/dashboard/Dashboard.tsx
 
+import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import { Link } from "@inertiajs/react";
 import { 
     ArrowUpRight, 
@@ -307,3 +308,5 @@ export default function Dashboard({
         </div>
     );
 }
+
+Dashboard.layout =  (page:any) => <AdminLayout children={page} />

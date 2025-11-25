@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { router, useForm } from "@inertiajs/react";
 import { AlertTriangle, Package } from "lucide-react";
+import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 
 // Types
 interface Product {
@@ -339,3 +340,6 @@ export default function InventoryOverview({
         </div>
     );
 }
+
+
+InventoryOverview.layout = (page:any) => <AdminLayout children={page} />

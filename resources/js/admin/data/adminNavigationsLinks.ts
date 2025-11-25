@@ -50,6 +50,11 @@ import {
   Search,
   Bell,
   Grid,
+  HistoryIcon,
+  LockIcon,
+  ImageIcon,
+  MapIcon,
+  FileIcon,
 } from "lucide-react";
 
 
@@ -81,19 +86,17 @@ export const menuItems = [
     title: "Variants", 
     icon: Palette, 
     href: "/admin/variants",
-    subLinks: [
-      { title: "All Variants", icon: List, href: "/variants" },
-      { title: "Add Variant", icon: Plus, href: "/variants/add" },
-      { title: "Edit Variant", icon: Pencil, href: "/variants/edit" },
-      { title: "Delete Variant", icon: Trash, href: "/variants/delete" },
+    subLinks: [     
+      { title: "Color Manager", icon: Palette, href: "/variants/colors" } , 
+      { title: "Fit Manager", icon: Palette, href: "/variants/fits" } , 
+      { title: "Material Manager", icon: Palette, href: "/variants/materials" } , 
       { title: "Size Manager", icon: Ruler, href: "/variants/sizes" },
-      { title: "Color Manager", icon: Palette, href: "/variants/colors" }
     ]
   },
   { 
     title: "Categories", 
     icon: FolderTree, 
-    href: "/admin/categories",
+    href: "",
     subLinks: [
       { title: "All Categories", icon: List, href: "/categories" },
       { title: "Add Category", icon: Plus, href: "/categories/add" },
@@ -156,7 +159,7 @@ export const menuItems = [
     subLinks: [
       { title: "Stock Levels", icon: BarChart3, href: "/inventory/stock" },
       { title: "Low Stock Alert", icon: AlertTriangle, href: "/inventory/low-stock" },
-      { title: "Stock History", icon: History, href: "/inventory/history" },
+      { title: "Stock History", icon: HistoryIcon, href: "/inventory/history" },
       { title: "Warehouses", icon: Warehouse, href: "/inventory/warehouses" }
     ]
   },
@@ -177,7 +180,7 @@ export const menuItems = [
     href: "/admin/marketing",
     subLinks: [
       { title: "Email Campaigns", icon: Mail, href: "/marketing/email" },
-      { title: "Banners", icon: Image, href: "/marketing/banners" },
+      { title: "Banners", icon: ImageIcon, href: "/marketing/banners" },
       { title: "Promotions", icon: Percent, href: "/marketing/promotions" },
       { title: "Newsletter", icon: FileText, href: "/marketing/newsletter" }
     ]
@@ -198,7 +201,7 @@ export const menuItems = [
     icon: Ship, 
     href: "/admin/shipping",
     subLinks: [
-      { title: "Shipping Zones", icon: Map, href: "/shipping/zones" },
+      { title: "Shipping Zones", icon: MapIcon, href: "/shipping/zones" },
       { title: "Shipping Rates", icon: DollarSign, href: "/shipping/rates" },
       { title: "Carriers", icon: Truck, href: "/shipping/carriers" },
       { title: "Track Shipments", icon: Navigation, href: "/shipping/tracking" }
@@ -210,20 +213,20 @@ export const menuItems = [
     href: "/admin/content",
     subLinks: [
       { title: "Blog Posts", icon: BookOpen, href: "/content/blog" },
-      { title: "Pages", icon: File, href: "/content/pages" },
-      { title: "Media Library", icon: Image, href: "/content/media" },
+      { title: "Pages", icon: FileIcon, href: "/content/pages" },
+      { title: "Media Library", icon: ImageIcon, href: "/content/media" },
       { title: "Style Guide", icon: Palette, href: "/content/style-guide" }
     ]
   },
   { 
     title: "Admins", 
+    href:'' ,
     icon: Shield, 
-    href: "/admin/admins",
     subLinks: [
       { title: "All Admins", icon: List, href: "/admins" },
       { title: "Add Admin", icon: Plus, href: "/admins/create" },
-      { title: "Roles & Permissions", icon: Lock, href: "/admins/roles" },
-      { title: "Activity Log", icon: History, href: "/admins/activity" }
+      { title: "Roles & Permissions", icon: LockIcon, href: "/admins/roles" },
+      { title: "Activity Log", icon:HistoryIcon, href: "/admins/activity" }
     ]
   },
   { 

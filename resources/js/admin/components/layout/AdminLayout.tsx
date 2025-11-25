@@ -48,7 +48,7 @@ const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
         <Header />
 
         {/* Scrollable content */}
-        <main >
+        <main style={{ overflowY:'hidden' }}>
           {children}
         </main>
       </div>
@@ -57,3 +57,4 @@ const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
 };
 export default AdminLayoutContent;
 
+AdminLayoutContent.layout = (page:any) => <AdminLayout children={page} />

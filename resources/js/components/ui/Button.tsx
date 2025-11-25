@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-// import { motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 
 
@@ -43,21 +43,21 @@ export const Button = ({
   const buttonClasses = `${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${disabledStyles} ${className}`;
 
   return (
-    // <motion.button
-    //   type={type}
-    //   className={buttonClasses}
-    //   onClick={onClick}
-    //   disabled={disabled}
-    //   whileHover={!disabled ? { scale: 1.02 } : {}}
-    //   whileTap={!disabled ? { scale: 0.98 } : {}}
-    //   initial={{ opacity: 0, y: 20 }}
-    //   animate={{ opacity: 1, y: 0 }}
-    //   transition={{ duration: 0.2 }}
-    // >
+    <motion.button
+      type={type}
+      className={buttonClasses}
+      onClick={onClick}
+      disabled={disabled}
+      whileHover={!disabled ? { scale: 1.02 } : {}}
+      whileTap={!disabled ? { scale: 0.98 } : {}}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+    >
     <button>
       {icon && <span className="flex-shrink-0">{icon}</span>}
       {children}
     </button>
-    // </motion.button>
+    </motion.button>
   );
 };

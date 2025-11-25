@@ -1,16 +1,15 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Link, usePage } from '@inertiajs/react';
 
-export default function InlineDropdown({ item, isActive }: { item: any; isActive: boolean }) {
-  const [open, setOpen] = useState(false);
+export default function InlineDropdown({ item, isActive ,isOpen , onToggle}: {onToggle : (title:string) => void ; item: any; isActive: boolean  ; isOpen: boolean }) {
   const { url } = usePage();
-  
+ 
   return (
     <div className="flex flex-col mb-2">
       {/* Parent Link */}
       <button
-        onClick={() => setOpen(!open)}
+        onClick={() => {onToggle(item.title) }}
         className={`
           px-4 py-3 rounded-lg flex items-center gap-3 justify-between
           transition-all duration-200 ease-in-out mb-1
@@ -26,15 +25,15 @@ export default function InlineDropdown({ item, isActive }: { item: any; isActive
         </div>
         <ChevronDown 
           size={16} 
-          className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`transition-transform duration-200 ${ isOpen  ? 'rotate-180' : ''}`}
         />
       </button>
 
       {/* Sublinks - Indented Level 2 */}
-      {open && item.subLinks && item.subLinks.length > 0 && (
-        <div className="ml-6 mt-2 mb-1 border-l-2 border-gray-700 pl-3 flex flex-col gap-1">
+      {isOpen && item.subLinks && item.subLinks.length > 0 && (
+        <div className="ml-6 mt-2 mb-1 border-l-2 border-gray-700 pl-3 flex flex-col gap-2">
           {item.subLinks.map((sublink: any, index: number) => {
-            const isSubActive = url.startsWith(sublink.href);
+            const isSubActive = url.endsWith(sublink.href);
             
             return (
               <Link
@@ -45,15 +44,15 @@ export default function InlineDropdown({ item, isActive }: { item: any; isActive
                   transition-all duration-200 ease-in-out
                   text-sm group
                   ${isSubActive
-                    ? 'bg-gradient-to-r from-indigo-500/25 to-indigo-600/20 text-indigo-200 font-medium shadow-sm'
-                    : 'text-gray-400 hover:bg-gradient-to-r hover:from-gray-800 hover:to-gray-800/50 hover:text-white hover:shadow-md hover:scale-[1.02]'
+                    ? 'bg-gray-800 text-white font-medium shadow-md '
+                    : 'text-gray-400 hover:bg-gray-800/60 hover:text-white hover:shadow-md hover:scale-[1.02]'
                   }
                 `}
               >
                 <div className={`
                   p-1.5 rounded-md transition-colors duration-200
                   ${isSubActive 
-                    ? 'bg-indigo-500/30 text-indigo-300' 
+                    ? 'bg-gray-700 text-gray-200' 
                     : 'bg-gray-700/50 text-gray-400 group-hover:bg-gray-700 group-hover:text-gray-200'
                   }
                 `}>

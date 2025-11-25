@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\admin\CategoryController;
+use App\Http\Controllers\admin\VariantsManagement;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -39,6 +42,19 @@ Route::get('/blog', function () {
 Route::get('/products/create' , [ProductController::class, 'create']) ;
 Route::get('/products/edit' , [ProductController::class, 'edit']) ;
 Route::get('/products/list' , [ProductController::class, 'index']) ;
+
+
+// admin
+Route::get('/admins' , [AdminController::class, 'index']) ;
+
+// categories
+Route::get('/categories' , [CategoryController::class, 'index']) ;
+
+
+
+// variants managment
+
+Route::get('/variants/colors' , [VariantsManagement::class, 'colors']) ;
 
 
 // require __DIR__.'/auth.php';
