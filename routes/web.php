@@ -55,6 +55,7 @@ Route::get('/categories' , [CategoryController::class, 'index']) ;
 // variants managment
 
 Route::get('/variants/colors' , [VariantsManagement::class, 'colors']) ;
+Route::get('/variants/sizes' , [VariantsManagement::class, 'sizes']) ;
 
 
 // require __DIR__.'/auth.php';

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Grid, List, Edit2, Trash2, Eye, Plus, Check, ChevronDown } from 'lucide-react';
-import * as Select from '@radix-ui/react-select';
+
 import { DeleteConfirmationModal } from '@/components/ui/DeleteConfirmationModal';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
+import SelectByRadix from '@/components/ui/SelectByRadix';
 
 const placeholderColors = [
   { id: 1, name: 'Navy Blue', code: '#001F3F', types: ['Shirts', 'Jackets'], count: 12, status: 'active', texture: '', image: 'https://via.placeholder.com/50' },
@@ -10,6 +11,9 @@ const placeholderColors = [
   { id: 3, name: 'Forest Green', code: '#228B22', types: ['Pants', 'Jackets'], count: 8, status: 'active', texture: '', image: 'https://via.placeholder.com/50' },
   { id: 4, name: 'Sunset Orange', code: '#FF6347', types: ['Shirts'], count: 6, status: 'active', texture: '', image: 'https://via.placeholder.com/50' },
 ];
+
+
+const productTypes = ['all' , 'pants' , 'shirts' , 'shoes' , 'anyting']
 
 export default function ManageColors() {
   const [view, setView] = useState('table');
@@ -39,35 +43,7 @@ export default function ManageColors() {
         {/* Filters and View Toggle */}
         <div className="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-200">
           <div className="flex flex-wrap gap-4 items-center">
-            <Select.Root defaultValue="all">
-              <Select.Trigger className="inline-flex items-center justify-between gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all w-40">
-                <Select.Value placeholder="All Types" />
-                <Select.Icon>
-                  <ChevronDown size={16} />
-                </Select.Icon>
-              </Select.Trigger>
-              <Select.Portal>
-                <Select.Content className="overflow-hidden bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                  <Select.Viewport className="p-1">
-                    <Select.Item value="all" className="relative flex items-center px-8 py-2 rounded-md text-sm text-gray-900 hover:bg-blue-50 hover:text-blue-700 cursor-pointer outline-none">
-                      <Select.ItemText>All Types</Select.ItemText>
-                    </Select.Item>
-                    <Select.Item value="shirts" className="relative flex items-center px-8 py-2 rounded-md text-sm text-gray-900 hover:bg-blue-50 hover:text-blue-700 cursor-pointer outline-none">
-                      <Select.ItemText>Shirts</Select.ItemText>
-                    </Select.Item>
-                    <Select.Item value="pants" className="relative flex items-center px-8 py-2 rounded-md text-sm text-gray-900 hover:bg-blue-50 hover:text-blue-700 cursor-pointer outline-none">
-                      <Select.ItemText>Pants</Select.ItemText>
-                    </Select.Item>
-                    <Select.Item value="jackets" className="relative flex items-center px-8 py-2 rounded-md text-sm text-gray-900 hover:bg-blue-50 hover:text-blue-700 cursor-pointer outline-none">
-                      <Select.ItemText>Jackets</Select.ItemText>
-                    </Select.Item>
-                    <Select.Item value="hoodies" className="relative flex items-center px-8 py-2 rounded-md text-sm text-gray-900 hover:bg-blue-50 hover:text-blue-700 cursor-pointer outline-none">
-                      <Select.ItemText>Hoodies</Select.ItemText>
-                    </Select.Item>
-                  </Select.Viewport>
-                </Select.Content>
-              </Select.Portal>
-            </Select.Root>
+            <SelectByRadix  elements={productTypes}/>
             
             <input 
               type="text" 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Shield, Check, Upload } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
+import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 
 interface Admin {
     id: string;
@@ -328,7 +329,8 @@ export default function AdminsList() {
                         setAdminToDelete(null);
                     }}
                     onConfirm={confirmDelete}
-                    adminName={adminToDelete?.name || ""}
+                    name={adminToDelete?.name || ""}
+                    entityType="admin"
                 />
 
                 {isDialogOpen ? (
@@ -538,3 +540,7 @@ export default function AdminsList() {
         </div>
     );
 }
+
+
+
+AdminsList.layout = (page:any) => <AdminLayout children={page} />

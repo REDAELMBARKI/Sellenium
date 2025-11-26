@@ -13,4 +13,9 @@ class VariantsManagement extends Controller
     public function colors() {
         return Inertia::render('admin/pages/variants/ManageColors') ;
     }
+
+
+    public function sizes() {
+        return Inertia::render('admin/pages/variants/ManageSizes') ;
+    }
 }
