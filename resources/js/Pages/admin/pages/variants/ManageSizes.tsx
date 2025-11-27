@@ -1,8 +1,12 @@
 import React, {JSX ,  useState } from 'react';
-import { Edit2, Trash2, Eye, Plus, Check, X, ChevronDown, Copy, MoreVertical } from 'lucide-react';
+import { Edit2, Trash2, Eye, Plus, Check, X, ChevronDown, Copy, MoreVertical, Search } from 'lucide-react';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import { DeleteConfirmationModal } from '@/components/ui/DeleteConfirmationModal';
 import SelectByRadix from '@/components/ui/SelectByRadix';
+import { SectionHeader } from '@/admin/components/layout/SectionHeader';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import MoreOptions from '@/components/ui/moreOptions';
 
 interface Size {
   id: number;
@@ -185,41 +189,36 @@ const ManageSizes: React.FC & { layout?: (page: any) => JSX.Element } = () => {
   return (
     <div className="bg-gray-50 min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-1">Manage Sizes</h1>
-            <p className="text-gray-600">Organize and manage all your fashion sizes</p>
-          </div>
-          <button
-            onClick={handleAddSize}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 hover:-translate-y-0.5"
-          >
-            <Plus size={20} />
-            Add Size
-          </button>
-        </div>
-
+        {/* header */}
+        <SectionHeader title='Manage Sizes'  description="Organize and manage all your fashion sizes">
+           <Button>
+                 <Plus size={18} />
+                 Create size
+           </Button>
+        </SectionHeader>
         {/* Filters Bar */}
         <div className="bg-white rounded-xl shadow-sm p-4 mb-4 border border-gray-200">
           <div className="flex flex-wrap gap-3 items-center">
             
 
-            <SelectByRadix selected={selectedCategory} setSelected={setSelectedCategory}   elements={categories}/>
+            <SelectByRadix value={selectedCategory} setter={setSelectedCategory}   elements={categories}/>
             
 
             {/* // active / inactive */}
             
-            <SelectByRadix selected={selectedStatus} setSelected={setSelectedStatus}   elements={['all' , 'Active Only' , 'Inactive Only']}/>
+            <SelectByRadix value={selectedStatus} setter={setSelectedStatus}   elements={['all' , 'Active Only' , 'Inactive Only']}/>
 
-            
-            <input
-              type="text"
+         
+            <Input 
+               type="text"
               placeholder="Search sizes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 min-w-[200px] px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-            />
+              className="flex-1  rounded-lg  bg-white text-gray-900 placeholder-gray-400 text-sm transition-all"
+            >
+            
+              <Search size={18}  />
+            </Input>
 
             <div className="text-sm text-gray-600">
               {filteredSizes.length} {filteredSizes.length === 1 ? 'size' : 'sizes'}
@@ -354,20 +353,18 @@ const ManageSizes: React.FC & { layout?: (page: any) => JSX.Element } = () => {
                       </button>
                       <div className="relative">
                         <button
-                          onClick={() => toggleDropdown(size.id)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleDropdown(size.id)
+                          }}
                           className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                           title="More"
                         >
                           <MoreVertical size={16} />
                         </button>
                         {openDropdown === size.id && (
-                          <>
-                            <div 
-                              className="fixed inset-0 z-10" 
-                              onClick={() => setOpenDropdown(null)}
-                            />
-                            <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
-                              <button
+                           <MoreOptions >
+                            <button
                                 onClick={() => handleDuplicateSize(size)}
                                 className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                               >
@@ -381,9 +378,7 @@ const ManageSizes: React.FC & { layout?: (page: any) => JSX.Element } = () => {
                                 <Trash2 size={14} />
                                 Delete
                               </button>
-                            </div>
-                          </>
-                        )}
+                           </MoreOptions>                        )}
                       </div>
                     </div>
                   </td>

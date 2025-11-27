@@ -1,63 +1,57 @@
-import React, { ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cn } from "@/lib/utils"
+
+const variantClasses = {
+  default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+  destructive:
+    "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+  outline:
+    "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+  secondary:
+    "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+  ghost: "hover:bg-accent hover:text-accent-foreground",
+  link: "text-primary underline-offset-4 hover:underline",
+}
+
+const sizeClasses = {
+  default: "h-9 px-4 py-2",
+  sm: "h-8 rounded-md px-3 text-xs",
+  lg: "h-10 rounded-md px-8",
+  icon: "h-9 w-9",
+}
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: keyof typeof variantClasses
+  size?: keyof typeof sizeClasses
+  asChild?: boolean 
+  Children?: React.ReactNode
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant = "default", size = "default", asChild = false, children ,  ...props }, ref) => {
+    const Comp = asChild ? Slot : "button"
+
+    const base =
+      "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+
+    return (
+      <Comp
+        ref={ref}
+        className={cn(base, variantClasses[variant], sizeClasses[size], className)}
+        {...props}
+      
+      >
+        {children}
+      </Comp>
+    )
+  }
+)
+
+Button.displayName = "Button"
+export { Button }
 
 
 
-/**
- * Reusable Button component with multiple variants and animations
- * Supports different sizes, states, and includes hover effects
- */
-export const Button = ({
-  children,
-  variant = 'primary',
-  size = 'md',
-  onClick,
-  disabled = false,
-  type = 'button',
-  className = '',
-  icon
-}) => {
-  // Base styles for all button variants
-  const baseStyles = 'font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2';
-  
-  // Variant-specific styles
-  const variantStyles = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-lg hover:shadow-xl',
-    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 shadow-md hover:shadow-lg',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-lg hover:shadow-xl',
-    ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500'
-  };
-  
-  // Size-specific styles
-  const sizeStyles = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg'
-  };
-  
-  // Disabled styles
-  const disabledStyles = disabled 
-    ? 'opacity-50 cursor-not-allowed' 
-    : 'cursor-pointer';
-  
-  const buttonClasses = `${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${disabledStyles} ${className}`;
 
-  return (
-    <motion.button
-      type={type}
-      className={buttonClasses}
-      onClick={onClick}
-      disabled={disabled}
-      whileHover={!disabled ? { scale: 1.02 } : {}}
-      whileTap={!disabled ? { scale: 0.98 } : {}}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-    >
-    <button>
-      {icon && <span className="flex-shrink-0">{icon}</span>}
-      {children}
-    </button>
-    </motion.button>
-  );
-};

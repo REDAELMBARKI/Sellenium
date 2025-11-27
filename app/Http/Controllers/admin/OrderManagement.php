@@ -6,9 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class CategoryController extends Controller
+class OrderManagement extends Controller
 {
-    public function index(){
-        return Inertia::render('admin/pages/CategoriesList') ;
+    public function index() {
+        return Inertia::render('admin/pages/orders/OrderManager') ;
+
     }
 }

@@ -3,15 +3,16 @@ import * as Select from '@radix-ui/react-select';
 import { ChevronDown } from 'lucide-react';
 interface props {
     elements : string[]
-    selected : string ; 
-    setSelected : React.Dispatch<React.SetStateAction<string>>
+    value : string ; 
+    setter : React.Dispatch<React.SetStateAction<string>> 
+    extraLabel? : string
 }
 
-const  SelectByRadix = ({elements = ['none'] , selected , setSelected}:props) => {
+const  SelectByRadix = ({elements = ['none'] , value , setter , extraLabel}:props) => {
     return <>
     
-    <Select.Root value={selected} defaultValue='all'
-    onValueChange={(value) => setSelected(value)}
+    <Select.Root  value={value} defaultValue='all'
+    onValueChange={(value) => setter(value)}
     
     >
               <Select.Trigger className="inline-flex items-center justify-between gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all w-40">
@@ -29,7 +30,7 @@ const  SelectByRadix = ({elements = ['none'] , selected , setSelected}:props) =>
                             return  (
                                 <>
                                <Select.Item value={el} className="relative flex items-center px-8 py-2 rounded-md text-sm text-gray-900 hover:bg-blue-50 hover:text-blue-700 cursor-pointer outline-none">
-                                    <Select.ItemText>{el}</Select.ItemText>
+                                    <Select.ItemText>{el}{extraLabel ?? ''}</Select.ItemText>
                                </Select.Item>
                                 </>
                             )

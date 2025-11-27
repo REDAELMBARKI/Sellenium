@@ -119,7 +119,7 @@ export const menuItems = [
   { 
     title: "Orders", 
     icon: ShoppingCart, 
-    href: "/admin/orders",
+    href: "/orders",
     subLinks: [
       { title: "All Orders", icon: List, href: "/orders" },
       { title: "Pending Orders", icon: Clock, href: "/orders/pending" },

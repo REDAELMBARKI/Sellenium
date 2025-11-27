@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Grid, List, Edit2, Trash2, Eye, Plus, Check, ChevronDown } from 'lucide-react';
+import { Grid, List, Edit2, Trash2, Eye, Plus, Check, ChevronDown, Search } from 'lucide-react';
 
 import { DeleteConfirmationModal } from '@/components/ui/DeleteConfirmationModal';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import SelectByRadix from '@/components/ui/SelectByRadix';
+import { SectionHeader } from '@/admin/components/layout/SectionHeader';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const placeholderColors = [
   { id: 1, name: 'Navy Blue', code: '#001F3F', types: ['Shirts', 'Jackets'], count: 12, status: 'active', texture: '', image: 'https://via.placeholder.com/50' },
@@ -21,36 +24,37 @@ export default function ManageColors() {
   const [selectedColor, setSelectedColor] = useState<typeof placeholderColors | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
+  const [selectedProductType ,  setSelectedProductType] = useState('all')
   return (
     <div className="bg-gray-50 min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-1">Manage Colors</h1>
-            <p className="text-gray-600">Organize and manage your product color palette</p>
-          </div>
-          <button 
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 hover:-translate-y-0.5"
+        <SectionHeader  title='Colors Section'  description='Manage colors here ' >
+
+          <Button 
+            variant='outline'
             onClick={() => { setSelectedColor(null); setIsModalOpen(true); }}
           >
             <Plus size={20} />
             Add Color
-          </button>
-        </div>
+          </Button>
+        </SectionHeader>
 
         {/* Filters and View Toggle */}
         <div className="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-200">
           <div className="flex flex-wrap gap-4 items-center">
-            <SelectByRadix  elements={productTypes}/>
+            <SelectByRadix  setter={setSelectedProductType} value={selectedProductType}  elements={productTypes}/>
             
-            <input 
-              type="text" 
+          
+            <Input
+
+             type="text" 
               placeholder="Search colors..." 
-              className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all w-64"
-            />
+              className="rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all w-64"
             
+            >
+             <Search size={18} />
+            </Input>
             <div className="ml-auto flex gap-2 bg-gray-100 p-1 rounded-lg">
               <button 
                 onClick={() => setView('grid')} 

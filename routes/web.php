@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\admin\AdminController;
 use App\Http\Controllers\admin\CategoryController;
+use App\Http\Controllers\admin\OrderManagement;
 use App\Http\Controllers\admin\VariantsManagement;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
@@ -57,5 +58,10 @@ Route::get('/categories' , [CategoryController::class, 'index']) ;
 Route::get('/variants/colors' , [VariantsManagement::class, 'colors']) ;
 Route::get('/variants/sizes' , [VariantsManagement::class, 'sizes']) ;
 
+
+
+// oderes
+// OrderManager
+Route::get('/orders' , [OrderManagement::class, 'index']) ;
 
 // require __DIR__.'/auth.php';
