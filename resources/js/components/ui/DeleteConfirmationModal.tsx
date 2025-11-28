@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { AlertTriangle, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { AlertTriangle, CircleAlert, MoveLeft, X } from "lucide-react";
+import { Button } from "./button";
+import { createPortal } from "react-dom";
 
 interface DeleteConfirmationModalProps {
     isOpen: boolean;
@@ -17,7 +19,7 @@ export function DeleteConfirmationModal({
     entityType
 }: DeleteConfirmationModalProps) {
     const [confirmText, setConfirmText] = useState("");
-
+    const deleteInputRef  = useRef<HTMLInputElement|null>(null)
     if (!isOpen) return null;
 
     const isDeleteEnabled = confirmText === "DELETE";
@@ -62,6 +64,7 @@ export function DeleteConfirmationModal({
     };
 
     const handleConfirm = () => {
+        if(confirmText === '') deleteInputRef.current?.focus()
         if (isDeleteEnabled) {
             onConfirm();
             setConfirmText("");
@@ -73,9 +76,20 @@ export function DeleteConfirmationModal({
         onClose();
     };
 
-    return (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4">
+    return  createPortal( 
+         
+          
+          
+         <div
+                className="fixed inset-0 z-50 overflow-y-auto"
+                style={{
+                    backdropFilter: "blur(10px)",
+                    background: "rgba(0, 0, 0, 0.4)",
+                }}
+                >
+
+
+           <div className="flex min-h-full items-center justify-center p-4">
                 <div
                     className="fixed inset-0 bg-black/50"
                     onClick={handleClose}
@@ -114,7 +128,8 @@ export function DeleteConfirmationModal({
                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                 Type <span className="font-mono font-bold">DELETE</span> to confirm
                             </label>
-                            <input
+                            <input 
+                                ref={deleteInputRef}
                                 type="text"
                                 value={confirmText}
                                 onChange={(e) => setConfirmText(e.target.value)}
@@ -123,26 +138,29 @@ export function DeleteConfirmationModal({
                             />
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-2">
-                            <button
-                                type="button"
+                        <div className="flex justify-between gap-3  ">
+                          
+                            <Button 
                                 onClick={handleClose}
-                                className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                className="px-4 py-2 grow-1 flex-1 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                             >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
+                              Cancel
+                            </Button>
+                            <Button    
+                                
+                                className="grow-1 flex-1"
+                                variant="danger"
                                 onClick={handleConfirm}
-                                disabled={!isDeleteEnabled}
-                                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                {getButtonText()}
-                            </button>
+                            {getButtonText()}
+                            </Button>    
+                               
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+     , 
+     document.body 
     );
 }

@@ -3,7 +3,7 @@ import {
     variants,
     reviews,
     relatedProducts,
-} from "../../data/productData";
+} from "../../../../data/productData";
 
 import ImageGallery from '@/components/showProductPage/ImageGallery';
 import StarRating from '@/components/showProductPage/StarRating';

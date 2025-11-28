@@ -38,7 +38,7 @@ const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
   // }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen ">
       {/* Sidebar: fixed width, full height */}
       <AppSidebar />
 

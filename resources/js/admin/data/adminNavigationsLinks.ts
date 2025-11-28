@@ -106,15 +106,11 @@ export const menuItems = [
     ]
   },
   { 
-    title: "Collections", 
-    icon: Grid, 
-    href: "/admin/collections",
-    subLinks: [
-      { title: "All Collections", icon: List, href: "/collections" },
-      { title: "New Collection", icon: Plus, href: "/collections/create" },
-      { title: "Seasonal Collections", icon: Calendar, href: "/collections/seasonal" },
-      { title: "Trending Collections", icon: TrendingUp, href: "/collections/trending" }
-    ]
+    title: "Messages", 
+    icon: MessageSquare, 
+    href: "/messages",
+     subLinks: [
+      { title: "Messages", icon: List, href: "/messages" },]
   },
   { 
     title: "Orders", 
@@ -133,7 +129,7 @@ export const menuItems = [
   { 
     title: "Customers", 
     icon: Users, 
-    href: "/admin/customers",
+    href: "",
     subLinks: [
       { title: "All Customers", icon: List, href: "/customers" },
       { title: "VIP Customers", icon: Crown, href: "/customers/vip" },

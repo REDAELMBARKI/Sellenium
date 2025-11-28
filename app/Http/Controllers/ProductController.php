@@ -49,7 +49,7 @@ class ProductController extends Controller
         
 
 
-        return inertia::render("products/create" , ['inventoryOptions' => $inventoryOptions]);
+        return inertia::render("admin/pages/products/create" , ['inventoryOptions' => $inventoryOptions]);
     }
 
 
@@ -227,8 +227,11 @@ class ProductController extends Controller
 
 
 
+    
+
+
     public function edit(){ 
-        $product =  Product::with('tags')-> find(1) ;
+        $product =  Product::with('tags' , 'inventories.color' ,  'inventories.size' , 'inventories.fit' , 'inventories.material')-> find(1) ;
         
         $colors = Color::select('id', 'hex')->distinct()->get();
 
@@ -244,9 +247,9 @@ class ProductController extends Controller
         ];
 
 
-      
+        $tagSuggestions = Tag::select('id' , 'slug')->get();
         
-        return inertia::render('products/edit' , compact('product' , 'inventoryOptions'));
+        return inertia::render('admin/pages/products/edit' , compact('product' , 'inventoryOptions' , 'tagSuggestions'));
     }
 
     public function update(UpdateProductRequest $request, $id)

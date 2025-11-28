@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\admin\AdminController;
 use App\Http\Controllers\admin\CategoryController;
+use App\Http\Controllers\admin\CurstomerManagement;
+use App\Http\Controllers\admin\MessageManagement;
 use App\Http\Controllers\admin\OrderManagement;
 use App\Http\Controllers\admin\VariantsManagement;
 use App\Http\Controllers\ProductController;
@@ -63,5 +65,17 @@ Route::get('/variants/sizes' , [VariantsManagement::class, 'sizes']) ;
 // oderes
 // OrderManager
 Route::get('/orders' , [OrderManagement::class, 'index']) ;
+
+
+
+// customer 
+Route::get('/customers' , [CurstomerManagement::class, 'index']) ;
+
+
+
+// messages
+
+Route::get('/messages' , [MessageManagement::class, 'index']) ;
+
 
 // require __DIR__.'/auth.php';

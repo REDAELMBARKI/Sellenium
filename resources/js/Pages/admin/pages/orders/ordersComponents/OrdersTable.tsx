@@ -1,7 +1,7 @@
 import { Eye, EyeClosed, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Order } from '@/admin/types/ordersTypes';
-import { Badge } from '../ui/badge';
-import { Checkbox } from '../ui/checkBox';
+import { Badge } from '../../../../../components/ui/badge';
+import { Checkbox } from '../../../../../components/ui/checkBox';
 import { currentTheme } from '@/data/currentTheme';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';

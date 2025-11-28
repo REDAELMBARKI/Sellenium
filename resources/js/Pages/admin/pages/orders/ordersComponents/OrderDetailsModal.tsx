@@ -1,7 +1,7 @@
 import { User, MapPin, Package, Truck, CreditCard, Clock } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../../../components/ui/dialog';
 import { Order } from '@/admin/types/ordersTypes';
-import { Badge } from '../ui/badge';
+import { Badge } from '../../../../../components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 interface OrderDetailsModalProps {

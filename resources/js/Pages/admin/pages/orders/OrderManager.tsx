@@ -4,7 +4,7 @@ import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import { Order, Stats } from '@/admin/types/ordersTypes';
 import { StatsCard } from './ordersComponents/StatsCard';
 import { OrderFilters } from './ordersComponents/OrderFilters';
-import { Card } from './ui/card';
+import { Card } from '../../../../components/ui/card';
 import { OrdersTable } from './ordersComponents/OrdersTable';
 import { OrderDetailsModal } from './ordersComponents/OrderDetailsModal';
 import { generateOrders } from '@/admin/data/orders';

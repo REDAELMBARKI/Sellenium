@@ -16,11 +16,11 @@ export function AppSidebar() {
       <h2 className="text-xl font-semibold mb-6">Admin Panel</h2>
 
       <nav className="flex flex-col ">
-        {menuItems.map((item) => {
+        {menuItems.map((item , i) => {
           const isActive = url.startsWith(item?.href ?? '');
 
           return (
-            <div className="flex items-center  ">
+            <div key={i} className="flex items-center  ">
                
               <InlineDropdown item={item} isActive={isActive} isOpen={openDropdown === item.title} onToggle={(title:string) => setOpenDropdown(title === openDropdown ? null : title) }/>
             

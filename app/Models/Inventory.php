@@ -36,5 +36,11 @@ class Inventory extends Model
     {
         return $this->belongsTo(Fit::class);
     }
+
+
+    public function material()
+    {
+        return $this->belongsTo(Material::class);
+    }
    
 }
