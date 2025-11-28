@@ -62,11 +62,11 @@ export const menuItems = [
   { 
     title: "Dashboard", 
     icon: LayoutDashboard, 
-    href: "/admin",
+    href: "/dashboard",
     subLinks: [
-      { title: "Overview", icon: TrendingUp, href: "/admin/overview" },
-      { title: "Analytics", icon: BarChart3, href: "/admin/analytics" },
-      { title: "Quick Stats", icon: Zap, href: "/admin/stats" }
+      { title: "sales", icon: BarChart3, href: "/dashboard/sales_analytics" },
+      { title: "customers", icon: TrendingUp, href: "/dashboard/customers_analytics" },
+      { title: "inventory", icon: Zap, href: "/dashboard/inventory_analytics" }
     ]
   },
   { 

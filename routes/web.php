@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\admin\AdminController;
 use App\Http\Controllers\admin\CategoryController;
-use App\Http\Controllers\admin\CurstomerManagement;
-use App\Http\Controllers\admin\MessageManagement;
-use App\Http\Controllers\admin\OrderManagement;
-use App\Http\Controllers\admin\VariantsManagement;
+use App\Http\Controllers\admin\CurstomerController;
+use App\Http\Controllers\admin\DashboardController;
+use App\Http\Controllers\admin\MessageController;
+use App\Http\Controllers\admin\VariantsController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -57,25 +58,30 @@ Route::get('/categories' , [CategoryController::class, 'index']) ;
 
 // variants managment
 
-Route::get('/variants/colors' , [VariantsManagement::class, 'colors']) ;
-Route::get('/variants/sizes' , [VariantsManagement::class, 'sizes']) ;
+Route::get('/variants/colors' , [VariantsController::class, 'colors']) ;
+Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 
 
 
 // oderes
 // OrderManager
-Route::get('/orders' , [OrderManagement::class, 'index']) ;
+Route::get('/orders' , [OrderController::class, 'index']) ;
 
 
 
 // customer 
-Route::get('/customers' , [CurstomerManagement::class, 'index']) ;
+Route::get('/customers' , [CurstomerController::class, 'index']) ;
 
 
 
 // messages
 
-Route::get('/messages' , [MessageManagement::class, 'index']) ;
+Route::get('/messages' , [MessageController::class, 'index']) ;
 
+
+// dashboard/sales_analytics  
+Route::get('dashboard/sales_analytics' , [DashboardController::class, 'salesIndex']) ;
+Route::get('dashboard/customers_analytics' , [DashboardController::class, 'customerIndex']) ;
+Route::get('dashboard/inventory_analytics' , [DashboardController::class, 'inventoryIndex']) ;
 
 // require __DIR__.'/auth.php';
