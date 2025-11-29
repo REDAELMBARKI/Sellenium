@@ -1,15 +1,18 @@
 export interface TagSuggestion {
     id: number | null;
     name: string;
+    category ?: string;
+
 }
 
 
 
 
 // tags Types
-export  interface Tag {
-    id: string | null;
-    name: string;
+export interface Tag {
+  id: string;
+  name: string;
+  category ?: string;
 }
 
 export  interface TagsContextType {

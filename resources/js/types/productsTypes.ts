@@ -1,6 +1,37 @@
-import { InventoryItem } from '@/types/inventoryTypes';
-import type { RefObject } from "react";
-import { FormDataConvertible } from "@inertiajs/core";
+import { Color, Fit, InventoryItem, Material, Size } from "./inventoryTypes";
+import { Tag } from "./tagsTypes";
+
+
+
+export interface Variant {
+    id: number;
+    colors: Color[];
+    sizes: Size[];
+    fits: Fit[];
+    materials: Material[];
+    quantity: number;
+    images: string[];
+}
+
+
+export interface ProductBasicInfoData {
+  name: string;
+  brand: string;
+  price: string;
+  category: string | string[];
+  gender: string | string[];
+  description: string;
+  thumbnail: string;
+  tags: Tag[];
+  isFeatured: boolean;
+  free_shipping: boolean;
+}
+
+
+export interface ProductDataGlobal extends ProductBasicInfoData {
+    id: number;
+    variants: Variant[];
+}
 
 
 

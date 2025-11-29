@@ -1,7 +1,7 @@
 import { useMedia } from '@/contextHooks/useMedia';
 import { useProductForm } from '@/contextHooks/useProductForm';
 import { useMediaActions } from '@/functions/createFunctions/useMediaActions';
-import React, { useEffect, useState} from 'react'
+
 
 function AddImagesSection({
     title,
