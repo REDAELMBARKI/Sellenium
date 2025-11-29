@@ -1,4 +1,4 @@
-import { TagsContext } from "@/context/TagsContext";
+import { TagsContext } from "@/context/createproductContext/TagsContext";
 import { TagsContextType } from "@/types/tagsTypes";
 import { useContext } from "react";
 

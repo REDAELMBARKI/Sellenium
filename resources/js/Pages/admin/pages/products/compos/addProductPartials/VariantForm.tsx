@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import AddImagesSection from "./AddImagesSection";
-import { useInventory } from "@/contextHooks/useInventory";
-import { useProductForm } from "@/contextHooks/useProductForm";
+import { useInventory } from "@/contextHooks/createProductCtxHooks/useInventory";
+import { useProductForm } from "@/contextHooks/createProductCtxHooks/useProductForm";
 import { useInventoryActions } from "@/functions/createFunctions/useInventoryActions";
 import { Color, InventoryOptions } from "@/types/inventoryTypes";
-import { useUIContext } from "@/contextHooks/useUiContext";
+import { useUIContext } from "@/contextHooks/createProductCtxHooks/useUiContext";
 import InventoryImages from "./InventoryImages";
 
 interface VariantFormProps {

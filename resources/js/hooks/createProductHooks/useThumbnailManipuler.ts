@@ -1,5 +1,5 @@
-import { useInventory } from "@/contextHooks/useInventory";
-import { useMedia } from "@/contextHooks/useMedia";
+import { useInventory } from "@/contextHooks/createProductCtxHooks/useInventory";
+import { useMedia } from "@/contextHooks/createProductCtxHooks/useMedia";
 import { useEffect } from "react";
 
 

@@ -1,5 +1,5 @@
-import { useProductForm } from '@/contextHooks/useProductForm';
-import { useTags } from '@/contextHooks/useTags';
+import { useProductForm } from '@/contextHooks/createProductCtxHooks/useProductForm';
+import { useTags } from '@/contextHooks/createProductCtxHooks/useTags';
 import { useTagsActions } from '@/functions/createFunctions/useTagsActions';
 import { useForm } from '@inertiajs/react';
 import axios from 'axios';

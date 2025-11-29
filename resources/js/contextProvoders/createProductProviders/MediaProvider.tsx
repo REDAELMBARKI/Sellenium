@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
-import { MediaContext } from "../context/MediaContext";
-import { ImagePlaceholder, ImagesMap } from "@/types/mediaTypes";
+import { ImagesMap } from "@/types/mediaTypes";
+import { MediaContext } from "@/context/createproductContext/MediaContext";
 
 
 // Provider
@@ -10,7 +10,7 @@ interface MediaProviderProps {
 
 export const MediaProvider = ({ children }: MediaProviderProps) => {
     const [images, setImages] = useState<ImagesMap>({});
-    const [imagesPlaceHolders, setImagesPlaceHolders] = useState<ImagePlaceholder[]>([]);
+    const [imagesPlaceHolders, setImagesPlaceHolders] = useState<number[]>([]);
     const [imagesValid, setImagesValid] = useState(false);
     const [isVariantCoverPreview, setIsVariantCoverPreview] = useState(false);
     const [fileToPass, setFileToPass] = useState<File | null>(null);

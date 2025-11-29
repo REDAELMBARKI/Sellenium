@@ -1,4 +1,4 @@
-import { useTags } from "@/contextHooks/useTags";
+import { useTags } from "@/contextHooks/createProductCtxHooks/useTags";
 import { TagSuggestion } from "@/types/tagsTypes";
 import { useEffect } from "react";
 

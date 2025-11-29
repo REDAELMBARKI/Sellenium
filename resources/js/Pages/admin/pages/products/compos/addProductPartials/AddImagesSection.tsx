@@ -1,5 +1,5 @@
-import { useMedia } from '@/contextHooks/useMedia';
-import { useProductForm } from '@/contextHooks/useProductForm';
+import { useMedia } from '@/contextHooks/createProductCtxHooks/useMedia';
+import { useProductForm } from '@/contextHooks/createProductCtxHooks/useProductForm';
 import { useMediaActions } from '@/functions/createFunctions/useMediaActions';
 
 

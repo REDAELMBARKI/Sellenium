@@ -1,6 +1,6 @@
-import { useInventory } from '@/contextHooks/useInventory';
-import { useMedia } from '@/contextHooks/useMedia';
-import { useUIContext } from '@/contextHooks/useUiContext';
+import { useInventory } from '@/contextHooks/createProductCtxHooks/useInventory';
+import { useMedia } from '@/contextHooks/createProductCtxHooks/useMedia';
+import { useUIContext } from '@/contextHooks/createProductCtxHooks/useUiContext';
 import { useFormActions } from '@/functions/createFunctions/useFormActions';
 import { useInventoryActions } from '@/functions/createFunctions/useInventoryActions';
 import React, { useState,useEffect } from 'react'

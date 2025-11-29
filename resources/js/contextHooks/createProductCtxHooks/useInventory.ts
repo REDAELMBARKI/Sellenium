@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import { InventoryContext } from "../context/InventoryContext.js";
 import { InventoryContextType } from "@/types/inventoryTypes.js";
+import { InventoryContext } from "@/context/createproductContext/InventoryContext";
 
 // Hook
 export const useInventory = (): InventoryContextType => {

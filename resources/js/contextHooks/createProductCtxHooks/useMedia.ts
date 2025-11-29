@@ -1,4 +1,4 @@
-import { MediaContext } from "@/context/MediaContext";
+import { MediaContext } from "@/context/createproductContext/MediaContext";
 import { MediaContextType } from "@/types/mediaTypes";
 import { useContext } from "react";
 

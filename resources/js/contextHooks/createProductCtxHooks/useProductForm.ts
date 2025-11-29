@@ -1,5 +1,6 @@
-import { ProductFormContext } from "@/context/ProductFormContext";
-import { ProductFormContextType } from "@/types/createPageTypes";
+
+import { ProductFormContext } from "@/context/createproductContext/ProductFormContext";
+import { ProductFormContextType } from "@/types/productsTypes";
 import { useContext } from "react";
 
 // Hook

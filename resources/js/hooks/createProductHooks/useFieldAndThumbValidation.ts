@@ -1,7 +1,7 @@
-import { useInventory } from "@/contextHooks/useInventory";
-import { useMedia } from "@/contextHooks/useMedia";
-import { useProductForm } from "@/contextHooks/useProductForm";
-import { useTags } from "@/contextHooks/useTags";
+import { useInventory } from "@/contextHooks/createProductCtxHooks/useInventory";
+import { useMedia } from "@/contextHooks/createProductCtxHooks/useMedia";
+import { useProductForm } from "@/contextHooks/createProductCtxHooks/useProductForm";
+import { useTags } from "@/contextHooks/createProductCtxHooks/useTags";
 import { useEffect } from "react";
 
 interface ReadyState {

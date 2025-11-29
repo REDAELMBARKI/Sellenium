@@ -1,8 +1,9 @@
 import { useForm } from "@inertiajs/react";
 import { useState, type ReactNode } from "react";
-import type { ReadyToSubmit } from "../types/createPageTypes";
-import { ProductFormContext } from "../context/ProductFormContext";
+
 import { InventoryItem } from "@/types/inventoryTypes";
+import { ReadyToSubmit } from "@/types/productsTypes";
+import { ProductFormContext } from "@/context/createproductContext/ProductFormContext";
 
 
 // Provider

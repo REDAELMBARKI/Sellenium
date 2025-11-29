@@ -1,6 +1,6 @@
 import { createContext  } from "react";
 import { useForm } from "@inertiajs/react";
-import { ProductFormContextType } from "@/types/createPageTypes";
+import { ProductFormContextType } from "@/types/productsTypes";
 
 
 

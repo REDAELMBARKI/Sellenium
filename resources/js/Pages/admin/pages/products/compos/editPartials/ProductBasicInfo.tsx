@@ -42,6 +42,8 @@ const ProductBasicInfo: React.FC<ProductInfoReadOnlyProps> = ({
   addTag,
   tagSuggestions
 }) => {
+
+
   const handleCancelWithConfirmation = () => {
     const hasChanges = JSON.stringify(basicInfoForm) !== JSON.stringify(productData);
     

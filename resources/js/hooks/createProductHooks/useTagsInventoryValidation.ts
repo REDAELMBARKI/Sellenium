@@ -1,5 +1,5 @@
-import { useInventory } from "@/contextHooks/useInventory";
-import { useTags } from "@/contextHooks/useTags";
+import { useInventory } from "@/contextHooks/createProductCtxHooks/useInventory";
+import { useTags } from "@/contextHooks/createProductCtxHooks/useTags";
 import { useEffect } from "react";
 
 

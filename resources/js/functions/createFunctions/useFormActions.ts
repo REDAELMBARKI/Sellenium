@@ -1,7 +1,7 @@
 
-import { useInventory } from "@/contextHooks/useInventory";
-import { useMedia } from "@/contextHooks/useMedia";
-import { useProductForm } from "@/contextHooks/useProductForm";
+import { useInventory } from "@/contextHooks/createProductCtxHooks/useInventory";
+import { useMedia } from "@/contextHooks/createProductCtxHooks/useMedia";
+import { useProductForm } from "@/contextHooks/createProductCtxHooks/useProductForm";
 import { FormEvent } from "react";
 
 export const useFormActions = () => {

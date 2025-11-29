@@ -1,10 +1,10 @@
-import { useInventory } from "@/contextHooks/useInventory";
+import { useInventory } from "@/contextHooks/createProductCtxHooks/useInventory";
 import { useFormActions } from "./useFormActions";
 import { Color, Size, Fit, Material, ProductVariant } from "@/types/inventoryTypes";
 import isEqual from "lodash/isEqual";
-import { useMedia } from "@/contextHooks/useMedia";
+import { useMedia } from "@/contextHooks/createProductCtxHooks/useMedia";
 import { useMediaActions } from "./useMediaActions";
-import { useUIContext } from "@/contextHooks/useUiContext";
+import { useUIContext } from "@/contextHooks/createProductCtxHooks/useUiContext";
 
 type VariantField = "colors" | "sizes" | "fits" | "materials";
 

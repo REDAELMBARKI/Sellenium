@@ -1,7 +1,12 @@
-import { Color, Fit, InventoryItem, Material, Size } from "./inventoryTypes";
+import { Color, Fit, InventoryItem, InventoryOptions, Material, Size } from "./inventoryTypes";
 import { Tag } from "./tagsTypes";
 
-
+export interface EditProductBackendProps {
+    children : React.ReactNode ;
+    product: ProductDataGlobal;
+    inventoryOptions: InventoryOptions
+    tagSuggestions: Tag[];
+}
 
 export interface Variant {
     id: number;
@@ -29,8 +34,8 @@ export interface ProductBasicInfoData {
 
 
 export interface ProductDataGlobal extends ProductBasicInfoData {
-    id: number;
-    variants: Variant[];
+    id?: number;
+    variants?: Variant[];
 }
 
 

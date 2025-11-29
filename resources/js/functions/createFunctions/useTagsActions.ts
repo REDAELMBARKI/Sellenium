@@ -1,4 +1,4 @@
-import { useTags } from "@/contextHooks/useTags";
+import { useTags } from "@/contextHooks/createProductCtxHooks/useTags";
 import { Tag } from "@/types/tagsTypes";
 
 

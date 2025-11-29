@@ -1,6 +1,6 @@
 import { useRef, useState, type ReactNode } from "react";
-import { InventoryContext } from "../context/InventoryContext";
 import { Color, ProductVariant } from "@/types/inventoryTypes";
+import { InventoryContext } from "@/context/createproductContext/InventoryContext";
 
 // Provider
 interface InventoryProviderProps {

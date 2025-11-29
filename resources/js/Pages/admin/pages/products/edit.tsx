@@ -7,76 +7,38 @@ import { Button } from "@/components/ui/button";
 import SelectByRadix from "@/components/ui/SelectByRadix";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import EmptyListSection from "@/admin/components/partials/EmptyListSection";
-import { ProductDataGlobal, Variant } from "@/types/productsTypes";
-import { Color , Fit , Material , Size  } from "@/types/inventoryTypes";
+import { EditProductBackendProps, ProductBasicInfoData, ProductDataGlobal, Variant } from "@/types/productsTypes";
+import { Color , Fit , InventoryItem, InventoryOptions, Material , Size  } from "@/types/inventoryTypes";
 import { Tag } from "@/types/tagsTypes";
 import ProductBasicInfo from "./compos/editPartials/ProductBasicInfo";
+import EditProductDataProvider from "@/contextProvoders/editProductProviders/editProductDataProvider";
+import EditProductUIProvider from "@/contextProvoders/editProductProviders/editProductUIProvider";
+import { useEditProductDataCtx } from "@/contextHooks/editProductCtxHooks/useEditProductDataCtx";
+import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditProductUICtx";
+import { VariantsSection } from "./compos/SharedPartials/VariantsSection";
 
 
-export default  function Edit({
-    product,
-    inventoryOptions,
-    tagSuggestions,
-}: EditProductProps){
+export default  function Edit({product , inventoryOptions , tagSuggestions}:EditProductBackendProps){
 
-    return (
-        <EditContent  
-           product={product}
-          inventoryOptions={inventoryOptions}
-          tagSuggestions={tagSuggestions}
+    return ( 
+                <EditProductDataProvider  product={product} inventoryOptions={inventoryOptions}  tagSuggestions={tagSuggestions}>
+                        <EditProductUIProvider>
+                                    <EditContent/>
+                        </EditProductUIProvider>
+                </EditProductDataProvider>
         
-        />
     )
 }
+Edit.layout = (page: any) => <AdminLayout children={page} />;
 
 
-interface EditProductProps {
-    product: ProductDataGlobal;
-    inventoryOptions: {
-        colors: Color[];
-        sizes: Size[];
-        fits: Fit[];
-        materials: Material[];
-    };
-    tagSuggestions: Tag[];
-}
 
-function EditContent({
-    product,
-    inventoryOptions,
-    tagSuggestions,
-}: EditProductProps) {
-    // backend data
-    const [productData, setProductData] = useState<ProductDataGlobal>(product);
-    const [inventoryOptionsState, setInventoryOptionsState] =
-        useState(inventoryOptions);
-    const [tagSuggestionsState, setTagSuggestionsState] =
-        useState(tagSuggestions);
 
-    const [isEditingBasicInfo, setIsEditingBasicInfo] = useState(false);
-    const [editingVariantId, setEditingVariantId] = useState<number | null>(
-        null
-    );
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [deleteConfirmText, setDeleteConfirmText] = useState("");
-    const [variantToDelete, setVariantToDelete] = useState<number | null>(null);
-    const [showToast, setShowToast] = useState(false);
-    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+function EditContent() {
 
-    const [basicInfoForm, setBasicInfoForm] = useState({
-        name: product.name,
-        brand: product.brand,
-        price: product.price,
-        description: product.description,
-        category: product.category,
-        gender: product.gender,
-        isFeatured: product.isFeatured,
-        free_shipping: product.free_shipping,
-        thumbnail: product.thumbnail,
-        tags: product.tags,
-    });
+    const  {basicInfoForm  , setBasicInfoForm , productData , setProductData , tagSuggestionsState, setTagSuggestionsState , setInventoryOptionsState ,  setVariantForm , setVariantToDelete} = useEditProductDataCtx()
+    const  {hasUnsavedChanges , showToast , isEditingBasicInfo ,deleteConfirmText , deleteModalOpen, setShowToast ,  setIsEditingBasicInfo , setHasUnsavedChanges , setEditingVariantId , setDeleteConfirmText , setDeleteModalOpen , } = useEditProductUICtx()
 
-    const [variantForm, setVariantForm] = useState<Variant | null>(null);
 
     useEffect(() => {
         if (hasUnsavedChanges && !showToast) {
@@ -86,6 +48,8 @@ function EditContent({
 
     const handleEditBasicInfo = () => {
         setIsEditingBasicInfo(true);
+
+        if(!productData)  return ;
         setBasicInfoForm({
             name: productData.name,
             brand: productData.brand,
@@ -111,6 +75,7 @@ function EditContent({
 
     const handleCancelBasicInfo = () => {
         setIsEditingBasicInfo(false);
+        if(!productData) return ;
         setBasicInfoForm({
             name: productData.name,
             brand: productData.brand,
@@ -280,17 +245,16 @@ function EditContent({
                             productData={productData}
                             removeTag={removeTag}
                             addTag={addTag}
-                            tagSuggestions={tagSuggestions}
+                            tagSuggestions={tagSuggestionsState}
                             handleEditBasicInfo={handleEditBasicInfo}
                             handleThumbnailUpload={handleThumbnailUpload}
                             setBasicInfoForm={setBasicInfoForm}
                         />
 
-                     <VariantsSections  
+                     {/* <VariantsSection /> */}
                      
                      
-                     /> 
-
+                    
                         <div className="flex justify-center">
                             <button
                                 onClick={handleSaveAllChanges}
@@ -316,4 +280,3 @@ function EditContent({
     );
 }
 
-Edit.layout = (page: any) => <AdminLayout children={page} />;

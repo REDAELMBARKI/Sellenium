@@ -1,4 +1,4 @@
-import { useMedia } from "@/contextHooks/useMedia";
+import { useMedia } from "@/contextHooks/createProductCtxHooks/useMedia";
 import { useMediaActions } from "@/functions/createFunctions/useMediaActions";
 import { Plus } from "lucide-react";
 import React from "react";

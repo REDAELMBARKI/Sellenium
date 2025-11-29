@@ -1,4 +1,4 @@
-import { TagsContext } from "@/context/TagsContext";
+import { TagsContext } from "@/context/createproductContext/TagsContext";
 import { Tag } from "@/types/tagsTypes";
 import { useState, type ReactNode } from "react";
 
@@ -17,7 +17,7 @@ export const TagsProvider = ({ children }: TagsProviderProps) => {
     return (
         <TagsContext.Provider
             value={{
-                tagInputValue,
+                tagInputValue, 
                 setTagInputValue,
                 selectedTags,
                 setSelectedTags,

@@ -14,7 +14,8 @@ export interface ProductInfoDisplayProps {
   productData: ProductBasicInfoData;
 }
 
-const ProductInfoDisplay: React.FC<ProductInfoDisplayProps> = ({ productData }) => {
+const ProductInfoDisplay: React.FC<ProductInfoDisplayProps> = ({ productData }) => { 
+  console.log(productData , 'from display')
   return (
     <div className="space-y-8">
       {/* Thumbnail Section */}
