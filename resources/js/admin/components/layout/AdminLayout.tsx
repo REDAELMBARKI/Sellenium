@@ -8,6 +8,7 @@ import { Inertia } from "@inertiajs/inertia";
 import { AppSidebar } from "./AppSidebar";
 import { AuthProvider } from "@/admin/context/AuthContext";
 import { ThemeProvider } from "@/admin/context/ThemeContext";
+import { Sidebar } from "./SideBar";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
 
@@ -40,7 +41,7 @@ const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex h-screen ">
       {/* Sidebar: fixed width, full height */}
-      <AppSidebar />
+      <Sidebar />
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col h-screen">

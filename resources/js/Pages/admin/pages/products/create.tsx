@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../../../css/createProduct.css";
+import "../../../../../css/createProduct.css"
 import { useTagsInventoryValidation } from "@/hooks/createProductHooks/useTagsInventoryValidation";
 import { useFieldAndThumbValidation } from "@/hooks/createProductHooks/useFieldAndThumbValidation";
 import { useFinalSubmitFormValidationCheck } from "@/hooks/createProductHooks/useFinalSubmitFormValidationCheck";
@@ -49,7 +49,7 @@ export default function Create({ tagSuggestions, inventoryOptions }: CreatePageP
 }
 
 
-Create.layout = page => <AdminLayout  children={page} />
+Create.layout = (page:any) => <AdminLayout  children={page} />
 
 function CreateContent({ tagSuggestions, inventoryOptions }: CreatePageProps) {
 

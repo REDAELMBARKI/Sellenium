@@ -5,6 +5,7 @@ use App\Http\Controllers\admin\CategoryController;
 use App\Http\Controllers\admin\CurstomerController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\MessageController;
+use App\Http\Controllers\admin\OrderController as AdminOrderController;
 use App\Http\Controllers\admin\VariantsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -65,7 +66,7 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 
 // oderes
 // OrderManager
-Route::get('/orders' , [OrderController::class, 'index']) ;
+Route::get('/orders' , [AdminOrderController::class, 'index']) ;
 
 
 
