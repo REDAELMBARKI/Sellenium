@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { EditProductDataContext } from './../../context/editProductContext/editProductDataContext';
-import { InventoryOptions } from '@/types/inventoryTypes';
+import { InventoryOptions,  } from '@/types/inventoryTypes';
 import { Tag } from '@/types/tagsTypes';
 import { EditProductBackendProps, ProductBasicInfoData, ProductDataGlobal, Variant } from '@/types/productsTypes';
 
@@ -20,11 +20,13 @@ const EditProductDataProvider = ({children , product , inventoryOptions , tagSug
             useState<InventoryOptions>(inventoryOptions);
         const [tagSuggestionsState, setTagSuggestionsState] =
             useState<Tag[]>(tagSuggestions);
+
+ 
    
         const [variantForm, setVariantForm] = useState<Variant | null>(null);
-         const [variantToDelete, setVariantToDelete] = useState<number | null>(null);
-        
+        const [variantToDelete, setVariantToDelete] = useState<number | null>(null);
         const [basicInfoForm, setBasicInfoForm] = useState<ProductBasicInfoData>({
+                   id: product.id ,
                    name: product.name,
                    brand: product.brand,
                    price: product.price,

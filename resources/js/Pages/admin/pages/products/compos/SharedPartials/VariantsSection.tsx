@@ -11,27 +11,16 @@ import EmptyListSection from "@/admin/components/partials/EmptyListSection";
 
 interface VariantsSectionProps {
     variants: Variant[];
-    inventoryOptions: InventoryOptions;
-    onEditVariant: (variant: Variant) => void;
-    onDeleteVariant: (id: number) => void;
-    onSaveVariant: () => void;
-    onCancelVariant: () => void;
-    onUpdateVariantForm: (variant: Variant) => void;
-    onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onRemoveImage: (idx: number) => void;
 }
 
 export const VariantsSection = ({
     variants,
-    inventoryOptions , 
-    onEditVariant,
-    onDeleteVariant,
-    onSaveVariant,
-    onCancelVariant,
-    onUpdateVariantForm,
-    onImageUpload,
-    onRemoveImage,
 }: VariantsSectionProps) => {
+
+
+   
+
+
     return (
         <div className="rounded-xl shadow-md border border-slate-200 p-8">
             <div className="flex items-center space-x-3 mb-6">
@@ -53,7 +42,7 @@ export const VariantsSection = ({
                 <h2 className="text-2xl font-bold text-slate-800">Variants</h2>
             </div>
 
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {variants?.length > 0 ? (
                     variants.map((variant) => {
                     
@@ -62,8 +51,7 @@ export const VariantsSection = ({
                                 
                                 key={variant.id}
                                 variant={variant}
-                                onEdit={onEditVariant}
-                                onDelete={onDeleteVariant}
+                               
                             />
                         );
                     })

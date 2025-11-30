@@ -15,11 +15,12 @@ export interface Variant {
     fits: Fit[];
     materials: Material[];
     quantity: number;
-    images: string[];
+    covers: string[];
 }
 
 
-export interface ProductBasicInfoData {
+export interface ProductBasicInfoData { 
+  id?: number;
   name: string;
   brand: string;
   price: string;
@@ -34,7 +35,7 @@ export interface ProductBasicInfoData {
 
 
 export interface ProductDataGlobal extends ProductBasicInfoData {
-    id?: number;
+
     variants?: Variant[];
 }
 

@@ -18,8 +18,79 @@ import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditP
 import { VariantsSection } from "./compos/SharedPartials/VariantsSection";
 
 
-export default  function Edit({product , inventoryOptions , tagSuggestions}:EditProductBackendProps){
+const variants : Variant[] = [
+  {
+    id: 1,
+    colors: [
+      { id: 1, name: "Black", hex: "#000000" },
+      { id: 2, name: "White", hex: "#FFFFFF" }
+    ],
+    sizes: [
+      { id: 1, name: "S" },
+      { id: 2, name: "M" },
+      { id: 3, name: "L" }
+    ],
+    fits: [
+      { id: 1, name: "Slim" },
+      { id: 2, name: "Regular" }
+    ],
+    materials: [
+      { id: 1, name: "Cotton" },
+      { id: 2, name: "Polyester" }
+    ],
+    quantity: 42,
+    covers: [
+      "/covers/product1-black.jpg",
+      "/covers/product1-white.jpg"
+    ]
+  },
+  {
+    id: 2,
+    colors: [
+      { id: 3, name: "Blue", hex: "#1E90FF" },
+      { id: 4, name: "Gray", hex: "#777777" }
+    ],
+    sizes: [
+      { id: 4, name: "M" },
+      { id: 5, name: "L" },
+      { id: 6, name: "XL" }
+    ],
+    fits: [
+      { id: 3, name: "Oversized" }
+    ],
+    materials: [
+      { id: 3, name: "Denim" }
+    ],
+    quantity: 18,
+    covers: [
+      "/covers/product2-blue.jpg",
+      "/covers/product2-gray.jpg"
+    ]
+  },
+  {
+    id: 3,
+    colors: [
+      { id: 5, name: "Green", hex: "#4CAF50" }
+    ],
+    sizes: [
+      { id: 7, name: "XS" },
+      { id: 8, name: "S" }
+    ],
+    fits: [
+      { id: 4, name: "Relaxed" }
+    ],
+    materials: [
+      { id: 4, name: "Linen" }
+    ],
+    quantity: 7,
+    covers: [
+      "/covers/product3-green-1.jpg",
+      "/covers/product3-green-2.jpg"
+    ]
+  }
+];
 
+export default  function Edit({product , inventoryOptions , tagSuggestions}:EditProductBackendProps){
     return ( 
                 <EditProductDataProvider  product={product} inventoryOptions={inventoryOptions}  tagSuggestions={tagSuggestions}>
                         <EditProductUIProvider>
@@ -36,9 +107,8 @@ Edit.layout = (page: any) => <AdminLayout children={page} />;
 
 function EditContent() {
 
-    const  {basicInfoForm  , setBasicInfoForm , productData , setProductData , tagSuggestionsState, setTagSuggestionsState , setInventoryOptionsState ,  setVariantForm , setVariantToDelete} = useEditProductDataCtx()
+    const  {basicInfoForm  , setBasicInfoForm , productData , setProductData , tagSuggestionsState, setTagSuggestionsState ,inventoryOptionsState ,  setInventoryOptionsState ,  setVariantForm , setVariantToDelete} = useEditProductDataCtx()
     const  {hasUnsavedChanges , showToast , isEditingBasicInfo ,deleteConfirmText , deleteModalOpen, setShowToast ,  setIsEditingBasicInfo , setHasUnsavedChanges , setEditingVariantId , setDeleteConfirmText , setDeleteModalOpen , } = useEditProductUICtx()
-
 
     useEffect(() => {
         if (hasUnsavedChanges && !showToast) {
@@ -90,59 +160,7 @@ function EditContent() {
         });
     };
 
-    const handleEditVariant = (variant: Variant) => {
-        setEditingVariantId(variant.id);
-        setVariantForm({ ...variant });
-    };
-
-    const handleSaveVariant = () => {
-        if (!variantForm || editingVariantId === null) return;
-
-        setProductData({
-            ...productData,
-            variants: productData?.variants?.map((v) =>
-                v.id === editingVariantId ? variantForm : v
-            ),
-        });
-        setEditingVariantId(null);
-        setVariantForm(null);
-        setHasUnsavedChanges(true);
-    };
-
-    const handleCancelVariant = () => {
-        setEditingVariantId(null);
-        setVariantForm(null);
-    };
-
-    const handleDeleteVariantClick = (variantId: number) => {
-        setVariantToDelete(variantId);
-        setDeleteModalOpen(true);
-        setDeleteConfirmText("");
-    };
-
-    const handleConfirmDelete = () => {
-        if (
-            deleteConfirmText.toLowerCase() === "delete" &&
-            variantToDelete !== null
-        ) {
-            setProductData({
-                ...productData,
-                variants: productData?.variants?.filter(
-                    (v) => v.id !== variantToDelete
-                ),
-            });
-            setDeleteModalOpen(false);
-            setDeleteConfirmText("");
-            setVariantToDelete(null);
-            setHasUnsavedChanges(true);
-        }
-    };
-
-    const handleCancelDelete = () => {
-        setDeleteModalOpen(false);
-        setDeleteConfirmText("");
-        setVariantToDelete(null);
-    };
+ 
 
     const handleSaveAllChanges = () => {
         console.log("Saving all changes:", productData);
@@ -165,47 +183,8 @@ function EditContent() {
         }
     };
 
-    const handleVariantImageUpload = (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        if (!variantForm) return;
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setVariantForm({
-                    ...variantForm,
-                    images: [...variantForm.images, reader.result as string],
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-    };
 
-    const removeVariantImage = (index: number) => {
-        if (!variantForm) return;
-        setVariantForm({
-            ...variantForm,
-            images: variantForm.images.filter((_, i) => i !== index),
-        });
-    };
-
-    const toggleVariantAttribute = <T extends Color | Size | Fit | Material>(
-        key: "colors" | "sizes" | "fits" | "materials",
-        item: T
-    ) => {
-        if (!variantForm) return;
-
-        const currentItems = variantForm[key] as T[];
-        const exists = currentItems.some((i) => i.id === item.id);
-
-        setVariantForm({
-            ...variantForm,
-            [key]: exists
-                ? currentItems.filter((i) => i.id !== item.id)
-                : [...currentItems, item],
-        });
-    };
+  
 
     const removeTag = (tagId: string) => {
         setBasicInfoForm({
@@ -251,17 +230,19 @@ function EditContent() {
                             setBasicInfoForm={setBasicInfoForm}
                         />
 
-                     {/* <VariantsSection /> */}
-                     
+                    <VariantsSection  
+                     variants={variants}
+                  
+                    />
                      
                     
                         <div className="flex justify-center">
-                            <button
+                            <Button 
+                                variant="outline"
                                 onClick={handleSaveAllChanges}
-                                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                             >
                                 Save All Changes
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

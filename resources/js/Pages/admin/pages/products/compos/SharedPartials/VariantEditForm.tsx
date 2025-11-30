@@ -1,214 +1,366 @@
-import { Color, Fit, InventoryOptions, Material, Size } from "@/types/inventoryTypes";
+import LoadingBlankPage from "@/components/LoadingBlankPage";
+import { useEditProductDataCtx } from "@/contextHooks/editProductCtxHooks/useEditProductDataCtx";
+import { Color, Fit, Material, Size } from "@/types/inventoryTypes";
 import { Variant } from "@/types/productsTypes";
 import { Check, X, Upload, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-
-interface VariantEditFormProps {
-    variant: Variant;
-    inventoryOptions: InventoryOptions;
-    onSave: () => void;
-    onCancel: () => void;
-    onUpdateVariant: (variant: Variant) => void;
-    onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onRemoveImage: (idx: number) => void;
+interface InventoryOptions {
+    colors: Color[];
+    sizes: Size[];
+    fits: Fit[];
+    materials: Material[];
 }
 
+interface VariantEditFormProps {
+    VariantForm: Variant;
+    inventoryOptions: InventoryOptions;
+    onSave?: () => void;
+    onCancel?: () => void;
+    onImageUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onRemoveImage?: (idx: number) => void;
+}
+
+const currentTheme = {
+  bg: '#ffffff',
+  text: '#0f172a',
+  buttonPrimary: '#8b5cf6',
+  buttonSecondary: '#f1f5f9',
+  buttonHover: '#7c3aed',
+  accent: '#8b5cf6',
+  border: '#e2e8f0',
+  borderHover: '#cbd5e1',
+};
+
 export const VariantEditForm = ({
-    variant,
+    VariantForm,
     inventoryOptions,
     onSave,
     onCancel,
-    onUpdateVariant,
     onImageUpload,
     onRemoveImage,
 }: VariantEditFormProps) => {
-    const toggleAttribute = (
-        key: "colors" | "sizes" | "fits" | "materials",
-        item: Color | Size | Fit | Material
-    ) => {
-        const currentList = variant[key];
-        const exists = currentList.some((existing) => existing.id === item.id);
-        const newList = exists
-            ? currentList.filter((existing) => existing.id !== item.id)
-            : [...currentList, item];
-        
-        onUpdateVariant({ ...variant, [key]: newList as any });
-    };
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
+    
+    const  {setVariantForm , variantForm} = useEditProductDataCtx();
+    const formRef = useRef<HTMLDivElement | null>(null)
+   
+
+
+    const toggleVariantAttribute = <T extends Color | Size | Fit | Material>(
+            key: "colors" | "sizes" | "fits" | "materials",
+            item: T
+        ) => {
+            if (!variantForm) return;
+    
+            const currentItems = variantForm[key] as T[];
+            const exists = currentItems.some((i) => i.id === item.id);
+    
+            setVariantForm({
+                ...variantForm,
+                [key]: exists
+                    ? currentItems.filter((i) => i.id !== item.id)
+                    : [...currentItems, item],
+            });
+        };
+   
+    const isReady =
+    variantForm &&
+    variantForm.colors &&
+    variantForm.sizes &&
+    variantForm.fits &&
+    variantForm.materials &&
+    variantForm.quantity !== undefined;
 
     return (
-        <div className="bg-slate-50 rounded-xl p-6 border-2 border-slate-200">
-            <div className="flex items-start justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-800">
-                    Variant #{variant.id}
-                </h3>
+        <>
+            {/* Modal Backdrop with Blur */}
+            <div  
+                ref={formRef}
+                className="fixed inset-0 z-[9999] flex items-center justify-center p-0 md:p-4 "
+                style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(8px)' }}
+                // onClick={onCancel}
+            >    
 
-                <div className="flex gap-2">
-                    <button
-                        onClick={onSave}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm font-medium"
+            {!isReady  ? <LoadingBlankPage  containerRef={formRef} /> :
+                
+                <div 
+                    className="w-full sm:w-full   min-h-[100vh] overflow-y-auto rounded-2xl shadow-2xl"
+                    style={{ backgroundColor: currentTheme.bg }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {/* Header */}
+                    <div 
+                        className="sticky top-0 z-10 flex items-center justify-between p-6 border-b"
+                        style={{ 
+                            backgroundColor: currentTheme.bg,
+                            borderColor: currentTheme.border 
+                        }}
                     >
-                        <Check className="w-3 h-3" />
-                        Save
-                    </button>
-                    <button
-                        onClick={onCancel}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-slate-500 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm font-medium"
-                    >
-                        <X className="w-3 h-3" />
-                        Cancel
-                    </button>
-                </div>
-            </div>
+                        <div>
+                            <h3 className="text-xl font-bold" style={{ color: currentTheme.text }}>
+                                Edit Variant #number
+                            </h3>
+                            <p className="text-sm text-slate-500 mt-1">Update variant details and attributes</p>
+                        </div>
 
-            <div className="space-y-4">
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Images
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                        {variant.images.map((img, idx) => (
-                            <div key={idx} className="relative w-20 h-20 group">
-                                <img
-                                    src={img}
-                                    alt={`Variant ${idx + 1}`}
-                                    className="w-full h-full object-cover rounded-lg border border-slate-300"
-                                />
-                                <button
-                                    onClick={() => onRemoveImage(idx)}
-                                    className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        <button
+                            onClick={onCancel}
+                            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                        >
+                            <X className="w-5 h-5" style={{ color: currentTheme.text }} />
+                        </button>
+                    </div>
+
+                    {/* Form Content */}
+                    <div className="p-6 space-y-6" 
+                    
+                    >
+                        {/* Images Section */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3" style={{ color: currentTheme.text }}>
+                                Images
+                            </label>
+                            <div className="flex flex-wrap gap-3">
+                                {VariantForm?.covers?.map((img, idx) => (
+                                    <div key={idx} className="relative w-24 h-24 group">
+                                        <img
+                                            src={img}
+                                            alt={`Variant ${idx + 1}`}
+                                            className="w-full h-full object-cover rounded-lg border-2"
+                                            style={{ borderColor: currentTheme.border }}
+                                        />
+                                        <button
+                                            onClick={() => onRemoveImage?.(idx)}
+                                            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                ))}
+                                <label 
+                                    className="w-24 h-24 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-slate-400 transition-colors"
+                                    style={{ borderColor: currentTheme.border }}
                                 >
-                                    <Trash2 className="w-3 h-3" />
-                                </button>
+                                    <Upload className="w-6 h-6 text-slate-400 mb-1" />
+                                    <span className="text-xs text-slate-500">Upload</span>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={onImageUpload}
+                                        className="hidden"
+                                    />
+                                </label>
                             </div>
-                        ))}
-                        <label className="w-20 h-20 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-slate-400 transition-colors">
-                            <Upload className="w-5 h-5 text-slate-400" />
+                        </div>
+
+                        {/* Quantity Section */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3" style={{ color: currentTheme.text }}>
+                                Quantity in Stock
+                            </label>
                             <input
-                                type="file"
-                                accept="image/*"
-                                onChange={onImageUpload}
-                                className="hidden"
+                                type="number"
+                                min="0"
+                                value={variantForm?.quantity}
+                                onChange={(e) => setVariantForm({ ...VariantForm, quantity: Number(e.target.value) })}
+                                className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none transition-all"
+                                style={{ 
+                                    borderColor: currentTheme.border,
+                                    color: currentTheme.text
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = currentTheme.accent}
+                                onBlur={(e) => e.target.style.borderColor = currentTheme.border}
                             />
-                        </label>
+                        </div>
+
+                        {/* Colors Section */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3" style={{ color: currentTheme.text }}>
+                                Colors
+                            </label>
+                            <div className="flex flex-wrap gap-3">
+                                {inventoryOptions?.colors?.map((color) => {
+                                    const isSelected = variantForm?.colors?.some((c) => Number(c.id) === Number(color.id));
+                                    return (
+                                        <button
+                                            key={color.id}
+                                            type="button"
+                                            onClick={() => toggleVariantAttribute("colors", color)}
+                                            className="relative group"
+                                            title={color.name}
+                                        >
+                                            <div
+                                                className="w-12 h-12 rounded-lg transition-all shadow-sm hover:shadow-md"
+                                                style={{
+                                                    backgroundColor: color.hex,
+                                                    border: isSelected
+                                                        ? `3px solid ${currentTheme.accent}`
+                                                        : `2px solid ${currentTheme.border}`,
+                                                }}
+                                            />
+                                            {isSelected && (
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <Check className="w-5 h-5 text-white drop-shadow-lg" />
+                                                </div>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Sizes Section */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3" style={{ color: currentTheme.text }}>
+                                Sizes
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                                {inventoryOptions?.sizes?.map((size) => {
+                                    const isSelected = variantForm?.sizes?.some((s) => Number(s.id) === Number(size.id));
+                                    return (
+                                        <button
+                                            key={size.id}
+                                            type="button"
+                                            onClick={() => toggleVariantAttribute("sizes", size)}
+                                            className="px-4 py-2.5 flex items-center gap-2 rounded-lg transition-all duration-150"
+                                            style={{
+                                                backgroundColor: isSelected ? `${currentTheme.accent}15` : 'transparent',
+                                                border: `2px solid ${isSelected ? currentTheme.accent : currentTheme.border}`,
+                                                color: currentTheme.text
+                                            }}
+                                        >
+                                            <div 
+                                                className="w-4 h-4 rounded flex items-center justify-center transition-all"
+                                                style={{
+                                                    backgroundColor: isSelected ? currentTheme.accent : 'transparent',
+                                                    borderWidth: '2px',
+                                                    borderColor: isSelected ? currentTheme.accent : currentTheme.border
+                                                }}
+                                            >
+                                                {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
+                                            </div>
+                                            <span className="font-medium">{size.name}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Fits Section */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3" style={{ color: currentTheme.text }}>
+                                Fit Type
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                                {inventoryOptions?.fits?.map((fit) => {
+                                    const isSelected = variantForm?.fits?.some((f) => Number(f.id) === Number(fit.id));
+                                    return (
+                                        <button
+                                            key={fit.id}
+                                            type="button"
+                                            onClick={() => toggleVariantAttribute("fits", fit)}
+                                            className="px-4 py-2.5 flex items-center gap-2 rounded-lg transition-all duration-150"
+                                            style={{
+                                                backgroundColor: isSelected ? `${currentTheme.accent}15` : 'transparent',
+                                                border: `2px solid ${isSelected ? currentTheme.accent : currentTheme.border}`,
+                                                color: currentTheme.text
+                                            }}
+                                        >
+                                            <div 
+                                                className="w-4 h-4 rounded flex items-center justify-center transition-all"
+                                                style={{
+                                                    backgroundColor: isSelected ? currentTheme.accent : 'transparent',
+                                                    borderWidth: '2px',
+                                                    borderColor: isSelected ? currentTheme.accent : currentTheme.border
+                                                }}
+                                            >
+                                                {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
+                                            </div>
+                                            <span className="font-medium">{fit.name}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Materials Section */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3" style={{ color: currentTheme.text }}>
+                                Materials
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                                {inventoryOptions?.materials?.map((material) => {
+                                    const isSelected = variantForm?.materials?.some((m) => Number(m.id) === Number(material.id));
+                                    return (
+                                        <button
+                                            key={material.id}
+                                            type="button"
+                                            onClick={() => toggleVariantAttribute("materials", material)}
+                                            className="px-4 py-2.5 flex items-center gap-2 rounded-lg transition-all duration-150"
+                                            style={{
+                                                backgroundColor: isSelected ? `${currentTheme.accent}15` : 'transparent',
+                                                border: `2px solid ${isSelected ? currentTheme.accent : currentTheme.border}`,
+                                                color: currentTheme.text
+                                            }}
+                                        >
+                                            <div 
+                                                className="w-4 h-4 rounded flex items-center justify-center transition-all"
+                                                style={{
+                                                    backgroundColor: isSelected ? currentTheme.accent : 'transparent',
+                                                    borderWidth: '2px',
+                                                    borderColor: isSelected ? currentTheme.accent : currentTheme.border
+                                                }}
+                                            >
+                                                {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
+                                            </div>
+                                            <span className="font-medium">{material.name}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div 
+                        className="sticky bottom-0 flex items-center justify-end gap-3 p-6 border-t"
+                        style={{ 
+                            backgroundColor: currentTheme.bg,
+                            borderColor: currentTheme.border 
+                        }}
+                    >
+                        <button
+                            onClick={onCancel}
+                            className="px-6 py-2.5 rounded-lg border-2 font-semibold transition-all"
+                            style={{
+                                borderColor: currentTheme.border,
+                                color: currentTheme.text,
+                                backgroundColor: currentTheme.bg
+                            }}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={onSave}
+                            className="px-6 py-2.5 rounded-lg font-semibold text-white transition-all shadow-sm hover:shadow-md"
+                            style={{ backgroundColor: currentTheme.buttonPrimary }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.buttonHover}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentTheme.buttonPrimary}
+                        >
+                            Save Changes
+                        </button>
                     </div>
                 </div>
-
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Color
-                    </label>
-                    <div className="flex flex-wrap gap-3">
-                        {inventoryOptions.colors.map((color) => {
-                            const isSelected = variant.colors.some((c) => c.id === color.id);
-                            return (
-                                <button
-                                    key={color.id}
-                                    type="button"
-                                    onClick={() => toggleAttribute("colors", color)}
-                                    className="relative w-10 h-10 rounded-full transition-all"
-                                    style={{
-                                        backgroundColor: color.hex,
-                                        border: isSelected
-                                            ? "3px solid #1e293b"
-                                            : "2px solid #cbd5e1",
-                                    }}
-                                    title={color.name}
-                                />
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Size
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                        {inventoryOptions.sizes.map((size) => {
-                            const isSelected = variant.sizes.some((s) => s.id === size.id);
-                            return (
-                                <button
-                                    key={size.id}
-                                    type="button"
-                                    onClick={() => toggleAttribute("sizes", size)}
-                                    className={`px-4 py-2 rounded-lg border-2 font-medium transition-all ${
-                                        isSelected
-                                            ? "bg-blue-500 text-white border-blue-600"
-                                            : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
-                                    }`}
-                                >
-                                    {size.name}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Fit
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                        {inventoryOptions.fits.map((fit) => {
-                            const isSelected = variant.fits.some((f) => f.id === fit.id);
-                            return (
-                                <button
-                                    key={fit.id}
-                                    type="button"
-                                    onClick={() => toggleAttribute("fits", fit)}
-                                    className={`px-4 py-2 rounded-lg border-2 font-medium transition-all ${
-                                        isSelected
-                                            ? "bg-green-500 text-white border-green-600"
-                                            : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
-                                    }`}
-                                >
-                                    {fit.name}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Material
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                        {inventoryOptions.materials.map((material) => {
-                            const isSelected = variant.materials.some((m) => m.id === material.id);
-                            return (
-                                <button
-                                    key={material.id}
-                                    type="button"
-                                    onClick={() => toggleAttribute("materials", material)}
-                                    className={`px-4 py-2 rounded-lg border-2 font-medium transition-all ${
-                                        isSelected
-                                            ? "bg-amber-500 text-white border-amber-600"
-                                            : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
-                                    }`}
-                                >
-                                    {material.name}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Quantity
-                    </label>
-                    <input
-                        type="number"
-                        min="0"
-                        value={variant.quantity}
-                        onChange={(e) =>
-                            onUpdateVariant({ ...variant, quantity: Number(e.target.value) })
-                        }
-                        className="w-32 p-3 border border-slate-200 rounded-xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-                    />
-                </div>
+            }
             </div>
-        </div>
+        </>
     );
 };
+
