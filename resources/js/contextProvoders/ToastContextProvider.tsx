@@ -1,0 +1,37 @@
+import { ToastContext, ToastType } from "@/context/ToastesContext";
+import {  useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+
+
+
+
+const ToastContextProvider = ({children}:{children : React.ReactNode}) => {
+         const [toasts ,  setToasts] = useState<ToastType[]>([]);
+
+        const addToast: (toast: ToastType) => void = (toast: ToastType) => {
+                const id = uuidv4();
+                setToasts(prev => [...prev , {...toast , id}])
+
+            // remove the toast after a delay 
+            setTimeout(() => {
+                setToasts(prev => prev.filter(t => t.id !== id));
+            }, toast.duration || 3000);
+        };
+
+        const removeToast: (id: string) => void = (id : string) => {
+            
+            setToasts(prev => prev.filter(t => t.id !== id));
+           
+        }
+
+        return (
+            <ToastContext.Provider value={{toasts ,  addToast , removeToast}}>
+        {children}
+     </ToastContext.Provider>
+        )
+}
+
+
+ ;
+
+export default ToastContextProvider

@@ -115,50 +115,8 @@ function EditContent() {
         }
     }, [hasUnsavedChanges, showToast]);
 
-    const handleEditBasicInfo = () => {
-        setIsEditingBasicInfo(true);
 
-        if(!productData)  return ;
-        setBasicInfoForm({
-            name: productData.name,
-            brand: productData.brand,
-            price: productData.price,
-            description: productData.description,
-            category: productData.category,
-            gender: productData.gender,
-            isFeatured: productData.isFeatured,
-            free_shipping: productData.free_shipping,
-            thumbnail: productData.thumbnail,
-            tags: productData.tags,
-        });
-    };
-
-    const handleSaveBasicInfo = () => {
-        setProductData({
-            ...productData,
-            ...basicInfoForm,
-        });
-        setIsEditingBasicInfo(false);
-        setHasUnsavedChanges(true);
-    };
-
-    const handleCancelBasicInfo = () => {
-        setIsEditingBasicInfo(false);
-        if(!productData) return ;
-        setBasicInfoForm({
-            name: productData.name,
-            brand: productData.brand,
-            price: productData.price,
-            description: productData.description,
-            category: productData.category,
-            gender: productData.gender,
-            isFeatured: productData.isFeatured,
-            free_shipping: productData.free_shipping,
-            thumbnail: productData.thumbnail,
-            tags: productData.tags,
-        });
-    };
-
+   
  
 
     const handleSaveAllChanges = () => {
@@ -190,7 +148,6 @@ function EditContent() {
                     />
                     <div className="space-y-6">
                         <ProductBasicInfo
-                            handleEditBasicInfo={handleEditBasicInfo}
                         />
 
                     <VariantsSection  

@@ -239,7 +239,7 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
               borderColor: currentTheme.border
             }}
           >
-            <Upload className="w-5 h-5" />
+            <Upload className="w-30 h-30" />
             Upload Image
             <input
               type="file"

@@ -4,19 +4,20 @@
 import { ReactNode } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { Header } from "./Header";
-import { Inertia } from "@inertiajs/inertia";
-import { AppSidebar } from "./AppSidebar";
 import { AuthProvider } from "@/admin/context/AuthContext";
 import { ThemeProvider } from "@/admin/context/ThemeContext";
 import { Sidebar } from "./SideBar";
+import ToastContextProvider from "@/contextProvoders/ToastContextProvider";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
 
   return<>
   <ThemeProvider>
+    <ToastContextProvider>
       <AuthProvider>
            <AdminLayoutContent children={children} />
        </AuthProvider>
+      </ToastContextProvider>
   </ThemeProvider>
   </>
 }

@@ -6,6 +6,9 @@ import ProductInfoDisplay from './ProductInfoDisplay';
 import ProductInfoForm from '../SharedPartials/BasicInfoForm';
 import { useEditProductDataCtx } from './../../../../../../contextHooks/editProductCtxHooks/useEditProductDataCtx';
 import { useEditProductUICtx } from '@/contextHooks/editProductCtxHooks/useEditProductUICtx';
+import { useToasts } from '@/contextHooks/useToasts';
+import { ToasterNative } from '@/components/ui/ToasterNative';
+
 
 const currentTheme = {
   bg: '#ffffff',
@@ -16,47 +19,75 @@ const currentTheme = {
   border: '#e2e8f0',
 };
 
-interface ProductInfoReadOnlyProps {
-  handleEditBasicInfo: () => void;
-  handleSaveBasicInfo?: () => void;
-  handleCancelBasicInfo?: () => void;
-}
-
-const ProductBasicInfo: React.FC<ProductInfoReadOnlyProps> = ({
-  handleEditBasicInfo,
-  handleSaveBasicInfo,
-  handleCancelBasicInfo,
-}) => {
 
 
-  const {basicInfoForm ,  productData} =  useEditProductDataCtx()
-  const {isEditingBasicInfo} =  useEditProductUICtx()
+const ProductBasicInfo: React.FC = () => {
 
+
+  const {basicInfoForm ,  productData ,  setProductData ,  setBasicInfoForm} =  useEditProductDataCtx()
+  const {isEditingBasicInfo , setIsEditingBasicInfo , setHasUnsavedChanges } =  useEditProductUICtx()
+  const {addToast} =  useToasts()
+  
+    const handleEditBasicInfo = () => {
+        setIsEditingBasicInfo(true);
+
+        if(!productData)  return ;
+        setBasicInfoForm({
+            name: productData.name,
+            brand: productData.brand,
+            price: productData.price,
+            description: productData.description,
+            category: productData.category,
+            gender: productData.gender,
+            isFeatured: productData.isFeatured,
+            free_shipping: productData.free_shipping,
+            thumbnail: productData.thumbnail,
+            tags: productData.tags,
+        });
+    };
+
+
+   const handleSaveBasicInfo = () => {
+          setProductData({
+              ...productData,
+              ...basicInfoForm,
+          });
+          setIsEditingBasicInfo(false);
+          setHasUnsavedChanges(true);
+      };
+  
+      const handleCancelBasicInfo = () => {
+          setIsEditingBasicInfo(false);
+          if(!productData) return ;
+          setBasicInfoForm({
+              name: productData.name,
+              brand: productData.brand,
+              price: productData.price,
+              description: productData.description,
+              category: productData.category,
+              gender: productData.gender,
+              isFeatured: productData.isFeatured,
+              free_shipping: productData.free_shipping,
+              thumbnail: productData.thumbnail,
+              tags: productData.tags,
+          });
+      };
+  
   const handleCancelWithConfirmation = () => {
     const hasChanges = JSON.stringify(basicInfoForm) !== JSON.stringify(productData);
     
     if (hasChanges) {
-      const toast = document.createElement('div');
-      toast.className = 'fixed top-4 right-4 bg-orange-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-slide-in';
-      toast.innerHTML = `
-        <div class="flex items-center gap-3">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <div>
-            <div class="font-bold">Unsaved Changes</div>
-            <div class="text-sm">Your changes will be lost</div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-      
+      addToast({
+         title : 'unsaved changes' , 
+         description : "your new  changes will be forgotten " ,
+         duration : 6000 , 
+         type :"success"
+      })
       const confirmed = window.confirm('You have unsaved changes. Are you sure you want to cancel?');
       if (!confirmed) return;
     }
     
-    // handleCancelBasicInfo();
+    handleCancelBasicInfo();
   };
 
 
@@ -127,7 +158,7 @@ const ProductBasicInfo: React.FC<ProductInfoReadOnlyProps> = ({
           </div>
         )}
       </div>
-
+      <ToasterNative />
       {/* Conditional rendering based on editing state */}
       {isEditingBasicInfo ? (
         <ProductInfoForm
