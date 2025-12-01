@@ -5,6 +5,7 @@ import { Variant } from "@/types/productsTypes";
 import { useEditProductDataCtx } from "@/contextHooks/editProductCtxHooks/useEditProductDataCtx";
 import { currentTheme } from "@/data/currentTheme";
 import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditProductUICtx";
+import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 
 interface VariantDisplayProps {
     variant: Variant;
@@ -14,8 +15,8 @@ interface VariantDisplayProps {
 
 export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
     const [isFormModalOpen, setIsFormModalOpen] = useState<boolean>(false);
-    const { inventoryOptionsState  , setVariantForm , variantForm} = useEditProductDataCtx();
-    const {setEditingVariantId} =  useEditProductUICtx()
+    const { inventoryOptionsState  , setVariantForm , variantForm , setVariantToDelete } = useEditProductDataCtx();
+    const {setEditingVariantId , setDeleteModalOpen , deleteModalOpen  } =  useEditProductUICtx()
     
    const handleEditVariant = (variant: Variant) => {
         setEditingVariantId(variant.id);
@@ -45,7 +46,6 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
     const handleDeleteVariantClick = (variantId: number) => {
         setVariantToDelete(variantId);
         setDeleteModalOpen(true);
-        setDeleteConfirmText("");
     };
 
     const handleConfirmDelete = () => {
@@ -87,7 +87,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                      >
                         {variant.covers.length > 0 ? (
                             <img
-                                src={`/images/perpel_.jpg`}
+                                src={`/images/perpel.jpg`}
                                 alt={`Variant ${variant.id}`}
                                 className="max-h-full max-w-full object-contain" 
                             />
@@ -271,7 +271,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                             </button>
 
                             <button
-                                onClick={() => onDelete?.(variant.id)}
+                                onClick={() => handleDeleteVariantClick(variant.id)}
                                 className="flex items-center justify-center gap-2 px-3 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all font-semibold text-sm shadow-sm hover:shadow-md"
                             >
                                 <Trash2 className="w-4 h-4" />
@@ -284,12 +284,16 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                 <VariantEditForm 
                    
                     key={variant.id}
-                    variant={variantForm}
+                    VariantForm={variantForm}
                     inventoryOptions={inventoryOptionsState}
                     onSave={() => setIsFormModalOpen(false)}
                     onCancel={() => setIsFormModalOpen(false)}
                 />
             )}
+
+
+           <DeleteConfirmationModal isOpen={deleteModalOpen}  name="variant" entityType="variant" onClose={() => setDeleteModalOpen(false)} onConfirm={() => handleConfirmDelete()}/>
+           
         </>
     );
 };

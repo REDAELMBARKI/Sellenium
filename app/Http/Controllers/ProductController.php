@@ -231,8 +231,7 @@ class ProductController extends Controller
 
 
     public function edit(){ 
-        $product =  Product::with('tags' , 'inventories.color' ,  'inventories.size' , 'inventories.fit' , 'inventories.material')-> find(1) ;
-        
+        $product =  Product::with('tags' , 'inventories.color' ,  'inventories.size' , 'inventories.fit' , 'inventories.material' , 'inventories.covers')-> find(1) ;
         $colors = Color::select('id', 'hex')->distinct()->get();
 
         $sizes = Size::select('id', 'name')->distinct()->get();

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { Edit2, X, Check, Upload, Trash2, Box } from "lucide-react";
+import React, { useEffect } from "react";
 import UnsavedChangesToast from "@/components/editProductPartials/UnsavedChangesToast";
 import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
@@ -8,7 +7,6 @@ import SelectByRadix from "@/components/ui/SelectByRadix";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import EmptyListSection from "@/admin/components/partials/EmptyListSection";
 import { EditProductBackendProps, ProductBasicInfoData, ProductDataGlobal, Variant } from "@/types/productsTypes";
-import { Color , Fit , InventoryItem, InventoryOptions, Material , Size  } from "@/types/inventoryTypes";
 import { Tag } from "@/types/tagsTypes";
 import ProductBasicInfo from "./compos/editPartials/ProductBasicInfo";
 import EditProductDataProvider from "@/contextProvoders/editProductProviders/editProductDataProvider";
@@ -91,7 +89,8 @@ const variants : Variant[] = [
 ];
 
 export default  function Edit({product , inventoryOptions , tagSuggestions}:EditProductBackendProps){
-    return ( 
+   
+   return ( 
                 <EditProductDataProvider  product={product} inventoryOptions={inventoryOptions}  tagSuggestions={tagSuggestions}>
                         <EditProductUIProvider>
                                     <EditContent/>
@@ -108,7 +107,7 @@ Edit.layout = (page: any) => <AdminLayout children={page} />;
 function EditContent() {
 
     const  {basicInfoForm  , setBasicInfoForm , productData , setProductData , tagSuggestionsState, setTagSuggestionsState ,inventoryOptionsState ,  setInventoryOptionsState ,  setVariantForm , setVariantToDelete} = useEditProductDataCtx()
-    const  {hasUnsavedChanges , showToast , isEditingBasicInfo ,deleteConfirmText , deleteModalOpen, setShowToast ,  setIsEditingBasicInfo , setHasUnsavedChanges , setEditingVariantId , setDeleteConfirmText , setDeleteModalOpen , } = useEditProductUICtx()
+    const  {hasUnsavedChanges , showToast , isEditingBasicInfo  , deleteModalOpen, setShowToast ,  setIsEditingBasicInfo , setHasUnsavedChanges , setEditingVariantId  , setDeleteModalOpen , } = useEditProductUICtx()
 
     useEffect(() => {
         if (hasUnsavedChanges && !showToast) {
@@ -169,39 +168,11 @@ function EditContent() {
         setShowToast(false);
     };
 
-    const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setBasicInfoForm({
-                    ...basicInfoForm,
-                    thumbnail: reader.result as string,
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
+   
 
   
 
-    const removeTag = (tagId: string) => {
-        setBasicInfoForm({
-            ...basicInfoForm,
-            tags: basicInfoForm?.tags?.filter((t) => Number(t.id) !== Number(tagId)),
-        });
-    };
-
-    const addTag = (tag : Tag) => {
-        if (!basicInfoForm?.tags?.some((t) => Number(t.id) === Number(tag.id))) {
-            setBasicInfoForm({
-                ...basicInfoForm,
-                tags: [...basicInfoForm.tags, tag],
-            });
-        }
-    };
-
+   
     return (
         <>
             {showToast && hasUnsavedChanges && (
@@ -219,15 +190,7 @@ function EditContent() {
                     />
                     <div className="space-y-6">
                         <ProductBasicInfo
-                            basicInfoForm={basicInfoForm}
-                            isEditingBasicInfo={isEditingBasicInfo}
-                            productData={productData}
-                            removeTag={removeTag}
-                            addTag={addTag}
-                            tagSuggestions={tagSuggestionsState}
                             handleEditBasicInfo={handleEditBasicInfo}
-                            handleThumbnailUpload={handleThumbnailUpload}
-                            setBasicInfoForm={setBasicInfoForm}
                         />
 
                     <VariantsSection  

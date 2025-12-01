@@ -24,7 +24,8 @@ class Inventory extends Model
     }
 
     public function covers(){
-        return $this->belongsToMany(Cover::class , 'cover_inventory' , 'inventory_id' , 'cover_id');
+        return $this->belongsToMany(Cover::class , 'cover_inventory' , 'inventory_id' , 'cover_id')
+         ->withPivot('cover_id')->select("cover_inventory.cover_id" , 'covers.path') ; 
     }
 
 

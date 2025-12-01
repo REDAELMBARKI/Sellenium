@@ -4,7 +4,8 @@ import { Check, Edit2, X, Package } from "lucide-react";
 import { Tag } from '@/types/tagsTypes';
 import ProductInfoDisplay from './ProductInfoDisplay';
 import ProductInfoForm from '../SharedPartials/BasicInfoForm';
-import { ProductBasicInfoData } from '@/types/productsTypes';
+import { useEditProductDataCtx } from './../../../../../../contextHooks/editProductCtxHooks/useEditProductDataCtx';
+import { useEditProductUICtx } from '@/contextHooks/editProductCtxHooks/useEditProductUICtx';
 
 const currentTheme = {
   bg: '#ffffff',
@@ -16,33 +17,20 @@ const currentTheme = {
 };
 
 interface ProductInfoReadOnlyProps {
-  basicInfoForm: ProductBasicInfoData;
-  isEditingBasicInfo: boolean;
-  productData: ProductBasicInfoData;
-  setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductBasicInfoData>>;
-  handleThumbnailUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleEditBasicInfo: () => void;
   handleSaveBasicInfo?: () => void;
   handleCancelBasicInfo?: () => void;
-  removeTag: (tagId: string) => void;
-  addTag: (tag: Tag) => void;
-  tagSuggestions: Tag[];
 }
 
 const ProductBasicInfo: React.FC<ProductInfoReadOnlyProps> = ({
-  basicInfoForm,
-  isEditingBasicInfo,
-  productData,
-  setBasicInfoForm,
-  handleThumbnailUpload,
   handleEditBasicInfo,
   handleSaveBasicInfo,
   handleCancelBasicInfo,
-  removeTag,
-  addTag,
-  tagSuggestions
 }) => {
 
+
+  const {basicInfoForm ,  productData} =  useEditProductDataCtx()
+  const {isEditingBasicInfo} =  useEditProductUICtx()
 
   const handleCancelWithConfirmation = () => {
     const hasChanges = JSON.stringify(basicInfoForm) !== JSON.stringify(productData);
@@ -71,6 +59,11 @@ const ProductBasicInfo: React.FC<ProductInfoReadOnlyProps> = ({
     // handleCancelBasicInfo();
   };
 
+
+
+  
+   
+
   return (
     <div 
       className="rounded-2xl shadow-lg border transition-all duration-300 hover:shadow-xl"
@@ -93,6 +86,7 @@ const ProductBasicInfo: React.FC<ProductInfoReadOnlyProps> = ({
             Basic Information
           </h2>
         </div>
+
 
         {!isEditingBasicInfo ? (
           <Button
@@ -137,13 +131,6 @@ const ProductBasicInfo: React.FC<ProductInfoReadOnlyProps> = ({
       {/* Conditional rendering based on editing state */}
       {isEditingBasicInfo ? (
         <ProductInfoForm
-          basicInfoForm={basicInfoForm}
-          setBasicInfoForm={setBasicInfoForm}
-          handleThumbnailUpload={handleThumbnailUpload}
-          removeTag={removeTag}
-          addTag={addTag}
-          tagSuggestions={tagSuggestions}
-          productData={productData}
           handleCancelBasicInfo={handleCancelBasicInfo}
         />
       ) : (

@@ -1,9 +1,11 @@
+import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import LoadingBlankPage from "@/components/LoadingBlankPage";
 import { useEditProductDataCtx } from "@/contextHooks/editProductCtxHooks/useEditProductDataCtx";
 import { Color, Fit, Material, Size } from "@/types/inventoryTypes";
 import { Variant } from "@/types/productsTypes";
 import { Check, X, Upload, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { v4 as uuidByV4 } from "uuid";
 
 interface InventoryOptions {
     colors: Color[];
@@ -13,12 +15,11 @@ interface InventoryOptions {
 }
 
 interface VariantEditFormProps {
-    VariantForm: Variant;
+    VariantForm: Variant | null;
     inventoryOptions: InventoryOptions;
     onSave?: () => void;
     onCancel?: () => void;
-    onImageUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onRemoveImage?: (idx: number) => void;
+  
 }
 
 const currentTheme = {
@@ -32,13 +33,18 @@ const currentTheme = {
   borderHover: '#cbd5e1',
 };
 
+  interface ImageItem {
+  file: File;
+  url: string;
+  id : string
+}
+
 export const VariantEditForm = ({
     VariantForm,
     inventoryOptions,
     onSave,
     onCancel,
-    onImageUpload,
-    onRemoveImage,
+   
 }: VariantEditFormProps) => {
     // Prevent body scroll when modal is open
     useEffect(() => {
@@ -50,8 +56,26 @@ export const VariantEditForm = ({
     
     const  {setVariantForm , variantForm} = useEditProductDataCtx();
     const formRef = useRef<HTMLDivElement | null>(null)
-   
+    const [isFormLoading , setIsFormLoading] = useState(true)
+  
 
+    const [imageItemsFileWithPreviewUrl, setImageItemsFileWithPreviewUrl] = useState<ImageItem[]>([]);
+
+    //data loading 
+    useEffect(() => {
+           const isReady =
+    variantForm &&
+    variantForm.colors &&
+    variantForm.sizes &&
+    variantForm.fits &&
+    variantForm.materials &&
+    variantForm.quantity !== undefined;
+
+
+    if(isReady){
+        setTimeout(()=> setIsFormLoading(false) , 1000)
+    }
+    }, [variantForm]);
 
     const toggleVariantAttribute = <T extends Color | Size | Fit | Material>(
             key: "colors" | "sizes" | "fits" | "materials",
@@ -69,26 +93,53 @@ export const VariantEditForm = ({
                     : [...currentItems, item],
             });
         };
-   
-    const isReady =
-    variantForm &&
-    variantForm.colors &&
-    variantForm.sizes &&
-    variantForm.fits &&
-    variantForm.materials &&
-    variantForm.quantity !== undefined;
+    
+
+    
+    const onRemoveImage = (cover : string) => {
+        setVariantForm(prev => ({
+            ...prev , 
+            covers : prev?.covers.filter(c =>   c !== cover)
+        }))
+    }
+
+    const onRemovePreviewImage = (id : string) => {
+        setImageItemsFileWithPreviewUrl(prev => prev.filter(previewItem => previewItem.id !== id))
+    }
+
+    // uploads preview
+    useEffect(() => {
+        return () => {
+            imageItemsFileWithPreviewUrl.forEach(url => URL.revokeObjectURL(url))
+        }
+    }, [imageItemsFileWithPreviewUrl]);
+
+    const onImageUpload = (e : React.ChangeEvent<HTMLInputElement>) => {
+      // give it  a random iid\
+      const id = uuidByV4()
+      const file  = e.target.files?.[0] ;
+      if(!file)  return ;
+      const url = URL.createObjectURL(file);
+      setImageItemsFileWithPreviewUrl(prev => [...prev , {id ,url  , file}])
+       e.target.value = "";
+    }
+    // end of uploads preview 
+
+
 
     return (
-        <>
+        <> 
+           
+
             {/* Modal Backdrop with Blur */}
             <div  
                 ref={formRef}
                 className="fixed inset-0 z-[9999] flex items-center justify-center p-0 md:p-4 "
                 style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(8px)' }}
-                // onClick={onCancel}
+                onClick={onCancel}
             >    
 
-            {!isReady  ? <LoadingBlankPage  containerRef={formRef} /> :
+            {isFormLoading  ? <LoadingBlankPage  containerRef={formRef} /> :
                 
                 <div 
                     className="w-full sm:w-full   min-h-[100vh] overflow-y-auto rounded-2xl shadow-2xl"
@@ -103,20 +154,10 @@ export const VariantEditForm = ({
                             borderColor: currentTheme.border 
                         }}
                     >
-                        <div>
-                            <h3 className="text-xl font-bold" style={{ color: currentTheme.text }}>
-                                Edit Variant #number
-                            </h3>
-                            <p className="text-sm text-slate-500 mt-1">Update variant details and attributes</p>
-                        </div>
-
-                        <button
-                            onClick={onCancel}
-                            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                        >
-                            <X className="w-5 h-5" style={{ color: currentTheme.text }} />
-                        </button>
+                      
+                    <SectionHeader title="Edit Variant #number" description="Update variant details and attributes" />
                     </div>
+
 
                     {/* Form Content */}
                     <div className="p-6 space-y-6" 
@@ -128,6 +169,10 @@ export const VariantEditForm = ({
                                 Images
                             </label>
                             <div className="flex flex-wrap gap-3">
+
+                               
+
+                                 {/* real imags from backend */}
                                 {VariantForm?.covers?.map((img, idx) => (
                                     <div key={idx} className="relative w-24 h-24 group">
                                         <img
@@ -137,13 +182,30 @@ export const VariantEditForm = ({
                                             style={{ borderColor: currentTheme.border }}
                                         />
                                         <button
-                                            onClick={() => onRemoveImage?.(idx)}
+                                            onClick={() => onRemoveImage(img)}
                                             className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>
                                     </div>
                                 ))}
+
+                                 {/* only previews */}
+                                {imageItemsFileWithPreviewUrl.length > 0 && imageItemsFileWithPreviewUrl.map(p => 
+            
+                                    <div  key={p.id} className="relative w-24 h-24 group">
+                                        <img src={p.url} className="w-40 h-40 object-cover rounded-lg border-2" />
+                                        
+                                        <button
+                                            onClick={() => onRemovePreviewImage(p.id)}
+                                            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+            
+                                )}
+
                                 <label 
                                     className="w-24 h-24 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-slate-400 transition-colors"
                                     style={{ borderColor: currentTheme.border }}
@@ -152,7 +214,7 @@ export const VariantEditForm = ({
                                     <span className="text-xs text-slate-500">Upload</span>
                                     <input
                                         type="file"
-                                        accept="image/*"
+                                        // accept="image/*"
                                         onChange={onImageUpload}
                                         className="hidden"
                                     />

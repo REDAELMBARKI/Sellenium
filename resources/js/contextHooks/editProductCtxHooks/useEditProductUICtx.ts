@@ -1,6 +1,6 @@
 
 
-import { EditProductUIContext } from '@/context/editProductContext/editProductUiContext';
+import { EditProductUIContext } from '@/context/editProductContext/editProductUIContext';
 import { useContext } from 'react';
 
 

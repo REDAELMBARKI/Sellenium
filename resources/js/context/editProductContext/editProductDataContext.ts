@@ -11,8 +11,8 @@ interface EditProductDataContextProps {
     setProductData: React.Dispatch<React.SetStateAction<ProductDataGlobal>>
     inventoryOptionsState : InventoryOptions
     setInventoryOptionsState: React.Dispatch<React.SetStateAction<InventoryOptions>>
-    variantForm: Variant | null 
-    setVariantForm: React.Dispatch<React.SetStateAction<Variant | null>>
+    variantForm: Variant
+    setVariantForm: React.Dispatch<React.SetStateAction<Variant>>
     variantToDelete: number | null
     setVariantToDelete: React.Dispatch<React.SetStateAction<number | null>> 
     tagSuggestionsState: Tag[] 

@@ -47,8 +47,9 @@ class Product extends Model
 
     public function covers()
     {
-        return $this->hasManyThrough(Cover::class, Inventory::class, 'product_id', 'inventory_id', 'id', 'id');
-            // ->join('cover_inventory as cv', 'cv.cover_id', '=', 'covers.id');
+        return $this->hasManyThrough(Cover::class, Inventory::class, 'product_id', 'inventory_id', 'id', 'id')
+              ;
+              
     }
 
     public function promotion()

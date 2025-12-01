@@ -15,9 +15,7 @@ interface EditProductUIContextProps {
   deleteModalOpen: boolean
   setDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 
-  deleteConfirmText: string
-  setDeleteConfirmText: React.Dispatch<React.SetStateAction<string>>
-  
+
   showToast: boolean
   setShowToast: React.Dispatch<React.SetStateAction<boolean>>
 

@@ -1,7 +1,7 @@
 
+import { EditProductUIContext } from '@/context/editProductContext/editProductUIContext';
 import { useState } from 'react';
 
-import { EditProductUIContext } from '@/context/editProductContext/editProductUiContext';
 
 
 
@@ -19,13 +19,12 @@ const EditProductUIProvider = ({children}:{children:React.ReactNode}) => {
             );
            
             const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-            const [deleteConfirmText, setDeleteConfirmText] = useState("");
             const [showToast, setShowToast] = useState(false);
             const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
    
             return (
         <EditProductUIContext.Provider value={{isEditingBasicInfo, setIsEditingBasicInfo , editingVariantId, setEditingVariantId , 
-            deleteModalOpen, setDeleteModalOpen , deleteConfirmText, setDeleteConfirmText , showToast, setShowToast , 
+            deleteModalOpen, setDeleteModalOpen  , showToast, setShowToast , 
             hasUnsavedChanges, setHasUnsavedChanges
         }}>
          {children}
