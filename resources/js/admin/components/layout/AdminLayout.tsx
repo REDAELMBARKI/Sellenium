@@ -7,18 +7,21 @@ import { Header } from "./Header";
 import { AuthProvider } from "@/admin/context/AuthContext";
 import { ThemeProvider } from "@/admin/context/ThemeContext";
 import { Sidebar } from "./SideBar";
-import ToastContextProvider from "@/contextProvoders/ToastContextProvider";
+import ToastContextProvider from "@/contextProvoders/ToastProvider";
+import NicheProvider from "@/contextProvoders/NicheProvider";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
 
   return<>
-  <ThemeProvider>
-    <ToastContextProvider>
-      <AuthProvider>
-           <AdminLayoutContent children={children} />
-       </AuthProvider>
-      </ToastContextProvider>
-  </ThemeProvider>
+  <NicheProvider >
+    <ThemeProvider>
+      <ToastContextProvider>
+        <AuthProvider>
+            <AdminLayoutContent children={children} />
+        </AuthProvider>
+        </ToastContextProvider>
+    </ThemeProvider>
+  </NicheProvider>
   </>
 }
 

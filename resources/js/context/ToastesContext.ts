@@ -8,14 +8,16 @@ export interface ToastType {
   description?: string;
   action?: React.ReactNode;
   type?: "success" | "error" | "info";
-  duration?: number;
+  duration?: number; 
+
 }
 
 
 export interface ToastContextType {
   toasts: ToastType[];
   addToast: (toast: ToastType) => void;
-  removeToast: (id: string) => void;
+  removeToast: (id: string) => void; 
+    toastContainerRef : React.RefObject<HTMLDivElement |null>
 }
 
 export const ToastContext = createContext<ToastContextType>(null!);

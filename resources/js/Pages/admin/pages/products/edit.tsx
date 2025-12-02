@@ -14,6 +14,9 @@ import EditProductUIProvider from "@/contextProvoders/editProductProviders/editP
 import { useEditProductDataCtx } from "@/contextHooks/editProductCtxHooks/useEditProductDataCtx";
 import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditProductUICtx";
 import { VariantsSection } from "./compos/SharedPartials/VariantsSection";
+import { ToasterNative } from "@/components/ui/ToasterNative";
+import { useToasts } from "@/contextHooks/useToasts";
+import { useNicheCtx } from './../../../../contextHooks/useNicheCtx';
 
 
 const variants : Variant[] = [
@@ -89,7 +92,8 @@ const variants : Variant[] = [
 ];
 
 export default  function Edit({product , inventoryOptions , tagSuggestions}:EditProductBackendProps){
-   
+   const {currentNiche}  = useNicheCtx()
+   console.log(currentNiche)
    return ( 
                 <EditProductDataProvider  product={product} inventoryOptions={inventoryOptions}  tagSuggestions={tagSuggestions}>
                         <EditProductUIProvider>
@@ -108,6 +112,7 @@ function EditContent() {
 
     const  {basicInfoForm  , setBasicInfoForm , productData , setProductData , tagSuggestionsState, setTagSuggestionsState ,inventoryOptionsState ,  setInventoryOptionsState ,  setVariantForm , setVariantToDelete} = useEditProductDataCtx()
     const  {hasUnsavedChanges , showToast , isEditingBasicInfo  , deleteModalOpen, setShowToast ,  setIsEditingBasicInfo , setHasUnsavedChanges , setEditingVariantId  , setDeleteModalOpen , } = useEditProductUICtx()
+    const {toastContainerRef} =  useToasts()
 
     useEffect(() => {
         if (hasUnsavedChanges && !showToast) {
@@ -115,9 +120,6 @@ function EditContent() {
         }
     }, [hasUnsavedChanges, showToast]);
 
-
-   
- 
 
     const handleSaveAllChanges = () => {
         console.log("Saving all changes:", productData);
@@ -134,12 +136,9 @@ function EditContent() {
     return (
         <>
             {showToast && hasUnsavedChanges && (
-                <UnsavedChangesToast
-                    message="Changes unsaved"
-                    onClose={() => setShowToast(false)}
-                />
+                <ToasterNative />
             )}
-            <div className="min-h-screen bg-slate-50 py-8 px-6">
+            <div ref={toastContainerRef} className="relative min-h-screen bg-slate-50 py-8 px-6">
                 <div className="max-w-6xl mx-auto">
                     {/* hehader */}
                     <SectionHeader

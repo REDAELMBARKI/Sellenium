@@ -11,8 +11,8 @@ interface EditProductDataContextProps {
     setProductData: React.Dispatch<React.SetStateAction<ProductDataGlobal>>
     inventoryOptionsState : InventoryOptions
     setInventoryOptionsState: React.Dispatch<React.SetStateAction<InventoryOptions>>
-    variantForm: Variant
-    setVariantForm: React.Dispatch<React.SetStateAction<Variant>>
+    variantForm: Variant | null 
+    setVariantForm: React.Dispatch<React.SetStateAction<Variant | null>>
     variantToDelete: number | null
     setVariantToDelete: React.Dispatch<React.SetStateAction<number | null>> 
     tagSuggestionsState: Tag[] 
@@ -20,6 +20,9 @@ interface EditProductDataContextProps {
 
      basicInfoForm: ProductBasicInfoData 
      setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductBasicInfoData>>
-}
+
+    variants :Variant[] , 
+    setVariants : React.Dispatch<React.SetStateAction<Variant[]>>
+    }
 
 export const EditProductDataContext = createContext<EditProductDataContextProps |undefined>(undefined)

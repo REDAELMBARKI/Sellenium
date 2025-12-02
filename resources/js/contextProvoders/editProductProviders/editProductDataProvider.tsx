@@ -13,6 +13,7 @@ import { EditProductBackendProps, ProductBasicInfoData, ProductDataGlobal, Varia
 
 
 
+
 const EditProductDataProvider = ({children , product , inventoryOptions , tagSuggestions }:EditProductBackendProps) => {
         // backend data
         const [productData, setProductData] = useState<ProductDataGlobal>(product);
@@ -21,14 +22,14 @@ const EditProductDataProvider = ({children , product , inventoryOptions , tagSug
         const [tagSuggestionsState, setTagSuggestionsState] =
             useState<Tag[]>(tagSuggestions);
 
- 
-   
+        const [variants , setVariants] =  useState<Variant[]>([])   
         const [variantForm, setVariantForm] = useState<Variant | null>(null);
         const [variantToDelete, setVariantToDelete] = useState<number | null>(null);
         const [basicInfoForm, setBasicInfoForm] = useState<ProductBasicInfoData>({
                    id: product.id ,
                    name: product.name,
                    brand: product.brand,
+                   rating_average : product.rating_average ,
                    price: product.price,
                    description: product.description,
                    category: product.category,
@@ -42,7 +43,8 @@ const EditProductDataProvider = ({children , product , inventoryOptions , tagSug
 
         return (
         <EditProductDataContext.Provider value={{basicInfoForm, setBasicInfoForm , productData, setProductData , inventoryOptionsState, setInventoryOptionsState , 
-             variantForm, setVariantForm , 
+            variants , setVariants , 
+            variantForm, setVariantForm , 
             tagSuggestionsState, setTagSuggestionsState , 
             variantToDelete, setVariantToDelete
         }}>

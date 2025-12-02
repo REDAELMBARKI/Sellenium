@@ -27,6 +27,7 @@ export interface ProductBasicInfoData {
   category: string | string[];
   gender: string | string[];
   description: string;
+  rating_average : number ,
   thumbnail: string;
   tags: Tag[];
   isFeatured: boolean;
@@ -36,7 +37,7 @@ export interface ProductBasicInfoData {
 
 export interface ProductDataGlobal extends ProductBasicInfoData {
 
-    variants?: Variant[];
+    inventories?: Variant[];
 }
 
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Edit2, X, Package } from "lucide-react";
 import { Tag } from '@/types/tagsTypes';
@@ -22,10 +22,9 @@ const currentTheme = {
 
 
 const ProductBasicInfo: React.FC = () => {
-
-
   const {basicInfoForm ,  productData ,  setProductData ,  setBasicInfoForm} =  useEditProductDataCtx()
-  const {isEditingBasicInfo , setIsEditingBasicInfo , setHasUnsavedChanges } =  useEditProductUICtx()
+  const {isEditingBasicInfo , setIsEditingBasicInfo , setHasUnsavedChanges  , hasUnsavedChanges} =  useEditProductUICtx() 
+  const toastChangedUnsavedMoundRef =  useRef<boolean>(false) ;
   const {addToast} =  useToasts()
   
     const handleEditBasicInfo = () => {
@@ -35,6 +34,7 @@ const ProductBasicInfo: React.FC = () => {
         setBasicInfoForm({
             name: productData.name,
             brand: productData.brand,
+            rating_average : productData.rating_average ,
             price: productData.price,
             description: productData.description,
             category: productData.category,
@@ -46,7 +46,7 @@ const ProductBasicInfo: React.FC = () => {
         });
     };
 
-
+   
    const handleSaveBasicInfo = () => {
           setProductData({
               ...productData,
@@ -72,28 +72,53 @@ const ProductBasicInfo: React.FC = () => {
               tags: productData.tags,
           });
       };
+
+
+
   
   const handleCancelWithConfirmation = () => {
-    const hasChanges = JSON.stringify(basicInfoForm) !== JSON.stringify(productData);
     
-    if (hasChanges) {
-      addToast({
-         title : 'unsaved changes' , 
-         description : "your new  changes will be forgotten " ,
-         duration : 6000 , 
-         type :"success"
-      })
-      const confirmed = window.confirm('You have unsaved changes. Are you sure you want to cancel?');
-      if (!confirmed) return;
-    }
-    
+    if(!hasUnsavedChanges) {
+      handleCancelBasicInfo()
+      return ;
+    };
+    const confirmed = window.confirm('You have unsaved changes. Are you sure you want to cancel?');
+    if (!confirmed) return;
     handleCancelBasicInfo();
   };
 
+   
 
+  // toest should be fixed when the full data is arived form backend
+  // chnages checkker 
+  useEffect(() => {
+     // destrictor basic info form data from prroduct data 
+    const {inventories   , ...basicInfoData} = productData;
+     const hasChanges  = JSON.stringify(basicInfoData) !== JSON.stringify(basicInfoForm) 
+     setHasUnsavedChanges(hasChanges)
+
+  }, [basicInfoForm]);
+
+  // toast trigger inn the first moount of the form if there are changes 
+  useEffect(() => {
+     if(toastChangedUnsavedMoundRef.current) return ;
+     if(!toastChangedUnsavedMoundRef.current && isEditingBasicInfo && hasUnsavedChanges){
+       addToast({
+          title : "there are unsaved changes " , 
+          description : "the changes should be saved or they would be forgotten " , 
+          type : "info" , 
+          duration : 100000 
+
+       })
+     }  
+  
+    toastChangedUnsavedMoundRef.current = true ;
+
+  }, [basicInfoForm]);
 
   
-   
+
+
 
   return (
     <div 
@@ -133,25 +158,25 @@ const ProductBasicInfo: React.FC = () => {
           </Button>
         ) : (
           <div className="flex gap-3">
-            <Button
-              onClick={handleSaveBasicInfo}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-md"
-              style={{ 
-                backgroundColor: currentTheme.buttonPrimary,
-                color: '#ffffff'
-              }}
-            >
-              <Check className="w-4 h-4" />
-              Save
-            </Button>
-            <Button
-              onClick={handleCancelWithConfirmation}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105"
-              style={{ 
-                backgroundColor: currentTheme.buttonSecondary,
-                color: currentTheme.text
-              }}
-            >
+              <Button
+                onClick={handleSaveBasicInfo}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-md"
+                style={{ 
+                  backgroundColor: currentTheme.buttonPrimary,
+                  color: '#ffffff'
+                }}
+              >
+                <Check className="w-4 h-4" />
+                Save
+              </Button>
+              <Button
+                onClick={handleCancelWithConfirmation}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105"
+                style={{ 
+                  backgroundColor: currentTheme.buttonSecondary,
+                  color: currentTheme.text
+                }}
+              >
               <X className="w-4 h-4" />
               Cancel
             </Button>

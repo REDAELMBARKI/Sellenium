@@ -1,13 +1,13 @@
 import { ToastContext, ToastType } from "@/context/ToastesContext";
-import {  useState } from "react";
+import {  useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 
 
 
-const ToastContextProvider = ({children}:{children : React.ReactNode}) => {
-         const [toasts ,  setToasts] = useState<ToastType[]>([]);
-
+const ToastProvider = ({children}:{children : React.ReactNode}) => {
+        const [toasts ,  setToasts] = useState<ToastType[]>([]);
+        const toastContainerRef = useRef<HTMLDivElement|null>(null)
         const addToast: (toast: ToastType) => void = (toast: ToastType) => {
                 const id = uuidv4();
                 setToasts(prev => [...prev , {...toast , id}])
@@ -25,13 +25,13 @@ const ToastContextProvider = ({children}:{children : React.ReactNode}) => {
         }
 
         return (
-            <ToastContext.Provider value={{toasts ,  addToast , removeToast}}>
-        {children}
-     </ToastContext.Provider>
+            <ToastContext.Provider value={{toasts ,  addToast , removeToast , toastContainerRef}}>
+               {children}
+            </ToastContext.Provider>
         )
 }
 
 
  ;
 
-export default ToastContextProvider
+export default ToastProvider
