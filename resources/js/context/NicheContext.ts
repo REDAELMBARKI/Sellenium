@@ -1,9 +1,7 @@
 import React, { createContext } from "react";
 
-export interface NicheItem {
-        id : string | number , 
-        name : "default" | "fashion" | "parfumes" | "electornics"
-}
+export type NicheItem =  "default" | "fashion" | "parfumes" | "electronics"
+
 
 interface NicheType {
     currentNiche  : NicheItem

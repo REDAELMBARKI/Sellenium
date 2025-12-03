@@ -1,13 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Edit2, X, Package } from "lucide-react";
-import { Tag } from '@/types/tagsTypes';
 import ProductInfoDisplay from './ProductInfoDisplay';
 import ProductInfoForm from '../SharedPartials/BasicInfoForm';
 import { useEditProductDataCtx } from './../../../../../../contextHooks/editProductCtxHooks/useEditProductDataCtx';
 import { useEditProductUICtx } from '@/contextHooks/editProductCtxHooks/useEditProductUICtx';
 import { useToasts } from '@/contextHooks/useToasts';
 import { ToasterNative } from '@/components/ui/ToasterNative';
+import { NicheContext } from '@/context/NicheContext';
+import { useNicheCtx } from '@/contextHooks/useNicheCtx';
 
 
 const currentTheme = {
@@ -26,7 +27,7 @@ const ProductBasicInfo: React.FC = () => {
   const {isEditingBasicInfo , setIsEditingBasicInfo , setHasUnsavedChanges  , hasUnsavedChanges} =  useEditProductUICtx() 
   const toastChangedUnsavedMoundRef =  useRef<boolean>(false) ;
   const {addToast} =  useToasts()
-  
+
     const handleEditBasicInfo = () => {
         setIsEditingBasicInfo(true);
 
@@ -66,16 +67,14 @@ const ProductBasicInfo: React.FC = () => {
               description: productData.description,
               category: productData.category,
               gender: productData.gender,
+              rating_average : productData.rating_average , 
               isFeatured: productData.isFeatured,
               free_shipping: productData.free_shipping,
               thumbnail: productData.thumbnail,
               tags: productData.tags,
           });
       };
-
-
-
-  
+ 
   const handleCancelWithConfirmation = () => {
     
     if(!hasUnsavedChanges) {

@@ -1,13 +1,9 @@
 import React, { useEffect } from "react";
-import UnsavedChangesToast from "@/components/editProductPartials/UnsavedChangesToast";
 import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
-import SelectByRadix from "@/components/ui/SelectByRadix";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
-import EmptyListSection from "@/admin/components/partials/EmptyListSection";
 import { EditProductBackendProps, ProductBasicInfoData, ProductDataGlobal, Variant } from "@/types/productsTypes";
-import { Tag } from "@/types/tagsTypes";
 import ProductBasicInfo from "./compos/editPartials/ProductBasicInfo";
 import EditProductDataProvider from "@/contextProvoders/editProductProviders/editProductDataProvider";
 import EditProductUIProvider from "@/contextProvoders/editProductProviders/editProductUIProvider";
@@ -93,7 +89,6 @@ const variants : Variant[] = [
 
 export default  function Edit({product , inventoryOptions , tagSuggestions}:EditProductBackendProps){
    const {currentNiche}  = useNicheCtx()
-   console.log(currentNiche)
    return ( 
                 <EditProductDataProvider  product={product} inventoryOptions={inventoryOptions}  tagSuggestions={tagSuggestions}>
                         <EditProductUIProvider>
@@ -113,7 +108,7 @@ function EditContent() {
     const  {basicInfoForm  , setBasicInfoForm , productData , setProductData , tagSuggestionsState, setTagSuggestionsState ,inventoryOptionsState ,  setInventoryOptionsState ,  setVariantForm , setVariantToDelete} = useEditProductDataCtx()
     const  {hasUnsavedChanges , showToast , isEditingBasicInfo  , deleteModalOpen, setShowToast ,  setIsEditingBasicInfo , setHasUnsavedChanges , setEditingVariantId  , setDeleteModalOpen , } = useEditProductUICtx()
     const {toastContainerRef} =  useToasts()
-
+    
     useEffect(() => {
         if (hasUnsavedChanges && !showToast) {
             setShowToast(true);

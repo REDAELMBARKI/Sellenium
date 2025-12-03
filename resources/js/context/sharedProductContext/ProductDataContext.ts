@@ -1,12 +1,9 @@
-import { InventoryOptions } from "@/types/inventoryTypes";
-import {  ProductBasicInfoData, ProductDataGlobal, Variant } from "@/types/productsTypes";
-import { Tag } from "@/types/tagsTypes";
-import React, { createContext } from "react";
+import { ProductDataGlobal } from "@/types/productsTypes"
+import { createContext } from "react"
 
 
 
-
-interface EditProductDataContextProps {
+interface ProductDataContextProps {
     productData: ProductDataGlobal
     setProductData: React.Dispatch<React.SetStateAction<ProductDataGlobal>>
     inventoryOptionsState : InventoryOptions
@@ -17,10 +14,9 @@ interface EditProductDataContextProps {
     setVariantToDelete: React.Dispatch<React.SetStateAction<number | null>> 
     tagSuggestionsState: Tag[] 
     setTagSuggestionsState: React.Dispatch<React.SetStateAction<Tag[] >>
-
     basicInfoForm: ProductBasicInfoData 
     setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductBasicInfoData>>
 
     }
 
-export const EditProductDataContext = createContext<EditProductDataContextProps |undefined>(undefined)
+export const ProductDataContext = createContext<ProductDataContextProps |undefined>(undefined)
