@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useEditProductActions } from '../../Productshooks/editActionsHook';
 import { Tag as TagType  } from '@/types/tagsTypes';
 import { ProductBasicInfoData } from '@/types/productsTypes';
-import { useEditProductDataCtx } from '@/contextHooks/editProductCtxHooks/useEditProductDataCtx';
+import { useEditProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
 import { TagSuggestion } from './../../../../../../types/tagsTypes';
 import { P } from 'node_modules/framer-motion/dist/types.d-BJcRxCew';
 import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown';

@@ -2,7 +2,7 @@ import { Edit2, Trash2, Package } from "lucide-react";
 import { useState } from "react";
 import { VariantEditForm } from "./VariantEditForm";
 import { Variant } from "@/types/productsTypes";
-import { useEditProductDataCtx } from "@/contextHooks/editProductCtxHooks/useEditProductDataCtx";
+import { useEditProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { currentTheme } from "@/data/currentTheme";
 import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditProductUICtx";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";

@@ -3,7 +3,7 @@ import { RefObject } from "react";
 // Base types
 export interface Color {
     id: number;
-    name: string;
+    name?: string;
     hex: string;
 }
 

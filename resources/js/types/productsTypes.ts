@@ -4,7 +4,7 @@ import { Tag } from "./tagsTypes";
 
 export interface ProductBackendProps {
     children : React.ReactNode ;
-    product: ProductDataGlobal;
+    product?: ProductDataGlobal;
     inventoryOptions: InventoryOptions
     tagSuggestions: Tag[];
 }
@@ -20,11 +20,15 @@ export interface Variant {
 }
 
 
+
+
 export interface ProductBasicInfoData { 
-  id?: number;
+  id?: number | null;
   name: string;
   brand: string;
   price: string;
+  compareAtPrice?: string;    // optional, original price
+  costPrice?: string;  
   category: string | string[];
   gender?: string | string[];
   description: string;
@@ -36,39 +40,74 @@ export interface ProductBasicInfoData {
 }
 
 
+export interface ParfumeVariant {
+  id: string | number;        // unique variant ID
+  concentration: "EDT" | "EDP" | "Parfum" | "Cologne";
+  volume_ml: number;          // bottle size in ml
+  quantity: number;           // stock
+  fragranceFamily: "fresh" | "woody" | "oriental" | "floral" | "aromatic";
+  notes: string[];            // e.g., ["Citrus","Vanilla"]
+}
+
+export interface FashionVariant {
+  color: Color;
+  coverImage: string;
+  sizes: Size[];
+  fits: Fit[];
+  materials: Material[];           // e.g., ["Cotton", "Polyester"]
+  fabricType?: string[];         // optional, e.g., ["Denim", "Wool"]
+  quantity: Record<string, number>; // size => stock
+}
+
+export interface ElectronicsVariant {
+  id: string | number;        // unique variant ID
+  color: Color;          // optional if devices have color variants
+  storage?: string;            // e.g., "128GB", "256GB"
+  warrantyMonths?: number;
+  quantity: number;            // stock
+  connectivity?: string[];     // e.g., ["Bluetooth","WiFi"]
+  voltage?: string;            // e.g., "220V"
+  batteryLife?: string;        // "10h"
+}
+
+
 export interface FashionFields {
-  sizes: string[];           // ["S", "M", "L"]
-  materials: string[];       // ["Cotton", "Leather"]
-  colors: string[];          // ["Black", "White"]
-  fit: "regular" | "slim" | "oversized" | "loose";
-  fabricType?: string;       // Optional: Denim / Wool / Knit
+  sizes: Size[];
+  materials: Material[];
+  colors: Color[];
+  fits: Fit[];
+  fabricType?: string[];
   gender?: "men" | "women" | "unisex";
 }
+
 export interface ParfumesFields {
   concentration: "EDT" | "EDP" | "Parfum" | "Cologne";
-  notes: string[];               // ["Citrus", "Vanilla", "Rose"]
-  longevity: number;             // hours (1–12)
+  notes: string[];
+  longevity: number;
   sillage: "soft" | "moderate" | "strong";
-  volume_ml: number;             // bottle size in ml
+  volume_ml: number;
   fragranceFamily: "fresh" | "woody" | "oriental" | "floral" | "aromatic";
 }
 
 export interface ElectronicsFields {
-  brandModel?: string;           // e.g., "iPhone 14 Pro Max"
-  batteryLife?: string;          // "10h", "24h standby"
-  voltage?: string;              // "220V", "110V"
-  warrantyMonths?: number;       // 0–36
-  dimensions?: string;           // "140 x 70 x 8 mm"
-  weightGrams?: number;          // 500
-  connectivity?: string[];       // ["Bluetooth", "WiFi", "5G"]
-  powerConsumption?: string;     // "65W"
+  brandModel?: string;
+  batteryLife?: string;
+  voltage?: string;
+  warrantyMonths?: number;
+  dimensions?: string;
+  weightGrams?: number;
+  connectivity?: string[];
+  powerConsumption?: string;
 }
 
 export interface ProductDataGlobal  extends ProductBasicInfoData{
+  fashionFields?: FashionFields,
+  parfumesFields?: ParfumesFields,
+  electronicsFields?: ElectronicsFields,
   // niche-specific fields (optional)
-  fashion?: FashionFields;
-  parfumes?: ParfumesFields;
-  electronics?: ElectronicsFields;
+  fashionVariants?: FashionVariant[];
+  parfumesVariants?: ParfumeVariant[];
+  electronicsVariants?: ElectronicsVariant[];
 }
 
 

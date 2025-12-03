@@ -1,34 +1,57 @@
 
 import { useState } from 'react';
-import { EditProductDataContext } from './../../context/editProductContext/editProductDataContext';
-import { InventoryOptions,  } from '@/types/inventoryTypes';
-import { Tag } from '@/types/tagsTypes';
-import {ProductBackendProps, ProductBasicInfoData, ProductDataGlobal, Variant } from '@/types/productsTypes';
+import { ProductDataContext } from '@/context/sharedProductContext/ProductDataContext';
+import { ElectronicsVariant, FashionVariant, ParfumeVariant, ProductBackendProps, ProductDataGlobal } from '@/types/productsTypes';
+import { useNicheCtx } from '@/contextHooks/useNicheCtx';
 
 
 
 
 
- 
 
 
 
 
-const ProductDataProvider = ({children , product , inventoryOptions , tagSuggestions }:ProductBackendProps) => {
-        // backend data
-        const [productData, setProductData] = useState<ProductDataGlobal>(product);
 
-        const [inventoryOptionsState, setInventoryOptionsState] =
-            useState<InventoryOptions>(inventoryOptions);
-        const [tagSuggestionsState, setTagSuggestionsState] =
-            useState<Tag[]>(tagSuggestions);
+const ProductDataProvider = ({children ,product , inventoryOptions , tagSuggestions }:ProductBackendProps) => {
+     const {currentNiche} = useNicheCtx()
+      const initialData: ProductDataGlobal = product ?? {
+        id: undefined,
+        name: "",
+        brand: "",
+        price: "",
+        compareAtPrice: "",
+        costPrice: "",
+        category: [],
+        gender: [],
+        description: "",
+        rating_average: undefined,
+        thumbnail: "",
+        tags: [],
+        isFeatured: false,
+        niche: currentNiche ?? "fashion",         
+        // optional niche fields
+        fashionFields: undefined,
+        parfumesFields: undefined,
+        electronicsFields: undefined,
+        // variants
+        fashionVariants: [] as FashionVariant[] ,
+        parfumesVariants: [] as ParfumeVariant[],
+        electronicsVariants: [] as ElectronicsVariant[]
+    };
 
-        return (
-        <EditProductDataContext.Provider value={{ productData, setProductData , inventoryOptionsState, setInventoryOptionsState , 
-            tagSuggestionsState, setTagSuggestionsState , 
-        }}>
-         {children}
-        </EditProductDataContext.Provider>
+    const [productData, setProductData] = useState<ProductDataGlobal>(() => initialData);
+   const [inventoryOptionsState, setInventoryOptionsState] = useState(inventoryOptions);
+    const [tagSuggestionsState, setTagSuggestionsState] = useState(tagSuggestions);
+
+    return (
+    <ProductDataContext.Provider value={{
+        productData, setProductData , 
+        inventoryOptionsState, setInventoryOptionsState ,
+        tagSuggestionsState, setTagSuggestionsState
+    }}>
+        {children}
+    </ProductDataContext.Provider>
     )
 }
 

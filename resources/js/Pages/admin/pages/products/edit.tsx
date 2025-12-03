@@ -3,16 +3,15 @@ import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
-import { EditProductBackendProps, ProductBasicInfoData, ProductDataGlobal, Variant } from "@/types/productsTypes";
+import {  ProductBackendProps, Variant } from "@/types/productsTypes";
 import ProductBasicInfo from "./compos/editPartials/ProductBasicInfo";
-import EditProductDataProvider from "@/contextProvoders/editProductProviders/editProductDataProvider";
 import EditProductUIProvider from "@/contextProvoders/editProductProviders/editProductUIProvider";
-import { useEditProductDataCtx } from "@/contextHooks/editProductCtxHooks/useEditProductDataCtx";
 import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditProductUICtx";
 import { VariantsSection } from "./compos/SharedPartials/VariantsSection";
 import { ToasterNative } from "@/components/ui/ToasterNative";
 import { useToasts } from "@/contextHooks/useToasts";
-import { useNicheCtx } from './../../../../contextHooks/useNicheCtx';
+import ProductDataProvider from "@/contextProvoders/sharedProviders/ProductDataProvider";
+import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 
 
 const variants : Variant[] = [
@@ -87,14 +86,17 @@ const variants : Variant[] = [
   }
 ];
 
-export default  function Edit({product , inventoryOptions , tagSuggestions}:EditProductBackendProps){
-   const {currentNiche}  = useNicheCtx()
-   return ( 
-                <EditProductDataProvider  product={product} inventoryOptions={inventoryOptions}  tagSuggestions={tagSuggestions}>
+export default  function Edit({product , inventoryOptions , tagSuggestions}:ProductBackendProps){
+
+   return (      
+                <ProductDataProvider product={product} inventoryOptions={inventoryOptions}  tagSuggestions={tagSuggestions}>
+              
                         <EditProductUIProvider>
                                     <EditContent/>
                         </EditProductUIProvider>
-                </EditProductDataProvider>
+            
+                </ProductDataProvider>
+                
         
     )
 }
@@ -105,7 +107,7 @@ Edit.layout = (page: any) => <AdminLayout children={page} />;
 
 function EditContent() {
 
-    const  {basicInfoForm  , setBasicInfoForm , productData , setProductData , tagSuggestionsState, setTagSuggestionsState ,inventoryOptionsState ,  setInventoryOptionsState ,  setVariantForm , setVariantToDelete} = useEditProductDataCtx()
+    const  { productData } = useProductDataCtx()
     const  {hasUnsavedChanges , showToast , isEditingBasicInfo  , deleteModalOpen, setShowToast ,  setIsEditingBasicInfo , setHasUnsavedChanges , setEditingVariantId  , setDeleteModalOpen , } = useEditProductUICtx()
     const {toastContainerRef} =  useToasts()
     

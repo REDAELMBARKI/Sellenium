@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Edit2, X, Package } from "lucide-react";
 import ProductInfoDisplay from './ProductInfoDisplay';
 import ProductInfoForm from '../SharedPartials/BasicInfoForm';
-import { useEditProductDataCtx } from './../../../../../../contextHooks/editProductCtxHooks/useEditProductDataCtx';
+import { useEditProductDataCtx } from '../../../../../../contextHooks/sharedhooks/useProductDataCtx';
 import { useEditProductUICtx } from '@/contextHooks/editProductCtxHooks/useEditProductUICtx';
 import { useToasts } from '@/contextHooks/useToasts';
 import { ToasterNative } from '@/components/ui/ToasterNative';

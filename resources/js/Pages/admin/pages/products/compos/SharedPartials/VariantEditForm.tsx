@@ -1,6 +1,6 @@
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import LoadingBlankPage from "@/components/LoadingBlankPage";
-import { useEditProductDataCtx } from "@/contextHooks/editProductCtxHooks/useEditProductDataCtx";
+import { useEditProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { Color, Fit, Material, Size } from "@/types/inventoryTypes";
 import { Variant } from "@/types/productsTypes";
 import { Check, X, Upload, Trash2 } from "lucide-react";
