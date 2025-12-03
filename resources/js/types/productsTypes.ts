@@ -1,7 +1,8 @@
+import { NicheItem } from "@/context/NicheContext";
 import { Color, Fit, InventoryItem, InventoryOptions, Material, Size } from "./inventoryTypes";
 import { Tag } from "./tagsTypes";
 
-export interface EditProductBackendProps {
+export interface ProductBackendProps {
     children : React.ReactNode ;
     product: ProductDataGlobal;
     inventoryOptions: InventoryOptions
@@ -9,7 +10,7 @@ export interface EditProductBackendProps {
 }
 
 export interface Variant {
-    id: number;
+    id?: number;
     colors: Color[];
     sizes: Size[];
     fits: Fit[];
@@ -25,20 +26,52 @@ export interface ProductBasicInfoData {
   brand: string;
   price: string;
   category: string | string[];
-  gender: string | string[];
+  gender?: string | string[];
   description: string;
-  rating_average : number ,
+  rating_average?: number ,
   thumbnail: string;
   tags: Tag[];
-  isFeatured: boolean;
-  free_shipping: boolean;
+  isFeatured?: boolean;
+  niche: NicheItem;
 }
 
 
-export interface ProductDataGlobal extends ProductBasicInfoData {
-
-    inventories?: Variant[];
+export interface FashionFields {
+  sizes: string[];           // ["S", "M", "L"]
+  materials: string[];       // ["Cotton", "Leather"]
+  colors: string[];          // ["Black", "White"]
+  fit: "regular" | "slim" | "oversized" | "loose";
+  fabricType?: string;       // Optional: Denim / Wool / Knit
+  gender?: "men" | "women" | "unisex";
 }
+export interface ParfumesFields {
+  concentration: "EDT" | "EDP" | "Parfum" | "Cologne";
+  notes: string[];               // ["Citrus", "Vanilla", "Rose"]
+  longevity: number;             // hours (1–12)
+  sillage: "soft" | "moderate" | "strong";
+  volume_ml: number;             // bottle size in ml
+  fragranceFamily: "fresh" | "woody" | "oriental" | "floral" | "aromatic";
+}
+
+export interface ElectronicsFields {
+  brandModel?: string;           // e.g., "iPhone 14 Pro Max"
+  batteryLife?: string;          // "10h", "24h standby"
+  voltage?: string;              // "220V", "110V"
+  warrantyMonths?: number;       // 0–36
+  dimensions?: string;           // "140 x 70 x 8 mm"
+  weightGrams?: number;          // 500
+  connectivity?: string[];       // ["Bluetooth", "WiFi", "5G"]
+  powerConsumption?: string;     // "65W"
+}
+
+export interface ProductDataGlobal  extends ProductBasicInfoData{
+  // niche-specific fields (optional)
+  fashion?: FashionFields;
+  parfumes?: ParfumesFields;
+  electronics?: ElectronicsFields;
+}
+
+
 
 
 
