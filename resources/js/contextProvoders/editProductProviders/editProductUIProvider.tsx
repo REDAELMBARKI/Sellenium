@@ -21,9 +21,10 @@ const EditProductUIProvider = ({children}:{children:React.ReactNode}) => {
             const [deleteModalOpen, setDeleteModalOpen] = useState(false);
             const [showToast, setShowToast] = useState(false);
             const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-   
+            
+            const [deleteConfirmText , setDeleteConfirmText] =  useState<string>("")
             return (
-        <EditProductUIContext.Provider value={{isEditingBasicInfo, setIsEditingBasicInfo , editingVariantId, setEditingVariantId , 
+        <EditProductUIContext.Provider value={{deleteConfirmText , setDeleteConfirmText , isEditingBasicInfo, setIsEditingBasicInfo , editingVariantId, setEditingVariantId , 
             deleteModalOpen, setDeleteModalOpen  , showToast, setShowToast , 
             hasUnsavedChanges, setHasUnsavedChanges
         }}>

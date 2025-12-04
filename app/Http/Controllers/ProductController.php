@@ -233,7 +233,7 @@ class ProductController extends Controller
     public function edit(){ 
         $product =  Product::with('tags')-> find(1) ;
         
-      $product['category'] = ['pants', 'jeans'];
+        $product['category'] = ['pants', 'jeans'];
         $product['gender']   = ['man', 'female'];
 
         $colors = Color::select('id', 'hex')->distinct()->get();

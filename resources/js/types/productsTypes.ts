@@ -1,7 +1,7 @@
 import { NicheItem } from "@/context/NicheContext";
-import { Color, Fit , InventoryOptions, Material, Size } from "./inventoryTypes";
+import { Color, Cover, Fit , InventoryOptions, Material, Size } from "./inventoryTypes";
 import { Tag } from "./tagsTypes";
-
+import { nichesOptions } from '../data/nichesOptions';
 export interface ProductBackendProps {
     children : React.ReactNode ;
     product?: ProductDataGlobal;
@@ -38,6 +38,7 @@ export interface ParfumeAttributes {
 }
 
 export interface ParfumeVariant {
+  niche : "parfumes",
   id :string 
   attributes : ParfumeAttributes
   quantity : number
@@ -45,14 +46,15 @@ export interface ParfumeVariant {
 
 
 export interface FashionAttributes {
-  color: Color;
-  coverImage: string;
+  color: Color[];
+  covers: Cover[];
   sizes: Size[];
   fits: Fit[];
   materials: Material[];           // e.g., ["Cotton", "Polyester"]
   fabricType?: string[];         // optional, e.g., ["Denim", "Wool"]
 }
 export interface FashionVariant {
+  niche : "fashion",
   id :string 
   attributes : FashionAttributes
   quantity : number
@@ -60,7 +62,7 @@ export interface FashionVariant {
 
 
 export interface ElectronicsAttributes {
-  color: Color;          // optional if devices have color variants
+  color: Color[];          // optional if devices have color variants
   storage?: string;            // e.g., "128GB", "256GB"
   warrantyMonths?: number;
   quantity: number;            // stock
@@ -70,6 +72,7 @@ export interface ElectronicsAttributes {
 }
 
 export interface ElectronicsVariant {
+  niche : "electronics",
   id :string 
   attributes : ElectronicsAttributes
   quantity : number
@@ -80,6 +83,7 @@ export interface FashionFields {
   sizes: Size[];
   materials: Material[];
   colors: Color[];
+  covers: Cover[] , 
   fits: Fit[];
   fabricType?: string[];
   gender?: "men" | "women" | "unisex";
@@ -119,6 +123,10 @@ export interface ProductDataGlobal  extends ProductBasicInfoData{
 export type ProductVariant = FashionVariant | ParfumeVariant | ElectronicsVariant
 
 
+
+export interface VariantDisplayProps {
+    variant: ProductVariant
+}
 
 
 

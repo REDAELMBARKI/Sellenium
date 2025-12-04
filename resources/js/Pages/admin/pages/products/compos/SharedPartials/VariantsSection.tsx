@@ -1,22 +1,79 @@
-import { InventoryOptions } from "@/types/inventoryTypes";
+import {  Material , Size , Fit , Cover , Color } from "@/types/inventoryTypes";
 import { Box } from "lucide-react";
-import { VariantDisplay } from "./VariantDisplay";
 import EmptyListSection from "@/admin/components/partials/EmptyListSection";
+import { FashionVariantDisplayCard } from "./displayVariantCards/FashionVariantDisplayCard";
+import { ProductVariant } from "@/types/productsTypes";
 
 
 
 
 
-interface VariantsSectionProps {
-    variants: Variant[];
-}
-
-export const VariantsSection = ({
-    variants,
-}: VariantsSectionProps) => {
 
 
-   
+export const VariantsSection = () => {
+
+const variants: ProductVariant[] = [
+  { 
+    niche : "fashion" ,
+    id: "1",
+    quantity: 10,
+    attributes: {
+      color: [{ id: 1, hex: "#FF0000", name: "Red" }] as Color[] , 
+      sizes: [
+        { id: 1, name: "S" },
+        { id: 2, name: "M" },
+        { id: 3, name: "L" }
+      ] as Size[],
+      fits: [{ id: 1, name: "regular" }] as Fit[],
+      materials: [{ id: 1, name: "Cotton" }] as Material[],
+      fabricType: ["Jersey"],
+       covers: [
+        { id: 1, path: "/images/red-front.jpg" },
+        { id: 2, path: "/images/red-back.jpg" }
+      ] as Cover[]
+    }
+  },
+  { 
+    niche : "fashion" ,
+
+    id: "2",
+    quantity: 5,
+    attributes: {
+      color:[ { id: 2, hex: "#0000FF", name: "Blue" }] as Color[],
+      sizes: [
+        { id: 2, name: "M" },
+        { id: 3, name: "L" },
+        { id: 4, name: "XL" }
+      ] as Size[],
+      fits: [{ id: 2, name: "slim" }] as Fit[],
+      materials: [
+        { id: 1, name: "Cotton" },
+        { id: 2, name: "Polyester" }
+      ] as Material[],
+      fabricType: ["Jersey"],
+      covers : [{ id: 1, path: "/images/red-front.jpg" },
+        { id: 2, path: "/images/red-back.jpg" }] as Cover[]
+
+    }
+  },
+  { 
+    niche : "fashion" ,
+    id: "3",
+    quantity: 7,
+    attributes: {
+      color: [{ id: 3, hex: "#00FF00", name: "Green" }] as Color[],
+      sizes: [
+        { id: 1, name: "S" },
+        { id: 2, name: "M" }
+      ] as Size[],
+      fits: [{ id: 3, name: "oversized" }] as Fit[],
+      materials: [{ id: 1, name: "Cotton" }] as Material[],
+      fabricType: ["Sweatshirt"],
+      covers : [{ id: 1, path: "/images/red-front.jpg" },
+        { id: 2, path: "/images/red-back.jpg" }] as Cover[]
+    }
+  }
+];
 
 
     return (
@@ -40,13 +97,12 @@ export const VariantsSection = ({
                 <h2 className="text-2xl font-bold text-slate-800">Variants</h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ">
                 {variants?.length > 0 ? (
                     variants.map((variant) => {
                     
                         return (
-                            <VariantDisplay 
-                                
+                            <FashionVariantDisplayCard
                                 key={variant.id}
                                 variant={variant}
                                

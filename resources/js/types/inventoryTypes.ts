@@ -1,5 +1,5 @@
 import { RefObject } from "react";
-import { ProductVariant } from "./productsTypes";
+import { ElectronicsAttributes, FashionAttributes, ParfumeAttributes, ProductVariant } from "./productsTypes";
 
 // Base types
 export interface Color {
@@ -23,10 +23,29 @@ export interface Material {
     name: string;
 }
 
-// Options from Laravel
-export interface InventoryOptions {
-    [key : string] : string[]
+export interface Cover {
+    id: number;
+    path: string;
 }
+
+
+export interface FashionOptions {
+  colors : Color[]
+  sizes : Size[]
+  fits : Fit[]
+  materials : Material[]
+}
+
+export interface ParfumeOptions {
+
+}
+
+export interface ElectronicsOptions {
+
+}
+
+// Options from Laravel
+export type InventoryOptions =  FashionOptions | ParfumeOptions | ElectronicsOptions
 
 // For Inertia useForm (needs index signature)
 

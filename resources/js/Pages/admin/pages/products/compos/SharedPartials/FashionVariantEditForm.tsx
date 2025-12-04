@@ -1,36 +1,17 @@
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import LoadingBlankPage from "@/components/LoadingBlankPage";
-import { Color, Fit, Material, Size } from "@/types/inventoryTypes";
-import { Variant } from "@/types/productsTypes";
+import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditProductUICtx";
+import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useNicheCtx } from "@/contextHooks/useNicheCtx";
+import { currentTheme } from "@/data/currentTheme";
+import { Color, FashionOptions, Fit, InventoryOptions, Material, Size } from "@/types/inventoryTypes";
+import { FashionAttributes, FashionVariant, ProductVariant } from "@/types/productsTypes";
 import { Check, X, Upload, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuidByV4 } from "uuid";
 
-interface InventoryOptions {
-    colors: Color[];
-    sizes: Size[];
-    fits: Fit[];
-    materials: Material[];
-}
 
-interface VariantEditFormProps {
-    VariantForm: Variant | null;
-    inventoryOptions: InventoryOptions;
-    onSave?: () => void;
-    onCancel?: () => void;
-  
-}
 
-const currentTheme = {
-  bg: '#ffffff',
-  text: '#0f172a',
-  buttonPrimary: '#8b5cf6',
-  buttonSecondary: '#f1f5f9',
-  buttonHover: '#7c3aed',
-  accent: '#8b5cf6',
-  border: '#e2e8f0',
-  borderHover: '#cbd5e1',
-};
 
   interface ImageItem {
   file: File;
@@ -38,13 +19,9 @@ const currentTheme = {
   id : string
 }
 
-export const VariantEditForm = ({
-    VariantForm,
-    inventoryOptions,
-    onSave,
-    onCancel,
-   
-}: VariantEditFormProps) => {
+export const FashionVariantEditForm = () => {
+
+    
     // Prevent body scroll when modal is open
     useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -52,25 +29,24 @@ export const VariantEditForm = ({
             document.body.style.overflow = 'unset';
         };
     }, []);
-
-    return ;
     
-    const  {setVariantForm , variantForm} = useProductDataCtx();
+    
+    const  {setVariantForm , variantForm ,  productData , setProductData , inventoryOptionsState : inventoryOptions } = useProductDataCtx();
+    const {editingVariantId , setEditingVariantId , setHasUnsavedChanges } = useEditProductUICtx()
+    if(variantForm?.niche !== 'fashion') return ;
     const formRef = useRef<HTMLDivElement | null>(null)
     const [isFormLoading , setIsFormLoading] = useState(true)
   
 
     const [imageItemsFileWithPreviewUrl, setImageItemsFileWithPreviewUrl] = useState<ImageItem[]>([]);
+    
 
     //data loading 
     useEffect(() => {
            const isReady =
-    variantForm &&
-    variantForm.colors &&
-    variantForm.sizes &&
-    variantForm.fits &&
-    variantForm.materials &&
-    variantForm.quantity !== undefined;
+            variantForm &&
+            variantForm.attributes !== undefined &&
+            variantForm.quantity !== undefined;
 
 
     if(isReady){
@@ -78,13 +54,17 @@ export const VariantEditForm = ({
     }
     }, [variantForm]);
 
-    const toggleVariantAttribute = <T extends Color | Size | Fit | Material>(
-            key: "colors" | "sizes" | "fits" | "materials",
+    const toggleFashionVariantAttribute = <T extends Color | Size | Fit | Material>(
+            key: keyof FashionAttributes,
             item: T
         ) => {
             if (!variantForm) return;
-    
-            const currentItems = variantForm[key] as T[];
+       
+            console.log(key , 'key')
+            console.log(item , 'item')
+            const attributes = variantForm.attributes as FashionAttributes;
+            const currentItems = attributes[key] as T[] ?? [];
+
             const exists = currentItems.some((i) => i.id === item.id);
     
             setVariantForm({
@@ -97,11 +77,22 @@ export const VariantEditForm = ({
     
 
     
-    const onRemoveImage = (cover : string) => {
-        setVariantForm(prev => ({
-            ...prev , 
-            covers : prev?.covers.filter(c =>   c !== cover)
-        }))
+    const onRemoveImage = (coverId : number) => {
+        setVariantForm(prev => {
+            if(!prev) return prev ; 
+
+            if(prev.niche !== "fashion" ) return prev
+
+            return {
+                ...prev , 
+             attributes : {
+
+                    ...prev.attributes , 
+                     covers : prev?.attributes?.covers.filter(c =>   Number(c.id) !== coverId)
+               
+             }
+            }
+        })
     }
 
     const onRemovePreviewImage = (id : string) => {
@@ -128,6 +119,35 @@ export const VariantEditForm = ({
 
 
 
+
+    const handleSaveVariant = () => {
+        if (!variantForm || editingVariantId === null) return;
+
+        setProductData(prev => {
+           
+            if(!prev) return  prev ;
+            if(prev.niche !== "fashion" ) return prev ; 
+            return {
+            ...prev ,
+            fashionVariants: prev?.fashionVariants?.map((v) =>
+                Number(v.id) === Number(editingVariantId) ? (variantForm as FashionVariant) : v
+            ),
+        }
+        });
+        setEditingVariantId(null);
+        setVariantForm(null);
+        setHasUnsavedChanges(true);
+    };
+
+    const handleCancelVariant = () => {
+        setEditingVariantId(null);
+        setVariantForm(null);
+    };
+   
+    const fashionOptions = inventoryOptions as FashionOptions;
+
+
+
     return (
         <> 
            
@@ -137,7 +157,7 @@ export const VariantEditForm = ({
                 ref={formRef}
                 className="fixed inset-0 z-[9999] flex items-center justify-center p-0 md:p-4 "
                 style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(8px)' }}
-                onClick={onCancel}
+                onClick={handleCancelVariant}
             >    
 
             {isFormLoading  ? <LoadingBlankPage  containerRef={formRef} /> :
@@ -174,16 +194,16 @@ export const VariantEditForm = ({
                                
 
                                  {/* real imags from backend */}
-                                {VariantForm?.covers?.map((img, idx) => (
+                                {variantForm?.attributes.covers?.map((img, idx) => (
                                     <div key={idx} className="relative w-24 h-24 group">
                                         <img
-                                            src={img}
+                                            src={img.path}
                                             alt={`Variant ${idx + 1}`}
                                             className="w-full h-full object-cover rounded-lg border-2"
                                             style={{ borderColor: currentTheme.border }}
                                         />
                                         <button
-                                            onClick={() => onRemoveImage(img)}
+                                            onClick={() => onRemoveImage(Number(img.id))}
                                             className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
@@ -232,7 +252,7 @@ export const VariantEditForm = ({
                                 type="number"
                                 min="0"
                                 value={variantForm?.quantity}
-                                onChange={(e) => setVariantForm({ ...VariantForm, quantity: Number(e.target.value) })}
+                                onChange={(e) => setVariantForm({ ...variantForm, quantity: Number(e.target.value) })}
                                 className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none transition-all"
                                 style={{ 
                                     borderColor: currentTheme.border,
@@ -249,13 +269,13 @@ export const VariantEditForm = ({
                                 Colors
                             </label>
                             <div className="flex flex-wrap gap-3">
-                                {inventoryOptions?.colors?.map((color) => {
-                                    const isSelected = variantForm?.colors?.some((c) => Number(c.id) === Number(color.id));
+                                {fashionOptions?.colors?.map((color) => {
+                                    const isSelected = variantForm?.attributes?.color?.some((c) => Number(c.id) === Number(color.id));
                                     return (
                                         <button
                                             key={color.id}
                                             type="button"
-                                            onClick={() => toggleVariantAttribute("colors", color)}
+                                            onClick={() => toggleFashionVariantAttribute("color", color)}
                                             className="relative group"
                                             title={color.name}
                                         >
@@ -285,13 +305,13 @@ export const VariantEditForm = ({
                                 Sizes
                             </label>
                             <div className="flex flex-wrap gap-2">
-                                {inventoryOptions?.sizes?.map((size) => {
+                                {fashionOptions?.sizes?.map((size) => {
                                     const isSelected = variantForm?.sizes?.some((s) => Number(s.id) === Number(size.id));
                                     return (
                                         <button
                                             key={size.id}
                                             type="button"
-                                            onClick={() => toggleVariantAttribute("sizes", size)}
+                                            onClick={() => toggleFashionVariantAttribute("sizes", size)}
                                             className="px-4 py-2.5 flex items-center gap-2 rounded-lg transition-all duration-150"
                                             style={{
                                                 backgroundColor: isSelected ? `${currentTheme.accent}15` : 'transparent',
@@ -322,13 +342,13 @@ export const VariantEditForm = ({
                                 Fit Type
                             </label>
                             <div className="flex flex-wrap gap-2">
-                                {inventoryOptions?.fits?.map((fit) => {
-                                    const isSelected = variantForm?.fits?.some((f) => Number(f.id) === Number(fit.id));
+                                {fashionOptions?.fits?.map((fit) => {
+                                    const isSelected = variantForm?.attributes?.fits?.some((f) => Number(f.id) === Number(fit.id));
                                     return (
                                         <button
                                             key={fit.id}
                                             type="button"
-                                            onClick={() => toggleVariantAttribute("fits", fit)}
+                                            onClick={() => toggleFashionVariantAttribute("fits", fit)}
                                             className="px-4 py-2.5 flex items-center gap-2 rounded-lg transition-all duration-150"
                                             style={{
                                                 backgroundColor: isSelected ? `${currentTheme.accent}15` : 'transparent',
@@ -359,13 +379,13 @@ export const VariantEditForm = ({
                                 Materials
                             </label>
                             <div className="flex flex-wrap gap-2">
-                                {inventoryOptions?.materials?.map((material) => {
-                                    const isSelected = variantForm?.materials?.some((m) => Number(m.id) === Number(material.id));
+                                {fashionOptions?.materials?.map((material) => {
+                                    const isSelected = variantForm?.attributes?.materials?.some((m) => Number(m.id) === Number(material.id));
                                     return (
                                         <button
                                             key={material.id}
                                             type="button"
-                                            onClick={() => toggleVariantAttribute("materials", material)}
+                                            onClick={() => toggleFashionVariantAttribute("materials", material)}
                                             className="px-4 py-2.5 flex items-center gap-2 rounded-lg transition-all duration-150"
                                             style={{
                                                 backgroundColor: isSelected ? `${currentTheme.accent}15` : 'transparent',
@@ -400,7 +420,7 @@ export const VariantEditForm = ({
                         }}
                     >
                         <button
-                            onClick={onCancel}
+                            onClick={handleCancelVariant}
                             className="px-6 py-2.5 rounded-lg border-2 font-semibold transition-all"
                             style={{
                                 borderColor: currentTheme.border,
@@ -411,7 +431,7 @@ export const VariantEditForm = ({
                             Cancel
                         </button>
                         <button
-                            onClick={onSave}
+                            onClick={handleSaveVariant}
                             className="px-6 py-2.5 rounded-lg font-semibold text-white transition-all shadow-sm hover:shadow-md"
                             style={{ backgroundColor: currentTheme.buttonPrimary }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.buttonHover}

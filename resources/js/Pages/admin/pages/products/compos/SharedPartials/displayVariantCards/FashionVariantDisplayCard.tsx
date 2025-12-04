@@ -1,47 +1,31 @@
 import { Edit2, Trash2, Package } from "lucide-react";
 import { useState } from "react";
-import { VariantEditForm } from "./VariantEditForm";
-import { Variant } from "@/types/productsTypes";
+import { FashionVariantEditForm } from "../FashionVariantEditForm";
 import { currentTheme } from "@/data/currentTheme";
 import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditProductUICtx";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-
-interface VariantDisplayProps {
-    variant: Variant;
-   
-}
+import { FashionVariant, ProductVariant, VariantDisplayProps } from "@/types/productsTypes";
 
 
-export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
-    const [isFormModalOpen, setIsFormModalOpen] = useState<boolean>(false);
-    const { inventoryOptionsState  , setVariantForm , variantForm , setVariantToDelete } = useProductDataCtx();
-    const {setEditingVariantId , setDeleteModalOpen , deleteModalOpen  } =  useEditProductUICtx()
+
+
+export const FashionVariantDisplayCard = ({variant}: VariantDisplayProps) => {
+
     
-   const handleEditVariant = (variant: Variant) => {
-        setEditingVariantId(variant.id);
+    const [isFormModalOpen, setIsFormModalOpen] = useState<boolean>(false);
+    const {  setVariantForm  , setVariantToDelete , productData , setProductData  ,variantToDelete } = useProductDataCtx();
+    const {setEditingVariantId , setDeleteModalOpen , deleteModalOpen , setHasUnsavedChanges   ,deleteConfirmText ,  setDeleteConfirmText  } =  useEditProductUICtx()
+    
+    if (!productData || variant.niche !== "fashion") return;
+    
+   const handleEditVariant = (variant: ProductVariant) => {
+        setEditingVariantId(Number(variant.id));
         setVariantForm({ ...variant });
     };
  
       
-    const handleSaveVariant = () => {
-        if (!variantForm || editingVariantId === null) return;
-
-        setProductData({
-            ...productData,
-            variants: productData?.variants?.map((v) =>
-                v.id === editingVariantId ? variantForm : v
-            ),
-        });
-        setEditingVariantId(null);
-        setVariantForm(null);
-        setHasUnsavedChanges(true);
-    };
-
-    const handleCancelVariant = () => {
-        setEditingVariantId(null);
-        setVariantForm(null);
-    };
+    
 
     const handleDeleteVariantClick = (variantId: number) => {
         setVariantToDelete(variantId);
@@ -55,8 +39,8 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
         ) {
             setProductData({
                 ...productData,
-                variants: productData?.variants?.filter(
-                    (v) => v.id !== variantToDelete
+                fashionVariants: productData?.fashionVariants?.filter(
+                    (v) => Number(v.id) !== Number(variantToDelete)
                 ),
             });
             setDeleteModalOpen(false);
@@ -85,7 +69,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                     <div 
                        className=" h-48 flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden rounded-lg mb-4"
                      >
-                        {variant.covers.length > 0 ? (
+                        {variant?.attributes?.covers?.length > 0 ? (
                             <img
                                 src={`/images/perpel.jpg`}
                                 alt={`Variant ${variant.id}`}
@@ -135,7 +119,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                         </div>
 
                         {/* Colors Section */}
-                        {variant.colors.length > 0 && (
+                        {variant?.attributes?.color?.length > 0 && (
                             <div 
                                 className="border-2 border-dashed rounded-lg p-3 text-center"
                                 style={{ 
@@ -147,7 +131,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                                     Colors
                                 </h4>
                                 <div className="flex flex-wrap gap-2 justify-center">
-                                    {variant.colors.map((color) => (
+                                    {variant?.attributes?.color?.map((color) => (
                                         <div
                                             key={color.id}
                                             className="flex items-center gap-2 px-3 py-2 rounded-lg border"
@@ -173,7 +157,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                         )}
 
                         {/* Sizes Section */}
-                        {variant.sizes.length > 0 && (
+                        {variant?.attributes?.sizes?.length > 0 && (
                             <div 
                                 className="border-2 border-dashed rounded-lg p-3 text-center"
                                 style={{ 
@@ -185,7 +169,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                                     Sizes
                                 </h4>
                                 <div className="flex flex-wrap gap-2 justify-center">
-                                    {variant.sizes.map((size) => (
+                                    {variant?.attributes?.sizes?.map((size) => (
                                         <div
                                             key={size.id}
                                             className="flex items-center justify-center w-10 h-10 text-white rounded-lg font-bold text-sm shadow-sm"
@@ -199,7 +183,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                         )}
 
                         {/* Fits Section */}
-                        {variant.fits.length > 0 && (
+                        {variant?.attributes?.fits?.length > 0 && (
                             <div 
                                 className="border-2 border-dashed rounded-lg p-3 text-center"
                                 style={{ 
@@ -211,7 +195,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                                     Fit Type
                                 </h4>
                                 <div className="flex flex-wrap gap-2 justify-center">
-                                    {variant.fits.map((fit) => (
+                                    {variant?.attributes?.fits.map((fit) => (
                                         <div
                                             key={fit.id}
                                             className="px-3 py-2 text-white rounded-lg text-xs font-semibold shadow-sm"
@@ -225,7 +209,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                         )}
 
                         {/* Materials Section */}
-                        {variant.materials.length > 0 && (
+                        {variant?.attributes?.materials?.length > 0 && (
                             <div 
                                 className="border-2 border-dashed rounded-lg p-3 text-center"
                                 style={{ 
@@ -237,7 +221,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                                     Materials
                                 </h4>
                                 <div className="flex flex-wrap gap-2 justify-center">
-                                    {variant.materials.map((material) => (
+                                    {variant?.attributes?.materials?.map((material) => (
                                         <div
                                             key={material.id}
                                             className="px-3 py-2 text-white rounded-lg text-xs font-semibold shadow-sm"
@@ -271,7 +255,7 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                             </button>
 
                             <button
-                                onClick={() => handleDeleteVariantClick(variant.id)}
+                                onClick={() => handleDeleteVariantClick(Number(variant.id))}
                                 className="flex items-center justify-center gap-2 px-3 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all font-semibold text-sm shadow-sm hover:shadow-md"
                             >
                                 <Trash2 className="w-4 h-4" />
@@ -281,13 +265,8 @@ export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
                 </div>
 
             {isFormModalOpen && (
-                <VariantEditForm 
-                   
+                <FashionVariantEditForm    
                     key={variant.id}
-                    VariantForm={variantForm}
-                    inventoryOptions={inventoryOptionsState}
-                    onSave={() => setIsFormModalOpen(false)}
-                    onCancel={() => setIsFormModalOpen(false)}
                 />
             )}
 

@@ -1,6 +1,3 @@
-import { InventoryOptions } from "@/types/inventoryTypes";
-import { ProductBasicInfoData, ProductDataGlobal, Variant } from "@/types/productsTypes";
-import { Tag } from "@/types/tagsTypes";
 import { createContext } from "react";
 
 
@@ -15,6 +12,8 @@ interface EditProductUIContextProps {
   deleteModalOpen: boolean
   setDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 
+  deleteConfirmText :string
+  setDeleteConfirmText  : React.Dispatch<React.SetStateAction<string>>
 
   showToast: boolean
   setShowToast: React.Dispatch<React.SetStateAction<boolean>>
