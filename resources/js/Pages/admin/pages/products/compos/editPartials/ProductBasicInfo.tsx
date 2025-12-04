@@ -3,12 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Check, Edit2, X, Package } from "lucide-react";
 import ProductInfoDisplay from './ProductInfoDisplay';
 import ProductInfoForm from '../SharedPartials/BasicInfoForm';
-import { useEditProductDataCtx } from '../../../../../../contextHooks/sharedhooks/useProductDataCtx';
 import { useEditProductUICtx } from '@/contextHooks/editProductCtxHooks/useEditProductUICtx';
 import { useToasts } from '@/contextHooks/useToasts';
 import { ToasterNative } from '@/components/ui/ToasterNative';
-import { NicheContext } from '@/context/NicheContext';
-import { useNicheCtx } from '@/contextHooks/useNicheCtx';
+import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
+
 
 
 const currentTheme = {
@@ -23,7 +22,7 @@ const currentTheme = {
 
 
 const ProductBasicInfo: React.FC = () => {
-  const {basicInfoForm ,  productData ,  setProductData ,  setBasicInfoForm} =  useEditProductDataCtx()
+  const {basicInfoForm  , productData ,  setProductData,  setBasicInfoForm , modeForm} =  useProductDataCtx()
   const {isEditingBasicInfo , setIsEditingBasicInfo , setHasUnsavedChanges  , hasUnsavedChanges} =  useEditProductUICtx() 
   const toastChangedUnsavedMoundRef =  useRef<boolean>(false) ;
   const {addToast} =  useToasts()
@@ -41,9 +40,9 @@ const ProductBasicInfo: React.FC = () => {
             category: productData.category,
             gender: productData.gender,
             isFeatured: productData.isFeatured,
-            free_shipping: productData.free_shipping,
             thumbnail: productData.thumbnail,
             tags: productData.tags,
+
         });
     };
 
@@ -57,24 +56,7 @@ const ProductBasicInfo: React.FC = () => {
           setHasUnsavedChanges(true);
       };
   
-      const handleCancelBasicInfo = () => {
-          setIsEditingBasicInfo(false);
-          if(!productData) return ;
-          setBasicInfoForm({
-              name: productData.name,
-              brand: productData.brand,
-              price: productData.price,
-              description: productData.description,
-              category: productData.category,
-              gender: productData.gender,
-              rating_average : productData.rating_average , 
-              isFeatured: productData.isFeatured,
-              free_shipping: productData.free_shipping,
-              thumbnail: productData.thumbnail,
-              tags: productData.tags,
-          });
-      };
- 
+  
   const handleCancelWithConfirmation = () => {
     
     if(!hasUnsavedChanges) {
@@ -184,13 +166,24 @@ const ProductBasicInfo: React.FC = () => {
       </div>
       <ToasterNative />
       {/* Conditional rendering based on editing state */}
-      {isEditingBasicInfo ? (
-        <ProductInfoForm
-          handleCancelBasicInfo={handleCancelBasicInfo}
-        />
-      ) : (
+      {modeForm === "edit" ?  isEditingBasicInfo ? (
+         // show form in editinig mode 
+            <ProductInfoForm/>
+          )
+      
+      : (
+        // read only
         <ProductInfoDisplay productData={productData} />
-      )}
+      )
+      : (
+
+        // create mode 
+        <ProductInfoForm/>
+      )
+    
+    }
+
+    
     </div>
   );
 };

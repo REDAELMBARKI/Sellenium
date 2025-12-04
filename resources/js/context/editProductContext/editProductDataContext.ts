@@ -10,7 +10,8 @@ interface EditProductDataContextProps {
    
     variantToDelete: number | null
     setVariantToDelete: React.Dispatch<React.SetStateAction<number | null>> 
-    
+    basicInfoForm :ProductBasicInfoData  
+    setBasicInfoForm :  React.Dispatch<React.SetStateAction<ProductBasicInfoData>> 
     }
 
 export const EditProductDataContext = createContext<EditProductDataContextProps |undefined>(undefined)

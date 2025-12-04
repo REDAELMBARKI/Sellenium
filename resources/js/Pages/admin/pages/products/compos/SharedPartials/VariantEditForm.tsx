@@ -1,6 +1,5 @@
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import LoadingBlankPage from "@/components/LoadingBlankPage";
-import { useEditProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { Color, Fit, Material, Size } from "@/types/inventoryTypes";
 import { Variant } from "@/types/productsTypes";
 import { Check, X, Upload, Trash2 } from "lucide-react";
@@ -53,8 +52,10 @@ export const VariantEditForm = ({
             document.body.style.overflow = 'unset';
         };
     }, []);
+
+    return ;
     
-    const  {setVariantForm , variantForm} = useEditProductDataCtx();
+    const  {setVariantForm , variantForm} = useProductDataCtx();
     const formRef = useRef<HTMLDivElement | null>(null)
     const [isFormLoading , setIsFormLoading] = useState(true)
   

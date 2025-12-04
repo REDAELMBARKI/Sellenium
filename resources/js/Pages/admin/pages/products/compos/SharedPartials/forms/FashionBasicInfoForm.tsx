@@ -1,11 +1,38 @@
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
+import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { currentTheme } from "@/data/currentTheme";
-import { Upload } from "lucide-react";
+import { Plus, Tag, Upload, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useEditProductActions } from "../../../Productshooks/editActionsHook";
 
 
 
 const FashionBasicInfoForm = () => {
+    const [thumbnailPreview , setThumbnailPreview] = useState<string |null>(null)
+    const {basicInfoForm , setBasicInfoForm , tagSuggestionsState : tagSuggestions} = useProductDataCtx()
+    const {addTag ,  removeTag ,  tagInputRef , showSuggestions , tagInput , 
+            handleTagInputKeyDown  , setShowSuggestions  ,filteredSuggestions , handleAddTagFromInput , handleCancelWithConfirmation , 
+            setTagInput , selectedCategory , selectedSuggestionIndex , setSelectedSuggestionIndex , setSelectedCategory
+          } =  useEditProductActions()
+
+     const handleThumbnailUpload = (e : React.ChangeEvent<HTMLInputElement>) => {
+              const file = e.target.files?.[0];
+              if(!file) return ; 
+              const url  = URL.createObjectURL(file)
+              setThumbnailPreview(url)
+        }
+
+
+        
+  useEffect(() => {
+    return () =>  {
+      if(thumbnailPreview){
+        URL.revokeObjectURL(thumbnailPreview)
+      }
+    }
+  }, [thumbnailPreview]);
   
+    
     return (<div className="space-y-8">
       {/* Thumbnail Section */}
       <div>
@@ -149,7 +176,7 @@ const FashionBasicInfoForm = () => {
           </label>
           <MultiSelectDropdown
             label="Product Type"
-            options={categories}
+            options={Array.isArray(basicInfoForm.category) ? basicInfoForm.category : [basicInfoForm.category]}
             selectedValues={Array.isArray(basicInfoForm.category) ? basicInfoForm.category : (basicInfoForm.category ? [basicInfoForm.category] : [])}
             onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, category: selected })}
           />
@@ -161,7 +188,7 @@ const FashionBasicInfoForm = () => {
           </label>
           <MultiSelectDropdown
             label="Gender"
-            options={genderOptions}
+            options={basicInfoForm.gender || ["all genders"]}
             selectedValues={Array.isArray(basicInfoForm.gender) ? basicInfoForm.gender : (basicInfoForm.gender ? [basicInfoForm.gender] : [])}
             onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, gender: selected })}
           />
@@ -332,24 +359,24 @@ const FashionBasicInfoForm = () => {
                 onClick={() => setSelectedCategory('All')}
                 className="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:scale-105 shadow-sm whitespace-nowrap flex-shrink-0"
                 style={{ 
-                  backgroundColor: selectedCategory === 'All' ? currentTheme.primary : currentTheme.bg,
+                  backgroundColor: selectedCategory === 'All' ? currentTheme.buttonPrimary : currentTheme.bg,
                   color: selectedCategory === 'All' ? '#fff' : currentTheme.text,
                   borderWidth: '2px',
-                  borderColor: selectedCategory === 'All' ? currentTheme.primary : currentTheme.border
+                  borderColor: selectedCategory === 'All' ? currentTheme.buttonPrimary : currentTheme.border
                 }}
               >
                 All
               </button>
-              {categories.map((type) => (
+              {basicInfoForm.category.map((type) => (
                 <button
                   key={type}
                   onClick={() => setSelectedCategory(type)}
                   className="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:scale-105 shadow-sm whitespace-nowrap flex-shrink-0 capitalize"
                   style={{ 
-                    backgroundColor: selectedCategory === type ? currentTheme.primary : currentTheme.bg,
+                    backgroundColor: selectedCategory === type ? currentTheme.buttonPrimary : currentTheme.bg,
                     color: selectedCategory === type ? '#fff' : currentTheme.text,
                     borderWidth: '2px',
-                    borderColor: selectedCategory === type ? currentTheme.primary : currentTheme.border
+                    borderColor: selectedCategory === type ? currentTheme.buttonPrimary : currentTheme.border
                   }}
                 >
                   {type}
@@ -402,7 +429,7 @@ const FashionBasicInfoForm = () => {
           </span>
         </label>
 
-        <label className="flex items-center group cursor-pointer">
+        {/* <label className="flex items-center group cursor-pointer">
           <div className="relative">
             <input
               type="checkbox"
@@ -415,7 +442,7 @@ const FashionBasicInfoForm = () => {
           <span className="ml-3 text-sm font-bold uppercase tracking-wide" style={{ color: currentTheme.text }}>
             Free Shipping
           </span>
-        </label>
+        </label> */}
       </div>
     </div>)
 }

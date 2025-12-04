@@ -1,5 +1,4 @@
 import { InventoryOptions } from "@/types/inventoryTypes";
-import { Variant } from "@/types/productsTypes";
 import { Box } from "lucide-react";
 import { VariantDisplay } from "./VariantDisplay";
 import EmptyListSection from "@/admin/components/partials/EmptyListSection";

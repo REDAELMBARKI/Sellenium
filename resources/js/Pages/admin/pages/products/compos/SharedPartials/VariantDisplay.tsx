@@ -2,10 +2,10 @@ import { Edit2, Trash2, Package } from "lucide-react";
 import { useState } from "react";
 import { VariantEditForm } from "./VariantEditForm";
 import { Variant } from "@/types/productsTypes";
-import { useEditProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { currentTheme } from "@/data/currentTheme";
 import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditProductUICtx";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
+import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 
 interface VariantDisplayProps {
     variant: Variant;
@@ -15,7 +15,7 @@ interface VariantDisplayProps {
 
 export const VariantDisplay = ({ variant}: VariantDisplayProps) => {
     const [isFormModalOpen, setIsFormModalOpen] = useState<boolean>(false);
-    const { inventoryOptionsState  , setVariantForm , variantForm , setVariantToDelete } = useEditProductDataCtx();
+    const { inventoryOptionsState  , setVariantForm , variantForm , setVariantToDelete } = useProductDataCtx();
     const {setEditingVariantId , setDeleteModalOpen , deleteModalOpen  } =  useEditProductUICtx()
     
    const handleEditVariant = (variant: Variant) => {

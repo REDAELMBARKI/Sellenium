@@ -1,4 +1,5 @@
 import { RefObject } from "react";
+import { ProductVariant } from "./productsTypes";
 
 // Base types
 export interface Color {
@@ -24,35 +25,13 @@ export interface Material {
 
 // Options from Laravel
 export interface InventoryOptions {
-    colors: Color[];
-    sizes: Size[];
-    fits: Fit[];
-    materials: Material[];
+    [key : string] : string[]
 }
 
 // For Inertia useForm (needs index signature)
-export interface InventoryItem {
-    [key: string]: unknown;
-    id: string | null;
-    colors: Color[];
-    sizes: Size[];
-    fits: Fit[];
-    materials: Material[];
-    quantity: number;
-    covers: string[];
-}
 
-// Product variant
-export interface ProductVariant {
-    [key: string]: unknown;
-    id: string | null;
-    colors: Color[];
-    sizes: Size[];
-    fits: Fit[];
-    materials: Material[];
-    quantity: number;
-    covers: string[];
-}
+
+
 
 // Context type
 export interface InventoryContextType {

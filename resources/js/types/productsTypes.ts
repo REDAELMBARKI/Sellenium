@@ -1,5 +1,5 @@
 import { NicheItem } from "@/context/NicheContext";
-import { Color, Fit, InventoryItem, InventoryOptions, Material, Size } from "./inventoryTypes";
+import { Color, Fit , InventoryOptions, Material, Size } from "./inventoryTypes";
 import { Tag } from "./tagsTypes";
 
 export interface ProductBackendProps {
@@ -9,39 +9,27 @@ export interface ProductBackendProps {
     tagSuggestions: Tag[];
 }
 
-export interface Variant {
-    id?: number;
-    colors: Color[];
-    sizes: Size[];
-    fits: Fit[];
-    materials: Material[];
-    quantity: number;
-    covers: string[];
-}
-
-
 
 
 export interface ProductBasicInfoData { 
-  id?: number | null;
+  id?: string | null;
   name: string;
   brand: string;
   price: string;
   compareAtPrice?: string;    // optional, original price
   costPrice?: string;  
-  category: string | string[];
-  gender?: string | string[];
+  category: string[];
+  gender?: string[];
   description: string;
   rating_average?: number ,
   thumbnail: string;
   tags: Tag[];
   isFeatured?: boolean;
-  niche: NicheItem;
+  niche?: NicheItem;
 }
 
 
-export interface ParfumeVariant {
-  id: string | number;        // unique variant ID
+export interface ParfumeAttributes {
   concentration: "EDT" | "EDP" | "Parfum" | "Cologne";
   volume_ml: number;          // bottle size in ml
   quantity: number;           // stock
@@ -49,18 +37,29 @@ export interface ParfumeVariant {
   notes: string[];            // e.g., ["Citrus","Vanilla"]
 }
 
-export interface FashionVariant {
+export interface ParfumeVariant {
+  id :string 
+  attributes : ParfumeAttributes
+  quantity : number
+}
+
+
+export interface FashionAttributes {
   color: Color;
   coverImage: string;
   sizes: Size[];
   fits: Fit[];
   materials: Material[];           // e.g., ["Cotton", "Polyester"]
   fabricType?: string[];         // optional, e.g., ["Denim", "Wool"]
-  quantity: Record<string, number>; // size => stock
+}
+export interface FashionVariant {
+  id :string 
+  attributes : FashionAttributes
+  quantity : number
 }
 
-export interface ElectronicsVariant {
-  id: string | number;        // unique variant ID
+
+export interface ElectronicsAttributes {
   color: Color;          // optional if devices have color variants
   storage?: string;            // e.g., "128GB", "256GB"
   warrantyMonths?: number;
@@ -68,6 +67,12 @@ export interface ElectronicsVariant {
   connectivity?: string[];     // e.g., ["Bluetooth","WiFi"]
   voltage?: string;            // e.g., "220V"
   batteryLife?: string;        // "10h"
+}
+
+export interface ElectronicsVariant {
+  id :string 
+  attributes : ElectronicsAttributes
+  quantity : number
 }
 
 
@@ -110,6 +115,9 @@ export interface ProductDataGlobal  extends ProductBasicInfoData{
   electronicsVariants?: ElectronicsVariant[];
 }
 
+// Product variant
+export type ProductVariant = FashionVariant | ParfumeVariant | ElectronicsVariant
+
 
 
 
@@ -127,26 +135,26 @@ export interface ReadyToSubmit {
     inventory: boolean;
 }
 
-export interface ProductFormContextType {
-    data: {
-        name: string;
-        brand: string;
-        price: string;
-        thumbnail: string;
-        description: string;
-        isFeatured: boolean;
-        free_shipping: boolean;
-        inventory: InventoryItem[];
-        tags: string[];
-         [key: string]: unknown;
-    };
-    setData: (key: string, value: unknown) => void;
-    post: (url: string) => void;
-    errors: Record<string, string>;
-    isReadyToSubmit: ReadyToSubmit;
-    setIsReadyToSubmit: React.Dispatch<React.SetStateAction<ReadyToSubmit>>;
-    otherStringFieldsValid: boolean;
-    setOtherStringFieldsValid: React.Dispatch<React.SetStateAction<boolean>>;
-}
+// export interface ProductFormContextType {
+//     data: {
+//         name: string;
+//         brand: string;
+//         price: string;
+//         thumbnail: string;
+//         description: string;
+//         isFeatured: boolean;
+//         free_shipping: boolean;
+//         inventory: InventoryItem[];
+//         tags: string[];
+//          [key: string]: unknown;
+//     };
+//     setData: (key: string, value: unknown) => void;
+//     post: (url: string) => void;
+//     errors: Record<string, string>;
+//     isReadyToSubmit: ReadyToSubmit;
+//     setIsReadyToSubmit: React.Dispatch<React.SetStateAction<ReadyToSubmit>>;
+//     otherStringFieldsValid: boolean;
+//     setOtherStringFieldsValid: React.Dispatch<React.SetStateAction<boolean>>;
+// }
 
 

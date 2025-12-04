@@ -1,23 +1,14 @@
+import { useEditProductUICtx } from '@/contextHooks/editProductCtxHooks/useEditProductUICtx';
+import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
 import { ProductBasicInfoData } from '@/types/productsTypes';
-import { Tag } from '@/types/tagsTypes';
+import { Tag as TagType } from '@/types/tagsTypes';
 import { useState, useRef, useEffect, useCallback, RefObject } from 'react';
 
-
-
-
-
-interface UseEditProductActionsProps {
-  basicInfoForm: ProductBasicInfoData | null;
-  productData: ProductBasicInfoData;
-  tagSuggestions: Tag[];
-  addTag: (tag: Tag) => void;
-  handleCancelBasicInfo: () => void;
-}
 
 interface UseEditProductActionsReturn {
   tagInput: string;
   setTagInput: React.Dispatch<React.SetStateAction<string>>;
-  filteredSuggestions: Tag[];
+  filteredSuggestions: TagType[];
   showSuggestions: boolean;
   setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>;
   selectedSuggestionIndex: number;
@@ -27,24 +18,51 @@ interface UseEditProductActionsReturn {
   tagInputRef: RefObject<HTMLInputElement |null>;
   handleTagInputKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   handleCancelWithConfirmation: () => void;
-  handleAddTagFromInput: () => void;
+  handleAddTagFromInput: () => void; 
+  addTag : (tag : TagType) => void
+  removeTag : (tagId : string) => void
 }
 
-export const useEditProductActions = ({
-  basicInfoForm,
-  productData,
-  tagSuggestions,
-  addTag,
-  handleCancelBasicInfo,
-}: UseEditProductActionsProps): UseEditProductActionsReturn => {
+export const useEditProductActions = (): UseEditProductActionsReturn => {
   const [tagInput, setTagInput] = useState<string>('');
-  const [filteredSuggestions, setFilteredSuggestions] = useState<Tag[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<TagType[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const tagInputRef = useRef<HTMLInputElement>(null);
 
+
+  const {setBasicInfoForm  ,  basicInfoForm , tagSuggestionsState : tagSuggestions ,  productData} = useProductDataCtx() 
+  const {setIsEditingBasicInfo} = useEditProductUICtx()
   // Filter suggestions based on input
+ 
+  const addTag = (tag : TagType) => {
+            if (!basicInfoForm?.tags?.some((t) => Number(t.id) === Number(tag.id))) {
+                setBasicInfoForm({
+                    ...basicInfoForm,
+                    tags: [...basicInfoForm.tags, tag],
+                });
+            }
+        };
+ 
+            const handleCancelBasicInfo = () => {
+          setIsEditingBasicInfo(false);
+          if(!productData) return ;
+          setBasicInfoForm({
+              name: productData.name,
+              brand: productData.brand,
+              price: productData.price,
+              description: productData.description,
+              category: productData.category,
+              gender: productData.gender,
+              rating_average : productData.rating_average , 
+              isFeatured: productData.isFeatured,
+              thumbnail: productData.thumbnail,
+              tags: productData.tags,
+          });
+      };
+ 
+
   useEffect(() => {
     if (tagInput.trim()) {
       const filtered = tagSuggestions.filter(
@@ -67,7 +85,7 @@ export const useEditProductActions = ({
       if (filteredSuggestions.length > 0) {
         addTag(filteredSuggestions[selectedSuggestionIndex]);
       } else if (tagInput.trim()) {
-        const newTag: Tag = {
+        const newTag: TagType = {
           id: Date.now().toString(),
           name: tagInput.trim(),
         };
@@ -120,7 +138,7 @@ export const useEditProductActions = ({
     if (filteredSuggestions.length > 0) {
       addTag(filteredSuggestions[0]);
     } else if (tagInput.trim()) {
-      const newTag: Tag = {
+      const newTag: TagType = {
         id: Date.now().toString(),
         name: tagInput.trim(),
       };
@@ -130,7 +148,24 @@ export const useEditProductActions = ({
     setShowSuggestions(false);
   }, [filteredSuggestions, tagInput, addTag]);
 
+
+
+  const removeTag = (tagId: string) => {
+            setBasicInfoForm({
+                ...basicInfoForm,
+                tags: basicInfoForm?.tags?.filter((t) => Number(t.id) !== Number(tagId)),
+            });
+        };
+    
+        
+    
+    
+
+  
+
   return {
+    removeTag , 
+    addTag , 
     tagInput,
     setTagInput,
     filteredSuggestions,
