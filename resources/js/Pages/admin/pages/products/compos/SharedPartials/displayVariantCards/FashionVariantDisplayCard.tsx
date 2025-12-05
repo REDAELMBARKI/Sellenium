@@ -1,60 +1,25 @@
 import { Edit2, Trash2, Package } from "lucide-react";
-import { useState } from "react";
-import { FashionVariantEditForm } from "../FashionVariantEditForm";
+import { FashionVariantEditForm } from "../forms/variantsForms/FashionVariantEditForm";
 import { currentTheme } from "@/data/currentTheme";
-import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditProductUICtx";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { FashionVariant, ProductVariant, VariantDisplayProps } from "@/types/productsTypes";
+import {  VariantDisplayProps } from "@/types/productsTypes";
+import { useVariantsDisplayActions } from "@/functions/useVariantsDisplayActions";
+import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
 
 
 
 
 export const FashionVariantDisplayCard = ({variant}: VariantDisplayProps) => {
 
-    
-    const [isFormModalOpen, setIsFormModalOpen] = useState<boolean>(false);
-    const {  setVariantForm  , setVariantToDelete , productData , setProductData  ,variantToDelete } = useProductDataCtx();
-    const {setEditingVariantId , setDeleteModalOpen , deleteModalOpen , setHasUnsavedChanges   ,deleteConfirmText ,  setDeleteConfirmText  } =  useEditProductUICtx()
-    
+     
+    const { productData} = useProductDataCtx();
     if (!productData || variant.niche !== "fashion") return;
-    
-   const handleEditVariant = (variant: ProductVariant) => {
-        setEditingVariantId(Number(variant.id));
-        setVariantForm({ ...variant });
-    };
+
+
+    const {setDeleteModalOpen , deleteModalOpen  , isVariantFormModalOpen , setIsVariantFormModalOpen} =  useProductUICtx()
+    const {cancelDelete , requestDelete , editVariant , confirmDelete} = useVariantsDisplayActions()
  
-      
-    
-
-    const handleDeleteVariantClick = (variantId: number) => {
-        setVariantToDelete(variantId);
-        setDeleteModalOpen(true);
-    };
-
-    const handleConfirmDelete = () => {
-        if (
-            deleteConfirmText.toLowerCase() === "delete" &&
-            variantToDelete !== null
-        ) {
-            setProductData({
-                ...productData,
-                fashionVariants: productData?.fashionVariants?.filter(
-                    (v) => Number(v.id) !== Number(variantToDelete)
-                ),
-            });
-            setDeleteModalOpen(false);
-            setDeleteConfirmText("");
-            setVariantToDelete(null);
-            setHasUnsavedChanges(true);
-        }
-    };
-
-    const handleCancelDelete = () => {
-        setDeleteModalOpen(false);
-        setDeleteConfirmText("");
-        setVariantToDelete(null);
-    };
     return (
         <>
             <div 
@@ -241,8 +206,8 @@ export const FashionVariantDisplayCard = ({variant}: VariantDisplayProps) => {
                         >
                             <button
                                 onClick={() =>  {
-                                     handleEditVariant(variant)
-                                     setIsFormModalOpen(true)
+                                     editVariant(variant)
+                                     setIsVariantFormModalOpen(true)
                                 }
                             }
                                 className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-white rounded-lg transition-all font-semibold text-sm shadow-sm hover:shadow-md"
@@ -255,7 +220,7 @@ export const FashionVariantDisplayCard = ({variant}: VariantDisplayProps) => {
                             </button>
 
                             <button
-                                onClick={() => handleDeleteVariantClick(Number(variant.id))}
+                                onClick={() => requestDelete(Number(variant.id))}
                                 className="flex items-center justify-center gap-2 px-3 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all font-semibold text-sm shadow-sm hover:shadow-md"
                             >
                                 <Trash2 className="w-4 h-4" />
@@ -264,14 +229,14 @@ export const FashionVariantDisplayCard = ({variant}: VariantDisplayProps) => {
                     </div>
                 </div>
 
-            {isFormModalOpen && (
-                <FashionVariantEditForm    
+            {isVariantFormModalOpen && (
+                <FashionVariantEditForm  
                     key={variant.id}
                 />
             )}
 
 
-           <DeleteConfirmationModal isOpen={deleteModalOpen}  name="variant" entityType="variant" onClose={() => setDeleteModalOpen(false)} onConfirm={() => handleConfirmDelete()}/>
+           <DeleteConfirmationModal isOpen={deleteModalOpen}  name="variant" entityType="variant" onClose={() => setDeleteModalOpen(false)} onConfirm={() => cancelDelete()}/>
            
         </>
     );

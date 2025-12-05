@@ -2,11 +2,14 @@ import React, { useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Edit2, X, Package } from "lucide-react";
 import ProductInfoDisplay from './ProductInfoDisplay';
-import ProductInfoForm from '../SharedPartials/BasicInfoForm';
-import { useEditProductUICtx } from '@/contextHooks/editProductCtxHooks/useEditProductUICtx';
+import ProductInfoForm from '../SharedPartials/BasicInfoFormMaster';
 import { useToasts } from '@/contextHooks/useToasts';
 import { ToasterNative } from '@/components/ui/ToasterNative';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
+import { ProductBasicInfoData } from '@/types/productsTypes';
+import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
+import BasicInfoFormMaster from '../SharedPartials/BasicInfoFormMaster';
+import { useBasicinfoActions } from '@/functions/useBasicinfoActions';
 
 
 
@@ -23,14 +26,19 @@ const currentTheme = {
 
 const ProductBasicInfo: React.FC = () => {
   const {basicInfoForm  , productData ,  setProductData,  setBasicInfoForm , modeForm} =  useProductDataCtx()
-  const {isEditingBasicInfo , setIsEditingBasicInfo , setHasUnsavedChanges  , hasUnsavedChanges} =  useEditProductUICtx() 
+  const {isEditingBasicInfo , setIsEditingBasicInfo , setHasUnsavedChanges  , hasUnsavedChanges} =  useProductUICtx() 
   const toastChangedUnsavedMoundRef =  useRef<boolean>(false) ;
+  const {handleCancelBasicInfo} = useBasicinfoActions()
   const {addToast} =  useToasts()
+  if(!productData)  return ;
 
     const handleEditBasicInfo = () => {
         setIsEditingBasicInfo(true);
 
         if(!productData)  return ;
+
+
+
         setBasicInfoForm({
             name: productData.name,
             brand: productData.brand,
@@ -69,12 +77,14 @@ const ProductBasicInfo: React.FC = () => {
   };
 
    
-
+ 
   // toest should be fixed when the full data is arived form backend
   // chnages checkker 
   useEffect(() => {
      // destrictor basic info form data from prroduct data 
-    const {inventories   , ...basicInfoData} = productData;
+    const {electronicsVariants , electronicsFields   ,fashionVariants , fashionFields , parfumesVariants , parfumesFields  , ...rest} = productData ;
+     const basicInfoData : ProductBasicInfoData = rest ;
+
      const hasChanges  = JSON.stringify(basicInfoData) !== JSON.stringify(basicInfoForm) 
      setHasUnsavedChanges(hasChanges)
 
@@ -168,17 +178,17 @@ const ProductBasicInfo: React.FC = () => {
       {/* Conditional rendering based on editing state */}
       {modeForm === "edit" ?  isEditingBasicInfo ? (
          // show form in editinig mode 
-            <ProductInfoForm/>
+            <BasicInfoFormMaster/>
           )
       
-      : (
-        // read only
-        <ProductInfoDisplay productData={productData} />
-      )
+      : productData ?(
+           // read only
+            <ProductInfoDisplay productData={productData} />
+          ) : null
       : (
 
         // create mode 
-        <ProductInfoForm/>
+        <BasicInfoFormMaster/>
       )
     
     }

@@ -22,3 +22,10 @@ export interface MediaContextType {
     setPlaceHolderNotFilled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+
+ export interface ImagePreviewItem {
+  file: File;
+  url: string;
+  id : string
+}
+

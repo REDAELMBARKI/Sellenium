@@ -9,6 +9,15 @@ export interface ProductBackendProps {
     tagSuggestions: Tag[];
 }
 
+export interface ProductDataGlobal  extends ProductBasicInfoData{
+  fashionFields?: FashionFields,
+  parfumesFields?: ParfumesFields,
+  electronicsFields?: ElectronicsFields,
+  // niche-specific fields (optional)
+  fashionVariants?: FashionVariant[];
+  parfumesVariants?: ParfumeVariant[];
+  electronicsVariants?: ElectronicsVariant[];
+}
 
 
 export interface ProductBasicInfoData { 
@@ -31,11 +40,17 @@ export interface ProductBasicInfoData {
 
 export interface ParfumeAttributes {
   concentration: "EDT" | "EDP" | "Parfum" | "Cologne";
-  volume_ml: number;          // bottle size in ml
-  quantity: number;           // stock
+  volume_ml: number;
+  quantity: number;
   fragranceFamily: "fresh" | "woody" | "oriental" | "floral" | "aromatic";
-  notes: string[];            // e.g., ["Citrus","Vanilla"]
+
+  topNotes: string[];      // NEW: Most perfumes have top/middle/base
+  middleNotes: string[];   // NEW
+  baseNotes: string[];     // NEW
+
+  covers?: string[];       // keep same design as fashion images
 }
+
 
 export interface ParfumeVariant {
   niche : "parfumes",
@@ -109,15 +124,6 @@ export interface ElectronicsFields {
   powerConsumption?: string;
 }
 
-export interface ProductDataGlobal  extends ProductBasicInfoData{
-  fashionFields?: FashionFields,
-  parfumesFields?: ParfumesFields,
-  electronicsFields?: ElectronicsFields,
-  // niche-specific fields (optional)
-  fashionVariants?: FashionVariant[];
-  parfumesVariants?: ParfumeVariant[];
-  electronicsVariants?: ElectronicsVariant[];
-}
 
 // Product variant
 export type ProductVariant = FashionVariant | ParfumeVariant | ElectronicsVariant

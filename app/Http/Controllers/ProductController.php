@@ -242,12 +242,32 @@ class ProductController extends Controller
         $fits = Fit::select('id', 'name')->distinct()->get();
         $materials = Material::select('id', 'name')->distinct()->get();;
     
-        $inventoryOptions = [
-            'colors' => $colors,
-            'sizes' => $sizes,
-            'fits' =>  $fits,
-            'materials' => $materials,
+       $inventoryOptions = [
+            'colors' => [
+                [ 'id' => 1, 'hex' => '#FF0000', 'name' => 'Red' ],
+                [ 'id' => 2, 'hex' => '#0000FF', 'name' => 'Blue' ],
+                [ 'id' => 3, 'hex' => '#00FF00', 'name' => 'Green' ],
+            ],
+
+            'sizes' => [
+                [ 'id' => 1, 'name' => 'S' ],
+                [ 'id' => 2, 'name' => 'M' ],
+                [ 'id' => 3, 'name' => 'L' ],
+                [ 'id' => 4, 'name' => 'XL' ],
+            ],
+
+            'fits' => [
+                [ 'id' => 1, 'name' => 'regular' ],
+                [ 'id' => 2, 'name' => 'slim' ],
+                [ 'id' => 3, 'name' => 'oversized' ],
+            ],
+
+            'materials' => [
+                [ 'id' => 1, 'name' => 'Cotton' ],
+                [ 'id' => 2, 'name' => 'Polyester' ],
+            ],
         ];
+
 
 
         $tagSuggestions = Tag::select('id' , 'slug')->get();

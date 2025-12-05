@@ -1,58 +1,37 @@
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import LoadingBlankPage from "@/components/LoadingBlankPage";
-import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditProductUICtx";
+import { Button } from "@/components/ui/button";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { useNicheCtx } from "@/contextHooks/useNicheCtx";
+import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
 import { currentTheme } from "@/data/currentTheme";
-import { Color, FashionOptions, Fit, InventoryOptions, Material, Size } from "@/types/inventoryTypes";
-import { FashionAttributes, FashionVariant, ProductVariant } from "@/types/productsTypes";
+import { useDataLoadingListener } from "@/functions/createFunctions/useDataLoadingListener";
+import {  useImagesPreviewRevoker } from "@/functions/createFunctions/useImagesPreviewer";
+import { useVariantsFormsActions } from "@/functions/useVariantsFormsActions";
+import { Color, FashionOptions, Fit, Material, Size } from "@/types/inventoryTypes";
+import { FashionAttributes } from "@/types/productsTypes";
 import { Check, X, Upload, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { v4 as uuidByV4 } from "uuid";
+import {  useRef } from "react";
 
 
 
 
-  interface ImageItem {
-  file: File;
-  url: string;
-  id : string
-}
-
+ 
 export const FashionVariantEditForm = () => {
 
     
-    // Prevent body scroll when modal is open
-    useEffect(() => {
-        document.body.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = 'unset';
-        };
-    }, []);
     
     
-    const  {setVariantForm , variantForm ,  productData , setProductData , inventoryOptionsState : inventoryOptions } = useProductDataCtx();
-    const {editingVariantId , setEditingVariantId , setHasUnsavedChanges } = useEditProductUICtx()
+    const {isVariantFormModalOpen , uiActiveVariantFormImages2Preview , isVariantFormLoading } =  useProductUICtx()
+
+
+    const  {setVariantForm , variantForm , inventoryOptionsState : inventoryOptions } = useProductDataCtx();
+    const {handleCancelVariant , handleSaveVariant , onRemoveImage , onRemovePreviewImage , onImageUpload } =  useVariantsFormsActions()
     if(variantForm?.niche !== 'fashion') return ;
     const formRef = useRef<HTMLDivElement | null>(null)
-    const [isFormLoading , setIsFormLoading] = useState(true)
   
-
-    const [imageItemsFileWithPreviewUrl, setImageItemsFileWithPreviewUrl] = useState<ImageItem[]>([]);
+    
     
 
-    //data loading 
-    useEffect(() => {
-           const isReady =
-            variantForm &&
-            variantForm.attributes !== undefined &&
-            variantForm.quantity !== undefined;
-
-
-    if(isReady){
-        setTimeout(()=> setIsFormLoading(false) , 1000)
-    }
-    }, [variantForm]);
 
     const toggleFashionVariantAttribute = <T extends Color | Size | Fit | Material>(
             key: keyof FashionAttributes,
@@ -60,92 +39,37 @@ export const FashionVariantEditForm = () => {
         ) => {
             if (!variantForm) return;
        
-            console.log(key , 'key')
-            console.log(item , 'item')
+            
             const attributes = variantForm.attributes as FashionAttributes;
             const currentItems = attributes[key] as T[] ?? [];
-
             const exists = currentItems.some((i) => i.id === item.id);
     
-            setVariantForm({
-                ...variantForm,
-                [key]: exists
+            setVariantForm(prev => {
+                if(!prev) return prev  ;
+
+                if(prev.niche !== "fashion") return prev ;
+                return {
+                ...prev,
+                 attributes : {
+                     ...prev.attributes , 
+                     [key]: exists
                     ? currentItems.filter((i) => i.id !== item.id)
                     : [...currentItems, item],
+                 }
+            }
             });
         };
     
-
-    
-    const onRemoveImage = (coverId : number) => {
-        setVariantForm(prev => {
-            if(!prev) return prev ; 
-
-            if(prev.niche !== "fashion" ) return prev
-
-            return {
-                ...prev , 
-             attributes : {
-
-                    ...prev.attributes , 
-                     covers : prev?.attributes?.covers.filter(c =>   Number(c.id) !== coverId)
-               
-             }
-            }
-        })
-    }
-
-    const onRemovePreviewImage = (id : string) => {
-        setImageItemsFileWithPreviewUrl(prev => prev.filter(previewItem => previewItem.id !== id))
-    }
-
+    // did the data loaded to the form
+    useDataLoadingListener()
+ 
     // uploads preview
-    useEffect(() => {
-        return () => {
-            imageItemsFileWithPreviewUrl.forEach(url => URL.revokeObjectURL(url))
-        }
-    }, [imageItemsFileWithPreviewUrl]);
-
-    const onImageUpload = (e : React.ChangeEvent<HTMLInputElement>) => {
-      // give it  a random iid\
-      const id = uuidByV4()
-      const file  = e.target.files?.[0] ;
-      if(!file)  return ;
-      const url = URL.createObjectURL(file);
-      setImageItemsFileWithPreviewUrl(prev => [...prev , {id ,url  , file}])
-       e.target.value = "";
-    }
+    useImagesPreviewRevoker()
     // end of uploads preview 
-
-
-
-
-    const handleSaveVariant = () => {
-        if (!variantForm || editingVariantId === null) return;
-
-        setProductData(prev => {
-           
-            if(!prev) return  prev ;
-            if(prev.niche !== "fashion" ) return prev ; 
-            return {
-            ...prev ,
-            fashionVariants: prev?.fashionVariants?.map((v) =>
-                Number(v.id) === Number(editingVariantId) ? (variantForm as FashionVariant) : v
-            ),
-        }
-        });
-        setEditingVariantId(null);
-        setVariantForm(null);
-        setHasUnsavedChanges(true);
-    };
-
-    const handleCancelVariant = () => {
-        setEditingVariantId(null);
-        setVariantForm(null);
-    };
+   
    
     const fashionOptions = inventoryOptions as FashionOptions;
-
+ 
 
 
     return (
@@ -160,7 +84,7 @@ export const FashionVariantEditForm = () => {
                 onClick={handleCancelVariant}
             >    
 
-            {isFormLoading  ? <LoadingBlankPage  containerRef={formRef} /> :
+            {isVariantFormLoading  ? <LoadingBlankPage  containerRef={formRef} /> :
                 
                 <div 
                     className="w-full sm:w-full   min-h-[100vh] overflow-y-auto rounded-2xl shadow-2xl"
@@ -176,7 +100,11 @@ export const FashionVariantEditForm = () => {
                         }}
                     >
                       
-                    <SectionHeader title="Edit Variant #number" description="Update variant details and attributes" />
+                    <SectionHeader title="Edit Variant #number" description="Update variant details and attributes" >
+                                <Button   className="top-0 right-0 absolute" onClick={handleCancelVariant}>
+                                  <X />
+                               </Button>
+                    </SectionHeader>
                     </div>
 
 
@@ -212,7 +140,7 @@ export const FashionVariantEditForm = () => {
                                 ))}
 
                                  {/* only previews */}
-                                {imageItemsFileWithPreviewUrl.length > 0 && imageItemsFileWithPreviewUrl.map(p => 
+                                {uiActiveVariantFormImages2Preview.length > 0 && uiActiveVariantFormImages2Preview.map(p => 
             
                                     <div  key={p.id} className="relative w-24 h-24 group">
                                         <img src={p.url} className="w-40 h-40 object-cover rounded-lg border-2" />
@@ -306,7 +234,7 @@ export const FashionVariantEditForm = () => {
                             </label>
                             <div className="flex flex-wrap gap-2">
                                 {fashionOptions?.sizes?.map((size) => {
-                                    const isSelected = variantForm?.sizes?.some((s) => Number(s.id) === Number(size.id));
+                                    const isSelected = variantForm?.attributes?.sizes?.some((s) => Number(s.id) === Number(size.id));
                                     return (
                                         <button
                                             key={size.id}

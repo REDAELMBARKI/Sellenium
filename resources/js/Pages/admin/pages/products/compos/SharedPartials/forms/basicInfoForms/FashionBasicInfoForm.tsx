@@ -1,9 +1,9 @@
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { currentTheme } from "@/data/currentTheme";
+import { useBasicinfoActions } from "@/functions/useBasicinfoActions";
 import { Plus, Tag, Upload, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useEditProductActions } from "../../../Productshooks/editActionsHook";
 
 
 
@@ -13,7 +13,7 @@ const FashionBasicInfoForm = () => {
     const {addTag ,  removeTag ,  tagInputRef , showSuggestions , tagInput , 
             handleTagInputKeyDown  , setShowSuggestions  ,filteredSuggestions , handleAddTagFromInput , handleCancelWithConfirmation , 
             setTagInput , selectedCategory , selectedSuggestionIndex , setSelectedSuggestionIndex , setSelectedCategory
-          } =  useEditProductActions()
+          } =  useBasicinfoActions()
 
      const handleThumbnailUpload = (e : React.ChangeEvent<HTMLInputElement>) => {
               const file = e.target.files?.[0];

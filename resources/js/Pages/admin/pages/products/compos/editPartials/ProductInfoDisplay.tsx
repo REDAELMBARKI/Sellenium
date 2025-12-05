@@ -209,21 +209,6 @@ const ProductInfoDisplay: React.FC<ProductInfoDisplayProps> = ({ productData }) 
             Featured Product
           </span>
         </label>
-
-        <label className="flex items-center group cursor-pointer">
-          <div className="relative">
-            <input
-              type="checkbox"
-              checked={productData.free_shipping}
-              disabled
-              className="w-6 h-6 rounded-lg cursor-not-allowed transition-all duration-200"
-              style={{ accentColor: currentTheme.accent }}
-            />
-          </div>
-          <span className="ml-3 text-sm font-bold uppercase tracking-wide" style={{ color: currentTheme.text }}>
-            Free Shipping
-          </span>
-        </label>
       </div>
     </div>
   );

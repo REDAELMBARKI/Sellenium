@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import {  ProductBackendProps } from "@/types/productsTypes";
 import ProductBasicInfo from "./compos/editPartials/ProductBasicInfo";
-import EditProductUIProvider from "@/contextProvoders/editProductProviders/editProductUIProvider";
-import { useEditProductUICtx } from "@/contextHooks/editProductCtxHooks/useEditProductUICtx";
 import { VariantsSection } from "./compos/SharedPartials/VariantsSection";
 import { ToasterNative } from "@/components/ui/ToasterNative";
 import { useToasts } from "@/contextHooks/useToasts";
 import ProductDataProvider from "@/contextProvoders/sharedProviders/ProductDataProvider";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import ProductUIProvider from "@/contextProvoders/sharedProviders/ProductUIProvider";
+import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
 
 
 export default  function Edit({product , inventoryOptions , tagSuggestions}:ProductBackendProps){
@@ -19,9 +19,9 @@ export default  function Edit({product , inventoryOptions , tagSuggestions}:Prod
    return (      
                 <ProductDataProvider product={product} inventoryOptions={inventoryOptions}  tagSuggestions={tagSuggestions}>
               
-                        <EditProductUIProvider>
+                        <ProductUIProvider>
                                     <EditContent/>
-                        </EditProductUIProvider>
+                        </ProductUIProvider>
             
                 </ProductDataProvider>
                 
@@ -36,7 +36,7 @@ Edit.layout = (page: any) => <AdminLayout children={page} />;
 function EditContent() {
 
     const  { productData } = useProductDataCtx()
-    const  {hasUnsavedChanges , showToast , isEditingBasicInfo  , deleteModalOpen, setShowToast ,  setIsEditingBasicInfo , setHasUnsavedChanges , setEditingVariantId  , setDeleteModalOpen , } = useEditProductUICtx()
+    const  {hasUnsavedChanges , showToast   , deleteModalOpen, setShowToast , setHasUnsavedChanges   , setDeleteModalOpen  } = useProductUICtx()
     const {toastContainerRef} =  useToasts()
     
     useEffect(() => {

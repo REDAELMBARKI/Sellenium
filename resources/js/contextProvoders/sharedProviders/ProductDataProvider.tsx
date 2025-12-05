@@ -59,13 +59,14 @@ const ProductDataProvider = ({children ,product : productSource , inventoryOptio
     // const inventoryOptions : FashionOptions  = inventoryOptions ;  
     const [inventoryOptionsState, setInventoryOptionsState] = useState(inventoryOptions);
     const [tagSuggestionsState, setTagSuggestionsState] = useState(tagSuggestionsSource);
+  
 
 
     const [variants , setVariants] = useState<ProductVariant[]>(() => initialVariants);
     const [variantForm ,  setVariantForm] = useState<ProductVariant | null>(); 
     const [variantToDelete ,  setVariantToDelete] = useState<number | null>()
     return (
-    <ProductDataContext.Provider value={{ 
+    <ProductDataContext.Provider value={{
         modeForm , 
         variants , setVariants , 
         variantToDelete ,  setVariantToDelete , 

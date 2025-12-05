@@ -3,6 +3,11 @@ import { Box } from "lucide-react";
 import EmptyListSection from "@/admin/components/partials/EmptyListSection";
 import { FashionVariantDisplayCard } from "./displayVariantCards/FashionVariantDisplayCard";
 import { ProductVariant } from "@/types/productsTypes";
+import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { fakeFashionVariants, fakeParfumesVariants } from "@/data/fakeVariants";
+import { useNicheCtx } from "@/contextHooks/useNicheCtx";
+import { NicheItem } from '@/context/NicheContext';
+import { ParfumesVariantDisplayCard } from "./displayVariantCards/ParfumesVariantDisplayCard";
 
 
 
@@ -11,73 +16,24 @@ import { ProductVariant } from "@/types/productsTypes";
 
 
 export const VariantsSection = () => {
+ 
+   
+    const {currentNiche} = useNicheCtx()
 
-const variants: ProductVariant[] = [
-  { 
-    niche : "fashion" ,
-    id: "1",
-    quantity: 10,
-    attributes: {
-      color: [{ id: 1, hex: "#FF0000", name: "Red" }] as Color[] , 
-      sizes: [
-        { id: 1, name: "S" },
-        { id: 2, name: "M" },
-        { id: 3, name: "L" }
-      ] as Size[],
-      fits: [{ id: 1, name: "regular" }] as Fit[],
-      materials: [{ id: 1, name: "Cotton" }] as Material[],
-      fabricType: ["Jersey"],
-       covers: [
-        { id: 1, path: "/images/red-front.jpg" },
-        { id: 2, path: "/images/red-back.jpg" }
-      ] as Cover[]
-    }
-  },
-  { 
-    niche : "fashion" ,
-
-    id: "2",
-    quantity: 5,
-    attributes: {
-      color:[ { id: 2, hex: "#0000FF", name: "Blue" }] as Color[],
-      sizes: [
-        { id: 2, name: "M" },
-        { id: 3, name: "L" },
-        { id: 4, name: "XL" }
-      ] as Size[],
-      fits: [{ id: 2, name: "slim" }] as Fit[],
-      materials: [
-        { id: 1, name: "Cotton" },
-        { id: 2, name: "Polyester" }
-      ] as Material[],
-      fabricType: ["Jersey"],
-      covers : [{ id: 1, path: "/images/red-front.jpg" },
-        { id: 2, path: "/images/red-back.jpg" }] as Cover[]
+    const VariantsDisplayCardsMap : Record<NicheItem , React.FC<any>>  = {
+       "fashion" : FashionVariantDisplayCard , 
+       "parfumes" : ParfumesVariantDisplayCard , 
+       "electronics" : FashionVariantDisplayCard , 
 
     }
-  },
-  { 
-    niche : "fashion" ,
-    id: "3",
-    quantity: 7,
-    attributes: {
-      color: [{ id: 3, hex: "#00FF00", name: "Green" }] as Color[],
-      sizes: [
-        { id: 1, name: "S" },
-        { id: 2, name: "M" }
-      ] as Size[],
-      fits: [{ id: 3, name: "oversized" }] as Fit[],
-      materials: [{ id: 1, name: "Cotton" }] as Material[],
-      fabricType: ["Sweatshirt"],
-      covers : [{ id: 1, path: "/images/red-front.jpg" },
-        { id: 2, path: "/images/red-back.jpg" }] as Cover[]
-    }
-  }
-];
 
 
+    const VariantDisplayCard = VariantsDisplayCardsMap[currentNiche]
+    
     return (
-        <div className="rounded-xl shadow-md border border-slate-200 p-8">
+        <div className="rounded-xl shadow-md border border-slate-200 " 
+        style={{padding : "10px"}}
+        >
             <div className="flex items-center space-x-3 mb-6">
                 <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
                     <svg
@@ -97,12 +53,12 @@ const variants: ProductVariant[] = [
                 <h2 className="text-2xl font-bold text-slate-800">Variants</h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ">
-                {variants?.length > 0 ? (
-                    variants.map((variant) => {
+            <div className="p-8 flex flex-col gap-4">
+                {fakeParfumesVariants?.length > 0 ? (
+                    fakeParfumesVariants.map((variant) => {
                     
                         return (
-                            <FashionVariantDisplayCard
+                            <VariantDisplayCard
                                 key={variant.id}
                                 variant={variant}
                                

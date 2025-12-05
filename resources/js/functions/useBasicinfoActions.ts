@@ -1,29 +1,12 @@
-import { useEditProductUICtx } from '@/contextHooks/editProductCtxHooks/useEditProductUICtx';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
-import { ProductBasicInfoData } from '@/types/productsTypes';
+import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
 import { Tag as TagType } from '@/types/tagsTypes';
 import { useState, useRef, useEffect, useCallback, RefObject } from 'react';
 
 
-interface UseEditProductActionsReturn {
-  tagInput: string;
-  setTagInput: React.Dispatch<React.SetStateAction<string>>;
-  filteredSuggestions: TagType[];
-  showSuggestions: boolean;
-  setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedSuggestionIndex: number;
-  setSelectedSuggestionIndex: React.Dispatch<React.SetStateAction<number>>;
-  selectedCategory: string;
-  setSelectedCategory: React.Dispatch<React.SetStateAction<string>>;
-  tagInputRef: RefObject<HTMLInputElement |null>;
-  handleTagInputKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  handleCancelWithConfirmation: () => void;
-  handleAddTagFromInput: () => void; 
-  addTag : (tag : TagType) => void
-  removeTag : (tagId : string) => void
-}
 
-export const useEditProductActions = (): UseEditProductActionsReturn => {
+
+export const useBasicinfoActions = () => {
   const [tagInput, setTagInput] = useState<string>('');
   const [filteredSuggestions, setFilteredSuggestions] = useState<TagType[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
@@ -33,7 +16,7 @@ export const useEditProductActions = (): UseEditProductActionsReturn => {
 
 
   const {setBasicInfoForm  ,  basicInfoForm , tagSuggestionsState : tagSuggestions ,  productData} = useProductDataCtx() 
-  const {setIsEditingBasicInfo} = useEditProductUICtx()
+  const {setIsEditingBasicInfo} = useProductUICtx()
   // Filter suggestions based on input
  
   const addTag = (tag : TagType) => {
@@ -45,7 +28,7 @@ export const useEditProductActions = (): UseEditProductActionsReturn => {
             }
         };
  
-            const handleCancelBasicInfo = () => {
+  const handleCancelBasicInfo = () => {
           setIsEditingBasicInfo(false);
           if(!productData) return ;
           setBasicInfoForm({
@@ -159,14 +142,12 @@ export const useEditProductActions = (): UseEditProductActionsReturn => {
     
         
     
-    
-
   
-
   return {
     removeTag , 
     addTag , 
     tagInput,
+    handleCancelBasicInfo , 
     setTagInput,
     filteredSuggestions,
     showSuggestions,

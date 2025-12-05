@@ -23,7 +23,8 @@ interface ProductDataContextProps {
     setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductBasicInfoData>>
     variants : ProductVariant[]
     setVariants: React.Dispatch<React.SetStateAction<ProductVariant[]>>
-
+     
+   
     }
 
 export const ProductDataContext = createContext<ProductDataContextProps |undefined>(undefined)
