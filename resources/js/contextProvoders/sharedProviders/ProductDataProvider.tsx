@@ -1,11 +1,11 @@
 
 import { useState } from 'react';
 import { ModeForm, ProductDataContext } from '@/context/sharedProductContext/ProductDataContext';
-import { ElectronicsVariant, FashionAttributes, FashionVariant, ParfumeVariant, ProductBackendProps, ProductBasicInfoData, ProductDataGlobal, ProductVariant } from '@/types/productsTypes';
+import { FashionVariant, Gender, ProductBackendProps, ProductBasicInfoData, ProductDataGlobal, ProductVariant } from '@/types/productsTypes';
 import { useNicheCtx } from '@/contextHooks/useNicheCtx';
 import { Product } from '@/types/dashboardTypes';
 import { NicheItem } from '@/context/NicheContext';
-import { FashionOptions } from '@/types/inventoryTypes';
+import { FashionOptions, Material } from '@/types/inventoryTypes';
 
 
 
@@ -16,45 +16,88 @@ import { FashionOptions } from '@/types/inventoryTypes';
 
 const ProductDataProvider = ({children ,product : productSource , inventoryOptions , tagSuggestions : tagSuggestionsSource }:ProductBackendProps) => {
      const {currentNiche} = useNicheCtx()
-      const initialData: ProductDataGlobal = productSource ?? {
+     const modeForm : ModeForm = productSource ? "edit" : "create" ; 
+
+      let initialData: ProductDataGlobal;
+
+    switch (currentNiche) {
+    case "fashion":
+        initialData = {
         id: undefined,
         name: "",
         brand: "",
         price: "",
         compareAtPrice: "",
         costPrice: "",
-        category: [] as string[],
-        gender: [] as string[],
+        category: [],
         description: "",
         rating_average: undefined,
         thumbnail: "",
         tags: [],
         isFeatured: false,
-        niche: currentNiche ?? "fashion",         
-        // optional niche fields
-        fashionFields: undefined,
-        parfumesFields: undefined,
-        electronicsFields: undefined,
-        // variants
-        fashionVariants: [] as FashionVariant[] ,
-        parfumesVariants: [] as ParfumeVariant[],
-        electronicsVariants: [] as ElectronicsVariant[]
-    };
-    
-    const {fashionVariants = null , electronicsVariants = null , parfumesVariants = null } = productSource || {} ;
+        niche: "fashion",
+        gender: [] as Gender[],
+        materials: [] as Material[],
+        variants: [] as FashionVariant[],
+        };
+        break;
 
-    const variantsMap : Record<NicheItem , ProductVariant[] | null> =  {
-       "fashion" : fashionVariants , 
-       "electronics" : electronicsVariants , 
-       "parfumes" : parfumesVariants
+    case "perfumes":
+        initialData = {
+        id: undefined,
+        name: "",
+        brand: "",
+        price: "",
+        compareAtPrice: "",
+        costPrice: "",
+        category: [],
+        description: "",
+        rating_average: undefined,
+        thumbnail: "",
+        tags: [],
+        isFeatured: false,
+        niche: "perfumes",
+        concentration: "EDT",
+        fragranceFamily: "fresh",
+        topNotes: [],
+        middleNotes: [],
+        baseNotes: [],
+        volumes: [],
+        quantity: 0,
+        covers: [],
+        gender: [] as Gender[],
+        };
+        break;
+
+    case "electronics":
+        initialData = {
+        id: undefined,
+        name: "",
+        brand: "",
+        price: "",
+        compareAtPrice: "",
+        costPrice: "",
+        category: [],
+        description: "",
+        rating_average: undefined,
+        thumbnail: "",
+        tags: [],
+        isFeatured: false,
+        niche: "electronics",
+        quantity: 0,
+        colors: [],
+        };
+        break;
+
+    default:
+        throw new Error("Unknown niche");
     }
-    const nicheVariants = variantsMap[currentNiche]
-    
-    const initialVariants : ProductVariant[]  = productSource ? nicheVariants ?? [] : [] as ProductVariant[]
 
-    const modeForm : ModeForm = productSource ? "edit" : "create" ; 
+    
+    const initialVariants : ProductVariant[]  = (modeForm === "edit" && productSource?.niche === "fashion") ? productSource.variants  ?? [] : [] as ProductVariant[]
+
     const [productData ,   setProductData] = useState<ProductDataGlobal | undefined>(() => productSource)
-    const [basicInfoForm , setBasicInfoForm] = useState<ProductBasicInfoData>(() => initialData);
+    const [basicInfoForm , setBasicInfoForm] = useState<ProductBasicInfoData>(() => initialData );
 
     // const inventoryOptions : FashionOptions  = inventoryOptions ;  
     const [inventoryOptionsState, setInventoryOptionsState] = useState(inventoryOptions);

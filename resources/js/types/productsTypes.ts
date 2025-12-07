@@ -9,18 +9,12 @@ export interface ProductBackendProps {
     tagSuggestions: Tag[];
 }
 
-export interface ProductDataGlobal  extends ProductBasicInfoData{
-  fashionFields?: FashionFields,
-  parfumesFields?: ParfumesFields,
-  electronicsFields?: ElectronicsFields,
-  // niche-specific fields (optional)
-  fashionVariants?: FashionVariant[];
-  parfumesVariants?: ParfumeVariant[];
-  electronicsVariants?: ElectronicsVariant[];
-}
+export type Gender ="male" | "female" | "kids" | "all genders"
 
+export type ProductDataGlobal =  FashionProduct | PerfumesProduct | ElectronicsProduct ;
 
 export interface ProductBasicInfoData { 
+  niche: NicheItem;
   id?: string | null;
   name: string;
   brand: string;
@@ -28,45 +22,48 @@ export interface ProductBasicInfoData {
   compareAtPrice?: string;    // optional, original price
   costPrice?: string;  
   category: string[];
-  gender?: string[];
   description: string;
-  rating_average?: number ,
+  rating_average?: number 
   thumbnail: string;
   tags: Tag[];
   isFeatured?: boolean;
-  niche?: NicheItem;
 }
 
 
-export interface ParfumeAttributes {
+export interface PerfumesProduct extends  ProductBasicInfoData {
+  niche: "perfumes";
   concentration: "EDT" | "EDP" | "Parfum" | "Cologne";
-  volume_ml: number;
   quantity: number;
   fragranceFamily: "fresh" | "woody" | "oriental" | "floral" | "aromatic";
+  gender : Gender[]
 
   topNotes: string[];      // NEW: Most perfumes have top/middle/base
   middleNotes: string[];   // NEW
   baseNotes: string[];     // NEW
 
   covers?: string[];       // keep same design as fashion images
+  longevity?: string;
+  sillage?: string;
+  volumes: {volume : number , price : number}[];
 }
 
 
-export interface ParfumeVariant {
-  niche : "parfumes",
-  id :string 
-  attributes : ParfumeAttributes
-  quantity : number
+ 
+
+
+export interface FashionProduct extends  ProductBasicInfoData {
+  niche: "fashion";
+  materials : Material[]
+  gender : Gender[]
+  variants : FashionVariant[]
 }
 
 
 export interface FashionAttributes {
-  color: Color[];
+  color: Color;
   covers: Cover[];
   sizes: Size[];
   fits: Fit[];
-  materials: Material[];           // e.g., ["Cotton", "Polyester"]
-  fabricType?: string[];         // optional, e.g., ["Denim", "Wool"]
 }
 export interface FashionVariant {
   niche : "fashion",
@@ -76,22 +73,23 @@ export interface FashionVariant {
 }
 
 
-export interface ElectronicsAttributes {
-  color: Color[];          // optional if devices have color variants
-  storage?: string;            // e.g., "128GB", "256GB"
-  warrantyMonths?: number;
-  quantity: number;            // stock
+
+
+export interface ElectronicsProduct extends ProductBasicInfoData {
+  niche: "electronics";
+  batteryLife?: string;        // "10h"
   connectivity?: string[];     // e.g., ["Bluetooth","WiFi"]
   voltage?: string;            // e.g., "220V"
-  batteryLife?: string;        // "10h"
+  storage?: string;            // e.g., "128GB", "256GB"
+  colors: Color[];          // optional if devices have color variants
+  quantity: number;            // stock
+  warrantyMonths?: number;
+  model?: string;
+  brandSeries?: string;
+  techSpecs?: Record<string, string>;
 }
 
-export interface ElectronicsVariant {
-  niche : "electronics",
-  id :string 
-  attributes : ElectronicsAttributes
-  quantity : number
-}
+
 
 
 export interface FashionFields {
@@ -126,7 +124,7 @@ export interface ElectronicsFields {
 
 
 // Product variant
-export type ProductVariant = FashionVariant | ParfumeVariant | ElectronicsVariant
+export type ProductVariant = FashionVariant
 
 
 
