@@ -28,36 +28,29 @@ export interface ProductBasicInfoData {
   compareAtPrice?: string;    // optional, original price
   costPrice?: string;  
   category: string[];
-  gender?: string[];
   description: string;
   rating_average?: number ,
   thumbnail: string;
   tags: Tag[];
   isFeatured?: boolean;
-  niche?: NicheItem;
+  niche: NicheItem;
 }
 
 
-export interface ParfumeAttributes {
+
+export interface ParfumesBasicData extends ProductBasicInfoData {
+  niche: "perfumes";
   concentration: "EDT" | "EDP" | "Parfum" | "Cologne";
-  volume_ml: number;
   quantity: number;
   fragranceFamily: "fresh" | "woody" | "oriental" | "floral" | "aromatic";
-
-  topNotes: string[];      // NEW: Most perfumes have top/middle/base
-  middleNotes: string[];   // NEW
-  baseNotes: string[];     // NEW
-
-  covers?: string[];       // keep same design as fashion images
+  topNotes: string[];
+  middleNotes: string[];
+  baseNotes: string[];
+  longevity?: string;
+  sillage?: string;
+  volumes: { ml: number; price?: number }[];
 }
 
-
-export interface ParfumeVariant {
-  niche : "parfumes",
-  id :string 
-  attributes : ParfumeAttributes
-  quantity : number
-}
 
 
 export interface FashionAttributes {

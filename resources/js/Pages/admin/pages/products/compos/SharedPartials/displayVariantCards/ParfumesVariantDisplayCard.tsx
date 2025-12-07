@@ -15,7 +15,7 @@ export const ParfumesVariantDisplayCard = ({ variant }: VariantDisplayProps) => 
   const { setDeleteModalOpen, deleteModalOpen } = useProductUICtx();
   const { cancelDelete, requestDelete, editVariant } = useVariantsDisplayActions();
 
-  const att = variant.attributes;
+  const att = variant.attributes; 
 
   return (
     <>
@@ -170,10 +170,7 @@ export const ParfumesVariantDisplayCard = ({ variant }: VariantDisplayProps) => 
 
 
       {isFormModalOpen && (
-                      <ParfumesVariantEditForm
-                          setIsFormModalOpen={setIsFormModalOpen}  
-                          key={variant.id}
-                      />
+                      <ParfumesEditForm  key={variant.id}    />
       )}
 
       <DeleteConfirmationModal

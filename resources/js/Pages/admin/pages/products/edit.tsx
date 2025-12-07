@@ -71,10 +71,9 @@ function EditContent() {
                         description="Update product details and variants"
                     />
                     <div className="space-y-6">
-                        <ProductBasicInfo
-                        />
+                        <ProductBasicInfo />
 
-                    <VariantsSection />
+                        <VariantsSection />
                      
                     
                         <div className="flex justify-center">

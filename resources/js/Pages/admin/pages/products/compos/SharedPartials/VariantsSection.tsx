@@ -24,7 +24,6 @@ export const VariantsSection = () => {
        "fashion" : FashionVariantDisplayCard , 
        "parfumes" : ParfumesVariantDisplayCard , 
        "electronics" : FashionVariantDisplayCard , 
-
     }
 
 
