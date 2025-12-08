@@ -1,11 +1,12 @@
 
 import { useState } from 'react';
 import { ModeForm, ProductDataContext } from '@/context/sharedProductContext/ProductDataContext';
-import { FashionVariant, Gender, ProductBackendProps, ProductBasicInfoData, ProductDataGlobal, ProductVariant } from '@/types/productsTypes';
+import { FashionVariant, Gender, PerfumesProduct, ProductBackendProps, ProductBasicInfoData, ProductDataGlobal, ProductVariant } from '@/types/productsTypes';
 import { useNicheCtx } from '@/contextHooks/useNicheCtx';
 import { Product } from '@/types/dashboardTypes';
 import { NicheItem } from '@/context/NicheContext';
 import { FashionOptions, Material } from '@/types/inventoryTypes';
+import { EmptyInitialProductDataMap, getEditedData } from '@/data/initialProductData';
 
 
 
@@ -14,90 +15,70 @@ import { FashionOptions, Material } from '@/types/inventoryTypes';
 
 
 
-const ProductDataProvider = ({children ,product : productSource , inventoryOptions , tagSuggestions : tagSuggestionsSource }:ProductBackendProps) => {
-     const {currentNiche} = useNicheCtx()
-     const modeForm : ModeForm = productSource ? "edit" : "create" ; 
+const ProductDataProvider = ({children ,product , inventoryOptions , tagSuggestions : tagSuggestionsSource }:ProductBackendProps) => {
+    
+    const productSource: PerfumesProduct = {
+  niche: "perfumes",
+  id: "1",
+  name: "Oud Mystique",
+  brand: "Maison Elixir",
+  price: "129.99",
+  compareAtPrice: "149.99",
+  costPrice: "65.00",
+  category: ["Luxury Perfume"],
+  description: "A warm and captivating unisex fragrance blending oud, amber, and sweet floral notes.",
+  rating_average: 4.7,
+  thumbnail: "/uploads/products/perfumes/oud-mystique-thumb.jpg",
+  tags: [
+    { id: 3, name: "Oud" },
+    { id: 7, name: "Luxury" },
+    { id: 11, name: "Unisex" },
+  ],
+  isFeatured: true,
+  sku: "OU-12345",
+  stockQuantity: 25,
+  releaseDate: "2025-01-10",
+  visible: true,
 
-      let initialData: ProductDataGlobal;
+  concentration: "EDP",
+  quantity: 25,
+  fragranceFamily: "oriental",
+  gender: ["male", "female"],
 
-    switch (currentNiche) {
-    case "fashion":
-        initialData = {
-        id: undefined,
-        name: "",
-        brand: "",
-        price: "",
-        compareAtPrice: "",
-        costPrice: "",
-        category: [],
-        description: "",
-        rating_average: undefined,
-        thumbnail: "",
-        tags: [],
-        isFeatured: false,
-        niche: "fashion",
-        gender: [] as Gender[],
-        materials: [] as Material[],
-        variants: [] as FashionVariant[],
-        };
-        break;
+  topNotes: ["Saffron", "Rose", "Bergamot"],
+  middleNotes: ["Oud Wood", "Amber", "Geranium"],
+  baseNotes: ["Vanilla", "Patchouli", "Musk"],
 
-    case "perfumes":
-        initialData = {
-        id: undefined,
-        name: "",
-        brand: "",
-        price: "",
-        compareAtPrice: "",
-        costPrice: "",
-        category: [],
-        description: "",
-        rating_average: undefined,
-        thumbnail: "",
-        tags: [],
-        isFeatured: false,
-        niche: "perfumes",
-        concentration: "EDT",
-        fragranceFamily: "fresh",
-        topNotes: [],
-        middleNotes: [],
-        baseNotes: [],
-        volumes: [],
-        quantity: 0,
-        covers: [],
-        gender: [] as Gender[],
-        };
-        break;
+  covers: [
+    "/uploads/products/perfumes/oud-mystique-1.jpg",
+    "/uploads/products/perfumes/oud-mystique-2.jpg",
+  ],
+  longevity: "long-lasting",
+  sillage: "strong",
 
-    case "electronics":
-        initialData = {
-        id: undefined,
-        name: "",
-        brand: "",
-        price: "",
-        compareAtPrice: "",
-        costPrice: "",
-        category: [],
-        description: "",
-        rating_average: undefined,
-        thumbnail: "",
-        tags: [],
-        isFeatured: false,
-        niche: "electronics",
-        quantity: 0,
-        colors: [],
-        };
-        break;
+  volumes: [
+    { volume: 50, price: 129.99 },
+    { volume: 100, price: 179.99 },
+  ],
+};
 
-    default:
-        throw new Error("Unknown niche");
-    }
+    const {currentNiche} = useNicheCtx()
+    const modeForm : ModeForm = productSource ? "edit" : "create" ; 
+
+    const getInitialData = (niche: NicheItem, mode: ModeForm, product?: ProductDataGlobal) => {
+    if (mode === "create") return EmptyInitialProductDataMap[niche];
+    if (mode === "edit" && product) return getEditedData(product, niche);
+    throw new Error("Invalid state");
+    };
+
+    const initialData = getInitialData(currentNiche, modeForm, productSource) as ProductDataGlobal;
+        
 
     
     const initialVariants : ProductVariant[]  = (modeForm === "edit" && productSource?.niche === "fashion") ? productSource.variants  ?? [] : [] as ProductVariant[]
 
     const [productData ,   setProductData] = useState<ProductDataGlobal | undefined>(() => productSource)
-    const [basicInfoForm , setBasicInfoForm] = useState<ProductBasicInfoData>(() => initialData );
+    const [basicInfoForm , setBasicInfoForm] = useState<ProductDataGlobal>(() => initialData);
 
     // const inventoryOptions : FashionOptions  = inventoryOptions ;  
     const [inventoryOptionsState, setInventoryOptionsState] = useState(inventoryOptions);

@@ -6,10 +6,11 @@ import ProductInfoForm from '../SharedPartials/BasicInfoFormMaster';
 import { useToasts } from '@/contextHooks/useToasts';
 import { ToasterNative } from '@/components/ui/ToasterNative';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
-import { ProductBasicInfoData } from '@/types/productsTypes';
+import { ProductBasicInfoData, ProductDataGlobal } from '@/types/productsTypes';
 import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
 import BasicInfoFormMaster from '../SharedPartials/BasicInfoFormMaster';
 import { useBasicinfoActions } from '@/functions/useBasicinfoActions';
+import { getEditedData } from '@/data/initialProductData';
 
 
 
@@ -30,59 +31,23 @@ const ProductBasicInfo: React.FC = () => {
   const toastChangedUnsavedMoundRef =  useRef<boolean>(false) ;
   const {handleCancelBasicInfo} = useBasicinfoActions()
   const {addToast} =  useToasts()
-  if(!productData)  return ;
-
-    const handleEditBasicInfo = () => {
-        setIsEditingBasicInfo(true);
-
-        if(!productData)  return ;
 
 
-
-        setBasicInfoForm({
-            name: productData.name,
-            brand: productData.brand,
-            rating_average : productData.rating_average ,
-            price: productData.price,
-            description: productData.description,
-            category: productData.category,
-            gender: productData.gender,
-            isFeatured: productData.isFeatured,
-            thumbnail: productData.thumbnail,
-            tags: productData.tags,
-
-        });
-    };
-
-   
-   const handleSaveBasicInfo = () => {
-          setProductData({
-              ...productData,
-              ...basicInfoForm,
-          });
-          setIsEditingBasicInfo(false);
-          setHasUnsavedChanges(true);
-      };
-  
-  
-  const handleCancelWithConfirmation = () => {
+  useEffect(() => {
     
-    if(!hasUnsavedChanges) {
-      handleCancelBasicInfo()
-      return ;
-    };
-    const confirmed = window.confirm('You have unsaved changes. Are you sure you want to cancel?');
-    if (!confirmed) return;
-    handleCancelBasicInfo();
-  };
+    if (isEditingBasicInfo && productData) {
+        const editedData = getEditedData(productData! ,  productData.niche) as ProductDataGlobal // this gived me undifined  shuold i check first if there is editedData before setting isEditingBasicInfo to  true 
+        if (editedData) {
+          setBasicInfoForm(editedData);
+        }
+    }
+  }, [isEditingBasicInfo , productData ]);
 
-   
- 
-  // toest should be fixed when the full data is arived form backend
+   // toest should be fixed when the full data is arived form backend
   // chnages checkker 
   useEffect(() => {
      // destrictor basic info form data from prroduct data 
-    const {electronicsVariants , electronicsFields   ,fashionVariants , fashionFields , parfumesVariants , parfumesFields  , ...rest} = productData ;
+    const {...rest} = productData ;
      const basicInfoData : ProductBasicInfoData = rest ;
 
      const hasChanges  = JSON.stringify(basicInfoData) !== JSON.stringify(basicInfoForm) 
@@ -108,6 +73,38 @@ const ProductBasicInfo: React.FC = () => {
   }, [basicInfoForm]);
 
   
+
+  const handleEditBasicInfo = () => {
+    
+        setIsEditingBasicInfo(true);
+    };
+
+   
+   const handleSaveBasicInfo = () => {
+          setProductData({
+              ...productData,
+              ...basicInfoForm,
+          });
+          setIsEditingBasicInfo(false);
+          setHasUnsavedChanges(true);
+      };
+
+
+
+  const handleCancelWithConfirmation = () => {
+    
+    if(!hasUnsavedChanges) {
+      handleCancelBasicInfo()
+      return ;
+    };
+    const confirmed = window.confirm('You have unsaved changes. Are you sure you want to cancel?');
+    if (!confirmed) return;
+    handleCancelBasicInfo();
+  };
+
+   
+ 
+ 
 
 
 

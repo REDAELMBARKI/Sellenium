@@ -19,8 +19,8 @@ interface ProductDataContextProps {
     tagSuggestionsState: Tag[] 
     setTagSuggestionsState: React.Dispatch<React.SetStateAction<Tag[] >>
     
-    basicInfoForm: ProductBasicInfoData
-    setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductBasicInfoData>>
+    basicInfoForm: ProductDataGlobal
+    setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductDataGlobal>>
     variants : ProductVariant[]
     setVariants: React.Dispatch<React.SetStateAction<ProductVariant[]>>
      

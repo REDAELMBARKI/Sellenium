@@ -74,7 +74,7 @@ function EditContent() {
                         <ProductBasicInfo
                         />
 
-                    <VariantsSection />
+                    {/* <VariantsSection /> */}
                      
                     
                         <div className="flex justify-center">

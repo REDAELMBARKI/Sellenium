@@ -1,5 +1,5 @@
 import { RefObject } from "react";
-import { ElectronicsAttributes, FashionAttributes, ParfumeAttributes, ProductVariant } from "./productsTypes";
+import {  FashionAttributes, ProductVariant } from "./productsTypes";
 
 // Base types
 export interface Color {
