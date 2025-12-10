@@ -11,6 +11,7 @@ import ProductDataProvider from "@/contextProvoders/sharedProviders/ProductDataP
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import ProductUIProvider from "@/contextProvoders/sharedProviders/ProductUIProvider";
 import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
+import GoCreateProduct from "@/components/partials/GoCreateProduct";
 
 
 export default  function Edit({product , inventoryOptions , tagSuggestions}:ProductBackendProps){
@@ -34,7 +35,7 @@ Edit.layout = (page: any) => <AdminLayout children={page} />;
 
 function EditContent() {
 
-    const  { productData } = useProductDataCtx()
+    const  { productData = {} } = useProductDataCtx()
     const  {hasUnsavedChanges , showToast   , deleteModalOpen, setShowToast , setHasUnsavedChanges   , setDeleteModalOpen  } = useProductUICtx()
     const {toastContainerRef} =  useToasts()
     
@@ -53,8 +54,10 @@ function EditContent() {
     };
 
    
-
   
+    if(JSON.stringify(productData) === JSON.stringify({})) return (
+        // create mode (making a button to create product page )
+        <GoCreateProduct title="No product Found " description="" />)
 
    
     return (
@@ -85,15 +88,7 @@ function EditContent() {
                     </div>
                 </div>
 
-                {deleteModalOpen && (
-                    <DeleteConfirmationModal
-                        name={productData?.name ?? 'x'}
-                        isOpen={deleteModalOpen}
-                        entityType="product"
-                        onConfirm={() => {}}
-                        onClose={() => setDeleteModalOpen(false)}
-                    />
-                )}
+                
             </div>
             </div>
         </>

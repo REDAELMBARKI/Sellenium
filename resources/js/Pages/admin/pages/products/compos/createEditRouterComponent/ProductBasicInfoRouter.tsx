@@ -11,6 +11,7 @@ import BasicInfoFormMaster from '../SharedPartials/BasicInfoFormMaster';
 import { useBasicinfoActions } from '@/functions/useBasicinfoActions';
 import { getEditedData } from '@/data/initialProductData';
 import ProductInfoDisplayMaster from '../SharedPartials/ProductInfoDisplayMaster';
+import GoCreateProduct from '@/components/partials/GoCreateProduct';
 
 
 
@@ -26,7 +27,7 @@ const currentTheme = {
 
 
 const ProductBasicInfoRouter: React.FC = () => {
-  const {basicInfoForm  , productData ,  setProductData,  setBasicInfoForm , modeForm} =  useProductDataCtx()
+  const {basicInfoForm  , productData = {} as ProductDataGlobal ,  setProductData,  setBasicInfoForm , modeForm} =  useProductDataCtx()
   const {isEditingBasicInfo , setIsEditingBasicInfo , setHasUnsavedChanges  , hasUnsavedChanges} =  useProductUICtx() 
   const toastChangedUnsavedMoundRef =  useRef<boolean>(false) ;
   const {handleCancelBasicInfo} = useBasicinfoActions()
@@ -34,7 +35,7 @@ const ProductBasicInfoRouter: React.FC = () => {
 
 
   useEffect(() => {
-    
+    if(!productData) return ;
     if (isEditingBasicInfo && productData) {
         const editedData = getEditedData(productData! ,  productData.niche) as ProductDataGlobal // this gived me undifined  shuold i check first if there is editedData before setting isEditingBasicInfo to  true 
         if (editedData) {
@@ -46,6 +47,7 @@ const ProductBasicInfoRouter: React.FC = () => {
    // toest should be fixed when the full data is arived form backend
   // chnages checkker 
   useEffect(() => {
+    if(!productData) return ;
      // destrictor basic info form data from prroduct data 
     const {...rest} = productData ;
      const basicInfoData : ProductBasicInfoData = rest ;
@@ -105,7 +107,6 @@ const ProductBasicInfoRouter: React.FC = () => {
    
  
  
-
 
 
   return (
@@ -174,22 +175,22 @@ const ProductBasicInfoRouter: React.FC = () => {
       </div>
       <ToasterNative />
       {/* Conditional rendering based on editing state */}
-      {modeForm === "edit" ?  isEditingBasicInfo ? (
+      {modeForm === "edit" ?  
+       
+       isEditingBasicInfo ? (
          // show form in editinig mode 
             <BasicInfoFormMaster/>
           )
       
-      : productData ?(
+      :(
            // read only here need a master also that desides wich product info niche to render 
             <ProductInfoDisplayMaster  />
-          ) : null
-      : (
-
-        // create mode 
-        <BasicInfoFormMaster/>
-      )
+          )
+          
+      : <GoCreateProduct title="No product Found " description="" />
+     
     
-    }
+     }
 
     
     </div>

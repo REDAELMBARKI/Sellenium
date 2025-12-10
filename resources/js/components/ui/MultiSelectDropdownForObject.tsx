@@ -3,21 +3,22 @@ import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import SelectedChip from "./SelectedChip";
 import { Select } from '@/components/ui/select';
-import { Color, Fit, Material, Season, Style } from "@/types/inventoryTypes";
+import { Color, Fit, Material, Size } from "@/types/inventoryTypes";
 import { Gender } from "@/types/productsTypes";
 import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { isObject } from "lodash";
 
-type AllowedStringAttributes = Style | Gender | Season
-interface MultiSelectDropdownProps {
+type AllowedObjectsType = Size | Material  | Fit | Color 
+interface MultiSelectDropdownForObjectProps {
   label: string;
-  options: string[];
-  selectedValues: string[];
-  onChange: (selected: string[]) => void;
+  options: AllowedObjectsType[];
+  selectedValues: AllowedObjectsType[];
+  onChange: (selected: AllowedObjectsType[]) => void;
 }
 
 
 
-const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ label, options, selectedValues, onChange }) => {
+const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> = ({ label, options, selectedValues, onChange }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -37,11 +38,23 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ label, option
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleOption = (option: string) => {
-    const newSelected = selectedValues.includes(option)
+  const toggleOption = (option:AllowedObjectsType ) => {
+    let newSelected : AllowedObjectsType[];
+    if(isObject(option)){
+        // here i stringify=ied the objec cause option is an object so i can use includesd method
+       const exists : boolean = selectedValues.map(obj => JSON.stringify(obj)).includes(JSON.stringify(option)) ; 
+       newSelected = exists
+      ? selectedValues.filter((v : AllowedObjectsType ) => v.id !== option.id)
+      : [...selectedValues, option];
+      onChange(newSelected);
+    }else{
+     
+        newSelected = selectedValues.includes(option)
       ? selectedValues.filter(v => v !== option)
       : [...selectedValues, option];
-    onChange(newSelected);
+      onChange(newSelected);
+    }
+    
   };
 
   return (
@@ -102,7 +115,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ label, option
                 >
                   {isSelected && <Check className="w-3 h-3 text-white" />}
                 </div>
-                <span className="font-medium capitalize">{option}</span>
+                <span className="font-medium capitalize">{option.name}</span>
               </button>
             );
           })}
@@ -115,7 +128,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ label, option
           {selectedValues.map((value, idx) => (
             <SelectedChip
               key={idx}
-              label={value}
+              label={value.name ?? 'unfigured '}
               onRemove={() => toggleOption(value)}
             />
           ))}
@@ -126,4 +139,4 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ label, option
 };
 
 
-export default MultiSelectDropdown ; 
+export default MultiSelectDropdownForObject ; 
