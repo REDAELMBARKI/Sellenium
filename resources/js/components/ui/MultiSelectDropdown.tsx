@@ -1,15 +1,18 @@
 import { useTheme } from "@/admin";
-import { currentTheme } from "@/data/currentTheme";
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import SelectedChip from "./SelectedChip";
+import { Select } from '@/components/ui/select';
+import { Color, Fit, Material } from "@/types/inventoryTypes";
+import { Gender } from "@/types/productsTypes";
+import { useColorsCtx } from "@/contextHooks/useColorsCtx";
 
-
+type SelectedValues = any
 interface MultiSelectDropdownProps {
   label: string;
   options: string[];
-  selectedValues: string[];
-  onChange: (selected: string[]) => void;
+  selectedValues: SelectedValues[];
+  onChange: (selected: SelectedValues[]) => void;
 }
 
 
@@ -17,6 +20,12 @@ interface MultiSelectDropdownProps {
 const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ label, options, selectedValues, onChange }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+    const { currentTheme } = useColorsCtx();
+  
+  
+
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {

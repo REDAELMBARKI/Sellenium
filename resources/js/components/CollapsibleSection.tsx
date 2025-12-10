@@ -1,6 +1,7 @@
 import React from 'react';
-import { currentTheme } from "@/data/currentTheme";
 import SwitchToggler from './ui/SwitchToggler';
+import { useColorsCtx } from '@/contextHooks/useColorsCtx';
+
 
 const CollapsibleSection = ({
   title,
@@ -16,7 +17,10 @@ const CollapsibleSection = ({
   onToggle: (newState: boolean) => void;
   children: React.ReactNode;
   ref?: React.RefObject<HTMLDivElement | null>;
-}) => (
+}) => {
+        const { currentTheme } = useColorsCtx();
+    
+  return(
   <div className="space-y-4" ref={ref}>
     <div
       className="w-full flex items-center justify-between px-6 py-4 rounded-xl font-bold uppercase tracking-wide transition-all duration-200"
@@ -41,7 +45,7 @@ const CollapsibleSection = ({
         {children}
       </div>
     )}
-  </div>
-);
+  </div>)
+}
 
 export default CollapsibleSection;

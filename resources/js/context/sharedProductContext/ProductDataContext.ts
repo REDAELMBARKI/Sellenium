@@ -21,8 +21,8 @@ interface ProductDataContextProps {
     
     basicInfoForm: ProductDataGlobal
     setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductDataGlobal>>
-    variants : ProductVariant[]
-    setVariants: React.Dispatch<React.SetStateAction<ProductVariant[]>>
+    // variants : ProductVariant[]
+    // setVariants: React.Dispatch<React.SetStateAction<ProductVariant[]>>
      
    
     }

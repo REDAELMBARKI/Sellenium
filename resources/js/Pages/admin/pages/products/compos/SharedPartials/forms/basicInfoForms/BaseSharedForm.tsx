@@ -1,9 +1,13 @@
 import TagSection from "@/components/TagInput";
+import CustomSelect from "@/components/ui/CustomSelect";
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { currentTheme } from "@/data/currentTheme";
+import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { Description } from "@radix-ui/react-dialog";
 import { Upload, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { v4 } from "uuid";
 
 
@@ -14,8 +18,9 @@ const BaseSharedForm = () => {
       const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
       const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
       const [errors, setErrors] = useState<Record<string, string>>({});
+      const {currentTheme} = useColorsCtx()
+      
     
-      const recentTags = ["Luxury", "Summer", "Floral", "Woody", "Fresh", "Evening", "Citrus", "Spicy", "Oriental", "Casual"];
       
       
       useEffect(() => {
@@ -230,36 +235,91 @@ const BaseSharedForm = () => {
             <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
               Description <span className="text-red-500">*</span>
             </label>
-            <textarea
-              rows={6}
-              value={basicInfoForm.description}
-              onChange={(e) => {
-                setBasicInfoForm({ ...basicInfoForm, description: e.target.value });
-                validateField('description', e.target.value);
+            <ReactQuill
+              theme="snow"
+               onBlur={(previousRange, source, editor) => {
+                const content = editor.getText(); // plain text version
+                validateField('description', content);
               }}
-              onBlur={(e) => validateField('description', e.target.value)}
-              className="w-full px-5 py-4 rounded-xl font-medium shadow-sm resize-none"
-              style={{
-                backgroundColor: currentTheme.bg,
-                color: currentTheme.text,
-                borderWidth: '2px',
-                borderColor: errors.description ? '#ef4444' : currentTheme.border
+              value={basicInfoForm.description}
+              onChange={(value) => {
+                setBasicInfoForm({ ...basicInfoForm, description: value });
+                validateField('description',value);
+              }}
+              className="rounded-xl overflow-hidden shadow-sm border border-gray-300"
+
+              placeholder="Write your description here..."
+              modules={{
+                toolbar: [
+                  ["bold", "italic", "underline", "strike"],
+                  [{ header: [1, 2, 3, false] }],
+                  [{ list: "ordered" }, { list: "bullet" }],
+                  ["link", "image"],
+                  [{ color: [] }, { background: [] }], // <-- color and highlight
+                  ["clean"],
+                ],
               }}
             />
             {errors.description && <p className="text-red-500 text-sm mt-2">{errors.description}</p>}
           </div>
+          
 
-          {/* Tags */}
-          <div>
-            <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-              Tags <span className="text-xs font-normal">(optional)</span>
-            </label>
-            <TagSection
-              tags={(basicInfoForm.tags || []).map(t => t.name)}
-              onTagsChange={(tags) => setBasicInfoForm({ ...basicInfoForm, tags: tags.map(name => ({ id: v4(), name })) })}
-              suggestions={recentTags}
+
+          {/* stock  */}
+
+        <div>
+          <label
+            className="block text-sm font-bold mb-4 uppercase tracking-wide"
+            style={{ color: currentTheme.text }}
+          >
+            Stock Quantity
+          </label>
+
+          <div className="grid grid-col-3 gap-3">
+ 
+
+                 {/* Quick Select */}
+
+            <div className="relative ">
+              <CustomSelect 
+             
+             value={basicInfoForm.stockQuantity ?? 5} options={[{value : "5" , label : "5" } , {value : "10" , label : "10"} , {value : "20" , label : "20"}]}  
+             placeholder="select a stock "
+             onChange={(value)=> {
+              setBasicInfoForm({
+                  ...basicInfoForm,
+                  stockQuantity: value ,
+                })
+            } } />
+            </div>
+
+
+            {/* Manual Input */}
+            <input
+              type="number"
+              value={basicInfoForm.stockQuantity || ""}
+              onChange={(e) =>
+                setBasicInfoForm({
+                  ...basicInfoForm,
+                  stockQuantity: e.target.value
+                    ? parseInt(e.target.value)
+                    : undefined,
+                })
+              }
+              className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
+              style={{
+                backgroundColor: currentTheme.bg,
+                color: currentTheme.text,
+                borderWidth: "2px",
+                borderColor: currentTheme.border,
+              }}
             />
+
+      
+
           </div>
+        </div>
+
         </div>
     
     </>
@@ -267,3 +327,6 @@ const BaseSharedForm = () => {
 
 
 export default BaseSharedForm ; 
+
+
+

@@ -4,8 +4,7 @@ import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import {  ProductBackendProps } from "@/types/productsTypes";
-import ProductBasicInfo from "./compos/editPartials/ProductBasicInfo";
-import { VariantsSection } from "./compos/SharedPartials/VariantsSection";
+import ProductBasicInfo from "./compos/createEditRouterComponent/ProductBasicInfoRouter";
 import { ToasterNative } from "@/components/ui/ToasterNative";
 import { useToasts } from "@/contextHooks/useToasts";
 import ProductDataProvider from "@/contextProvoders/sharedProviders/ProductDataProvider";
@@ -59,11 +58,12 @@ function EditContent() {
 
    
     return (
-        <>
+        <> 
+        <div className="min-h-screen overflow-auto p-6 bg-gray-50">
             {showToast && hasUnsavedChanges && (
                 <ToasterNative />
             )}
-            <div ref={toastContainerRef} className="relative min-h-screen bg-slate-50 py-8 px-6">
+            <div ref={toastContainerRef} className="relative bg-slate-50 py-8 px-6">
                 <div className="max-w-6xl mx-auto">
                     {/* hehader */}
                     <SectionHeader
@@ -74,9 +74,6 @@ function EditContent() {
                         <ProductBasicInfo
                         />
 
-                    {/* <VariantsSection /> */}
-                     
-                    
                         <div className="flex justify-center">
                             <Button 
                                 variant="outline"
@@ -90,13 +87,14 @@ function EditContent() {
 
                 {deleteModalOpen && (
                     <DeleteConfirmationModal
-                        name={"somethong"}
+                        name={productData?.name ?? 'x'}
                         isOpen={deleteModalOpen}
-                        entityType="variant"
+                        entityType="product"
                         onConfirm={() => {}}
                         onClose={() => setDeleteModalOpen(false)}
                     />
                 )}
+            </div>
             </div>
         </>
     );

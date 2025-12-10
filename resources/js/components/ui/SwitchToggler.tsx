@@ -1,5 +1,6 @@
+import { useColorsCtx } from '@/contextHooks/useColorsCtx';
 import React from 'react';
-import { currentTheme } from "@/data/currentTheme";
+
 
 interface SwitchTogglerProps {
   checked: boolean;
@@ -12,6 +13,8 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
   onChange, 
   id = 'switch' 
 }) => {
+  const { currentTheme } = useColorsCtx();
+
   return (
     <>
       <style>{`

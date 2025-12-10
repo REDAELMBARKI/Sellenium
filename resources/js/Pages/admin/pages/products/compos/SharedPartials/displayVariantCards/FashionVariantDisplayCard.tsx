@@ -1,11 +1,12 @@
 import { Edit2, Trash2, Package } from "lucide-react";
 import { FashionVariantEditForm } from "../forms/variantsForms/FashionVariantEditForm";
-import { currentTheme } from "@/data/currentTheme";
+
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import {  VariantDisplayProps } from "@/types/productsTypes";
 import { useVariantsDisplayActions } from "@/functions/useVariantsDisplayActions";
 import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
+import { useColorsCtx } from "@/contextHooks/useColorsCtx";
 
 
 
@@ -14,6 +15,8 @@ export const FashionVariantDisplayCard = ({variant}: VariantDisplayProps) => {
 
      
     const { productData} = useProductDataCtx();
+    const {currentTheme} = useColorsCtx()
+    
     if (!productData || variant.niche !== "fashion") return;
 
 

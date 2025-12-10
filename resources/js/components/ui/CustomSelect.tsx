@@ -1,9 +1,10 @@
+
+import { useColorsCtx } from '@/contextHooks/useColorsCtx';
 import { ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { currentTheme } from '@/data/currentTheme';
 
 interface CustomSelectProps {
-  value: string;
+  value: string | number;
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
   placeholder?: string;
@@ -12,7 +13,9 @@ interface CustomSelectProps {
 const CustomSelect: React.FC<CustomSelectProps> = ({ value, onChange, options, placeholder = 'Select...' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+    const { currentTheme } = useColorsCtx();
+  
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -27,7 +30,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ value, onChange, options, p
   const selectedOption = options.find(opt => opt.value === value);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative"  ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -45,7 +48,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ value, onChange, options, p
 
       {isOpen && (
         <div
-          className="absolute z-50 w-full mt-2 rounded-xl shadow-lg overflow-hidden"
+          className="absolute z-[99999] w-full mt-2 rounded-xl shadow-lg overflow-hidden"
           style={{
             backgroundColor: currentTheme.bg,
             borderWidth: '2px',

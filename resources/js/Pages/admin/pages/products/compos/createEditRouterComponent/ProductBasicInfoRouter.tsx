@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Edit2, X, Package } from "lucide-react";
-import ProductInfoDisplay from './ProductInfoDisplay';
 import ProductInfoForm from '../SharedPartials/BasicInfoFormMaster';
 import { useToasts } from '@/contextHooks/useToasts';
 import { ToasterNative } from '@/components/ui/ToasterNative';
@@ -11,6 +10,7 @@ import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
 import BasicInfoFormMaster from '../SharedPartials/BasicInfoFormMaster';
 import { useBasicinfoActions } from '@/functions/useBasicinfoActions';
 import { getEditedData } from '@/data/initialProductData';
+import ProductInfoDisplayMaster from '../SharedPartials/ProductInfoDisplayMaster';
 
 
 
@@ -25,7 +25,7 @@ const currentTheme = {
 
 
 
-const ProductBasicInfo: React.FC = () => {
+const ProductBasicInfoRouter: React.FC = () => {
   const {basicInfoForm  , productData ,  setProductData,  setBasicInfoForm , modeForm} =  useProductDataCtx()
   const {isEditingBasicInfo , setIsEditingBasicInfo , setHasUnsavedChanges  , hasUnsavedChanges} =  useProductUICtx() 
   const toastChangedUnsavedMoundRef =  useRef<boolean>(false) ;
@@ -109,6 +109,7 @@ const ProductBasicInfo: React.FC = () => {
 
 
   return (
+    
     <div 
       className="rounded-2xl shadow-lg border transition-all duration-300 hover:shadow-xl"
       style={{ 
@@ -179,8 +180,8 @@ const ProductBasicInfo: React.FC = () => {
           )
       
       : productData ?(
-           // read only
-            <ProductInfoDisplay productData={productData} />
+           // read only here need a master also that desides wich product info niche to render 
+            <ProductInfoDisplayMaster  />
           ) : null
       : (
 
@@ -195,4 +196,4 @@ const ProductBasicInfo: React.FC = () => {
   );
 };
 
-export default ProductBasicInfo;
+export default ProductBasicInfoRouter;

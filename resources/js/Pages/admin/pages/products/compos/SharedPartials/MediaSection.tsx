@@ -1,4 +1,5 @@
-import { currentTheme } from "@/data/currentTheme";
+
+import { useColorsCtx } from "@/contextHooks/useColorsCtx";
 import { ProductDataGlobal } from "@/types/productsTypes";
 import { Upload, X } from "lucide-react";
 
@@ -15,6 +16,9 @@ const MediaSection = ({
     setVideoPreview,
     videoPreview,
 }: MediaSectionProps) => {
+    const {currentTheme} = useColorsCtx()
+    
+
     const handleCoversUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files) return;

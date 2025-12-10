@@ -1,5 +1,5 @@
 import { NicheItem } from "@/context/NicheContext";
-import { Color, Cover, Fit , InventoryOptions, Material, Size } from "./inventoryTypes";
+import { Color, Cover, Fit , InventoryOptions, Material, Season, Size, Style } from "./inventoryTypes";
 import { Tag } from "./tagsTypes";
 import { nichesOptions } from '../data/nichesOptions';
 export interface ProductBackendProps {
@@ -30,10 +30,11 @@ export interface ProductBasicInfoData {
   tags: Tag[];
   isFeatured?: boolean;
   sku?: string;
-  stockQuantity?: number;
+  stockQuantity?: number | string;
   releaseDate?: string;
   visible?: boolean; // true = product is publicly visible
 }
+
 
 
 
@@ -61,16 +62,18 @@ export interface PerfumesProduct extends  ProductBasicInfoData {
 export interface FashionProduct extends  ProductBasicInfoData {
   niche: "fashion";
   materials : Material[]
+  fits: Fit[]
   gender : Gender[]
+  styles: Style[],
+  season: Season[],
+  country : string
   variants : FashionVariant[]
 }
-
 
 export interface FashionAttributes {
   color: Color;
   covers: Cover[];
   sizes: Size[];
-  fits: Fit[];
 }
 export interface FashionVariant {
   niche : "fashion",

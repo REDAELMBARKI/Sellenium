@@ -1,21 +1,24 @@
 import { useState, useRef, useEffect } from 'react';
-import { Plus, Tag } from 'lucide-react';
-import { currentTheme } from '@/data/currentTheme';
+import { Plus, Tag, TagIcon } from 'lucide-react';
 import SelectedChip from './ui/SelectedChip';
+import { Button } from './ui/button';
+import { useColorsCtx } from '@/contextHooks/useColorsCtx';
+
 
 interface TagInputProps {
   tags: string[];
   onTagsChange: (tags: string[]) => void;
-  suggestions?: string[];
 }
 
-const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange, suggestions = [] }) => {
+const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
   const [inputValue, setInputValue] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+  const suggestions = ["Luxury", "Summer", "Floral", "Woody", "Fresh", "Evening", "Citrus", "Spicy", "Oriental", "Casual"];
+   const { currentTheme } = useColorsCtx();
+ 
   useEffect(() => {
     if (inputValue.trim()) {
       const filtered = suggestions.filter(
@@ -180,15 +183,15 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange, suggestions =
           >
             <div className="max-h-48 overflow-y-auto">
               {filteredSuggestions.map((suggestion) => (
-                <button
+                <Button
                   key={suggestion}
                   type="button"
                   onClick={() => addTag(suggestion)}
                   className="w-full px-5 py-3 text-left hover:bg-gray-100 transition-colors font-medium"
                   style={{ color: currentTheme.text }}
                 >
-                  {suggestion}
-                </button>
+                  {suggestion} 
+                </Button>
               ))}
             </div>
           </div>
@@ -234,7 +237,7 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange, suggestions =
               .filter((s) => !tags.includes(s))
               .slice(0, 10)
               .map((suggestion) => (
-                <button
+                <Button
                   key={suggestion}
                   type="button"
                   onClick={() => addTag(suggestion)}
@@ -246,8 +249,10 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange, suggestions =
                     borderColor: currentTheme.border,
                   }}
                 >
+                  <TagIcon />
                   {suggestion}
-                </button>
+
+                </Button>
               ))}
           </div>
         </div>

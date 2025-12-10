@@ -3,13 +3,13 @@ import {  FashionAttributes, ProductVariant } from "./productsTypes";
 
 // Base types
 export interface Color {
-    id: number;
+    id?: number;
     name?: string;
     hex: string;
 }
-
+export type Season = "summer" | "winter" | "automn" | "spring"
 export interface Size {
-    id: number;
+    id: number ;
     name: string;
 }
 
@@ -28,6 +28,9 @@ export interface Cover {
     path: string;
 }
 
+
+
+export type Style = "oversize"  | "streetwear" | "casual" | "formal" | "sportswear"
 
 export interface FashionOptions {
   colors : Color[]

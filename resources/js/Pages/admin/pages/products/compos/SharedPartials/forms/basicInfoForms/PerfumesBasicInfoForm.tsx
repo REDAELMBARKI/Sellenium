@@ -1,17 +1,21 @@
 import CollapsibleSection from "@/components/CollapsibleSection";
-import TagSection from "@/components/TagInput";
-import TagInput from "@/components/TagInput";
 import CustomSelect from "@/components/ui/CustomSelect";
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { currentTheme } from "@/data/currentTheme";
-import { Gender, PerfumesProduct } from "@/types/productsTypes";
+import { Gender, PerfumesProduct, ProductDataGlobal } from "@/types/productsTypes";
 import { Upload, X, Plus, Video, Droplet, DollarSign, Settings } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import MediaSection from "../../MediaSection";
 import { Cover } from "@/types/inventoryTypes";
-import BaseSharedForm from "../../BaseSharedForm";
+import BaseSharedForm from "./BaseSharedForm";
 import { Button } from "@/components/ui/button";
+import TagSection from "@/components/TagInput";
+import { v4 } from "uuid";
+import ProductMetaData from "../../ProductMetaData";
+import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { UIColorsType } from "@/types/UIColorsType";
+import { Tag as TagType } from "@/types/tagsTypes";
+
 
 const PerfumesBasicInfoForm = () => {
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
@@ -24,6 +28,7 @@ const PerfumesBasicInfoForm = () => {
   const volumesRef = useRef<HTMLDivElement | null>(null);
   const advancedRef = useRef<HTMLDivElement | null>(null);
   const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
+  const {currentTheme} = useColorsCtx()
 
 
   useEffect(() => {
@@ -58,7 +63,7 @@ const PerfumesBasicInfoForm = () => {
 
 
 
-  if (!basicInfoForm) return null;
+  if (!basicInfoForm || basicInfoForm.niche !== "perfumes") return null;
 
 
 
@@ -117,10 +122,10 @@ const PerfumesBasicInfoForm = () => {
             </CollapsibleSection>
           )}
 
-          {/* PERFUME METADATA Section */}
+          {/* PERFUME attributes Section */}
           {basicInfoForm.niche === "perfumes" && (
             <CollapsibleSection
-              title="Add Perfume Metadata"
+              title="Add Perfume Attributes"
               icon={Droplet}
               isOpen={showMetadata}
               onToggle={(newState) =>
@@ -139,94 +144,7 @@ const PerfumesBasicInfoForm = () => {
               }
               ref={metadataRef}
             >
-              {/* Gender, Concentration, Fragrance Family */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                    Gender
-                  </label>
-                  <MultiSelectDropdown
-                    label="Gender"
-                    options={['male', 'female', 'unisex']}
-                    selectedValues={basicInfoForm.gender || []}
-                    onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, gender: selected as Gender[] })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                    Concentration
-                  </label>
-                  <CustomSelect
-                    value={(basicInfoForm as PerfumesProduct).concentration || ''}
-                    onChange={(value) => setBasicInfoForm({ ...basicInfoForm, concentration: value as "EDT" | "EDP" | "Parfum" | "Cologne" })}
-                    options={[
-                      { value: '', label: 'Select Concentration' },
-                      { value: 'Cologne', label: 'Cologne' },
-                      { value: 'EDT', label: 'EDT (Eau de Toilette)' },
-                      { value: 'EDP', label: 'EDP (Eau de Parfum)' },
-                      { value: 'Parfum', label: 'Parfum' },
-                    ]}
-                    placeholder="Select Concentration"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                    Fragrance Family
-                  </label>
-                  <CustomSelect
-                    value={(basicInfoForm as PerfumesProduct).fragranceFamily || ''}
-                    onChange={(value) => setBasicInfoForm({ ...basicInfoForm, fragranceFamily: value as "fresh" | "woody" | "oriental" | "floral" | "aromatic" })}
-                    options={[
-                      { value: '', label: 'Select Family' },
-                      { value: 'fresh', label: 'Fresh' },
-                      { value: 'woody', label: 'Woody' },
-                      { value: 'oriental', label: 'Oriental' },
-                      { value: 'floral', label: 'Floral' },
-                      { value: 'aromatic', label: 'Aromatic' },
-                    ]}
-                    placeholder="Select Family"
-                  />
-                </div>
-              </div>
-
-              {/* Quantity */}
-              <div>
-                <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                  Quantity (ml)
-                </label>
-                <input
-                  type="number"
-                  value={(basicInfoForm as PerfumesProduct).quantity || ''}
-                  onChange={(e) => setBasicInfoForm({ ...basicInfoForm, quantity: e.target.value ? parseInt(e.target.value) : 0 })}
-                  className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
-                  style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
-                />
-              </div>
-
-              {/* Fragrance Notes */}
-              <div className="space-y-4">
-                <h3 className="text-base font-bold uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                  Fragrance Notes
-                </h3>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {["topNotes", "middleNotes", "baseNotes"].map((noteKey) => (
-                    <div key={noteKey}>
-                      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                        {noteKey === "topNotes" ? "Top Notes" : noteKey === "middleNotes" ? "Middle Notes" : "Base Notes"}
-                      </label>
-                      <MultiSelectDropdown
-                        label={noteKey === "topNotes" ? "Top Notes" : noteKey === "middleNotes" ? "Middle Notes" : "Base Notes"}
-                        options={(basicInfoForm as PerfumesProduct)[noteKey] || []}
-                        selectedValues={(basicInfoForm as PerfumesProduct)[noteKey] || []}
-                        onChange={(selected) => setBasicInfoForm({
-                          ...basicInfoForm,
-                          [noteKey]: selected
-                        })}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+             <PerfumesAttributesSection {...{basicInfoForm , setBasicInfoForm  , currentTheme}} />
             </CollapsibleSection>
           )}
 
@@ -301,87 +219,24 @@ const PerfumesBasicInfoForm = () => {
             </CollapsibleSection>
           )}
 
-          {/* ADVANCED Section */}
-          {basicInfoForm.niche === "perfumes" && (
+          {/* ADVANCED Section  aku and tags */}
             <CollapsibleSection
-              title="Advanced Settings"
+              title="add perfumes meta data "
               icon={Settings}
               isOpen={showAdvanced}
               onToggle={(newState) =>
                 handleToggleSection("Advanced Settings", showAdvanced, setShowAdvanced, () => {
                   setBasicInfoForm({
                     ...basicInfoForm,
-                    longevity: '',
-                    sillage: '',
                     sku: '',
-                    stockQuantity: undefined,
+                    tags: [] as TagType[] ,
                   });
                 })
               }
               ref={advancedRef}
             >
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                    Longevity
-                  </label>
-                  <CustomSelect
-                    value={(basicInfoForm as PerfumesProduct).longevity || ''}
-                    onChange={(value) => setBasicInfoForm({ ...basicInfoForm, longevity: value })}
-                    options={[
-                      { value: '', label: 'Select Longevity' },
-                      { value: 'weak', label: 'Weak' },
-                      { value: 'moderate', label: 'Moderate' },
-                      { value: 'long-lasting', label: 'Long Lasting' },
-                      { value: 'eternal', label: 'Eternal' },
-                    ]}
-                    placeholder="Select Longevity"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                    Sillage
-                  </label>
-                  <CustomSelect
-                    value={(basicInfoForm as PerfumesProduct).sillage || ''}
-                    onChange={(value) => setBasicInfoForm({ ...basicInfoForm, sillage: value })}
-                    options={[
-                      { value: '', label: 'Select Sillage' },
-                      { value: 'intimate', label: 'Intimate' },
-                      { value: 'moderate', label: 'Moderate' },
-                      { value: 'strong', label: 'Strong' },
-                      { value: 'enormous', label: 'Enormous' },
-                    ]}
-                    placeholder="Select Sillage"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                    SKU
-                  </label>
-                  <input
-                    type="text"
-                    value={basicInfoForm.sku || ''}
-                    onChange={(e) => setBasicInfoForm({ ...basicInfoForm, sku: e.target.value })}
-                    className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
-                    style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                    Stock Quantity
-                  </label>
-                  <input
-                    type="number"
-                    value={basicInfoForm.stockQuantity || ''}
-                    onChange={(e) => setBasicInfoForm({ ...basicInfoForm, stockQuantity: e.target.value ? parseInt(e.target.value) : undefined })}
-                    className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
-                    style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
-                  />
-                </div>
-              </div>
+            <ProductMetaData />
             </CollapsibleSection>
-          )}
         </div>
       </div>
     </div>
@@ -389,3 +244,198 @@ const PerfumesBasicInfoForm = () => {
 };
 
 export default PerfumesBasicInfoForm;
+
+
+
+export const PerfumesAttributesSection = ({
+  basicInfoForm,
+  setBasicInfoForm,
+  currentTheme,
+}:{
+  basicInfoForm:ProductDataGlobal,
+  setBasicInfoForm : React.Dispatch<React.SetStateAction<ProductDataGlobal>>,
+  currentTheme : UIColorsType,
+}) => {
+
+  if (!basicInfoForm || basicInfoForm.niche !== "perfumes") return null;
+
+  return (
+    <div className="space-y-12 bg-gray-300 rounded-xl">
+
+      {/* ------------------------ */}
+      {/* SECTION 1: PERFUME DETAILS */}
+      {/* ------------------------ */}
+      <div className="p-6 rounded-xl bg-gray-300 shadow-sm space-y-6">
+
+        <h3
+          className="text-lg font-bold uppercase tracking-wide border-b pb-2"
+          style={{ color: currentTheme.text }}
+        >
+          Perfume Details
+        </h3>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* Gender */}
+          <div>
+            <label className="block text-sm font-bold mb-3 uppercase tracking-wide"
+              style={{ color: currentTheme.text }}>
+              Gender
+            </label>
+            <MultiSelectDropdown
+              label="Gender"
+              options={["male", "female", "unisex"]}
+              selectedValues={basicInfoForm?.gender || []}
+              onChange={(selected) =>
+                setBasicInfoForm({ ...basicInfoForm, gender: selected })
+              }
+            />
+          </div>
+
+          {/* Concentration */}
+          <div>
+            <label className="block text-sm font-bold mb-3 uppercase tracking-wide"
+              style={{ color: currentTheme.text }}>
+              Concentration
+            </label>
+            <CustomSelect
+              value={basicInfoForm?.concentration || ""}
+              onChange={(value) =>
+                setBasicInfoForm({ ...basicInfoForm, concentration: value })
+              }
+              options={[
+                { value: "", label: "Select Concentration" },
+                { value: "Cologne", label: "Cologne" },
+                { value: "EDT", label: "EDT" },
+                { value: "EDP", label: "EDP" },
+                { value: "Parfum", label: "Parfum" },
+              ]}
+            />
+          </div>
+
+          {/* Fragrance Family */}
+          <div>
+            <label className="block text-sm font-bold mb-3 uppercase tracking-wide"
+              style={{ color: currentTheme.text }}>
+              Fragrance Family
+            </label>
+            <CustomSelect
+              value={basicInfoForm?.fragranceFamily || ""}
+              onChange={(value) =>
+                setBasicInfoForm({ ...basicInfoForm, fragranceFamily: value })
+              }
+              options={[
+                { value: "", label: "Select Family" },
+                { value: "fresh", label: "Fresh" },
+                { value: "woody", label: "Woody" },
+                { value: "oriental", label: "Oriental" },
+                { value: "floral", label: "Floral" },
+                { value: "aromatic", label: "Aromatic" },
+              ]}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ------------------------ */}
+      {/* SECTION 2: PERFORMANCE */}
+      {/* ------------------------ */}
+      <div className="p-6 rounded-xl bg-gray-500 shadow-sm space-y-6">
+
+        <h3
+          className="text-lg font-bold uppercase tracking-wide border-b pb-2"
+          style={{ color: currentTheme.text }}
+        >
+          Performance
+        </h3>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          {/* Longevity */}
+          <div>
+            <label className="block text-sm font-bold mb-3 uppercase tracking-wide"
+              style={{ color: currentTheme.text }}>
+              Longevity
+            </label>
+            <CustomSelect
+              value={basicInfoForm.longevity || ""}
+              onChange={(value) =>
+                setBasicInfoForm({ ...basicInfoForm, longevity: value })
+              }
+              options={[
+                { value: "", label: "Select Longevity" },
+                { value: "weak", label: "Weak" },
+                { value: "moderate", label: "Moderate" },
+                { value: "long-lasting", label: "Long Lasting" },
+                { value: "eternal", label: "Eternal" },
+              ]}
+            />
+          </div>
+
+          {/* Sillage */}
+          <div>
+            <label className="block text-sm font-bold mb-3 uppercase tracking-wide"
+              style={{ color: currentTheme.text }}>
+              Sillage
+            </label>
+            <CustomSelect
+              value={basicInfoForm.sillage || ""}
+              onChange={(value) =>
+                setBasicInfoForm({ ...basicInfoForm, sillage: value })
+              }
+              options={[
+                { value: "", label: "Select Sillage" },
+                { value: "intimate", label: "Intimate" },
+                { value: "moderate", label: "Moderate" },
+                { value: "strong", label: "Strong" },
+                { value: "enormous", label: "Enormous" },
+              ]}
+            />
+          </div>
+
+        </div>
+      </div>
+
+      {/* ------------------------ */}
+      {/* SECTION 3: NOTES */}
+      {/* ------------------------ */}
+      <div className="p-6 rounded-xl bg-gray-300 shadow-sm space-y-6">
+
+        <h3
+          className="text-lg font-bold uppercase tracking-wide border-b pb-2"
+          style={{ color: currentTheme.text }}
+        >
+          Fragrance Notes
+        </h3>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {["topNotes", "middleNotes", "baseNotes"].map((noteKey) => (
+            <div key={noteKey}>
+              <label
+                className="block text-sm font-bold mb-3 uppercase tracking-wide"
+                style={{ color: currentTheme.text }}
+              >
+                {noteKey === "topNotes"
+                  ? "Top Notes"
+                  : noteKey === "middleNotes"
+                  ? "Middle Notes"
+                  : "Base Notes"}
+              </label>
+
+              <MultiSelectDropdown
+                label={noteKey}
+                options={basicInfoForm[noteKey] || []}
+                selectedValues={basicInfoForm[noteKey] || []}
+                onChange={(selected) =>
+                  setBasicInfoForm({ ...basicInfoForm, [noteKey]: selected })
+                }
+              />
+            </div>
+          ))}
+
+        </div>
+      </div>
+    </div>
+  );
+};
