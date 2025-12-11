@@ -1,15 +1,15 @@
 import { RefObject } from "react";
-import { ElectronicsAttributes, FashionAttributes, ParfumeAttributes, ProductVariant } from "./productsTypes";
+import {  FashionAttributes, ProductVariant } from "./productsTypes";
 
 // Base types
 export interface Color {
-    id: number;
+    id?: number;
     name?: string;
     hex: string;
 }
-
+export type Season = "summer" | "winter" | "automn" | "spring"
 export interface Size {
-    id: number;
+    id: number ;
     name: string;
 }
 
@@ -29,6 +29,9 @@ export interface Cover {
 }
 
 
+
+export type Style = "oversize"  | "streetwear" | "casual" | "formal" | "sportswear"
+
 export interface FashionOptions {
   colors : Color[]
   sizes : Size[]
@@ -45,7 +48,7 @@ export interface ElectronicsOptions {
 }
 
 // Options from Laravel
-export type InventoryOptions =  FashionOptions | ParfumeOptions | ElectronicsOptions
+export type NicheOptions  =  FashionOptions | ParfumeOptions | ElectronicsOptions
 
 // For Inertia useForm (needs index signature)
 

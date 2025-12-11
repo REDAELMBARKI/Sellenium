@@ -5,22 +5,25 @@ import { ReactNode } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { Header } from "./Header";
 import { AuthProvider } from "@/admin/context/AuthContext";
-import { ThemeProvider } from "@/admin/context/ThemeContext";
 import { Sidebar } from "./SideBar";
 import ToastContextProvider from "@/contextProvoders/ToastProvider";
 import NicheProvider from "@/contextProvoders/NicheProvider";
+import { ThemeModeProvider } from "@/admin/context/ThemeContext";
+import ColorsProvider from "@/contextProvoders/ColorsProvider";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
 
   return<>
   <NicheProvider >
-    <ThemeProvider>
+    <ThemeModeProvider>
+      <ColorsProvider>
       <ToastContextProvider>
         <AuthProvider>
             <AdminLayoutContent children={children} />
         </AuthProvider>
         </ToastContextProvider>
-    </ThemeProvider>
+        </ColorsProvider>
+    </ThemeModeProvider>
   </NicheProvider>
   </>
 }
@@ -43,21 +46,23 @@ const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
   // }
 
   return (
-    <div className="flex h-screen ">
-      {/* Sidebar: fixed width, full height */}
-      <Sidebar />
+    <div className="flex h-screen">
+  {/* Sidebar: fixed width, full height, stays visible */}
+  <div className="w-64 bg-gray-800 text-white flex-shrink-0">
+    <Sidebar />
+  </div>
 
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col h-screen">
-        {/* Header fixed height */}
-        <Header />
+  {/* Main content area */}
+  <div className="flex-1 flex flex-col overflow-hidden">
+    {/* Header fixed height */}
+    <Header />
 
-        {/* Scrollable content */}
-        <main style={{ overflowY:'hidden' }}>
-          {children}
-        </main>
-      </div>
-    </div>
+    {/* Scrollable content */}
+    <main className="flex-1 overflow-auto p-6 bg-gray-50">
+      {children}
+    </main>
+  </div>
+</div>
   );
 };
 export default AdminLayoutContent;

@@ -1,43 +1,48 @@
 import { NicheItem } from "@/context/NicheContext";
-import { Color, Cover, Fit , InventoryOptions, Material, Size } from "./inventoryTypes";
+import { Color, Cover, Fit , Material, NicheOptions, Season, Size, Style } from "./inventoryTypes";
 import { Tag } from "./tagsTypes";
-import { nichesOptions } from '../data/nichesOptions';
+import { ImagePreviewItem } from "./mediaTypes";
 export interface ProductBackendProps {
     children : React.ReactNode ;
     product?: ProductDataGlobal;
-    inventoryOptions: InventoryOptions
+    nicheOptions: NicheOptions
     tagSuggestions: Tag[];
+      [key: string]: any; // ✅ allows other keys
 }
 
-export interface ProductDataGlobal  extends ProductBasicInfoData{
-  fashionFields?: FashionFields,
-  parfumesFields?: ParfumesFields,
-  electronicsFields?: ElectronicsFields,
-  // niche-specific fields (optional)
-  fashionVariants?: FashionVariant[];
-  parfumesVariants?: ParfumeVariant[];
-  electronicsVariants?: ElectronicsVariant[];
-}
+export type Gender ="male" | "female" | "kids" | "all genders"
 
+export type ProductDataGlobal =  FashionProduct | PerfumesProduct | ElectronicsProduct ;
 
 export interface ProductBasicInfoData { 
+  niche: NicheItem;
   id?: string | null;
   name: string;
   brand: string;
   price: string;
-  compareAtPrice?: string;    // optional, original price
+  compareAtPrice?: string;
   costPrice?: string;  
   category: string[];
   description: string;
-  rating_average?: number ,
+  rating_average?: number;
   thumbnail: string;
+  video : string ;
+  covers : Cover[] , 
   tags: Tag[];
   isFeatured?: boolean;
+<<<<<<< HEAD
   niche: NicheItem;
+=======
+  sku?: string;
+  stockQuantity?: number | string;
+  releaseDate?: string;
+  visible?: boolean; // true = product is publicly visible
+>>>>>>> refactortoOneContext
 }
 
 
 
+<<<<<<< HEAD
 export interface ParfumesBasicData extends ProductBasicInfoData {
   niche: "perfumes";
   concentration: "EDT" | "EDP" | "Parfum" | "Cologne";
@@ -52,14 +57,48 @@ export interface ParfumesBasicData extends ProductBasicInfoData {
 }
 
 
+=======
+
+export interface PerfumesProduct extends  ProductBasicInfoData {
+  niche: "perfumes";
+  concentration: "EDT" | "EDP" | "Parfum" | "Cologne" | undefined;
+  quantity: number;
+  fragranceFamily: "fresh" | "woody" | "oriental" | "floral" | "aromatic" | undefined;
+  gender : Gender[]
+
+  topNotes: string[];      // NEW: Most perfumes have top/middle/base
+  middleNotes: string[];   // NEW
+  baseNotes: string[];     // NEW
+
+  longevity?: string;
+  sillage?: string;
+  volumes: {volume : number  , price : number}[];
+  
+}
+
+
+export  interface Country {
+    code: string;
+    name: string;
+}
+
+>>>>>>> refactortoOneContext
+
+export interface FashionProduct extends  ProductBasicInfoData {
+  niche: "fashion";
+  materials : Material[]
+  fits: Fit[]
+  gender : Gender[]
+  styles: Style[],
+  season: Season[],
+  madeCountry : Country
+  variants : FashionVariant[]
+}
 
 export interface FashionAttributes {
-  color: Color[];
-  covers: Cover[];
+  color: Color | null;
+  covers: (Cover | ImagePreviewItem)[];
   sizes: Size[];
-  fits: Fit[];
-  materials: Material[];           // e.g., ["Cotton", "Polyester"]
-  fabricType?: string[];         // optional, e.g., ["Denim", "Wool"]
 }
 export interface FashionVariant {
   niche : "fashion",
@@ -69,22 +108,23 @@ export interface FashionVariant {
 }
 
 
-export interface ElectronicsAttributes {
-  color: Color[];          // optional if devices have color variants
-  storage?: string;            // e.g., "128GB", "256GB"
-  warrantyMonths?: number;
-  quantity: number;            // stock
+
+
+export interface ElectronicsProduct extends ProductBasicInfoData {
+  niche: "electronics";
+  batteryLife?: string;        // "10h"
   connectivity?: string[];     // e.g., ["Bluetooth","WiFi"]
   voltage?: string;            // e.g., "220V"
-  batteryLife?: string;        // "10h"
+  storage?: string;            // e.g., "128GB", "256GB"
+  colors: Color[];          // optional if devices have color variants
+  quantity: number;            // stock
+  warrantyMonths?: number;
+  model?: string;
+  brandSeries?: string;
+  techSpecs?: Record<string, string>;
 }
 
-export interface ElectronicsVariant {
-  niche : "electronics",
-  id :string 
-  attributes : ElectronicsAttributes
-  quantity : number
-}
+
 
 
 export interface FashionFields {
@@ -119,7 +159,7 @@ export interface ElectronicsFields {
 
 
 // Product variant
-export type ProductVariant = FashionVariant | ParfumeVariant | ElectronicsVariant
+export type ProductVariant = FashionVariant
 
 
 

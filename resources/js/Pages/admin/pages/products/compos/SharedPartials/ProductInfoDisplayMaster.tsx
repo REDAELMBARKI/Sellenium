@@ -12,41 +12,37 @@ import { NicheItem } from '@/context/NicheContext';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
 import FashionBasicInfoForm from './forms/basicInfoForms/FashionBasicInfoForm';
 import PerfumesBasicInfoForm from './forms/basicInfoForms/PerfumesBasicInfoForm';
+import FashionReadonlyDisplay from './Readonly display/FashionReadonlyDisplay';
+import PerfumesReadonlyDisplay from './Readonly display/PerfumesReadonlyDisplay';
 
 
 
 
 
-export interface ProductInfoFormProps {
-  handleCancelBasicInfo?: () => void; // For edit mode cancel confirmation
-}
 
-const BasicInfoFormMaster: React.FC<ProductInfoFormProps> = ({
- 
-  handleCancelBasicInfo,
-}) => {
+const ProductInfoDisplayMaster: React.FC = () => {
    
 
 
   const {currentNiche} = useNicheCtx()
-
+  const {productData} = useProductDataCtx()
 
  
  
-  const formsMap : Record<NicheItem  , React.FC<any>> =  {
-          "fashion" : FashionBasicInfoForm,
-          "perfumes" : PerfumesBasicInfoForm ,
-          "electronics" : FashionBasicInfoForm ,
+  const displaysMap : Record<NicheItem  , React.FC<any>> =  {
+          "fashion" : FashionReadonlyDisplay,
+          "perfumes" : PerfumesReadonlyDisplay ,
+          "electronics" : FashionReadonlyDisplay ,
   }
-  // const PropsMap : Record<NicheItem , any> = {
-  //      "fashion" : {} 
-  //       "perfumes" : {}
-  //       "electronics" : {}
-  // }
+  const PropsMap : Record<NicheItem , any> = {
+       "fashion" : productData ,
+        "perfumes" : productData,
+        "electronics" : productData
+  }
 
-  const Form = formsMap[currentNiche]
-  // const props = PropsMap[currentNiche]
-  return ( <Form />);  
+  const DisplayInfo = displaysMap[currentNiche]
+  const props = PropsMap[currentNiche]
+  return ( <DisplayInfo {...props} />);  
 };
 
-export default BasicInfoFormMaster;
+export default ProductInfoDisplayMaster;

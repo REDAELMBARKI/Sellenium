@@ -45,6 +45,7 @@ Route::get('/blog', function () {
 // products 
 // Route::resource('/products', ProductController::class );
 Route::get('/products/create' , [ProductController::class, 'create']) ;
+Route::get('/products/drafts' , [ProductController::class, 'draft']) ;
 Route::get('/products/edit' , [ProductController::class, 'edit']) ;
 Route::get('/products/list' , [ProductController::class, 'index']) ;
 

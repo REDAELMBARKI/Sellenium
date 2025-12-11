@@ -9,7 +9,7 @@ import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
 
 export const ParfumesVariantDisplayCard = ({ variant }: VariantDisplayProps) => {
   const { productData } = useProductDataCtx();
-  if (!productData || variant.niche !== "parfumes") return null;
+  if (!productData || variant.niche !== "perfumes") return null;
 
   const [isFormModalOpen, setIsFormModalOpen] = useState<boolean>(false);
   const { setDeleteModalOpen, deleteModalOpen } = useProductUICtx();
