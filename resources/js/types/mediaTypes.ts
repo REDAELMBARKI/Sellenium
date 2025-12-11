@@ -26,6 +26,6 @@ export interface MediaContextType {
  export interface ImagePreviewItem {
   file: File;
   url: string;
-  id : string
+  id : number | string ;
 }
 

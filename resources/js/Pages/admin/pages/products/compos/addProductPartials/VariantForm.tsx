@@ -3,7 +3,7 @@ import AddImagesSection from "./AddImagesSection";
 import { useInventory } from "@/contextHooks/createProductCtxHooks/useInventory";
 import { useProductForm } from "@/contextHooks/createProductCtxHooks/useProductForm";
 import { useInventoryActions } from "@/functions/createFunctions/useInventoryActions";
-import { Color, InventoryOptions } from "@/types/inventoryTypes";
+import { Color, InventoryOptions  } from "@/types/inventoryTypes";
 import { useUIContext } from "@/contextHooks/createProductCtxHooks/useUiContext";
 import InventoryImages from "./InventoryImages";
 

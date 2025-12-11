@@ -27,7 +27,11 @@ use PHPUnit\Framework\MockObject\Stub\ReturnReference;
 use PHPUnit\TextUI\Configuration\Merger;
 
 class ProductController extends Controller
-{
+{ 
+
+    public function draft() {
+        return Inertia::render("admin/pages/products/Drafts") ;
+    }
 
 
     public function create()
@@ -39,17 +43,38 @@ class ProductController extends Controller
         $fits = Fit::select('id', 'name')->distinct()->get();
         $materials = Material::select('id', 'name')->distinct()->get();;
     
-        $inventoryOptions = [
-            'colors' => $colors,
-            'sizes' => $sizes,
-            'fits' =>  $fits,
-            'materials' => $materials,
+           $nicheOptions = [
+            'colors' => [
+                [ 'id' => 1, 'hex' => '#e5ff00ff', 'name' => 'Red' ],
+                [ 'id' => 2, 'hex' => '#ff00fbff', 'name' => 'Blue' ],
+                [ 'id' => 3, 'hex' => '#00FF00', 'name' => 'Green' ],
+            ],
+
+            'sizes' => [
+                [ 'id' => 1, 'name' => 'S' ],
+                [ 'id' => 2, 'name' => 'M' ],
+                [ 'id' => 3, 'name' => 'Llll' ],
+                [ 'id' => 4, 'name' => 'XL' ],
+            ],
+
+            'fits' => [
+                [ 'id' => 1, 'name' => 'regular' ],
+                [ 'id' => 2, 'name' => 'slim' ],
+                [ 'id' => 3, 'name' => 'oversized' ],
+            ],
+
+            'materials' => [
+                [ 'id' => 1, 'name' => 'Cotton' ],
+                [ 'id' => 2, 'name' => 'Polyester' ],
+            ],
         ];
+
+
 
         
 
 
-        return inertia::render("admin/pages/products/create" , ['inventoryOptions' => $inventoryOptions]);
+        return inertia::render("admin/pages/products/Create" , ['nicheOptions' => $nicheOptions , 'tagSuggestions' => []]);
     }
 
 
@@ -242,17 +267,17 @@ class ProductController extends Controller
         $fits = Fit::select('id', 'name')->distinct()->get();
         $materials = Material::select('id', 'name')->distinct()->get();;
     
-       $inventoryOptions = [
+       $nicheOptions = [
             'colors' => [
-                [ 'id' => 1, 'hex' => '#FF0000', 'name' => 'Red' ],
-                [ 'id' => 2, 'hex' => '#0000FF', 'name' => 'Blue' ],
+                [ 'id' => 1, 'hex' => '#e5ff00ff', 'name' => 'Red' ],
+                [ 'id' => 2, 'hex' => '#ff00fbff', 'name' => 'Blue' ],
                 [ 'id' => 3, 'hex' => '#00FF00', 'name' => 'Green' ],
             ],
 
             'sizes' => [
                 [ 'id' => 1, 'name' => 'S' ],
                 [ 'id' => 2, 'name' => 'M' ],
-                [ 'id' => 3, 'name' => 'L' ],
+                [ 'id' => 3, 'name' => 'Llll' ],
                 [ 'id' => 4, 'name' => 'XL' ],
             ],
 
@@ -272,7 +297,7 @@ class ProductController extends Controller
 
         $tagSuggestions = Tag::select('id' , 'slug')->get();
         
-        return inertia::render('admin/pages/products/edit' , compact('product' , 'inventoryOptions' , 'tagSuggestions'));
+        return inertia::render('admin/pages/products/Edit' , compact('product' , 'nicheOptions' , 'tagSuggestions'));
     }
 
     public function update(UpdateProductRequest $request, $id)

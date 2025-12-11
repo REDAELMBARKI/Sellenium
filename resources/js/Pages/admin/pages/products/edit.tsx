@@ -14,10 +14,10 @@ import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
 import GoCreateProduct from "@/components/partials/GoCreateProduct";
 
 
-export default  function Edit({product , inventoryOptions , tagSuggestions}:ProductBackendProps){
+export default  function Edit({product , nicheOptions , tagSuggestions}:ProductBackendProps){
 
    return (      
-                <ProductDataProvider product={product} inventoryOptions={inventoryOptions}  tagSuggestions={tagSuggestions}>
+                <ProductDataProvider product={product} nicheOptions={nicheOptions}  tagSuggestions={tagSuggestions}>
               
                         <ProductUIProvider>
                                     <EditContent/>
@@ -55,7 +55,7 @@ function EditContent() {
 
    
   
-    if(JSON.stringify(productData) === JSON.stringify({})) return (
+    if(!productData || Object.keys(productData).length === 0) return (
         // create mode (making a button to create product page )
         <GoCreateProduct title="No product Found " description="" />)
 

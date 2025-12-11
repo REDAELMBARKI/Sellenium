@@ -1,12 +1,13 @@
 import { NicheItem } from "@/context/NicheContext";
-import { Color, Cover, Fit , InventoryOptions, Material, Season, Size, Style } from "./inventoryTypes";
+import { Color, Cover, Fit , Material, NicheOptions, Season, Size, Style } from "./inventoryTypes";
 import { Tag } from "./tagsTypes";
-import { nichesOptions } from '../data/nichesOptions';
+import { ImagePreviewItem } from "./mediaTypes";
 export interface ProductBackendProps {
     children : React.ReactNode ;
     product?: ProductDataGlobal;
-    inventoryOptions: InventoryOptions
+    nicheOptions: NicheOptions
     tagSuggestions: Tag[];
+      [key: string]: any; // ✅ allows other keys
 }
 
 export type Gender ="male" | "female" | "kids" | "all genders"
@@ -56,7 +57,10 @@ export interface PerfumesProduct extends  ProductBasicInfoData {
 }
 
 
- 
+export  interface Country {
+    code: string;
+    name: string;
+}
 
 
 export interface FashionProduct extends  ProductBasicInfoData {
@@ -66,13 +70,13 @@ export interface FashionProduct extends  ProductBasicInfoData {
   gender : Gender[]
   styles: Style[],
   season: Season[],
-  country : string
+  madeCountry : Country
   variants : FashionVariant[]
 }
 
 export interface FashionAttributes {
-  color: Color;
-  covers: Cover[];
+  color: Color | null;
+  covers: (Cover | ImagePreviewItem)[];
   sizes: Size[];
 }
 export interface FashionVariant {

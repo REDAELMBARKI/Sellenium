@@ -175,22 +175,18 @@ const ProductBasicInfoRouter: React.FC = () => {
       </div>
       <ToasterNative />
       {/* Conditional rendering based on editing state */}
-      {modeForm === "edit" ?  
-       
-       isEditingBasicInfo ? (
-         // show form in editinig mode 
-            <BasicInfoFormMaster/>
-          )
-      
-      :(
-           // read only here need a master also that desides wich product info niche to render 
-            <ProductInfoDisplayMaster  />
-          )
-          
-      : <GoCreateProduct title="No product Found " description="" />
-     
-    
-     }
+      {
+      modeForm === "edit" ? (
+        isEditingBasicInfo ? (
+          <BasicInfoFormMaster />
+        ) : (
+          <ProductInfoDisplayMaster />
+        )
+      ) : (
+        <GoCreateProduct title="No product Found" description="" />
+      )
+    }
+
 
     
     </div>

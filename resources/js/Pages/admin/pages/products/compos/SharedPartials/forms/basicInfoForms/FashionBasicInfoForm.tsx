@@ -2,29 +2,28 @@ import CollapsibleSection from "@/components/CollapsibleSection";
 import CustomSelect from "@/components/ui/CustomSelect";
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { Upload, X, Plus, Video, Droplet, Settings } from "lucide-react";
+import { Upload, X, Plus, Video, Droplet, Settings  ,Trash2, Edit2, AlertCircle } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import MediaSection from "../../MediaSection";
 import { Color, Cover, Fit, Material, Season, Size, Style } from "@/types/inventoryTypes";
 import BaseSharedForm from "./BaseSharedForm";
-import { FashionProduct, FashionVariant, Gender } from '@/types/productsTypes';
+import { Country, FashionProduct, FashionVariant, Gender } from '@/types/productsTypes';
 import { useColorsCtx } from "@/contextHooks/useColorsCtx";
 import ProductMetaData from "../../ProductMetaData";
 import { Tag as TagType } from "@/types/tagsTypes";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
+import VariantBuilder from "../../VariantBuilder";
+import SelectByRadix from "@/components/ui/SelectByRadix";
+import countries from "i18n-iso-countries";
+import CustomSelectForObject from "@/components/ui/CustomSelectForObject";
+import enLocale from "i18n-iso-countries/langs/en.json";
+countries.registerLocale(enLocale);
+// Example: get English names
+const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
+  code,
+  name,
+}));
 
-const PRESET_COLORS: Color[] = [
-  { name: "Red", hex: "#FF0000" },
-  { name: "Blue", hex: "#0000FF" },
-  { name: "Green", hex: "#00FF00" },
-];
-
-const PRESET_SIZES: Size[] = [
-  { id: 1, name: "S" },
-  { id: 2, name: "M" },
-  { id: 3, name: "L" },
-  { id: 4, name: "XL" },
-];
 
 const FashionBasicInfoForm = () => {
   const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
@@ -122,7 +121,9 @@ const FashionBasicInfoForm = () => {
               icon={Droplet}
               isOpen={showVariantBuilder}
               onToggle={() => handleToggleSection("Variant Builder", showVariantBuilder, setShowVariantBuilder)}
-            >
+            > 
+           {/* // ------------------ VARIANT BUILDER SECTION ------------------ */}
+
               <VariantBuilder />
             </CollapsibleSection>
           </div>
@@ -187,106 +188,13 @@ const AttributesSection = () => {
         selectedValues={basicInfoForm?.season || []}
         onChange={(v) => setBasicInfoForm({ ...basicInfoForm, season: v  as Season[]})}
       />
-      <input
-        type="text"
-        placeholder="Country"
-        className="w-full px-4 py-2 rounded-lg border"
-        value={basicInfoForm?.country || ""}
-        onChange={(e) => setBasicInfoForm({ ...basicInfoForm, country: e.target.value })}
+      <CustomSelectForObject
+        label="select a countries of Origin"
+
+        value={basicInfoForm?.madeCountry ? { label: basicInfoForm.madeCountry.name , value: basicInfoForm.madeCountry.code}  : null}
+        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, madeCountry : {code : v.value , name : v.label} })}
+        options={countryList.map(c => ({ label: c.name , value: c.code }))}
       />
-    </div>
-  );
-};
-
-// ------------------ VARIANT BUILDER ------------------
-const VariantBuilder = () => {
-  const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
-  
-  if (!basicInfoForm  || basicInfoForm.niche !== 'fashion') return null;
-
-  const addVariant = () => {
-    const newVariant: FashionVariant = {
-      niche: "fashion",
-      id: Date.now().toString(),
-      attributes: { color: PRESET_COLORS[0], sizes: [], covers: [] },
-      quantity: 0,
-    };
-    setBasicInfoForm({
-      ...basicInfoForm,
-      variants: [...(basicInfoForm.variants || []), newVariant],
-    });
-  };
-
-  const updateVariant = (variantId: string, attrs: Partial<FashionVariant["attributes"]>) => {
-    setBasicInfoForm({
-      ...basicInfoForm,
-      variants: basicInfoForm.variants?.map(v =>
-        v.id === variantId ? { ...v, attributes: { ...v.attributes, ...attrs } } : v
-      ),
-    });
-  };
-
-  const updateQuantity = (variantId: string, quantity: number) => {
-    setBasicInfoForm({
-      ...basicInfoForm,
-      variants: basicInfoForm.variants?.map(v => (v.id === variantId ? { ...v, quantity } : v)),
-    });
-  };
-
-  return (
-    <div className="space-y-4 p-4 border rounded-lg">
-      <button
-        onClick={addVariant}
-        className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
-      >
-        <Plus size={16} /> Add Variant
-      </button>
-
-      {basicInfoForm.variants?.map(variant => (
-        <div key={variant.id} className="p-4 border rounded-lg space-y-2">
-          <h4 className="font-bold">Variant ID: {variant.id}</h4>
-
-          {/* Color */}
-          {/* <CustomSelect
-            label="Color"
-            options={PRESET_COLORS.map(c => ({ label: c.name, value: c.name }))}
-            value={variant.attributes.color?.name || ""}
-            onChange={(val) => {
-              const selected = PRESET_COLORS.find(c => c.name === val);
-              if (selected) updateVariant(variant.id, { color: selected });
-            }}
-          /> */}
-
-          {/* Sizes */}
-          <MultiSelectDropdown
-            label="Sizes"
-            options={PRESET_SIZES.map(s => s.name)}
-            selectedValues={variant.attributes.sizes.map(s => s.name)}
-            onChange={(vals: string[]) => {
-              const selectedSizes = PRESET_SIZES.filter(s => vals.includes(s.name));
-              updateVariant(variant.id, { sizes: selectedSizes });
-            }}
-          />
-
-          {/* Covers */}
-          {/* <MediaSection
-            variantCovers={variant.attributes.covers}
-            onChange={(covers: Cover[]) => updateVariant(variant.id, { covers })}
-          /> */}
-          <p className="text-sm text-gray-500">
-            Covers are linked to this color and selected sizes.
-          </p>
-
-          {/* Quantity */}
-          <input
-            type="number"
-            placeholder="Quantity"
-            value={variant.quantity}
-            onChange={(e) => updateQuantity(variant.id, parseInt(e.target.value))}
-            className="w-full px-3 py-2 border rounded-lg"
-          />
-        </div>
-      ))}
     </div>
   );
 };

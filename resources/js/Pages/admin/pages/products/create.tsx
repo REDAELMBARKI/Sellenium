@@ -6,11 +6,12 @@ import { ProductBackendProps } from "@/types/productsTypes";
 import React, { useState, useEffect } from "react";
 import ProductBasicInfoRouter from "./compos/createEditRouterComponent/ProductBasicInfoRouter";
 import BasicInfoFormMaster from "./compos/SharedPartials/BasicInfoFormMaster";
+import { usePage } from "@inertiajs/react";
 
 
-export default function Create({ tagSuggestions, inventoryOptions }: ProductBackendProps) {
+export default function Create({nicheOptions , tagSuggestions  }: ProductBackendProps) {
     return (      
-                <ProductDataProvider inventoryOptions={inventoryOptions}  tagSuggestions={tagSuggestions}>
+                <ProductDataProvider nicheOptions={nicheOptions}  tagSuggestions={tagSuggestions}>
               
                         <ProductUIProvider>
                                     <CreateContent  />

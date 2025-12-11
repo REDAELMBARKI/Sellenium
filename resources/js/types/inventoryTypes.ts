@@ -48,7 +48,7 @@ export interface ElectronicsOptions {
 }
 
 // Options from Laravel
-export type InventoryOptions =  FashionOptions | ParfumeOptions | ElectronicsOptions
+export type NicheOptions  =  FashionOptions | ParfumeOptions | ElectronicsOptions
 
 // For Inertia useForm (needs index signature)
 
