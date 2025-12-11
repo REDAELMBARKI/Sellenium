@@ -89,7 +89,6 @@ const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions
   sku: "TSHIRT-001",
   stockQuantity: 50,
   releaseDate: "2025-10-01",
-  visible: true,
 
   materials: [
     { id: 1, name: "Cotton" },
@@ -104,7 +103,7 @@ const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions
   season: [
    "automn" , "winter"
   ],
-  country: "USA",
+  madeCountry: { code: "IT", name: "Italy" },
 
   variants:  [
     {

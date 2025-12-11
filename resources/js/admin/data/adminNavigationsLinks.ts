@@ -53,6 +53,8 @@ import {
   Bell,
   Layers,
   Settings2,
+  DraftingCompass,
+  FolderGit,
   
 } from 'lucide-react';
 
@@ -116,6 +118,7 @@ export const menuItems: MenuItem[] = [
     icon: Package, 
     href: "/products",
     subLinks: [
+      { title: "Drafts", icon:FolderGit, href: "/products/drafts" },
       { title: "All Products", icon: List, href: "/products" },
       { title: "Add Product", icon: Plus, href: "/products/create" },
       { title: "Edit Product", icon: Pencil, href: "/products/edit" },

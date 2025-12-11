@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useToasts } from "@/contextHooks/useToasts";
 import { createPortal } from "react-dom";
-import { currentTheme } from "@/data/currentTheme";
+
 
 type Variant = "success" | "error" | "info" | "warning";
 
@@ -27,7 +27,7 @@ export const ToasterNative = () => {
       {toasts.map(({ id, title, description, variant = "info" }) => (
         <ToastItem
           key={id}
-          id={id}
+          id={id ?? ''}
           title={title}
           description={description}
           variant={variant}

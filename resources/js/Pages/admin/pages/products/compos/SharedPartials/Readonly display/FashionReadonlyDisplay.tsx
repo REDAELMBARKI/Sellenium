@@ -186,7 +186,7 @@ const ProductvariantsDisplay = ({ productData }: FashionSectionProps) => {
                   <span className="text-xs font-bold uppercase tracking-wider" style={{ color: currentTheme.textMuted }}>Color</span>
                 </div>
                 <div className="text-base font-semibold" style={{ color: currentTheme.text }}>
-                  {variant.attributes.color.name || "Not set"}
+                  {variant?.attributes?.color?.name || "Not set"}
                 </div>
               </div>
 
@@ -212,7 +212,7 @@ const ProductvariantsDisplay = ({ productData }: FashionSectionProps) => {
                 <span className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: currentTheme.textMuted }}>Covers</span>
                 <div className="flex gap-2 flex-wrap">
                   {variant.attributes.covers?.length ? variant.attributes.covers.map((cover, i) => (
-                    <img key={i} src={cover.path} alt={`cover-${i}`} className="w-20 h-20 object-cover rounded-lg shadow" />
+                    <img key={i} src={"url" in cover ? cover.url : cover.path} alt={`cover-${i}`} className="w-20 h-20 object-cover rounded-lg shadow" />
                   )) : (
                     <div className="w-20 h-20 flex items-center justify-center rounded-lg shadow" style={{ backgroundColor: currentTheme.buttonSecondary }}>
                       <Image className="w-8 h-8 text-gray-400" />
@@ -269,7 +269,7 @@ const ProductAttributesDisplay = ({ productData }: FashionSectionProps) => {
         {attributeCard("Gender", productData.gender || [], Users)}
         {attributeCard("Styles", productData.styles || [], Sparkles)}
         {attributeCard("Season", productData.season || [], Sun)}
-        {attributeCard("Country of Origin", productData.country || "Not set", Globe)}
+        {/* {attributeCard("Country of Origin", productData.madeCountry.name || "Not set", Globe)} */}
       </div>
     </div>
   );

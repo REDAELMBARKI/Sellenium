@@ -30,34 +30,16 @@ export interface ProductBasicInfoData {
   covers : Cover[] , 
   tags: Tag[];
   isFeatured?: boolean;
-<<<<<<< HEAD
-  niche: NicheItem;
-=======
+
   sku?: string;
   stockQuantity?: number | string;
   releaseDate?: string;
-  visible?: boolean; // true = product is publicly visible
->>>>>>> refactortoOneContext
+
 }
 
 
 
-<<<<<<< HEAD
-export interface ParfumesBasicData extends ProductBasicInfoData {
-  niche: "perfumes";
-  concentration: "EDT" | "EDP" | "Parfum" | "Cologne";
-  quantity: number;
-  fragranceFamily: "fresh" | "woody" | "oriental" | "floral" | "aromatic";
-  topNotes: string[];
-  middleNotes: string[];
-  baseNotes: string[];
-  longevity?: string;
-  sillage?: string;
-  volumes: { ml: number; price?: number }[];
-}
 
-
-=======
 
 export interface PerfumesProduct extends  ProductBasicInfoData {
   niche: "perfumes";
@@ -82,20 +64,22 @@ export  interface Country {
     name: string;
 }
 
->>>>>>> refactortoOneContext
 
-export interface FashionProduct extends  ProductBasicInfoData {
-  niche: "fashion";
+export interface FashionAttributes {
   materials : Material[]
   fits: Fit[]
   gender : Gender[]
   styles: Style[],
   season: Season[],
   madeCountry : Country
+}
+
+export interface FashionProduct extends FashionAttributes ,  ProductBasicInfoData {
+  niche: "fashion";
   variants : FashionVariant[]
 }
 
-export interface FashionAttributes {
+export interface FashionVariantAttributes {
   color: Color | null;
   covers: (Cover | ImagePreviewItem)[];
   sizes: Size[];
@@ -103,7 +87,7 @@ export interface FashionAttributes {
 export interface FashionVariant {
   niche : "fashion",
   id :string 
-  attributes : FashionAttributes
+  attributes : FashionVariantAttributes
   quantity : number
 }
 

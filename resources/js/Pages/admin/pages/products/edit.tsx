@@ -3,7 +3,7 @@ import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
 import {  ProductBackendProps } from "@/types/productsTypes";
-import ProductBasicInfo from "./compos/createEditRouterComponent/ProductBasicInfoRouter";
+import ProductBasicInfoRouter from "./compos/createEditRouterComponent/ProductBasicInfoRouter";
 import { ToasterNative } from "@/components/ui/ToasterNative";
 import { useToasts } from "@/contextHooks/useToasts";
 import ProductDataProvider from "@/contextProvoders/sharedProviders/ProductDataProvider";
@@ -45,13 +45,7 @@ function EditContent() {
     }, [hasUnsavedChanges, showToast]);
 
 
-    const handleSaveAllChanges = () => {
-        console.log("Saving all changes:", productData);
-        alert("Changes saved successfully!");
-        setHasUnsavedChanges(false);
-        setShowToast(false);
-    };
-
+ 
    
   
     if(!productData || Object.keys(productData).length === 0) return (
@@ -73,15 +67,7 @@ function EditContent() {
                         description="Update product details and variants"
                     />
                     <div className="space-y-6">
-                        <ProductBasicInfo />
-                        <div className="flex justify-center">
-                            <Button 
-                                variant="outline"
-                                onClick={handleSaveAllChanges}
-                            >
-                                Save All Changes
-                            </Button>
-                        </div>
+                        <ProductBasicInfoRouter />
                     </div>
                 </div>
 

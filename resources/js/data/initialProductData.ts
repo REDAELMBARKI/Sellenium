@@ -21,6 +21,11 @@ export const EmptyInitialProductDataMap : Record<NicheItem, ProductDataGlobal> =
         covers: [],
         isFeatured: false,
         niche: "fashion",
+        season : [],
+        styles : [],
+        fits : [],
+        stockQuantity: 0,
+        madeCountry: {code: "" , name: ""} ,
         gender: [] as Gender[],
         materials: [] as Material[],
         variants: [] as FashionVariant[],
@@ -78,20 +83,21 @@ export const EmptyInitialProductDataMap : Record<NicheItem, ProductDataGlobal> =
 
 export const getEditedData  = (product: ProductDataGlobal, niche: NicheItem) => {
   const baseData = {
-    id: product.id,
-    name: product.name,
-    brand: product.brand,
-    price: product.price,
-    compareAtPrice: product.compareAtPrice,
-    costPrice: product.costPrice,
-    category: product.category,
-    description: product.description,
+    id: product.id ?? '', 
+    name: product.name ?? '',
+    brand: product.brand ?? '',
+    price: product.price ?? '',
+    compareAtPrice: product.compareAtPrice ?? '',
+    costPrice: product.costPrice ?? '',
+    category: product.category ?? [],
+    description: product.description ?? '',
     rating_average: product.rating_average,
-    thumbnail: product.thumbnail,
-    video:product.video ,
-    tags: product.tags,
-    isFeatured: product.isFeatured,
-    niche: product.niche,
+    thumbnail: product.thumbnail ?? '',
+    video:product.video ?? '' ,
+    tags: product.tags ?? [],
+    isFeatured: product.isFeatured ?? false,
+    niche: product.niche || "fashion",
+    covers: product.covers ?? [],
   };
 
   switch (niche) {
@@ -99,9 +105,9 @@ export const getEditedData  = (product: ProductDataGlobal, niche: NicheItem) => 
       const fashionProduct = product as FashionProduct;
       return {
         ...baseData,
-        materials: fashionProduct.materials,
-        gender: fashionProduct.gender,
-        variants: fashionProduct.variants,
+        materials: fashionProduct.materials ?? [],
+        gender: fashionProduct.gender ?? [],
+        variants: fashionProduct.variants ?? [],
       };
 
     case "perfumes":
@@ -116,7 +122,6 @@ export const getEditedData  = (product: ProductDataGlobal, niche: NicheItem) => 
         baseNotes: perfumesProduct.baseNotes,
         volumes: perfumesProduct.volumes,
         quantity: perfumesProduct.quantity,
-        covers: perfumesProduct.covers ?? [],
         longevity: perfumesProduct.longevity,
         sillage: perfumesProduct.sillage,
       };

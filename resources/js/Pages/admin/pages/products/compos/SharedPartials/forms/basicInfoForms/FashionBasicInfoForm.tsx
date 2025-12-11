@@ -7,13 +7,12 @@ import { useEffect, useState, useRef } from "react";
 import MediaSection from "../../MediaSection";
 import { Color, Cover, Fit, Material, Season, Size, Style } from "@/types/inventoryTypes";
 import BaseSharedForm from "./BaseSharedForm";
-import { Country, FashionProduct, FashionVariant, Gender } from '@/types/productsTypes';
+import {  FashionAttributes, FashionProduct, FashionVariant, Gender } from '@/types/productsTypes';
 import { useColorsCtx } from "@/contextHooks/useColorsCtx";
 import ProductMetaData from "../../ProductMetaData";
 import { Tag as TagType } from "@/types/tagsTypes";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
 import VariantBuilder from "../../VariantBuilder";
-import SelectByRadix from "@/components/ui/SelectByRadix";
 import countries from "i18n-iso-countries";
 import CustomSelectForObject from "@/components/ui/CustomSelectForObject";
 import enLocale from "i18n-iso-countries/langs/en.json";
@@ -24,16 +23,53 @@ const countryList = Object.entries(countries.getNames("en")).map(([code, name]) 
   name,
 }));
 
+const keys: Array<keyof FashionAttributes> = [
+  "materials",
+  "gender",
+  "fits",
+  "madeCountry",
+  "season",
+  "styles",
+];
+
 
 const FashionBasicInfoForm = () => {
-  const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
+  const { basicInfoForm : bif, setBasicInfoForm } = useProductDataCtx();
+  const basicInfoForm = bif as FashionProduct  ; 
+
   const { currentTheme } = useColorsCtx();
 
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  const [showMedia, setShowMedia] = useState(false);
-  const [showAttributes, setShowAttributes] = useState(false);
-  const [showVariantBuilder, setShowVariantBuilder] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  console.log(basicInfoForm.covers , 'COVERS');
+  console.log(basicInfoForm.video , 'VIDEO');
+  const isOpenShowMedia = (basicInfoForm.covers.length > 0) || !!(basicInfoForm.video && basicInfoForm.video !== '') ; // check if media is set
+
+  const [showMedia, setShowMedia] = useState<boolean>(isOpenShowMedia);
+
+ // check if at least one of  the attributes is set
+   const isOpenShowAttributes = keys.some(key => { 
+  const value : FashionAttributes[keyof FashionAttributes] = basicInfoForm[key];
+
+  // If array: must have at least 1 element
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+
+  // If object (like madeCountry)
+  if (typeof value === "object" && value !== null) {
+     return Object.keys(value).length > 0;
+  }
+
+  return false;
+});
+
+  const [showAttributes, setShowAttributes] = useState<boolean>(isOpenShowAttributes);
+
+  const isOpenShowVariantBuilder = basicInfoForm.variants.length > 0  // check if the variants are set 
+  const [showVariantBuilder, setShowVariantBuilder] = useState<boolean>(isOpenShowVariantBuilder);
+
+  const isOpenShowAdvanced = basicInfoForm.tags.length > 0 || basicInfoForm.sku !== '' // check if the meta data is set
+  const [showAdvanced, setShowAdvanced] = useState<boolean>(isOpenShowAdvanced); // this has meta dat alike sku and tags
 
   const mediaRef = useRef<HTMLDivElement | null>(null);
   const attributesRef = useRef<HTMLDivElement | null>(null);
@@ -128,7 +164,7 @@ const FashionBasicInfoForm = () => {
             </CollapsibleSection>
           </div>
 
-          {/* Advanced / Meta */}
+          {/* Advanced / Meta  tags and sku*/}
           <div ref={advancedRef}>
             <CollapsibleSection
               title="Advanced Settings"
@@ -137,10 +173,13 @@ const FashionBasicInfoForm = () => {
               onToggle={() => handleToggleSection("Advanced Settings", showAdvanced, setShowAdvanced, () => {
                 setBasicInfoForm({ ...basicInfoForm, sku: '', tags: [] as TagType[] });
               })}
-            >
+            > 
               <ProductMetaData />
             </CollapsibleSection>
           </div>
+
+
+           
         </div>
       </div>
     </div>
@@ -159,7 +198,7 @@ const AttributesSection = () => {
   return (
     <div className="space-y-4 p-4 border rounded-lg" style={{ backgroundColor: currentTheme.card }}>
       <MultiSelectDropdownForObject
-        label="Materials"
+        label="Materials" 
         options={[]} 
         selectedValues={basicInfoForm?.materials || []}
         onChange={(v) => setBasicInfoForm({ ...basicInfoForm, materials: v  as Material[]})}
