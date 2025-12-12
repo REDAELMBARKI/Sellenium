@@ -46,8 +46,6 @@ const MediaSection = ({
     };
 
 
-    console.log(basicInfoForm.video , 'vedio')
-    console.log(videoPreview)
     return (
         <>
             <div>

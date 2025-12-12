@@ -64,78 +64,79 @@ const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions
   // ],
   // };
 
-  const productSource : FashionProduct  = {
-  niche: "fashion",
-  id: "fash123",
-  name: "Urban Street Jacket",
-  brand: "TrendCo",
-  price: "129.99",
-  compareAtPrice: "159.99",
-  costPrice: "80.00",
-  category: ["Outerwear", "Jackets", "Streetwear"],
-  description: "A versatile street jacket made from premium materials, perfect for urban adventures.",
-  rating_average: 4.5,
-  thumbnail: {path:"https://via.placeholder.com/150" , id:"23"},
-  video:{path: "/videos/illusion.mp4" , id:"32"},
-  covers: [
-    {id : "1" ,  path: "/images/red.jpg" },
-    {id : "2" ,  path: "/images/perpel.jpg" }
-  ],
-  tags: [
-    { id: "t1", name: "New Arrival" },
-    { id: "t2", name: "Bestseller" },
-  ],
-  isFeatured: true,
-  sku: "TSHIRT-001",
-  stockQuantity: 50,
-  releaseDate: "2025-10-01",
+//   const productSource : FashionProduct  = {
+//   niche: "fashion",
+//   id: "fash123",
+//   name: "Urban Street Jacket",
+//   brand: "TrendCo",
+//   price: "129.99",
+//   compareAtPrice: "159.99",
+//   costPrice: "80.00",
+//   category: [{id:"1" , name:"Outerwear"}, {id:"2" , name: "Jackets"}, {id:"3" , name: "Streetwear"}],
+//   description: "A versatile street jacket made from premium materials, perfect for urban adventures.",
+//   rating_average: 4.5,
+//   thumbnail: {path:"/images/red.jpg" , id:"23"},
+//   video:{path: "/videos/illusion.mp4" , id:"32"},
+//   covers: [
+//     {id : "1" ,  path: "/images/red.jpg" },
+//     {id : "2" ,  path: "/images/perpel.jpg" }
+//   ],
+//   tags: [
+//     { id: "t1", name: "New Arrival" },
+//     { id: "t2", name: "Bestseller" },
+//   ],
+//   isFeatured: true,
+//   sku: "TSHIRT-001",
+//   stockQuantity: 50,
+//   releaseDate: "2025-10-01",
 
-  materials: [
-    { id: 1, name: "Cotton" },
-    { id: 2, name: "Polyester" },
-  ],
-  fits: [
-    { id: 1, name: "Slim Fit" },
-    { id: 2, name: "Regular Fit" },
-  ],
-  gender: ["male", "female"],
-  styles: ["casual", "streetwear" , "oversize"],
-  season: [
-   "automn" , "winter"
-  ],
-  madeCountry: { code: "IT", name: "Italy" },
+//   materials: [
+//     { id: 1, name: "Cotton" },
+//     { id: 2, name: "Polyester" },
+//   ],
+//   fits: [
+//     { id: 1, name: "Slim Fit" },
+//     { id: 2, name: "Regular Fit" },
+//   ],
+//   gender: ["male", "female"],
+//   styles: ["casual", "streetwear" , "oversize"],
+//   season: [
+//    "automn" , "winter"
+//   ],
+//   madeCountry: { code: "IT", name: "Italy" },
 
-  variants:  [
-    {
-      id: "v1",
-      niche: "fashion",
-      quantity: 100,
-      attributes:{
-        color: { name: "Red", hex: "#FF0000" } as Color,
-        sizes: [{id : 1 ,  name : "S"}, {id : 2 , name : "M"}, {id : 3 , name : "L"}],
-        covers: [
-          {id:"1" , path: "/images/perpel.jpg" },
-          {id : "2" ,  path: "https://via.placeholder.com/150/FF0000?text=Red+Jacket" },
-        ],
-      }
-    },
-    {
-      id: "v2",
-      niche: "fashion",
-      quantity: 100,
-      attributes:{
-         color: { name: "Blue", hex: "#0000FF" } as Color,
-        sizes: [{id : 1 ,  name : "S"}, {id : 2 , name : "M"}, {id : 3 , name : "L"}],
-        covers: [
-          {id:"1" ,  path: "https://via.placeholder.com/150/000000?text=Black+Jacket" },
-          {id:"2" ,  path: "https://via.placeholder.com/150/000000?text=Black+Side" },
-        ],
-      }
-    },
+//   variants:  [
+//     {
+//       id: "v1",
+//       niche: "fashion",
+//       quantity: 100,
+//       attributes:{
+//         color: { name: "Red", hex: "#FF0000" } as Color,
+//         sizes: [{id : 1 ,  name : "S"}, {id : 2 , name : "M"}, {id : 3 , name : "L"}],
+//         covers: [
+//           {id:"1" , path: "/images/perpel.jpg" },
+//           {id : "2" ,  path: "https://via.placeholder.com/150/FF0000?text=Red+Jacket" },
+//         ],
+//       }
+//     },
+//     {
+//       id: "v2",
+//       niche: "fashion",
+//       quantity: 100,
+//       attributes:{
+//          color: { name: "Blue", hex: "#0000FF" } as Color,
+//         sizes: [{id : 1 ,  name : "S"}, {id : 2 , name : "M"}, {id : 3 , name : "L"}],
+//         covers: [
+//           {id:"1" ,  path: "https://via.placeholder.com/150/000000?text=Black+Jacket" },
+//           {id:"2" ,  path: "https://via.placeholder.com/150/000000?text=Black+Side" },
+//         ],
+//       }
+//     },
     
-  ],
-};
-
+//   ],
+// };
+   
+const productSource = undefined ; 
     const {currentNiche} = useNicheCtx()
    
     

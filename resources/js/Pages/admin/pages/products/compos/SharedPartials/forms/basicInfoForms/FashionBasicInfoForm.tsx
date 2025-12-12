@@ -44,7 +44,7 @@ const FashionBasicInfoForm = () => {
   const isOpenShowMedia = (basicInfoForm.covers.length > 0) || !!(basicInfoForm.video &&  Object.keys(basicInfoForm.video).length > 0 ) ; // check if media is set
 
   const [showMedia, setShowMedia] = useState<boolean>(isOpenShowMedia);
-
+  const isMountedRef = useRef<boolean>(false);
  // check if at least one of  the attributes is set
    const isOpenShowAttributes = keys.some(key => { 
   const value : FashionAttributes[keyof FashionAttributes] = basicInfoForm[key];
@@ -80,13 +80,29 @@ const FashionBasicInfoForm = () => {
       if (videoPreview) URL.revokeObjectURL(videoPreview);
     };
   }, [videoPreview]);
+  // scroll into the view of the section opened
 
-  useEffect(() => {
-    if (showMedia && mediaRef.current) mediaRef.current.scrollIntoView({ behavior: "smooth" });
-    if (showAttributes && attributesRef.current) attributesRef.current.scrollIntoView({ behavior: "smooth" });
-    if (showVariantBuilder && variantRef.current) variantRef.current.scrollIntoView({ behavior: "smooth" });
-    if (showAdvanced && advancedRef.current) advancedRef.current.scrollIntoView({ behavior: "smooth" });
-  }, [showMedia, showAttributes, showVariantBuilder, showAdvanced]);
+ 
+ useEffect(() => {
+  if (!isMountedRef.current) {
+    isMountedRef.current = true;
+    return;
+  }
+
+  if (showMedia && mediaRef.current) {
+      mediaRef.current.scrollIntoView({ behavior: "smooth" });
+  }
+
+  // Scroll based on which section is visible
+  if (showAttributes && attributesRef.current) {
+    attributesRef.current.scrollIntoView({ behavior: "smooth" });
+  } else if (showVariantBuilder && variantRef.current) {
+    variantRef.current.scrollIntoView({ behavior: "smooth" });
+  } else if (showAdvanced && advancedRef.current) {
+    advancedRef.current.scrollIntoView({ behavior: "smooth" });
+  }
+}, [showAttributes, showVariantBuilder, showAdvanced, showMedia]);
+
 
   if (!basicInfoForm || basicInfoForm.niche !== "fashion") return null;
 
@@ -196,36 +212,89 @@ const AttributesSection = () => {
 
   return (
     <div className="space-y-4 p-4 border rounded-lg" style={{ backgroundColor: currentTheme.card }}>
+      {/*section title */}
+      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
+        Choose Materials 
+      </label>
+      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
+      {/*end section title */}
+      
       <MultiSelectDropdownForObject
         label="Materials" 
         options={[]} 
         selectedValues={basicInfoForm?.materials || []}
         onChange={(v) => setBasicInfoForm({ ...basicInfoForm, materials: v  as Material[]})}
       />
-      <MultiSelectDropdown
-        label="Gender"
-        options={[]} 
-        selectedValues={basicInfoForm?.gender || []}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, gender: v as Gender[] })}
-      />
+
+
+
+      {/*section title */}
+      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
+        choose Fits
+      </label>
+      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
+      {/*end section title */}
+
       <MultiSelectDropdownForObject
         label="Fits"
         options={[]} 
         selectedValues={basicInfoForm?.fits || []}
         onChange={(v) => setBasicInfoForm({ ...basicInfoForm, fits: v as Fit[]})}
       />
+
+
+      {/*section title */}
+      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
+        choose Styles
+      </label>
+      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
+      {/*end section title */}
+
+
       <MultiSelectDropdown
         label="Styles"
         options={[]} 
         selectedValues={basicInfoForm?.styles || []}
         onChange={(v) => setBasicInfoForm({ ...basicInfoForm, styles: v as Style[]})}
       />
+
+
+      {/*section title */}
+      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
+       Choose Seasons
+      </label>
+      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
+      {/*end section title */}
+
+
       <MultiSelectDropdown
         label="Season"
         options={[]} 
         selectedValues={basicInfoForm?.season || []}
         onChange={(v) => setBasicInfoForm({ ...basicInfoForm, season: v  as Season[]})}
       />
+
+
+      {/*section title */}
+      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
+        Gender 
+      </label>
+      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
+      {/*end section title */}
+      <MultiSelectDropdown
+        label="Gender"
+        options={[]} 
+        selectedValues={basicInfoForm?.gender || []}
+        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, gender: v as Gender[] })}
+      />
+
+
+     {/*section title */}
+      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
+        Choose Made Country 
+      </label>
+      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
+      {/*end section title */}
       <CustomSelectForObject
         label="select a countries of Origin"
 

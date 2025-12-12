@@ -2,12 +2,13 @@
 
 import EmptyListSection from "@/admin/components/partials/EmptyListSection";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { Color, FashionOptions, Size } from "@/types/inventoryTypes";
+import { Color, Cover, FashionOptions, Size } from "@/types/inventoryTypes";
 import { ImagePreviewItem } from "@/types/mediaTypes";
 import { FashionProduct, FashionVariant } from "@/types/productsTypes";
 import { set } from "lodash";
 import { Plus, Trash2, Edit2, AlertCircle, Package2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { v4 } from "uuid";
 
 
 // Preset data
@@ -38,8 +39,9 @@ const VariantBuilder = () => {
   const [availableColors, setAvailableColors] = useState<Color[]>(fashionOptions?.colors  ?? PRESET_COLORS);
   const [availableSizes] = useState<Size[]>(fashionOptions?.sizes  ?? PRESET_SIZES);
   const [previewColor, setPreviewColor] = useState<Color | null>(null);
-  console.log("fashionOptions", fashionOptions);
-  
+  // for scrolling to view the form once add variant clicked 
+  const addVariantFormRef = useRef<HTMLDivElement | null>(null)
+
   if (!basicInfoForm || basicInfoForm.niche !== "fashion") return null;
   
 
@@ -49,7 +51,11 @@ const VariantBuilder = () => {
       variants: savedVariants,
     });
   }, [savedVariants]);
+
+
   const startNewVariant = () => {
+    console.log('scroll') 
+    if(addVariantFormRef.current) addVariantFormRef.current?.scrollIntoView({ behavior: "smooth" })
     const newVariant: FashionVariant = {
       niche: "fashion",
       id: Date.now().toString(),
@@ -57,6 +63,7 @@ const VariantBuilder = () => {
       quantity: 0,
     };
     setEditingVariant(newVariant);
+
   };
 
   
@@ -90,7 +97,7 @@ const VariantBuilder = () => {
     if (!files || files.length === 0) return;
 
     const newCovers: ImagePreviewItem[] = Array.from(files).map((file) => ({
-      id: Date.now() + Math.random(),
+      id: v4(),
       url: URL.createObjectURL(file),
       file: file,
     }));
@@ -109,10 +116,11 @@ const VariantBuilder = () => {
   const removeCover = (coverId: string) => {
     if (!editingVariant) return;
      
-    const coverToRemove = editingVariant.attributes.covers.find(c => c.id === coverId);
+    const coverToRemove : (Cover | ImagePreviewItem) | undefined = editingVariant.attributes.covers.find(c => c.id === coverId);
     if(!coverToRemove) return;
-    if("url" in coverToRemove && coverToRemove?.url.startsWith("blob:")){
-        URL.revokeObjectURL(coverToRemove?.url);
+
+    if("url" in coverToRemove && coverToRemove.url!.startsWith("blob:")){
+        URL.revokeObjectURL(coverToRemove.url!);
     }
     
 
@@ -197,7 +205,7 @@ const VariantBuilder = () => {
 
       {/* Editing Form */}
       {editingVariant && (
-        <div className="p-6 border-2 border-blue-200 rounded-xl bg-blue-50/30 shadow-sm space-y-6">
+        <div ref={addVariantFormRef} className="p-6 border-2 border-blue-200 rounded-xl bg-blue-50/30 shadow-sm space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-slate-700">
               {savedVariants.some(v => v.id === editingVariant.id) ? "Edit Variant" : "New Variant"}

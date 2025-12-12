@@ -1,8 +1,10 @@
 import TagSection from "@/components/TagInput";
 import CustomSelect from "@/components/ui/CustomSelect";
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
+import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { Category } from "@/types/inventoryTypes";
 import { Description } from "@radix-ui/react-dialog";
 import { Upload, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -87,11 +89,11 @@ const BaseSharedForm = () => {
               Thumbnail <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-6">
-              {(basicInfoForm.thumbnail || thumbnailPreview) && (
+              {(Object.keys(basicInfoForm.thumbnail).length > 0 || thumbnailPreview) && (
                 <div className="relative w-40 h-40 group overflow-hidden rounded-2xl shadow-lg border-2"
                      style={{ borderColor: errors.thumbnail ? '#ef4444' : currentTheme.border }}>
                   <img
-                    src={thumbnailPreview ?? basicInfoForm.thumbnail}
+                    src={"path" in basicInfoForm.thumbnail ? basicInfoForm.thumbnail.path : thumbnailPreview!}
                     alt="Product thumbnail"
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-hover:blur-sm"
                   />
@@ -222,11 +224,11 @@ const BaseSharedForm = () => {
             <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
               Category
             </label>
-            <MultiSelectDropdown
+            <MultiSelectDropdownForObject
               label="Product Type"
               options={Array.isArray(basicInfoForm.category) ? basicInfoForm.category : []}
               selectedValues={Array.isArray(basicInfoForm.category) ? basicInfoForm.category : []}
-              onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, category: selected })}
+              onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, category: selected as Category[] })}
             />
           </div>
 
