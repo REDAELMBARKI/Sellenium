@@ -1,28 +1,28 @@
 
+import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { Cover } from "@/types/inventoryTypes";
+import { ImagePreviewItem } from "@/types/mediaTypes";
 import { ProductDataGlobal } from "@/types/productsTypes";
 import { Upload, X } from "lucide-react";
+import { v4 } from "uuid";
 
 interface MediaSectionProps {
-    setBasicInfoForm : React.Dispatch<React.SetStateAction<ProductDataGlobal>>;
-    basicInfoForm : ProductDataGlobal;
-    setVideoPreview: React.Dispatch<React.SetStateAction<string | null>>
-    videoPreview : string | null;
+    setVideoPreview: React.Dispatch<React.SetStateAction<string | undefined>>
+    videoPreview : string | undefined;
 }
 
 const MediaSection = ({
-    setBasicInfoForm,
-    basicInfoForm,
     setVideoPreview,
     videoPreview,
 }: MediaSectionProps) => {
     const {currentTheme} = useColorsCtx()
-    
+    const { basicInfoForm , setBasicInfoForm} = useProductDataCtx()
 
     const handleCoversUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files) return;
-        const newCovers = Array.from(files).map((f) => ({id: 1 , path : URL.createObjectURL(f)}));
+        const newCovers = Array.from(files).map((f) => ({id: v4() , path : URL.createObjectURL(f)}));
         setBasicInfoForm({
             ...basicInfoForm,
             covers: [...(basicInfoForm.covers || []), ...newCovers],
@@ -36,13 +36,18 @@ const MediaSection = ({
     };
 
     const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+
         const file = e.target.files?.[0];
+        const id = v4()
         if (!file) return;
         const url = URL.createObjectURL(file);
         setVideoPreview(url);
-        setBasicInfoForm({ ...basicInfoForm, video: url });
+        setBasicInfoForm({ ...basicInfoForm, video: {file , url , id } });
     };
 
+
+    console.log(basicInfoForm.video , 'vedio')
+    console.log(videoPreview)
     return (
         <>
             <div>
@@ -53,10 +58,10 @@ const MediaSection = ({
                     Covers
                 </label>
                 <div className="flex flex-wrap gap-4">
-                    {(basicInfoForm.covers || []).map((c, i) => (
+                    {(basicInfoForm.covers || [] as (Cover | ImagePreviewItem)[] ).map((c, i) => (
                         <div key={i} className="relative w-32 h-32 group">
                             <img
-                                src={c.path}
+                                src={"url" in c ? c.url : "path" in c ? c.path : "images/defaultImg.png"}
                                 alt={`cover-${i}`}
                                 className="w-full h-full object-cover rounded-xl shadow-md group-hover:opacity-75 transition-opacity"
                             />
@@ -99,9 +104,9 @@ const MediaSection = ({
                 >
                     Video
                 </label>
-                {basicInfoForm.video && videoPreview !== null && (
+                {(basicInfoForm.video && Object.keys(basicInfoForm.video).length > 0) && videoPreview !== null && (
                     <video
-                        src={basicInfoForm.video}
+                        src={videoPreview ?? ("url" in basicInfoForm.video ? basicInfoForm.video.url : "path" in basicInfoForm.video ?  basicInfoForm.video.path : '/images/ .mp4') }
                         controls
                         className="w-full max-w-2xl rounded-xl mb-4 shadow-lg"
                     />

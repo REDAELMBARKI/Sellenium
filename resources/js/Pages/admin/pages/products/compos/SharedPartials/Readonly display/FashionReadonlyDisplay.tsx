@@ -4,6 +4,7 @@ import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx'
 import { useColorsCtx } from '@/contextHooks/useColorsCtx';
 import SkuDisplayBoard from '@/components/SkuDisplayBoard';
 import { FashionProduct, ProductDataGlobal } from '@/types/productsTypes';
+import { DEFAULT_PRODUCT_IMAGE } from '@/data/defaults';
 
 const FashionReadonlyDisplay: React.FC = () => {
   const { productData } = useProductDataCtx();
@@ -25,7 +26,7 @@ const FashionReadonlyDisplay: React.FC = () => {
           {productData?.thumbnail ? (
             <div className="relative group">
               <img
-                src={productData.thumbnail}
+                src={"path" in productData.thumbnail ? productData.thumbnail.path : DEFAULT_PRODUCT_IMAGE}
                 alt="Product thumbnail"
                 className="w-40 h-40 object-cover rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-105"
                 style={{ borderWidth: '3px', borderColor: currentTheme.border }}
@@ -84,7 +85,7 @@ const FashionReadonlyDisplay: React.FC = () => {
         <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
         <div className="w-full px-5 py-4 rounded-xl font-semibold shadow-sm"
              style={{ backgroundColor: currentTheme.buttonSecondary, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}>
-          {productData?.category?.length ? productData.category.join(', ') : 'Not set'}
+          {productData?.category?.length ? productData.category.map(c => c.name).join(', ') : 'Not set'}
         </div>
       </div>
 
@@ -104,12 +105,12 @@ const FashionReadonlyDisplay: React.FC = () => {
         <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
         <div className="flex gap-4">
           {productData?.covers?.length ? productData.covers.map((img, idx) => (
-            <img key={idx} src={img.path} alt={`media-${idx}`} className="w-32 h-32 object-cover rounded-lg shadow" />
+            <img key={idx} src={"url" in img ? img.url : "path" in img ? img.path : '/images/BrokenImage' } alt={`media-${idx}`} className="w-32 h-32 object-cover rounded-lg shadow" />
           )) : <span className="text-gray-500">No images</span>}
         </div>
         {productData?.video && (
           <video controls className="w-full mt-4 rounded-lg">
-            <source src={productData.video} />
+            <source src={"url" in productData.video ? productData.video.url : "path" in productData.video ? productData.video.path : ""} />
           </video>
         )}
       </div>
@@ -269,7 +270,7 @@ const ProductAttributesDisplay = ({ productData }: FashionSectionProps) => {
         {attributeCard("Gender", productData.gender || [], Users)}
         {attributeCard("Styles", productData.styles || [], Sparkles)}
         {attributeCard("Season", productData.season || [], Sun)}
-        {/* {attributeCard("Country of Origin", productData.madeCountry.name || "Not set", Globe)} */}
+        {attributeCard("Country of Origin", productData.madeCountry.name || "Not set", Globe)}
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
 import { NicheItem } from "@/context/NicheContext";
-import { Material } from "@/types/inventoryTypes";
-import { ElectronicsProduct, FashionProduct, FashionVariant, Gender, PerfumesProduct, ProductDataGlobal } from "@/types/productsTypes";
+import { Cover, Fit, Material, Season, Style } from "@/types/inventoryTypes";
+import { ImagePreviewItem } from "@/types/mediaTypes";
+import { ElectronicsProduct, FashionProduct, FashionVariant, Gender, PerfumesProduct, ProductDataGlobal, ProductVariant } from "@/types/productsTypes";
+import { Tag } from "@/types/tagsTypes";
 import { video } from "framer-motion/client";
 
 
@@ -15,8 +17,8 @@ export const EmptyInitialProductDataMap : Record<NicheItem, ProductDataGlobal> =
         category: [],
         description: "",
         rating_average: undefined,
-        thumbnail: "",
-        video:"",
+        thumbnail:{} as (Cover | ImagePreviewItem),
+        video:{} as (Cover | ImagePreviewItem),
         tags: [],
         covers: [],
         isFeatured: false,
@@ -25,7 +27,7 @@ export const EmptyInitialProductDataMap : Record<NicheItem, ProductDataGlobal> =
         styles : [],
         fits : [],
         stockQuantity: 0,
-        madeCountry: {code: "" , name: ""} ,
+        madeCountry: {code:"" , name: ""} ,
         gender: [] as Gender[],
         materials: [] as Material[],
         variants: [] as FashionVariant[],
@@ -41,8 +43,8 @@ export const EmptyInitialProductDataMap : Record<NicheItem, ProductDataGlobal> =
         category: [],
         description: "",
         rating_average: undefined,
-        thumbnail: "",
-        video:"",
+        thumbnail:  {} as (Cover | ImagePreviewItem),
+        video: {} as (Cover | ImagePreviewItem),
         tags: [],
         isFeatured: false,
         niche: "perfumes",
@@ -67,8 +69,8 @@ export const EmptyInitialProductDataMap : Record<NicheItem, ProductDataGlobal> =
         category: [],
         description: "",
         rating_average: undefined,
-        thumbnail: "",
-        video:"",
+        thumbnail: {}  as (Cover | ImagePreviewItem),
+        video: {} as (Cover | ImagePreviewItem) ,
         covers: [],
         tags: [] ,
         isFeatured: false,
@@ -89,15 +91,15 @@ export const getEditedData  = (product: ProductDataGlobal, niche: NicheItem) => 
     price: product.price ?? '',
     compareAtPrice: product.compareAtPrice ?? '',
     costPrice: product.costPrice ?? '',
-    category: product.category ?? [],
+    category: product.category ?? [] as {id:string , name : string}[],
     description: product.description ?? '',
     rating_average: product.rating_average,
-    thumbnail: product.thumbnail ?? '',
-    video:product.video ?? '' ,
-    tags: product.tags ?? [],
+    thumbnail: product.thumbnail ?? {} as (Cover | ImagePreviewItem),
+    video:product.video ?? {} as (Cover | ImagePreviewItem),
+    tags: product.tags ?? [] as Tag[],
     isFeatured: product.isFeatured ?? false,
     niche: product.niche || "fashion",
-    covers: product.covers ?? [],
+    covers: product.covers ?? [] as (Cover | ImagePreviewItem)[],
   };
 
   switch (niche) {
@@ -105,9 +107,13 @@ export const getEditedData  = (product: ProductDataGlobal, niche: NicheItem) => 
       const fashionProduct = product as FashionProduct;
       return {
         ...baseData,
-        materials: fashionProduct.materials ?? [],
-        gender: fashionProduct.gender ?? [],
-        variants: fashionProduct.variants ?? [],
+        materials: fashionProduct.materials ?? [] as Material[],
+        season : fashionProduct.season ?? [] as Season[] , 
+        madeCountry : fashionProduct.madeCountry ?? '' , 
+        styles : fashionProduct.styles ?? [] as Style[] , 
+        fits : fashionProduct.fits ?? [] as Fit[] , 
+        gender: fashionProduct.gender ?? [] as Gender[],
+        variants: fashionProduct.variants ?? [] as ProductVariant[],
       };
 
     case "perfumes":

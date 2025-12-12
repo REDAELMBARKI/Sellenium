@@ -24,8 +24,8 @@ export interface Material {
 }
 
 export interface Cover {
-    id: number;
-    path: string;
+    id: string | undefined ;
+    path: string | undefined;
 }
 
 

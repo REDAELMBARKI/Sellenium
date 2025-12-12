@@ -22,12 +22,12 @@ export interface ProductBasicInfoData {
   price: string;
   compareAtPrice?: string;
   costPrice?: string;  
-  category: string[];
+  category: {id: string , name : string}[];
   description: string;
   rating_average?: number;
-  thumbnail: string;
-  video : string ;
-  covers : Cover[] , 
+  thumbnail: Cover | ImagePreviewItem  ;
+  video : Cover | ImagePreviewItem  ;
+  covers : (Cover | ImagePreviewItem)[] , 
   tags: Tag[];
   isFeatured?: boolean;
 

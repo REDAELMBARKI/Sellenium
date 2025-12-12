@@ -75,11 +75,11 @@ const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions
   category: ["Outerwear", "Jackets", "Streetwear"],
   description: "A versatile street jacket made from premium materials, perfect for urban adventures.",
   rating_average: 4.5,
-  thumbnail: "https://via.placeholder.com/150",
-  video: "https://www.w3schools.com/html/mov_bbb.mp4",
+  thumbnail: {path:"https://via.placeholder.com/150" , id:"23"},
+  video:{path: "/videos/illusion.mp4" , id:"32"},
   covers: [
-    {id : 1 ,  path: "https://via.placeholder.com/200x200?text=Cover+1" },
-    {id : 2 ,  path: "https://via.placeholder.com/200x200?text=Cover+2" }
+    {id : "1" ,  path: "/images/red.jpg" },
+    {id : "2" ,  path: "/images/perpel.jpg" }
   ],
   tags: [
     { id: "t1", name: "New Arrival" },
@@ -114,8 +114,8 @@ const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions
         color: { name: "Red", hex: "#FF0000" } as Color,
         sizes: [{id : 1 ,  name : "S"}, {id : 2 , name : "M"}, {id : 3 , name : "L"}],
         covers: [
-          {id:1 , path: "/images/perpel.jpg" },
-          {id : 2 ,  path: "https://via.placeholder.com/150/FF0000?text=Red+Jacket" },
+          {id:"1" , path: "/images/perpel.jpg" },
+          {id : "2" ,  path: "https://via.placeholder.com/150/FF0000?text=Red+Jacket" },
         ],
       }
     },
@@ -127,8 +127,8 @@ const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions
          color: { name: "Blue", hex: "#0000FF" } as Color,
         sizes: [{id : 1 ,  name : "S"}, {id : 2 , name : "M"}, {id : 3 , name : "L"}],
         covers: [
-          {id:1 ,  path: "https://via.placeholder.com/150/000000?text=Black+Jacket" },
-          {id:2 ,  path: "https://via.placeholder.com/150/000000?text=Black+Side" },
+          {id:"1" ,  path: "https://via.placeholder.com/150/000000?text=Black+Jacket" },
+          {id:"2" ,  path: "https://via.placeholder.com/150/000000?text=Black+Side" },
         ],
       }
     },

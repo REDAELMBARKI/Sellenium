@@ -39,10 +39,9 @@ const FashionBasicInfoForm = () => {
 
   const { currentTheme } = useColorsCtx();
 
-  const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  console.log(basicInfoForm.covers , 'COVERS');
-  console.log(basicInfoForm.video , 'VIDEO');
-  const isOpenShowMedia = (basicInfoForm.covers.length > 0) || !!(basicInfoForm.video && basicInfoForm.video !== '') ; // check if media is set
+  const [videoPreview, setVideoPreview] = useState<string | undefined>("path" in basicInfoForm.video ? basicInfoForm.video.path : "url" in basicInfoForm.video ? basicInfoForm.video.url : undefined );
+
+  const isOpenShowMedia = (basicInfoForm.covers.length > 0) || !!(basicInfoForm.video &&  Object.keys(basicInfoForm.video).length > 0 ) ; // check if media is set
 
   const [showMedia, setShowMedia] = useState<boolean>(isOpenShowMedia);
 
@@ -56,7 +55,7 @@ const FashionBasicInfoForm = () => {
   }
 
   // If object (like madeCountry)
-  if (typeof value === "object" && value !== null) {
+  if (typeof value === "object" && value !== undefined) {
      return Object.keys(value).length > 0;
   }
 
@@ -129,12 +128,12 @@ const FashionBasicInfoForm = () => {
               isOpen={showMedia}
               onToggle={(newState) =>
                 handleToggleSection("Add Media", showMedia, setShowMedia, () => {
-                  setBasicInfoForm({ ...basicInfoForm, covers: [] as Cover[], video: "" });
-                  setVideoPreview(null);
+                  setBasicInfoForm({ ...basicInfoForm, covers: [] as Cover[], video: {file : undefined , url : undefined , id : undefined } });
+                  setVideoPreview(undefined);
                 })
               }
             >
-              <MediaSection {...{ setBasicInfoForm, basicInfoForm, setVideoPreview, videoPreview }} />
+              <MediaSection {...{ setVideoPreview, videoPreview }} />
             </CollapsibleSection>
           </div>
 
