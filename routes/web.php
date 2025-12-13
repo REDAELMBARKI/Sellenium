@@ -47,7 +47,8 @@ Route::get('/blog', function () {
 Route::get('/products/create' , [ProductController::class, 'create']) ;
 Route::get('/products/drafts' , [ProductController::class, 'draft']) ;
 Route::get('/products/edit' , [ProductController::class, 'edit']) ;
-Route::get('/products/list' , [ProductController::class, 'index']) ;
+Route::get('/products' , [ProductController::class, 'index']) ;
+Route::post('/products' , [ProductController::class, 'store'])->name('products.store');
 
 
 // admin

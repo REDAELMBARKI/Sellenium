@@ -5,13 +5,13 @@ import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx"
 import { Gender, PerfumesProduct, ProductDataGlobal } from "@/types/productsTypes";
 import { Upload, X, Plus, Video, Droplet, DollarSign, Settings } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import MediaSection from "../../MediaSection";
+import MediaSection from "../../A_sharedForAllNiches/components/MediaSection";
 import { Cover } from "@/types/inventoryTypes";
-import BaseSharedForm from "./BaseSharedForm";
+import BaseSharedForm from "../../A_sharedForAllNiches/components/BaseSharedForm";
 import { Button } from "@/components/ui/button";
 import TagSection from "@/components/TagInput";
 import { v4 } from "uuid";
-import ProductMetaData from "../../ProductMetaData";
+import ProductMetaData from "../../A_sharedForAllNiches/components/ProductMetaData";
 import { useColorsCtx } from "@/contextHooks/useColorsCtx";
 import { UIColorsType } from "@/types/UIColorsType";
 import { Tag as TagType } from "@/types/tagsTypes";

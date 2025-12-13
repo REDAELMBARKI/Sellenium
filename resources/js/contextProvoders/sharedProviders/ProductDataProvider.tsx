@@ -16,7 +16,6 @@ import { EmptyInitialProductDataMap, getEditedData } from '@/data/initialProduct
 
 
 const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions : tagSuggestionsSource }:ProductBackendProps) => {
-      
   //   const productSource: PerfumesProduct = {
   // niche: "perfumes",
   // id: "1",
@@ -145,6 +144,7 @@ const productSource = undefined ;
       if (mode === "edit" && product) return getEditedData(product, niche);
       throw new Error("Invalid state");
       };
+      
       const modeForm : ModeForm = productSource ? "edit" : "create" ; 
 
      const initialData = getInitialData(currentNiche, modeForm, productSource) as ProductDataGlobal;

@@ -1,15 +1,16 @@
 
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { DEFAULT_PRODUCT_IMAGE } from "@/data/defaults";
+import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
 import { Cover } from "@/types/inventoryTypes";
 import { ImagePreviewItem } from "@/types/mediaTypes";
-import { ProductDataGlobal } from "@/types/productsTypes";
 import { Upload, X } from "lucide-react";
 import { v4 } from "uuid";
 
 interface MediaSectionProps {
-    setVideoPreview: React.Dispatch<React.SetStateAction<string | undefined>>
-    videoPreview : string | undefined;
+    setVideoPreview: React.Dispatch<React.SetStateAction<string | null>>
+    videoPreview : string | null;
 }
 
 const MediaSection = ({
@@ -59,7 +60,7 @@ const MediaSection = ({
                     {(basicInfoForm.covers || [] as (Cover | ImagePreviewItem)[] ).map((c, i) => (
                         <div key={i} className="relative w-32 h-32 group">
                             <img
-                                src={"url" in c ? c.url : "path" in c ? c.path : "images/defaultImg.png"}
+                                src={getMediaSrcOrDefault(c , 'image')}
                                 alt={`cover-${i}`}
                                 className="w-full h-full object-cover rounded-xl shadow-md group-hover:opacity-75 transition-opacity"
                             />

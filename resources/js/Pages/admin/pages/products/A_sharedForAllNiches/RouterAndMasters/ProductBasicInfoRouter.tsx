@@ -1,16 +1,16 @@
 import React, { useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Edit2, X, Package } from "lucide-react";
-import ProductInfoForm from '../SharedPartials/BasicInfoFormMaster';
+import ProductInfoForm from './BasicInfoFormMaster';
 import { useToasts } from '@/contextHooks/useToasts';
 import { ToasterNative } from '@/components/ui/ToasterNative';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
 import { ProductBasicInfoData, ProductDataGlobal } from '@/types/productsTypes';
 import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
-import BasicInfoFormMaster from '../SharedPartials/BasicInfoFormMaster';
+import BasicInfoFormMaster from './BasicInfoFormMaster';
 import { useBasicinfoActions } from '@/functions/useBasicinfoActions';
 import { getEditedData } from '@/data/initialProductData';
-import ProductInfoDisplayMaster from '../SharedPartials/ProductInfoDisplayMaster';
+import ProductInfoDisplayMaster from './ProductInfoDisplayMaster';
 import GoCreateProduct from '@/components/partials/GoCreateProduct';
 
 

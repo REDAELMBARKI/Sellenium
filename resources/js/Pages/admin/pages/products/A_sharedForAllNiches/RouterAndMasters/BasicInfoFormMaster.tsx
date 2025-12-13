@@ -1,21 +1,13 @@
 import React from 'react';
-import { Upload, Plus, Tag  , X, Check, ChevronDown } from "lucide-react";
-import SelectedChip from '@/components/ui/SelectedChip';
-import { useState, useRef, useEffect } from 'react';
-import { Tag as TagType  } from '@/types/tagsTypes';
-import { ProductBasicInfoData } from '@/types/productsTypes';
-import { TagSuggestion } from '../../../../../../types/tagsTypes';
-import { P } from 'node_modules/framer-motion/dist/types.d-BJcRxCew';
-import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown';
 import { useNicheCtx } from '@/contextHooks/useNicheCtx';
 import { NicheItem } from '@/context/NicheContext';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
-import FashionBasicInfoForm from './forms/basicInfoForms/FashionBasicInfoForm';
-import PerfumesBasicInfoForm from './forms/basicInfoForms/PerfumesBasicInfoForm';
+import FashionBasicInfoForm from '../../fashionNiche/forms/FashionBasicInfoForm';
+import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
 import { Button } from '@/components/ui/button';
 import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
-
-
+import { useForm } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 
 
 
@@ -23,11 +15,11 @@ import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
 
 const BasicInfoFormMaster: React.FC = () => {
    
-
+   const {post} = useForm()
 
   const {currentNiche} = useNicheCtx()
 
-  const  { productData = {} , basicInfoForm } = useProductDataCtx()
+  const  { productData = {} , modeForm , basicInfoForm } = useProductDataCtx()
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
   const handleSaveAllChanges = () => {
       console.log("Saving all changes:", productData);
@@ -35,6 +27,14 @@ const BasicInfoFormMaster: React.FC = () => {
       setHasUnsavedChanges(false);
       setShowToast(false);
   };
+
+
+
+  const handleSubmit = (e : Event) => {
+      e.preventDefault();
+      console.log('clicked submit basic info form master');
+      post(route('/products'),basicInfoForm);
+  }
 
  
  
@@ -53,18 +53,20 @@ const BasicInfoFormMaster: React.FC = () => {
   // const props = PropsMap[currentNiche]
 
 
-  return ( <>
+  return ( <form action={"products/create"} method='post' onSubmit={handleSubmit}> 
+   
    <Form />
    {/* save product */}
    <div className="flex justify-center">
       <Button 
+          type="submit"
           variant="outline"
-          onClick={handleSaveAllChanges}
       >
-          Save All Changes
+          {modeForm === "create" ? "create  Product" : "Save Product Changes"}
       </Button>
     </div>
-  </>
+
+  </form>
   
  );  
 };

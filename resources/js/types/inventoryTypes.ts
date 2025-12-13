@@ -31,8 +31,8 @@ export interface Category {
 }
 
 export interface Cover {
-    id: string | undefined ;
-    path: string | undefined;
+    id: string | null ;
+    path: string | null;
 }
 
 

@@ -24,8 +24,8 @@ export interface MediaContextType {
 
 
  export interface ImagePreviewItem {
-  id? : string ;
-  file: File | undefined;
-  url: string | undefined;
+  id? : string | null ;
+  file: File | null;
+  url: string | null;
 }
 

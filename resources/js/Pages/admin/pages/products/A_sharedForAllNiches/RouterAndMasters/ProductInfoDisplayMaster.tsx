@@ -10,10 +10,10 @@ import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown';
 import { useNicheCtx } from '@/contextHooks/useNicheCtx';
 import { NicheItem } from '@/context/NicheContext';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
-import FashionBasicInfoForm from './forms/basicInfoForms/FashionBasicInfoForm';
-import PerfumesBasicInfoForm from './forms/basicInfoForms/PerfumesBasicInfoForm';
-import FashionReadonlyDisplay from './Readonly display/FashionReadonlyDisplay';
-import PerfumesReadonlyDisplay from './Readonly display/PerfumesReadonlyDisplay';
+import FashionBasicInfoForm from '../../fashionNiche/forms/FashionBasicInfoForm';
+import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
+import FashionReadonlyDisplay from '../../fashionNiche/displays/FashionReadonlyDisplay';
+import PerfumesReadonlyDisplay from '../../perfumesNiche/displays/PerfumesReadonlyDisplay';
 
 
 

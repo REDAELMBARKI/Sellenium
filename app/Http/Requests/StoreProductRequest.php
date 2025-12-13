@@ -19,10 +19,11 @@ class StoreProductRequest extends FormRequest{
 
     public function authorize()
     {
-        return true; 
+        // return true; 
+        dd($this->all());
     }
     public function rules(){
- 
+         
         return array_merge(
             $this->product_infos(), 
                  

@@ -15,10 +15,10 @@ import { useProductForm } from "@/contextHooks/createProductCtxHooks/useProductF
 import { useTags } from "@/contextHooks/createProductCtxHooks/useTags";
 import { useFormActions } from "@/functions/createFunctions/useFormActions";
 import Layout from "@/Layouts/Layout";
-import AddImagesSection from "@/Pages/admin/pages/products/compos/addProductPartials/AddImagesSection";
-import BasicInformationsSection from "@/Pages/admin/pages/products/compos/addProductPartials/BasicInformationsSection";
-import VariantForm from "@/Pages/admin/pages/products/compos/addProductPartials/VariantForm";
-import VariantsList from "@/Pages/admin/pages/products/compos/addProductPartials/VariantsList";
+import AddImagesSection from "resources/backups/addProductPartials/AddImagesSection";
+import BasicInformationsSection from "resources/backups/addProductPartials/BasicInformationsSection";
+import VariantForm from "resources/backups/addProductPartials/VariantForm";
+import VariantsList from "resources/backups/addProductPartials/VariantsList";
 import { TagSuggestion } from "@/types/tagsTypes";
 import { InventoryOptions } from "@/types/inventoryTypes";
 import { UIProvider } from "@/contextProvoders/UiProvider";

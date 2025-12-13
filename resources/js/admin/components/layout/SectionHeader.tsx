@@ -1,20 +1,40 @@
-import { Plus } from "lucide-react"
+import { useColorsCtx } from "@/contextHooks/useColorsCtx";
 import React from "react";
 
 
 
 
 
-export const SectionHeader = ({title , description ,  children}:{title:string ; description : string ; children? : React.ReactNode}) => {
-    return (
+export const SectionHeader = ({title , description , Icon ,  children}:{title:string  , Icon? : React.ElementType; description : string ; children? : React.ReactNode}) => {
+  const {currentTheme : theme} = useColorsCtx();  
+  return (
       <>
       
        {/* Header */}
-        <div className="flex justify-between items-center mb-6  mt-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-1">{title}</h1>
-            <p className="text-gray-600">{description}</p>
-          </div>
+        <div  className="flex flex-wrap items-center justify-between gap-4">
+           <div>
+                <h1 
+                  className="text-4xl font-bold mb-2 flex items-center gap-3"
+                  style={{
+                    background: `linear-gradient(135deg, ${theme.text} 0%, ${theme.accent} 100%)`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  <div 
+                    className="p-2 rounded-lg"
+                    style={{ 
+                      background: `linear-gradient(135deg, ${theme.accent}20 0%, ${theme.info}20 100%)`,
+                    }}
+                  >
+                    {Icon && <Icon size={28} style={{ color: theme.accent }} />}
+                  </div>
+                  {title}
+                </h1>
+                <p className="text-base" style={{ color: theme.textMuted }}>
+                  {description}
+                </p>
+           </div>
           {/* right side dev */}
           <section>
               {children}

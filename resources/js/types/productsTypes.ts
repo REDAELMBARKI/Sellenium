@@ -25,8 +25,8 @@ export interface ProductBasicInfoData {
   category: {id: string , name : string}[];
   description: string;
   rating_average?: number;
-  thumbnail: Cover | ImagePreviewItem  ;
-  video : Cover | ImagePreviewItem  ;
+  thumbnail: Cover | ImagePreviewItem  | null ;
+  video : Cover | ImagePreviewItem | null ;
   covers : (Cover | ImagePreviewItem)[] , 
   tags: Tag[];
   isFeatured?: boolean;
@@ -71,7 +71,7 @@ export interface FashionAttributes {
   gender : Gender[]
   styles: Style[],
   season: Season[],
-  madeCountry : Country
+  madeCountry : Country | null
 }
 
 export interface FashionProduct extends FashionAttributes ,  ProductBasicInfoData {

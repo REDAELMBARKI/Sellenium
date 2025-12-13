@@ -28,6 +28,14 @@ use PHPUnit\TextUI\Configuration\Merger;
 
 class ProductController extends Controller
 { 
+  
+
+    public function index(){
+        // $products = Product::with('tags')->paginate(10) ;
+        return Inertia::render("admin/pages/products/ProductsList" ) ;
+    }
+
+
 
     public function draft() {
         return Inertia::render("admin/pages/products/Drafts") ;
@@ -43,7 +51,7 @@ class ProductController extends Controller
         $fits = Fit::select('id', 'name')->distinct()->get();
         $materials = Material::select('id', 'name')->distinct()->get();;
     
-           $nicheOptions = [
+        $nicheOptions = [
             'colors' => [
                 [ 'id' => 1, 'hex' => '#e5ff00ff', 'name' => 'Red' ],
                 [ 'id' => 2, 'hex' => '#ff00fbff', 'name' => 'Blue' ],

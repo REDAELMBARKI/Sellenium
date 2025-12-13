@@ -5,7 +5,7 @@ import { useState } from "react"
 
 
 const NicheProvider = ({children} : {children : React.ReactNode}) => {
-       const [currentNiche , setCurrentNiche] = useState<NicheItem>("fashion")
+       const [currentNiche , setCurrentNiche] = useState<NicheItem>("fashion") ;
        return (
           <NicheContext.Provider value={{currentNiche , setCurrentNiche}} >
              {children}

@@ -9,7 +9,7 @@ interface OptionObject {
 
 interface CustomSelectProps {
   value: OptionObject | null;
-  onChange: (value: OptionObject) => void;
+  onChange: (option: OptionObject) => void;
   options: OptionObject[]; 
   label?: string;
 }
@@ -50,7 +50,7 @@ const CustomSelectForObject: React.FC<CustomSelectProps> = ({
           borderColor: currentTheme.border,
         }}
       >
-        <span>{ selectedOption?.label  ?? label}</span>
+        <span>{ selectedOption?.label ?? label}</span>
         <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 

@@ -4,24 +4,19 @@ import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { Upload, X, Plus, Video, Droplet, Settings  ,Trash2, Edit2, AlertCircle } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import MediaSection from "../../MediaSection";
+import MediaSection from "../../A_sharedForAllNiches/components/MediaSection";
 import { Color, Cover, Fit, Material, Season, Size, Style } from "@/types/inventoryTypes";
-import BaseSharedForm from "./BaseSharedForm";
+import BaseSharedForm from "../../A_sharedForAllNiches/components/BaseSharedForm";
 import {  FashionAttributes, FashionProduct, FashionVariant, Gender } from '@/types/productsTypes';
 import { useColorsCtx } from "@/contextHooks/useColorsCtx";
-import ProductMetaData from "../../ProductMetaData";
+import ProductMetaData from "../../A_sharedForAllNiches/components/ProductMetaData";
 import { Tag as TagType } from "@/types/tagsTypes";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
-import VariantBuilder from "../../VariantBuilder";
-import countries from "i18n-iso-countries";
-import CustomSelectForObject from "@/components/ui/CustomSelectForObject";
-import enLocale from "i18n-iso-countries/langs/en.json";
-countries.registerLocale(enLocale);
-// Example: get English names
-const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
-  code,
-  name,
-}));
+import VariantBuilder from "../components/VariantBuilder";
+
+import AttributesSection from "../components/AttributesSection";
+import { ImagePreviewItem } from "@/types/mediaTypes";
+
 
 const keys: Array<keyof FashionAttributes> = [
   "materials",
@@ -31,7 +26,12 @@ const keys: Array<keyof FashionAttributes> = [
   "season",
   "styles",
 ];
-
+function getVideoPreview(video: Cover | ImagePreviewItem | null) {
+  if (!video) return null;
+  if ("path" in video) return video.path;
+  if ("url" in video) return video.url;
+  return null;
+}
 
 const FashionBasicInfoForm = () => {
   const { basicInfoForm : bif, setBasicInfoForm } = useProductDataCtx();
@@ -39,14 +39,16 @@ const FashionBasicInfoForm = () => {
 
   const { currentTheme } = useColorsCtx();
 
-  const [videoPreview, setVideoPreview] = useState<string | undefined>("path" in basicInfoForm.video ? basicInfoForm.video.path : "url" in basicInfoForm.video ? basicInfoForm.video.url : undefined );
+  const [videoPreview, setVideoPreview] = useState<string | null>(getVideoPreview(basicInfoForm.video));
 
   const isOpenShowMedia = (basicInfoForm.covers.length > 0) || !!(basicInfoForm.video &&  Object.keys(basicInfoForm.video).length > 0 ) ; // check if media is set
 
   const [showMedia, setShowMedia] = useState<boolean>(isOpenShowMedia);
   const isMountedRef = useRef<boolean>(false);
+
+
  // check if at least one of  the attributes is set
-   const isOpenShowAttributes = keys.some(key => { 
+  const isOpenShowAttributes = keys.some(key => { 
   const value : FashionAttributes[keyof FashionAttributes] = basicInfoForm[key];
 
   // If array: must have at least 1 element
@@ -56,7 +58,8 @@ const FashionBasicInfoForm = () => {
 
   // If object (like madeCountry)
   if (typeof value === "object" && value !== undefined) {
-     return Object.keys(value).length > 0;
+     if(!value) return ;
+     return  Object.keys(value).length > 0;
   }
 
   return false;
@@ -144,8 +147,8 @@ const FashionBasicInfoForm = () => {
               isOpen={showMedia}
               onToggle={(newState) =>
                 handleToggleSection("Add Media", showMedia, setShowMedia, () => {
-                  setBasicInfoForm({ ...basicInfoForm, covers: [] as Cover[], video: {file : undefined , url : undefined , id : undefined } });
-                  setVideoPreview(undefined);
+                  setBasicInfoForm({ ...basicInfoForm, covers: [] as Cover[], video: {file : null , url : null , id : null } });
+                  setVideoPreview(null);
                 })
               }
             >
@@ -203,105 +206,3 @@ const FashionBasicInfoForm = () => {
 
 export default FashionBasicInfoForm;
 
-// ------------------ ATTRIBUTES SECTION ------------------
-const AttributesSection = () => {
-  const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
-  const { currentTheme } = useColorsCtx();
-
-  if (!basicInfoForm || basicInfoForm.niche !== 'fashion') return null;
-
-  return (
-    <div className="space-y-4 p-4 border rounded-lg" style={{ backgroundColor: currentTheme.card }}>
-      {/*section title */}
-      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-        Choose Materials 
-      </label>
-      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
-      {/*end section title */}
-      
-      <MultiSelectDropdownForObject
-        label="Materials" 
-        options={[]} 
-        selectedValues={basicInfoForm?.materials || []}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, materials: v  as Material[]})}
-      />
-
-
-
-      {/*section title */}
-      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-        choose Fits
-      </label>
-      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
-      {/*end section title */}
-
-      <MultiSelectDropdownForObject
-        label="Fits"
-        options={[]} 
-        selectedValues={basicInfoForm?.fits || []}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, fits: v as Fit[]})}
-      />
-
-
-      {/*section title */}
-      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-        choose Styles
-      </label>
-      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
-      {/*end section title */}
-
-
-      <MultiSelectDropdown
-        label="Styles"
-        options={[]} 
-        selectedValues={basicInfoForm?.styles || []}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, styles: v as Style[]})}
-      />
-
-
-      {/*section title */}
-      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-       Choose Seasons
-      </label>
-      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
-      {/*end section title */}
-
-
-      <MultiSelectDropdown
-        label="Season"
-        options={[]} 
-        selectedValues={basicInfoForm?.season || []}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, season: v  as Season[]})}
-      />
-
-
-      {/*section title */}
-      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-        Gender 
-      </label>
-      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
-      {/*end section title */}
-      <MultiSelectDropdown
-        label="Gender"
-        options={[]} 
-        selectedValues={basicInfoForm?.gender || []}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, gender: v as Gender[] })}
-      />
-
-
-     {/*section title */}
-      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-        Choose Made Country 
-      </label>
-      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
-      {/*end section title */}
-      <CustomSelectForObject
-        label="select a countries of Origin"
-
-        value={basicInfoForm?.madeCountry ? { label: basicInfoForm.madeCountry.name , value: basicInfoForm.madeCountry.code}  : null}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, madeCountry : {code : v.value , name : v.label} })}
-        options={countryList.map(c => ({ label: c.name , value: c.code }))}
-      />
-    </div>
-  );
-};

@@ -18,6 +18,6 @@
       "@/*": ["resources/js/*"]
     }
   },
-  "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx" ],
+  "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/backups/ParfumesBasicInfoForm.tsx", "resources/backups/createOld.tsx", "resources/backups/VariantsSection.tsx" ],
   "exclude": ["node_modules"]
 }

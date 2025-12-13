@@ -4,6 +4,7 @@ import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
 import { Category } from "@/types/inventoryTypes";
 import { Description } from "@radix-ui/react-dialog";
 import { Upload, X } from "lucide-react";
@@ -89,11 +90,11 @@ const BaseSharedForm = () => {
               Thumbnail <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-6">
-              {(Object.keys(basicInfoForm.thumbnail).length > 0 || thumbnailPreview) && (
+              {(basicInfoForm.thumbnail || thumbnailPreview) && (
                 <div className="relative w-40 h-40 group overflow-hidden rounded-2xl shadow-lg border-2"
                      style={{ borderColor: errors.thumbnail ? '#ef4444' : currentTheme.border }}>
                   <img
-                    src={"path" in basicInfoForm.thumbnail ? basicInfoForm.thumbnail.path : thumbnailPreview!}
+                    src={(thumbnailPreview && thumbnailPreview !== "")  ? thumbnailPreview : getMediaSrcOrDefault(basicInfoForm.thumbnail , 'image')}
                     alt="Product thumbnail"
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-hover:blur-sm"
                   />

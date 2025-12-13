@@ -3,7 +3,7 @@ import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
 import {  ProductBackendProps } from "@/types/productsTypes";
-import ProductBasicInfoRouter from "./compos/createEditRouterComponent/ProductBasicInfoRouter";
+import ProductBasicInfoRouter from "./A_sharedForAllNiches/RouterAndMasters/ProductBasicInfoRouter";
 import { ToasterNative } from "@/components/ui/ToasterNative";
 import { useToasts } from "@/contextHooks/useToasts";
 import ProductDataProvider from "@/contextProvoders/sharedProviders/ProductDataProvider";

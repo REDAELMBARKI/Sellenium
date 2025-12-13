@@ -1,4 +1,7 @@
 export function generateSKU(productName: string, brand: string, releaseDate?: string): string {
+  if (!productName && !brand) {
+    return '';
+  }
   // Normalize helpers
   const normalize = (str: string) =>
     str

@@ -3,13 +3,12 @@ import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import ProductDataProvider from "@/contextProvoders/sharedProviders/ProductDataProvider";
 import ProductUIProvider from "@/contextProvoders/sharedProviders/ProductUIProvider";
 import { ProductBackendProps } from "@/types/productsTypes";
-import React, { useState, useEffect } from "react";
-import ProductBasicInfoRouter from "./compos/createEditRouterComponent/ProductBasicInfoRouter";
-import BasicInfoFormMaster from "./compos/SharedPartials/BasicInfoFormMaster";
-import { usePage } from "@inertiajs/react";
+import BasicInfoFormMaster from "./A_sharedForAllNiches/RouterAndMasters/BasicInfoFormMaster";
 
 
-export default function Create({nicheOptions , tagSuggestions  }: ProductBackendProps) {
+export default function Create({nicheOptions , tagSuggestions  }: ProductBackendProps) { 
+    console.log("nicheOptions in create page", nicheOptions );
+    console.log("tagSuggestions in create page", tagSuggestions );
     return (      
                 <ProductDataProvider nicheOptions={nicheOptions}  tagSuggestions={tagSuggestions}>
               

@@ -4,7 +4,8 @@ import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx'
 import { useColorsCtx } from '@/contextHooks/useColorsCtx';
 import SkuDisplayBoard from '@/components/SkuDisplayBoard';
 import { FashionProduct, ProductDataGlobal } from '@/types/productsTypes';
-import { DEFAULT_PRODUCT_IMAGE } from '@/data/defaults';
+
+import { getMediaSrcOrDefault } from '@/functions/getMediaSrcOrDefault';
 
 const FashionReadonlyDisplay: React.FC = () => {
   const { productData } = useProductDataCtx();
@@ -26,7 +27,7 @@ const FashionReadonlyDisplay: React.FC = () => {
           {productData?.thumbnail ? (
             <div className="relative group">
               <img
-                src={"path" in productData.thumbnail ? productData.thumbnail.path : DEFAULT_PRODUCT_IMAGE}
+                src={getMediaSrcOrDefault(productData.thumbnail , 'image')}
                 alt="Product thumbnail"
                 className="w-40 h-40 object-cover rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-105"
                 style={{ borderWidth: '3px', borderColor: currentTheme.border }}
@@ -105,12 +106,12 @@ const FashionReadonlyDisplay: React.FC = () => {
         <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
         <div className="flex gap-4">
           {productData?.covers?.length ? productData.covers.map((img, idx) => (
-            <img key={idx} src={"url" in img ? img.url : "path" in img ? img.path : '/images/BrokenImage' } alt={`media-${idx}`} className="w-32 h-32 object-cover rounded-lg shadow" />
+            <img key={idx} src={getMediaSrcOrDefault(img , 'image')} alt={`media-${idx}`} className="w-32 h-32 object-cover rounded-lg shadow" />
           )) : <span className="text-gray-500">No images</span>}
         </div>
         {productData?.video && (
           <video controls className="w-full mt-4 rounded-lg">
-            <source src={"url" in productData.video ? productData.video.url : "path" in productData.video ? productData.video.path : ""} />
+            <source src={getMediaSrcOrDefault(productData?.video , 'video')} />
           </video>
         )}
       </div>
@@ -213,7 +214,7 @@ const ProductvariantsDisplay = ({ productData }: FashionSectionProps) => {
                 <span className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: currentTheme.textMuted }}>Covers</span>
                 <div className="flex gap-2 flex-wrap">
                   {variant.attributes.covers?.length ? variant.attributes.covers.map((cover, i) => (
-                    <img key={i} src={"url" in cover ? cover.url : cover.path} alt={`cover-${i}`} className="w-20 h-20 object-cover rounded-lg shadow" />
+                    <img key={i} src={getMediaSrcOrDefault(cover , 'image')} alt={`cover-${i}`} className="w-20 h-20 object-cover rounded-lg shadow" />
                   )) : (
                     <div className="w-20 h-20 flex items-center justify-center rounded-lg shadow" style={{ backgroundColor: currentTheme.buttonSecondary }}>
                       <Image className="w-8 h-8 text-gray-400" />
@@ -265,12 +266,12 @@ const ProductAttributesDisplay = ({ productData }: FashionSectionProps) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {attributeCard("Materials", productData.materials.map(m => m.name) || [], Layers)}
-        {attributeCard("Fit Types", productData.fits.map(m => m.name) || [], Ruler)}
-        {attributeCard("Gender", productData.gender || [], Users)}
-        {attributeCard("Styles", productData.styles || [], Sparkles)}
-        {attributeCard("Season", productData.season || [], Sun)}
-        {attributeCard("Country of Origin", productData.madeCountry.name || "Not set", Globe)}
+        {attributeCard("Materials", productData?.materials.map(m => m.name) || [], Layers)}
+        {attributeCard("Fit Types", productData?.fits.map(m => m.name) || [], Ruler)}
+        {attributeCard("Gender", productData?.gender || [], Users)}
+        {attributeCard("Styles", productData?.styles || [], Sparkles)}
+        {attributeCard("Season", productData?.season || [], Sun)}
+        {attributeCard("Country of Origin", productData?.madeCountry?.name || "Not set", Globe)}
       </div>
     </div>
   );

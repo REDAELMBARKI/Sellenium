@@ -1,5 +1,5 @@
 import { Edit2, Trash2, Package } from "lucide-react";
-import { FashionVariantEditForm } from "../forms/variantsForms/FashionVariantEditForm";
+import { FashionVariantEditForm } from "../variantsForms/FashionVariantEditForm";
 
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";

@@ -1,12 +1,12 @@
 import { NicheItem } from "@/context/NicheContext";
 import { Cover, Fit, Material, Season, Style } from "@/types/inventoryTypes";
 import { ImagePreviewItem } from "@/types/mediaTypes";
-import { ElectronicsProduct, FashionProduct, FashionVariant, Gender, PerfumesProduct, ProductDataGlobal, ProductVariant } from "@/types/productsTypes";
+import { Country, ElectronicsProduct, FashionProduct, FashionVariant, Gender, PerfumesProduct, ProductDataGlobal, ProductVariant } from "@/types/productsTypes";
 import { Tag } from "@/types/tagsTypes";
 import { video } from "framer-motion/client";
 
 
-export const EmptyInitialProductDataMap : Record<NicheItem, ProductDataGlobal> = {
+export const EmptyInitialProductDataMap : Record<NicheItem, ProductDataGlobal> = { // for create new product
     "fashion":{
         id: undefined,
         name: "",
@@ -14,20 +14,20 @@ export const EmptyInitialProductDataMap : Record<NicheItem, ProductDataGlobal> =
         price: "",
         compareAtPrice: "",
         costPrice: "",
-        category: [],
+        category: [] as {id:string , name : string}[],
         description: "",
         rating_average: undefined,
-        thumbnail:{} as (Cover | ImagePreviewItem),
-        video:{} as (Cover | ImagePreviewItem),
-        tags: [],
-        covers: [],
+        thumbnail:null,
+        video:null,
+        tags: [] as Tag[],
+        covers: [] as (Cover | ImagePreviewItem)[],
         isFeatured: false,
         niche: "fashion",
-        season : [],
-        styles : [],
-        fits : [],
+        season : [] as Season[] ,
+        styles : [] as Style[] ,
+        fits : [] as Fit[] ,
         stockQuantity: 0,
-        madeCountry: {code:"" , name: ""} ,
+        madeCountry: null ,
         gender: [] as Gender[],
         materials: [] as Material[],
         variants: [] as FashionVariant[],
@@ -43,8 +43,8 @@ export const EmptyInitialProductDataMap : Record<NicheItem, ProductDataGlobal> =
         category: [],
         description: "",
         rating_average: undefined,
-        thumbnail:  {} as (Cover | ImagePreviewItem),
-        video: {} as (Cover | ImagePreviewItem),
+        thumbnail:  null,
+        video: null,
         tags: [],
         isFeatured: false,
         niche: "perfumes",
@@ -69,8 +69,8 @@ export const EmptyInitialProductDataMap : Record<NicheItem, ProductDataGlobal> =
         category: [],
         description: "",
         rating_average: undefined,
-        thumbnail: {}  as (Cover | ImagePreviewItem),
-        video: {} as (Cover | ImagePreviewItem) ,
+        thumbnail: null,
+        video: null ,
         covers: [],
         tags: [] ,
         isFeatured: false,
@@ -94,8 +94,8 @@ export const getEditedData  = (product: ProductDataGlobal, niche: NicheItem) => 
     category: product.category ?? [] as {id:string , name : string}[],
     description: product.description ?? '',
     rating_average: product.rating_average,
-    thumbnail: product.thumbnail ?? {} as (Cover | ImagePreviewItem),
-    video:product.video ?? {} as (Cover | ImagePreviewItem),
+    thumbnail: product.thumbnail ?? null,
+    video:product.video ?? null,
     tags: product.tags ?? [] as Tag[],
     isFeatured: product.isFeatured ?? false,
     niche: product.niche || "fashion",
