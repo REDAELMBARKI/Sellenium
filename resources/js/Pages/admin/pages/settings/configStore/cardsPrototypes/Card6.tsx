@@ -1,0 +1,29 @@
+import { Star } from "lucide-react";
+
+// Card 4: Overlay Card
+export const Card6: React.FC<any> = ({ product, config, className }) => {
+  return (
+    <div className={`relative rounded-xl overflow-hidden group h-full aspect-[4/5] ${config.showBorder ? 'border-2 border-slate-300' : 'shadow-lg'} ${className}`}>
+      <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6">
+        <h3 className="font-bold text-white text-xl mb-2">{product.name}</h3>
+        <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+                {config.showPrice && (
+                    <span className="text-white font-semibold text-lg">${product.price}</span>
+                )}
+                {config.showRating && (
+                    <div className="flex items-center gap-1 bg-black/30 px-2 py-1 rounded-full backdrop-blur-sm border border-white/10">
+                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        <span className="text-white text-xs font-medium">{product.rating}</span>
+                    </div>
+                )}
+            </div>
+            <button className="w-full bg-white text-black py-2.5 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors">
+              Add to Cart
+            </button>
+        </div>
+      </div>
+    </div>
+  );
+};

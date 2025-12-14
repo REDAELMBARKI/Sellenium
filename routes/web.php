@@ -6,6 +6,7 @@ use App\Http\Controllers\admin\CurstomerController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\MessageController;
 use App\Http\Controllers\admin\OrderController as AdminOrderController;
+use App\Http\Controllers\admin\StoreConfigController;
 use App\Http\Controllers\admin\VariantsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -48,9 +49,12 @@ Route::get('/products/create' , [ProductController::class, 'create']) ;
 Route::get('/products/drafts' , [ProductController::class, 'draft']) ;
 Route::get('/products/edit' , [ProductController::class, 'edit']) ;
 Route::get('/products' , [ProductController::class, 'index']) ;
+Route::get('/products/show' , [ProductController::class, 'show']) ;
 Route::post('/products' , [ProductController::class, 'store'])->name('products.store');
 
 
+// settings 
+Route::get("/store" , [StoreConfigController::class ,  'index'])->name("store") ; 
 // admin
 Route::get('/admins' , [AdminController::class, 'index']) ;
 

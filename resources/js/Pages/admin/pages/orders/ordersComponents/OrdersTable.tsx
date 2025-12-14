@@ -2,11 +2,11 @@ import { Eye, EyeClosed, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Order } from '@/admin/types/ordersTypes';
 import { Badge } from '../../../../../components/ui/badge';
 import { Checkbox } from '../../../../../components/ui/checkBox';
-import { currentTheme } from '@/data/currentTheme';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import MoreOptions from '@/components/ui/moreOptions';
 import { useState } from 'react';
+import { useColorsCtx } from '@/contextHooks/useColorsCtx';
 
 interface OrdersTableProps {
   orders: Order[];
@@ -19,7 +19,7 @@ interface OrdersTableProps {
 export function OrdersTable({ orders, selectedOrders, onSelectOrder, onSelectAll, onViewDetails }: OrdersTableProps) {
   const allSelected = orders.length > 0 && selectedOrders.length === orders.length;
   const [openMoreOptions , setOpenMoreOptions] = useState<string | null>(null)
-
+  const {currentTheme} = useColorsCtx()
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
   };

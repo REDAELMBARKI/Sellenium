@@ -320,33 +320,9 @@ class ProductController extends Controller
     }
 
 
-    public function show($id){
+    public function show(){
 
-        $product = Product::findOrFail($id);
-        $product_covers = [];
-
-        // this one works with a loop 
-        // foreach ($product->inventories as $inventory) {
-        //     $product_covers[] = $inventory->covers()->distinct('id', 'path')->get()->toArray();
-        // };
-        $product_covers[] = $product->covers()->with('inventories')->get()->toArray();
-        $product_colors = $product->colors()->select( 'color_id' ,'hex' )->get()->toArray();
-        
-        $product_materials = $product->materials()->select('materials.id', 'materials.name')->get()->toArray();
-        $product_fits = $product->fits()->select('fits.id', 'fits.name')->get()->toArray();
-        $product_sizes = $product->sizes()->select('sizes.id', 'sizes.name')->get()->toArray();
-
-        dd($product_covers);
-        $product['covers'] = $product_covers;
-        
-        $product['colors'] = $product_colors; 
-        $product['materials'] = $product_materials;
-        $product['sizes'] = $product_sizes;
-        $product['fits'] = $product_fits;
-        
-
-        
-    //    $variants = $product->variants;
-       return inertia::render('products/show', ['product' => $product]);
+       
+       return inertia::render('admin/pages/products/Show');
     }
 }

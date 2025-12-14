@@ -1,5 +1,5 @@
 import React, { useState, useMemo, FC, ButtonHTMLAttributes, InputHTMLAttributes } from 'react';
-import { Download, Plus, Calendar, RefreshCw, Phone, Mail, Eye, Ban, CheckCircle, Award, Search, X } from 'lucide-react';
+import { Download, Plus, Calendar, RefreshCw, Phone, Mail, Eye, Ban, CheckCircle, Award, Search, X, PersonStanding } from 'lucide-react';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import SelectByRadix from '@/components/ui/SelectByRadix';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import CustomerDetails from './CustomerDetails';
+import { SectionHeader } from '@/admin/components/layout/SectionHeader';
 
 // Types
 type CustomerStatus = 'active' | 'vip' | 'blocked';
@@ -69,11 +70,6 @@ interface BadgeProps {
   className?: string;
 }
 
-interface SectionHeaderProps {
-  title: string;
-  description: string;
-  children?: React.ReactNode;
-}
 
 interface StatsCardProps {
   title: string;
@@ -145,16 +141,6 @@ const Select: FC<SelectProps> = ({ value, onChange, options, className = '' }) =
 );
 
 
-
-const SectionHeader: FC<SectionHeaderProps> = ({ title, description, children }) => (
-  <div className="flex items-start justify-between gap-4 flex-wrap">
-    <div>
-      <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-      <p className="text-muted-foreground mt-1">{description}</p>
-    </div>
-    {children}
-  </div>
-);
 
 const StatsCard: FC<StatsCardProps> = ({ title, value, change, trend, icon: Icon }) => (
   <Card className="p-6 rounded-xl">
@@ -363,9 +349,8 @@ const CustomersManager = () => {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         
-        <SectionHeader title='Manage Customers' description="View and manage all your customers">
-          <div className='flex gap-4'>
-            <Button type="button" variant="outline" className="rounded-lg">
+        <SectionHeader Icon={PersonStanding} title='Manage Customers' description="View and manage all your customers">
+           <Button type="button" variant="outline" className="rounded-lg">
               <Download size={18} />
               Export
             </Button>
@@ -373,7 +358,6 @@ const CustomersManager = () => {
               <Plus size={18} />
               Add Customer
             </Button>
-          </div>
         </SectionHeader>
 
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
