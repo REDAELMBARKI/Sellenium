@@ -12,7 +12,7 @@ export const DEFAULT_PRODUCT: any = {
 };
 
 
-const CardOptions: React.FC = () => {
+const CardsConfig: React.FC = () => {
   const [selectedCardId, setSelectedCardId] = useState<any>('card-1');
   const [config, setConfig] = useState<any>({
     showPrice: true,
@@ -31,7 +31,7 @@ const CardOptions: React.FC = () => {
               <p className="text-slate-500">Choose a card style to customize.</p>
             </header>
             
-            <div className="flex-grow min-h-0">
+            <div className="flex-grow min-h-0 ">
                <CardGrid
                  selectedId={selectedCardId} 
                  onSelect={setSelectedCardId} 
@@ -56,4 +56,4 @@ const CardOptions: React.FC = () => {
   );
 };
 
-export default CardOptions;
+export default CardsConfig;

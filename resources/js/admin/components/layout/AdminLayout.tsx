@@ -58,7 +58,7 @@ const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
     <Header />
 
     {/* Scrollable content */}
-    <main className="flex-1 overflow-auto p-6 bg-gray-50">
+    <main className="flex-1  overflow-auto  bg-gray-50">
       {children}
     </main>
   </div>

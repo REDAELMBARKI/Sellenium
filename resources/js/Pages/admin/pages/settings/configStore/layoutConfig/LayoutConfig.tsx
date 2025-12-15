@@ -1,11 +1,11 @@
 import React from "react";
 
-interface LayoutOptionsProps {
+interface LayoutConfigProps {
   config: any;
   setConfig: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const LayoutOptions: React.FC<LayoutOptionsProps> = ({ config, setConfig }) => {
+const LayoutConfig: React.FC<LayoutConfigProps> = ({ config, setConfig }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Layout Options</h2>
@@ -27,4 +27,4 @@ const LayoutOptions: React.FC<LayoutOptionsProps> = ({ config, setConfig }) => {
   );
 };
 
-export default LayoutOptions;
+export default LayoutConfig;

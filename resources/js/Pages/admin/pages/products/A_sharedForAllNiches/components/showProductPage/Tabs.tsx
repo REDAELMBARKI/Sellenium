@@ -17,9 +17,11 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab }) => {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id || "");
   const {currentTheme} = useColorsCtx()
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-      <div className="bg-white rounded-lg shadow-sm mb-6 overflow-x-auto">
-        <div className="flex border-b border-gray-200 min-w-max">
+    <div className="bg-white  shadow-lg border border-slate-200 overflow-hidden w-full ">
+      <div className="bg-white rounded-lg shadow-sm  overflow-x-auto">
+        <div className="flex border-b border-gray-200 min-w-max  " 
+       
+        >
           {tabs.map(({Icon , ...tab}) => {
             return (
               <button
@@ -41,7 +43,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab }) => {
           })}
         </div>
       </div>
-      <div className="p-8">
+      <div className="">
         {tabs.map((tab) => (
           <div
             key={tab.id}

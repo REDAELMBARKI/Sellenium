@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Settings2, CheckCircle2, Circle, X } from "lucide-react";
-import Card1 from './cardsPrototypes/Card1';
-import Card2 from './cardsPrototypes/Card2';
-import Card3 from './cardsPrototypes/Card3';
-import Card4 from './cardsPrototypes/Card4';
-import { Card5 } from './cardsPrototypes/Card5';
-import { Card6 } from './cardsPrototypes/Card6';
+import Card1 from '../cardsPrototypes/Card1';
+import Card2 from '../cardsPrototypes/Card2';
+import Card3 from '../cardsPrototypes/Card3';
+import Card4 from '../cardsPrototypes/Card4';
+import { Card5 } from '../cardsPrototypes/Card5';
+import { Card6 } from '../cardsPrototypes/Card6';
 
 export const TEMPLATE_NAMES: Record<string, string> = {
   'card-1': 'Classic Grid',
@@ -41,7 +41,7 @@ export const ConfigPanel: React.FC<any> = ({ selectedCardId, config, setConfig, 
     <div className="relative flex flex-col h-full bg-slate-50/50 overflow-hidden">
       
       {/* Header with Customize Button */}
-      <div className="flex-none p-4 md:p-6 bg-white border-b border-slate-200 flex justify-between items-center z-20 shadow-sm">
+      <div className="flex-none  md:p-6 bg-white border-b border-slate-200 flex justify-between items-center z-20 shadow-sm">
         <div>
           <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">Preview</h2>
           <h3 className="font-bold text-slate-800 text-lg leading-tight">{TEMPLATE_NAMES[selectedCardId]}</h3>
@@ -56,21 +56,20 @@ export const ConfigPanel: React.FC<any> = ({ selectedCardId, config, setConfig, 
       </div>
 
       {/* Main Preview Area */}
-      <div className="flex-1 relative flex items-center justify-center p-8 bg-slate-100/80 overflow-hidden">
-        <div className="absolute inset-0 pattern-grid opacity-5 pointer-events-none"></div>
+      <div className="relative flex  justify-center   overflow-hidden p-6">
         
-        <div className="w-full max-w-[340px] relative shadow-2xl rounded-xl transition-all duration-500 ease-in-out">
+      
             {SelectedComponent ? (
                 // Wrapper to simulate average card height for preview consistency
-                <div className="bg-transparent h-auto min-h-[400px]">
-                   <SelectedComponent product={product} config={config} className="h-full" />
+                <div className="bg-transparent w-auto min-h-[400px] w-[95%] flex justify-center p-4">
+                   <SelectedComponent product={product} config={config} className="" />
                 </div>
             ) : (
                 <div className="w-full h-64 flex items-center justify-center bg-slate-200 text-slate-400 rounded-xl">
                     Select a card
                 </div>
             )}
-        </div>
+    
       </div>
 
       {/* Customization Modal Overlay (Scoped to Right Section) */}

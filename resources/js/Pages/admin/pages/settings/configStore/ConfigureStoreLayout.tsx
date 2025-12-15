@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import Tabs from "../../products/A_sharedForAllNiches/components/showProductPage/Tabs";
 import { CardSim, Grid, List, Palette } from "lucide-react";
 import { AdminLayout } from "@/admin/components/layout/AdminLayout";
-import NicheOptions from "./NicheOptions";
-import CardOptions from "./CardOptions";
-import LayoutOptions from "./LayoutOptions";
+import NicheConfig from "./nicheConfig/NicheConfig";
+import CardsConfig from "./cardsConfig/Components/CardsConfig";
+import LayoutOptions from "./layoutConfig/LayoutConfig";
 import ThemeOptions from "./ThemeOptions";
 import StorePreview from "./StorePreview";
 
@@ -31,17 +31,11 @@ export const ConfigureStoreLayout = () => {
       label: "Niche",
       Icon: Grid,
       content: (
-        <div className="flex gap-6">
-          {/* Left: Niche Options */}
-          <div className="w-2/3 p-4">
-            <NicheOptions config={currentConfig} setConfig={setCurrentConfig} />
-          </div>
-          {/* Right: Live Preview */}
-          <div className="w-1/3 p-4 border rounded-lg bg-white">
-            <h3 className="text-lg font-bold mb-4">Store Preview</h3>
-            <StorePreview products={mockProducts} config={currentConfig} />
-          </div>
-        </div>
+         <>
+          
+            <NicheConfig config={currentConfig} setConfig={setCurrentConfig} />
+      
+         </>
       ),
     },
     {
@@ -49,11 +43,11 @@ export const ConfigureStoreLayout = () => {
       label: "Cards",
       Icon: CardSim,
       content: (
-        <div >
+      
          
-            <CardOptions config={currentConfig} setConfig={setCurrentConfig} />
+            <CardsConfig config={currentConfig} setConfig={setCurrentConfig} />
     
-        </div>
+      
       ),
     },
     {
@@ -90,7 +84,14 @@ export const ConfigureStoreLayout = () => {
     },
   ];
 
-  return <Tabs tabs={configureTabs} defaultTab="niche" />;
+return (
+  <div className="!sticky top-16 z-40 bg-white shadow overflow-auto h-[calc(100vh-64px)]">
+    <Tabs tabs={configureTabs} defaultTab="niche" />
+   </div>
+);
+  
+   
+  
 };
 
 export default ConfigureStoreLayout;
