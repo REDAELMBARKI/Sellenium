@@ -1,6 +1,7 @@
 import TagSection from "@/components/TagInput"
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx"
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+
 import { generateSKU } from "@/functions/generateSku";
 
 import { v4 } from "uuid";
@@ -10,7 +11,8 @@ import { v4 } from "uuid";
 
 export default function ProductMetaData(){
     const {basicInfoForm , setBasicInfoForm} = useProductDataCtx()
-        const {currentTheme} = useColorsCtx()
+         const {state :{currentTheme}} = useStoreConfigCtx()
+
     
     return (<>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

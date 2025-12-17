@@ -1,14 +1,14 @@
 
 import React, { useState } from "react";
 import { Clipboard, Check } from "lucide-react";
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
-
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 interface SkuDisplayProps {
   sku? : string;
 }
 
 const SkuDisplayBoard: React.FC<SkuDisplayProps> = ({ sku }) => {
-  const { currentTheme } = useColorsCtx();
+       const {state :{currentTheme}} = useStoreConfigCtx()
+
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {

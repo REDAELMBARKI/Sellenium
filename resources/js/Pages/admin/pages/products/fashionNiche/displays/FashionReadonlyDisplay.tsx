@@ -1,15 +1,16 @@
 import React from 'react';
 import { Tag, Layers, Star, Heart, Image , Ruler, Users, Sparkles, Sun, Globe } from "lucide-react";
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
-import { useColorsCtx } from '@/contextHooks/useColorsCtx';
+
 import SkuDisplayBoard from '@/components/SkuDisplayBoard';
 import { FashionProduct, ProductDataGlobal } from '@/types/productsTypes';
 
 import { getMediaSrcOrDefault } from '@/functions/getMediaSrcOrDefault';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 
 const FashionReadonlyDisplay: React.FC = () => {
   const { productData } = useProductDataCtx();
-  const { currentTheme } = useColorsCtx();
+      const {state :{currentTheme}} = useStoreConfigCtx()
 
   if (!productData) return null;
 
@@ -160,7 +161,8 @@ interface FashionSectionProps {
   productData: ProductDataGlobal;
 }
 const ProductvariantsDisplay = ({ productData }: FashionSectionProps) => {
-  const { currentTheme } = useColorsCtx();
+  const {state :{currentTheme}} = useStoreConfigCtx()
+
   if(!productData || productData.niche !== 'fashion') return null;
   const data = productData as FashionProduct ;
  
@@ -235,7 +237,8 @@ const ProductvariantsDisplay = ({ productData }: FashionSectionProps) => {
 };
 
 const ProductAttributesDisplay = ({ productData }: FashionSectionProps) => {
-  const { currentTheme } = useColorsCtx();
+        const {state :{currentTheme}} = useStoreConfigCtx()
+
   if(!productData || productData.niche !== 'fashion') return null;
 
   const attributeCard = (title: string, value: string | string[], Icon: React.ElementType) => (

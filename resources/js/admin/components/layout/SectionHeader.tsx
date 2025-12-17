@@ -1,4 +1,4 @@
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import React from "react";
 
 
@@ -6,7 +6,7 @@ import React from "react";
 
 
 export const SectionHeader = ({title , description , Icon ,  children}:{title:string  , Icon? : React.ElementType; description : string ; children? : React.ReactNode}) => {
-  const {currentTheme : theme} = useColorsCtx();  
+  const {state : {currentTheme : theme}} = useStoreConfigCtx();  
   return (
       <>
       
@@ -24,7 +24,7 @@ export const SectionHeader = ({title , description , Icon ,  children}:{title:st
                   <div 
                     className="p-2 rounded-lg"
                     style={{ 
-                      background: `linear-gradient(135deg, ${theme.accent}20 0%, ${theme.info}20 100%)`,
+                      background: `linear-gradient(135deg, ${theme.accent}20 0%, ${theme.accentHover}20 100%)`,
                     }}
                   >
                     {Icon && <Icon size={28} style={{ color: theme.accent }} />}

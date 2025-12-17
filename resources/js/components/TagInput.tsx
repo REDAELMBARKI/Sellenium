@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Plus, Tag, TagIcon } from 'lucide-react';
 import SelectedChip from './ui/SelectedChip';
 import { Button } from './ui/button';
-import { useColorsCtx } from '@/contextHooks/useColorsCtx';
+
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 
 
 interface TagInputProps {
@@ -17,7 +18,8 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const suggestions = ["Luxury", "Summer", "Floral", "Woody", "Fresh", "Evening", "Citrus", "Spicy", "Oriental", "Casual"];
-   const { currentTheme } = useColorsCtx();
+       const {state :{currentTheme}} = useStoreConfigCtx()
+
  
   useEffect(() => {
     if (inputValue.trim()) {
@@ -114,7 +116,7 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
         }
         
         .search-button:hover {
-          background-color: ${currentTheme.buttonHover};
+          background-color: ${currentTheme.buttonPrimaryHover};
           box-shadow: rgba(0, 0, 0, 0.3) 0 10px 20px;
           transform: translateY(-3px);
         }

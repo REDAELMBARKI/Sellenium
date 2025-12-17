@@ -1,13 +1,25 @@
-const TogglableCard = ({changeToggledId , option , isPreview , isCurrent , handleOptionToggle}:{handleOptionToggle : (id : string) => void , isPreview : boolean , isCurrent : boolean , changeToggledId : (id : string) => void , option : {id : string , image : string , label : string } }) => {
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import { LayoutDataType, LayoutStyle } from "@/types/StoreConfigTypes";
+
+const TogglableCard = ({changeToggledId , option , isPreview , isCurrent , handleOptionToggle}:{handleOptionToggle : (id : LayoutStyle) => void , isPreview : boolean , isCurrent : boolean , changeToggledId : (id : LayoutStyle) => void , option : LayoutDataType }) => {
+ 
+    const { state : {currentTheme} } = useStoreConfigCtx();
+
   return (
     <div
                   onClick={() => changeToggledId(option.id)}
                   className={`relative rounded-xl overflow-hidden border-2 transition-all flex flex-col cursor-pointer
-                    ${isPreview ? "border-blue-500" : "border-slate-200"}
+                   
                   `}
-                >
-                  <div className="flex items-center justify-between p-3 bg-slate-50 border-b border-slate-200">
+                  style={{borderColor : isPreview ? currentTheme.borderHover : currentTheme.border}}
+                > 
+
+                   {/* card head */}
+                  <div className="flex items-center justify-between p-3 border-2 "
+                   style={{background : currentTheme.card , color : currentTheme.text , borderColor : currentTheme.border}}
+                  >
                     <h4 className="font-semibold text-slate-900">{option.label}</h4>
+                     
                     <button
                       onClick={() => handleOptionToggle(option.id)}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
@@ -30,7 +42,10 @@ const TogglableCard = ({changeToggledId , option , isPreview , isCurrent , handl
 
                   {isCurrent && (
                     <div className="absolute inset-0 bg-black/20 flex items-start justify-start p-2 rounded-b-xl">
-                      <div className="flex items-center gap-2 bg-white rounded-full px-2 py-1">
+                      <div className="flex items-center gap-2  rounded-full px-2 py-1"
+                      style={{background : currentTheme.badge , color : currentTheme.text , borderColor : currentTheme.border}}
+                      
+                      >
                         <span className="w-3 h-3 rounded-full bg-green-500 block"></span>
                         <span className="text-xs font-medium">Active</span>
                       </div>

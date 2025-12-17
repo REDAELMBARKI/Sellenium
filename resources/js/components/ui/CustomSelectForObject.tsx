@@ -1,4 +1,5 @@
-import { useColorsCtx } from '@/contextHooks/useColorsCtx';
+
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
@@ -22,7 +23,8 @@ const CustomSelectForObject: React.FC<CustomSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { currentTheme } = useColorsCtx();
+
+     const {state :{currentTheme}} = useStoreConfigCtx()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

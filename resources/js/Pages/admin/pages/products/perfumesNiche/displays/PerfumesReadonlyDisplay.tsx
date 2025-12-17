@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Tag   , Sparkles, Droplet, Flower2, Clock, Wind, Star, Heart, Layers, Image} from "lucide-react";
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
-import { useColorsCtx } from '@/contextHooks/useColorsCtx';
 import { Gender, ProductDataGlobal } from '@/types/productsTypes';
 import SkuDisplay from '@/components/SkuDisplayBoard';
 import SkuDisplayBoard from '@/components/SkuDisplayBoard';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 
 const PerfumesReadonlyDisplay: React.FC = () => {
   const { productData } = useProductDataCtx();
-  const { currentTheme } = useColorsCtx();
+      const {state :{currentTheme}} = useStoreConfigCtx()
+
   if(!productData) {
     return null;
   }

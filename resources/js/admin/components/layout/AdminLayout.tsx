@@ -7,30 +7,28 @@ import { Header } from "./Header";
 import { AuthProvider } from "@/admin/context/AuthContext";
 import { Sidebar } from "./SideBar";
 import ToastContextProvider from "@/contextProvoders/ToastProvider";
-import NicheProvider from "@/contextProvoders/NicheProvider";
-import { ThemeModeProvider } from "@/admin/context/ThemeContext";
-import ColorsProvider from "@/contextProvoders/ColorsProvider";
+import StoreConfigProvider from "@/contextProvoders/StoreConfigProvider";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
 
   return<>
-  <NicheProvider >
-    <ThemeModeProvider>
-      <ColorsProvider>
+  <StoreConfigProvider >
+ 
       <ToastContextProvider>
         <AuthProvider>
             <AdminLayoutContent children={children} />
         </AuthProvider>
         </ToastContextProvider>
-        </ColorsProvider>
-    </ThemeModeProvider>
-  </NicheProvider>
+
+  </StoreConfigProvider>
   </>
 }
 
 
 const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
   const { admin, isLoading } = useAuth();
+  const {state :{currentTheme}} = useStoreConfigCtx()
 
   if (isLoading) {
     return (
@@ -48,7 +46,7 @@ const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex h-screen">
   {/* Sidebar: fixed width, full height, stays visible */}
-  <div className="w-64 bg-gray-800 text-white flex-shrink-0">
+  <div className="w-64 bg-red-800 text-white flex-shrink-0">
     <Sidebar />
   </div>
 
@@ -58,7 +56,9 @@ const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
     <Header />
 
     {/* Scrollable content */}
-    <main className="flex-1  overflow-auto  bg-gray-50">
+    <main className="flex-1  overflow-auto " 
+    style={{color : currentTheme.text , background : currentTheme.bg}}
+    >
       {children}
     </main>
   </div>

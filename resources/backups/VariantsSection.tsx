@@ -5,7 +5,7 @@ import { FashionVariantDisplayCard } from "./displayVariantCards/FashionVariantD
 import { ProductVariant } from "@/types/productsTypes";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { fakeFashionVariants, fakeParfumesVariants } from "@/data/fakeVariants";
-import { useNicheCtx } from "@/contextHooks/useNicheCtx";
+import { useNicheCtx } from "@/contextHooks/useStoreConfigCtx";
 import { NicheItem } from '@/context/NicheContext';
 import { ParfumesVariantDisplayCard } from "./displayVariantCards/ParfumesVariantDisplayCard";
 

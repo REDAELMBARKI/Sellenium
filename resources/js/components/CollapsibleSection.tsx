@@ -1,6 +1,6 @@
 import React from 'react';
 import SwitchToggler from './ui/SwitchToggler';
-import { useColorsCtx } from '@/contextHooks/useColorsCtx';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 
 
 const CollapsibleSection = ({
@@ -18,7 +18,8 @@ const CollapsibleSection = ({
   children: React.ReactNode;
   ref?: React.RefObject<HTMLDivElement | null>;
 }) => {
-        const { currentTheme } = useColorsCtx();
+      const {state :{currentTheme}} = useStoreConfigCtx()
+
     
   return(
   <div className="space-y-4" ref={ref}>

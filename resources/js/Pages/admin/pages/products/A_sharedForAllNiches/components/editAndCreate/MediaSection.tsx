@@ -1,6 +1,6 @@
 
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { DEFAULT_PRODUCT_IMAGE } from "@/data/defaults";
 import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
 import { Cover } from "@/types/inventoryTypes";
@@ -17,7 +17,8 @@ const MediaSection = ({
     setVideoPreview,
     videoPreview,
 }: MediaSectionProps) => {
-    const {currentTheme} = useColorsCtx()
+      const {state :{currentTheme}} = useStoreConfigCtx()
+
     const { basicInfoForm , setBasicInfoForm} = useProductDataCtx()
 
     const handleCoversUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

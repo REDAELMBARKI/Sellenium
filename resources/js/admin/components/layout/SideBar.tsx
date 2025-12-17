@@ -1,28 +1,12 @@
 import { menuItems } from '@/admin/data/adminNavigationsLinks';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { Link, router, usePage } from '@inertiajs/react';
 import {
-  Home,
-  LayoutDashboard,
-  Layers,
-  List,
-  FileText,
-  Table,
-  MapPin,
-  BarChart3,
-  Monitor,
-  FileCode,
-  Menu as MenuIcon,
-  ShoppingCart,
-  Users,
-  Package,
-  TrendingUp,
-  Settings,
-  Bell,
-  Image,
-  Type,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Home,
+  Menu as MenuIcon,
   MoreVertical,
 } from 'lucide-react';
 import { useState} from 'react';
@@ -47,23 +31,13 @@ interface MenuItem {
 
 
 // Color Palette
-const colors = {
-  sidebarBg: '#1e293b',
-  sidebarFg: '#cbd5e1',
-  sidebarBorder: '#334155',
-  sidebarHover: '#334155',
-  sidebarMuted: '#475569',
-  sidebarMutedFg: '#94a3b8',
-  sidebarActive: '#6366f1',
-  sidebarActiveFg: '#ffffff',
-  badgeSuccess: '#10b981',
-  badgeInfo: '#3bf670ff',
-};
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [expandedItem, setExpandedItem] = useState<string | null>('Dashboard');
   const {url} = usePage()
+        const {state :{currentTheme}} = useStoreConfigCtx()
+
   const toggleExpanded = (itemTitle: string) => {
     if (expandedItem === itemTitle) {
       setExpandedItem(null);
@@ -77,14 +51,14 @@ export function Sidebar() {
   return (
     <div
       style={{
-        backgroundColor: colors.sidebarBg,
-        color: colors.sidebarFg,
+        backgroundColor: currentTheme.sidebarBg,
+        color: currentTheme.sidebarFg,
         height: '100vh',
         position: 'sticky',
         top: 0,
         display: 'flex',
         flexDirection: 'column',
-        borderRight: `1px solid ${colors.sidebarBorder}`,
+        borderRight: `1px solid ${currentTheme.sidebarBorder}`,
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         width: collapsed ? '80px' : '256px',
         overflow: 'hidden',
@@ -97,14 +71,14 @@ export function Sidebar() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: `1px solid ${colors.sidebarBorder}`,
-          backgroundColor: colors.sidebarBg,
+          borderBottom: `1px solid ${currentTheme.sidebarBorder}`,
+          backgroundColor: currentTheme.sidebarBg,
         }}
       >
         {!collapsed && (
           <div
             style={{
-              color: colors.sidebarFg,
+              color: currentTheme.sidebarFg,
               fontWeight: 700,
               fontSize: '1.25rem',
               letterSpacing: '-0.025em',
@@ -118,7 +92,7 @@ export function Sidebar() {
             onClick={() => setCollapsed(!collapsed)}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             style={{
-              color: colors.sidebarMutedFg,
+              color: currentTheme.sidebarMutedFg,
               padding: '0.5rem',
               borderRadius: '0.375rem',
               transition: 'all 0.2s',
@@ -127,11 +101,11 @@ export function Sidebar() {
               cursor: 'pointer',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = colors.sidebarFg;
-              e.currentTarget.style.backgroundColor = colors.sidebarHover;
+              e.currentTarget.style.color = currentTheme.sidebarFg;
+              e.currentTarget.style.backgroundColor = currentTheme.sidebarHover;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = colors.sidebarMutedFg;
+              e.currentTarget.style.color = currentTheme.sidebarMutedFg;
               e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
@@ -142,7 +116,7 @@ export function Sidebar() {
               <button
                 title="Toggle menu"
                 style={{
-                  color: colors.sidebarMutedFg,
+                  color: currentTheme.sidebarMutedFg,
                   padding: '0.5rem',
                   borderRadius: '0.375rem',
                   transition: 'all 0.2s',
@@ -151,11 +125,11 @@ export function Sidebar() {
                   cursor: 'pointer',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = colors.sidebarFg;
-                  e.currentTarget.style.backgroundColor = colors.sidebarHover;
+                  e.currentTarget.style.color = currentTheme.sidebarFg;
+                  e.currentTarget.style.backgroundColor = currentTheme.sidebarHover;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = colors.sidebarMutedFg;
+                  e.currentTarget.style.color = currentTheme.sidebarMutedFg;
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
@@ -164,7 +138,7 @@ export function Sidebar() {
               <button
                 title="More options"
                 style={{
-                  color: colors.sidebarMutedFg,
+                  color: currentTheme.sidebarMutedFg,
                   padding: '0.5rem',
                   borderRadius: '0.375rem',
                   transition: 'all 0.2s',
@@ -173,11 +147,11 @@ export function Sidebar() {
                   cursor: 'pointer',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = colors.sidebarFg;
-                  e.currentTarget.style.backgroundColor = colors.sidebarHover;
+                  e.currentTarget.style.color = currentTheme.sidebarFg;
+                  e.currentTarget.style.backgroundColor = currentTheme.sidebarHover;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = colors.sidebarMutedFg;
+                  e.currentTarget.style.color = currentTheme.sidebarMutedFg;
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
@@ -229,7 +203,7 @@ export function Sidebar() {
                           style={{
                             height: '1px',
                             flex: 1,
-                            backgroundColor: colors.sidebarBorder,
+                            backgroundColor: currentTheme.sidebarBorder,
                           }}
                         />
                       </div>
@@ -237,7 +211,7 @@ export function Sidebar() {
                         style={{
                           fontSize: '0.75rem',
                           fontWeight: 600,
-                          color: colors.sidebarMutedFg,
+                          color: currentTheme.sidebarMutedFg,
                           textTransform: 'uppercase',
                           letterSpacing: '0.05em',
                           paddingLeft: '0.5rem',
@@ -254,7 +228,7 @@ export function Sidebar() {
                           width: '8px',
                           height: '8px',
                           borderRadius: '9999px',
-                          backgroundColor: colors.sidebarMuted,
+                          backgroundColor: currentTheme.sidebarMuted,
                         }}
                       />
                     </div>
@@ -275,7 +249,7 @@ export function Sidebar() {
 
                   overflow: 'hidden',
                   transition: 'all 0.2s',
-                  backgroundColor: isExpanded && !collapsed ? `${colors.sidebarHover}80` : 'transparent',
+                  backgroundColor: isExpanded && !collapsed ? `${currentTheme.sidebarHover}80` : 'transparent',
                   marginBottom: '0.25rem',
                  
                 }}
@@ -298,23 +272,23 @@ export function Sidebar() {
                     cursor: 'pointer',
                     backgroundColor:
                       isExpanded || hasActiveChild
-                        ? colors.sidebarActive
+                        ? currentTheme.sidebarActive
                         : 'transparent',
                     color:
                       isExpanded || hasActiveChild
-                        ? colors.sidebarActiveFg
-                        : colors.sidebarFg,
+                        ? currentTheme.sidebarActiveFg
+                        : currentTheme.sidebarFg,
                   }}
                   onMouseEnter={(e) => {
                     if (!isExpanded && !hasActiveChild) {
-                      e.currentTarget.style.backgroundColor = colors.sidebarHover;
-                      e.currentTarget.style.color = colors.sidebarFg;
+                      e.currentTarget.style.backgroundColor = currentTheme.sidebarHover;
+                      e.currentTarget.style.color = currentTheme.sidebarFg;
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isExpanded && !hasActiveChild) {
                       e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = colors.sidebarFg;
+                      e.currentTarget.style.color = currentTheme.sidebarFg;
                     }
                   }}
                 >
@@ -361,7 +335,7 @@ export function Sidebar() {
                       {item.badge && (
                         <span
                           style={{
-                            backgroundColor: item.badgeColor || colors.badgeSuccess,
+                            backgroundColor: item.badgeColor || currentTheme.accent,
                             color: '#ffffff',
                             fontSize: '0.75rem',
                             padding: '0.125rem 0.5rem',
@@ -417,24 +391,24 @@ export function Sidebar() {
                             cursor: 'pointer',
                             textDecoration: 'none',
                             backgroundColor: isSubActive
-                              ? colors.sidebarActive
+                              ? currentTheme.sidebarActive
                               : 'transparent',
                             color: isSubActive
-                              ? colors.sidebarActiveFg
-                              : colors.sidebarMutedFg,
+                              ? currentTheme.sidebarActiveFg
+                              : currentTheme.sidebarMutedFg,
                             animationDelay: `${subIndex * 30}ms`,
                             marginBottom: '0.25rem',
                           }}
                           onMouseEnter={(e) => {
                             if (!isSubActive) {
-                              e.currentTarget.style.backgroundColor = colors.sidebarHover;
-                              e.currentTarget.style.color = colors.sidebarFg;
+                              e.currentTarget.style.backgroundColor = currentTheme.sidebarHover;
+                              e.currentTarget.style.color = currentTheme.sidebarFg;
                             }
                           }}
                           onMouseLeave={(e) => {
                             if (!isSubActive) {
                               e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = colors.sidebarMutedFg;
+                              e.currentTarget.style.color = currentTheme.sidebarMutedFg;
                             }
                           }}
                         >
@@ -445,8 +419,8 @@ export function Sidebar() {
                               borderRadius: '9999px',
                               transition: 'all 0.2s',
                               backgroundColor: isSubActive
-                                ? colors.sidebarActiveFg
-                                : colors.sidebarMuted,
+                                ? currentTheme.sidebarActiveFg
+                                : currentTheme.sidebarMuted,
                               transform: isSubActive ? 'scale(1.25)' : 'scale(1)',
                             }}
                           />
@@ -497,16 +471,16 @@ export function Sidebar() {
           }
           
           .sidebar-scroll::-webkit-scrollbar-track {
-            background: ${colors.sidebarBg};
+            background: ${currentTheme.sidebarBg};
           }
           
           .sidebar-scroll::-webkit-scrollbar-thumb {
-            background: ${colors.sidebarMuted};
+            background: ${currentTheme.sidebarMuted};
             border-radius: 2px;
           }
           
           .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-            background: ${colors.sidebarMutedFg};
+            background: ${currentTheme.sidebarMutedFg};
           }
         `}
       </style>

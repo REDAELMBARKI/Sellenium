@@ -1,5 +1,6 @@
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import React, { useState } from "react";
+
 
 interface Tab {
   id: string;
@@ -15,10 +16,14 @@ interface TabsProps {
 
 export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab }) => {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id || "");
-  const {currentTheme} = useColorsCtx()
+  const {state : {currentTheme}} = useStoreConfigCtx()
   return (
-    <div className="bg-white  shadow-lg border border-slate-200 overflow-hidden w-full ">
-      <div className="bg-white rounded-lg shadow-sm  overflow-x-auto">
+    <div className="shadow-lg border border-slate-200 overflow-hidden w-full "
+     style={{background : currentTheme.bg , color : currentTheme.text}}
+    >
+      <div className=" shadow-sm  overflow-x-auto" 
+       style={{background : currentTheme.bgSecondary , color : currentTheme.text}}
+      >
         <div className="flex border-b border-gray-200 min-w-max  " 
        
         >
@@ -45,7 +50,8 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab }) => {
       </div>
       <div className="">
         {tabs.map((tab) => (
-          <div
+          <div 
+           style={{background : currentTheme.bgSecondary , color : currentTheme.text}}
             key={tab.id}
             className={`transition-all duration-300 ease-in-out ${
               activeTab === tab.id

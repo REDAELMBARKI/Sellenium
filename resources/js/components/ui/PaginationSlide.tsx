@@ -1,4 +1,5 @@
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // ===================== PAGINATION COMPONENT =====================
@@ -15,7 +16,7 @@ export const PaginationSlide = ({
   pages,
   onPageChange,
 }: PaginationProps) => {
-  const { currentTheme: theme } = useColorsCtx();
+  const { state : {currentTheme: theme} } = useStoreConfigCtx();
 
   return (
     <div

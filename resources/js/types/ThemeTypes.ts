@@ -1,0 +1,70 @@
+export type Themes =  Record<ThemeId ,Record<ThemeMode , ThemePalette>>
+
+
+ export type ThemeId  =  "luxuryNoir" | "softPastel"
+  export type ThemePalette = {
+  // -------------------------
+  // SURFACES / BACKGROUNDS
+  // -------------------------
+  bg: string            // Main background of pages (store admin main content, app background)
+  bgSecondary: string   // Secondary background (cards, panels, modals, side panels if not sidebar)
+  card: string          // Card backgrounds (product cards, info cards)
+  modal: string         // Modal backgrounds
+  overlay: string       // Overlays, modals backdrop, dimming effects
+  // side bar
+  sidebarBg: string       // Dedicated sidebar background (admin sidebar, navigation panels)
+  sidebarFg: string,
+  sidebarBorder: string,
+  sidebarHover: string,
+  sidebarMuted: string,
+  sidebarMutedFg: string,
+  sidebarActive: string,
+  sidebarActiveFg:string,
+  
+  // -------------------------
+  // TEXT
+  // -------------------------
+  text: string          // Default primary text
+  textSecondary: string // Secondary text (less important labels, metadata)
+  textMuted: string     // Muted text (disabled, placeholder, faint info)
+  textInverse: string   // Text on dark backgrounds (white/light text)
+
+  // -------------------------
+  // BUTTONS / ACCENTS
+  // -------------------------
+  primary: string       // Primary buttons, main call-to-actions
+  primaryHover: string  // Hover state for primary buttons
+  secondary: string     // Secondary buttons, less important actions
+  secondaryHover: string// Hover for secondary buttons
+  accent: string        // Small UI accents, highlights, badges, status
+  accentHover: string   // Hover for accents (interactive badges/buttons)
+
+  // -------------------------
+  // BORDERS
+  // -------------------------
+  border: string        // General borders (cards, inputs, panels)
+  borderHover: string   // Border highlight on hover/focus
+
+  // -------------------------
+  // LINKS
+  // -------------------------
+  link: string          // Link text
+  linkHover: string     // Link hover color
+
+  // -------------------------
+  // SHADOWS
+  // -------------------------
+  shadow: string        // Small shadows for cards/elements
+  shadowMd: string      // Medium shadows (modals, dropdowns)
+  shadowLg: string      // Large shadows (dialogs, popups, important layers)
+
+  // bage
+  badge : string 
+  // states
+  success : string
+  info : string 
+  error : string 
+  warning : string
+};
+
+export type ThemeMode = "dark" | "light"

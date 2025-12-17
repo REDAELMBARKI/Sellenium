@@ -1,15 +1,18 @@
-import { useColorsCtx } from '@/contextHooks/useColorsCtx';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
+import { getSkeletonColors } from '@/functions/getSkeletonColors';
+import { LayoutStyle } from '@/types/StoreConfigTypes';
 import React, { useState } from 'react';
-export type LayoutStyle = "grid" | "list" | "mansonry" | "premium" ;
-const SkeletonLayout = ({previewLayoutId : layoutStyle} : {previewLayoutId : LayoutStyle}) => {
-  const { currentTheme } = useColorsCtx();
+const SkeletonLayout = ({previewLayoutId} : {previewLayoutId : LayoutStyle}) => {
+  const {state : {currentTheme}} = useStoreConfigCtx()
+  const skTheme = getSkeletonColors( currentTheme, 'light')
+  
   return (
     <div
        className='w-full'
       style={{
-          background: currentTheme.accent,
+          background: skTheme.accent,
 
-        // background: currentTheme.bg,
+        // background: skTheme.bg,
         minHeight: '100vh',
         maxWidth : '100%'
       }}
@@ -19,17 +22,17 @@ const SkeletonLayout = ({previewLayoutId : layoutStyle} : {previewLayoutId : Lay
         className='w-full '
         style={{
         
-          borderBottom: `1px solid ${currentTheme.border}`,
+          borderBottom: `1px solid ${skTheme.border}`,
           padding: '16px 24px',
-          boxShadow: currentTheme.shadow,
+          boxShadow: skTheme.shadow,
         }}
       >
         {/* Logo skeleton */}
         <div
           style={{
             height: '36px',
-            borderRadius: currentTheme.borderRadius,
-            background: currentTheme.card,
+            borderRadius: skTheme.borderRadius,
+            background: skTheme.card,
           }}
         />
       </nav>
@@ -53,7 +56,7 @@ const SkeletonLayout = ({previewLayoutId : layoutStyle} : {previewLayoutId : Lay
                   width: '160px',
                   height: '26px',
                   borderRadius: '6px',
-                  background: currentTheme.card,
+                  background: skTheme.card,
                 }}
               />
 
@@ -69,7 +72,7 @@ const SkeletonLayout = ({previewLayoutId : layoutStyle} : {previewLayoutId : Lay
                     width: '90px',
                     height: '30px',
                     borderRadius: '6px',
-                    background: currentTheme.gray200,
+                    background: skTheme.gray200,
                   }}
                 />
               ))}
@@ -78,21 +81,17 @@ const SkeletonLayout = ({previewLayoutId : layoutStyle} : {previewLayoutId : Lay
 
           {/* GRID SKELETON */}
           <div
-           className='grid grid-cols-3'
-            style={{
-              display: 'grid',
-              // gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-              gap: '20px',
-            }}
+           className='grid grid-cols-3 gap-3'
+   
           >
             {Array.from({ length: 12 }).map((_, i) => (
               <div
                 key={i}
                 className=''
                 style={{
-                  background: currentTheme.card,
-                  borderRadius: currentTheme.borderRadius,
-                  boxShadow: currentTheme.shadow,
+                  background: skTheme.card,
+                  borderRadius: skTheme.borderRadius,
+                  boxShadow: skTheme.shadow,
                   padding: '12px',
                 }}
               >
@@ -100,7 +99,7 @@ const SkeletonLayout = ({previewLayoutId : layoutStyle} : {previewLayoutId : Lay
                 <div
                   style={{
                     height: '150px',
-                    background: currentTheme.gray200,
+                    background: skTheme.gray200,
                     borderRadius: '8px',
                     marginBottom: '12px',
                   }}
@@ -111,7 +110,7 @@ const SkeletonLayout = ({previewLayoutId : layoutStyle} : {previewLayoutId : Lay
                   style={{
                     height: '14px',
                     width: '70%',
-                    background: currentTheme.gray300,
+                    background: skTheme.gray300,
                     borderRadius: '4px',
                     marginBottom: '8px',
                   }}
@@ -122,7 +121,7 @@ const SkeletonLayout = ({previewLayoutId : layoutStyle} : {previewLayoutId : Lay
                   style={{
                     height: '12px',
                     width: '40%',
-                    background: currentTheme.gray200,
+                    background: skTheme.gray200,
                     borderRadius: '4px',
                   }}
                 />

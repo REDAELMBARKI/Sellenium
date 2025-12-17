@@ -6,17 +6,20 @@ import { getInitials } from "../../utils/helpers";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 export function Header() {
   const { admin } = useAuth();
-
+  const { state : {currentTheme} } = useStoreConfigCtx();
   const toggleSidebar = () => {
     console.log("Sidebar toggled");
     // Implement your sidebar toggle logic here, e.g. updating state or triggering a class
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b bg-background px-6">
+    <header 
+    style={{background : currentTheme.bg , color : currentTheme.text}}
+    className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b  px-6">
       {/* Left: Sidebar Toggle */}
       <div className="flex items-center gap-4">
         <Button

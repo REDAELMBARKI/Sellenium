@@ -5,7 +5,8 @@ import SelectedChip from "./SelectedChip";
 import { Select } from '@/components/ui/select';
 import { Color, Fit, Material, Season, Style } from "@/types/inventoryTypes";
 import { Gender } from "@/types/productsTypes";
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+
 
 type AllowedStringAttributes = Style | Gender | Season
 interface MultiSelectDropdownProps {
@@ -21,7 +22,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ label, option
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-    const { currentTheme } = useColorsCtx();
+     const {state :{currentTheme}} = useStoreConfigCtx()
   
   
 

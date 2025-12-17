@@ -7,13 +7,14 @@ import { ProductBasicInfoData } from '@/types/productsTypes';
 import { TagSuggestion } from '../../../../../../types/tagsTypes';
 import { P } from 'node_modules/framer-motion/dist/types.d-BJcRxCew';
 import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown';
-import { useNicheCtx } from '@/contextHooks/useNicheCtx';
-import { NicheItem } from '@/context/NicheContext';
+
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
 import FashionBasicInfoForm from '../../fashionNiche/forms/FashionBasicInfoForm';
 import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
 import FashionReadonlyDisplay from '../../fashionNiche/displays/FashionReadonlyDisplay';
 import PerfumesReadonlyDisplay from '../../perfumesNiche/displays/PerfumesReadonlyDisplay';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
+import { NicheItem } from '@/types/StoreConfigTypes';
 
 
 
@@ -24,7 +25,8 @@ const ProductInfoDisplayMaster: React.FC = () => {
    
 
 
-  const {currentNiche} = useNicheCtx()
+      const {state :{currentNiche}} = useStoreConfigCtx()
+  
   const {productData} = useProductDataCtx()
 
  

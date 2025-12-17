@@ -1,20 +1,9 @@
-import SkeletonLayout, { LayoutStyle } from "@/components/partials/previewSkeletons/SkeletonLayout";
+import SkeletonLayout  from "@/components/partials/previewSkeletons/SkeletonLayout";
+import { StorePreviewProps } from "@/types/StoreConfigTypes";
 import React from "react";
 
 
 
-interface StorePreviewProps {
-  previewLayoutId : LayoutStyle  
-  config: {
-    layoutType: LayoutStyle
-    theme: "light" | "dark"
-    cardSettings : {
-      cardNameId : string ,
-      showPrice: boolean;
-       showRating: boolean;
-    }
-  };
-}
 
 const  StorePreview: React.FC<StorePreviewProps> = ({ config   , previewLayoutId}) => {
 

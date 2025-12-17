@@ -7,6 +7,7 @@ import CardsConfig from "./cardsConfig/Components/CardsConfig";
 import LayoutOptions from "./layoutConfig/LayoutConfig";
 import ThemeOptions from "./ThemeOptions";
 import StorePreview from "./layoutConfig/StorePreview";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 // Example fake data for preview
 const mockProducts = [
@@ -16,6 +17,8 @@ const mockProducts = [
 ];
 
 export const ConfigureStoreLayout = () => {
+    const { state : {currentTheme} } = useStoreConfigCtx();
+
   const [currentConfig, setCurrentConfig] = useState({
     cardType: "GridCard",
     showPrice: true,
@@ -80,7 +83,9 @@ export const ConfigureStoreLayout = () => {
   ];
 
 return (
-  <div className="!sticky top-16 z-40 bg-white shadow overflow-auto h-[calc(100vh-64px)]">
+  <div className="!sticky top-16 z-40  shadow overflow-auto h-[calc(100vh-64px)]"
+  style={{background : currentTheme.bg , color : currentTheme.text}}
+  >
     <Tabs tabs={configureTabs} defaultTab="niche" />
    </div>
 );

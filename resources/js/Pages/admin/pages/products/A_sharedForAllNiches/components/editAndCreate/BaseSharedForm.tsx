@@ -3,7 +3,8 @@ import CustomSelect from "@/components/ui/CustomSelect";
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+
 import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
 import { Category } from "@/types/inventoryTypes";
 import { Description } from "@radix-ui/react-dialog";
@@ -21,7 +22,8 @@ const BaseSharedForm = () => {
       const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
       const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
       const [errors, setErrors] = useState<Record<string, string>>({});
-      const {currentTheme} = useColorsCtx()
+     const {state :{currentTheme}} = useStoreConfigCtx()
+
       
     
       

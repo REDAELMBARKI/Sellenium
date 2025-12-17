@@ -2,31 +2,24 @@ import React, { useState } from "react";
 import StorePreview from "./StorePreview";
 
 import TogglableCard from "@/components/partials/TooglableCard";
-import { LayoutStyle } from "@/components/partials/previewSkeletons/SkeletonLayout";
+import { LayoutConfigProps, LayoutDataType, LayoutStyle } from "@/types/StoreConfigTypes";
 
-interface LayoutConfigProps {
-  config: any;
-  setConfig: React.Dispatch<React.SetStateAction<any>>;
-}
 
-const Layouts = [
+const Layouts : LayoutDataType[] = [
   {
-    id: "fashion",
-    label: "Fashion",
+    id:  "grid",
+    label: "grid",
     image: "/images/fashionNiche.png",
-    info: "Fashion products like clothing & accessories. Backend provides related Niches and options.",
   },
   {
-    id: "perfume",
-    label: "Perfume",
+    id: "list",
+    label: "list",
     image: "/images/perfumesNiche.png",
-    info: "Perfume products. Backend ensures only perfume-related options and Niches.",
   },
   {
-    id: "electronics",
-    label: "Electronics",
+    id: "premium",
+    label: "premium",
     image: "/images/electronicsNiche.png",
-    info: "Electronics products. Backend provides electronics-specific options and store structure.",
   },
 ];
 
@@ -72,7 +65,7 @@ const LayoutConfig: React.FC<LayoutConfigProps> = ({ config, setConfig }) => {
                      handleOptionToggle={handleLayoutToggle} 
                      isCurrent={isCurrent} 
                      isPreview={isPreview}
-                    changeToggledId={(id:string) => setPreviewLayoutId(id)}  
+                     changeToggledId={(id:LayoutStyle) => setPreviewLayoutId(id)}  
                      option={Layout}
                     />
               );

@@ -1,6 +1,4 @@
 import React from 'react';
-import { useNicheCtx } from '@/contextHooks/useNicheCtx';
-import { NicheItem } from '@/context/NicheContext';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
 import FashionBasicInfoForm from '../../fashionNiche/forms/FashionBasicInfoForm';
 import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
@@ -8,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
+import { NicheItem } from '@/types/StoreConfigTypes';
 
 
 
@@ -17,7 +17,7 @@ const BasicInfoFormMaster: React.FC = () => {
    
    const {post} = useForm()
 
-  const {currentNiche} = useNicheCtx()
+  const {state :{currentNiche}} = useStoreConfigCtx()
 
   const  { productData = {} , modeForm , basicInfoForm } = useProductDataCtx()
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
@@ -33,7 +33,7 @@ const BasicInfoFormMaster: React.FC = () => {
   const handleSubmit = (e : Event) => {
       e.preventDefault();
       console.log('clicked submit basic info form master');
-      post(route('/products'),basicInfoForm);
+    //   post(route('/products'),basicInfoForm);
   }
 
  

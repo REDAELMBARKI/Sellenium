@@ -2,7 +2,8 @@ import CustomSelectForObject from "@/components/ui/CustomSelectForObject";
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+
 import { Fit, Material, Season, Style } from "@/types/inventoryTypes";
 import { Gender } from "@/types/productsTypes";
 
@@ -17,7 +18,8 @@ const countryList = Object.entries(countries.getNames("en")).map(([code, name]) 
 
 const AttributesSection = () => {
   const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
-  const { currentTheme } = useColorsCtx();
+  const {state :{currentTheme}} = useStoreConfigCtx()
+
 
   if (!basicInfoForm || basicInfoForm.niche !== 'fashion') return null;
 

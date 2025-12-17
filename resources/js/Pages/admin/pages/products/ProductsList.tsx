@@ -18,11 +18,11 @@ import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import { ImagePreviewItem } from "@/types/mediaTypes";
 import { Cover } from "@/types/inventoryTypes";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import { PaginationSlide } from "@/components/ui/PaginationSlide";
 import CustomSelect from "@/components/ui/CustomSelect";
 import CustomSelectForObject from "@/components/ui/CustomSelectForObject";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 // ===================== TYPES =====================
 export interface ProductListItem {
@@ -96,7 +96,8 @@ const MOCK_PRODUCTS: ProductListItem[] = [
 export default function ProductsList({ response }: { response?: ProductsResponse }) {
 
   const products = response ? response?.data  : MOCK_PRODUCTS; 
-  const {currentTheme : theme} = useColorsCtx();
+        const {state :{currentTheme : theme}} = useStoreConfigCtx()
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [deleteId, setDeleteId] = useState<string | null>(null);

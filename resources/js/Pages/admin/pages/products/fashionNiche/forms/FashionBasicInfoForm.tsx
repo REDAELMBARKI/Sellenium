@@ -8,7 +8,6 @@ import MediaSection from "../../A_sharedForAllNiches/components/editAndCreate/Me
 import { Color, Cover, Fit, Material, Season, Size, Style } from "@/types/inventoryTypes";
 import BaseSharedForm from "../../A_sharedForAllNiches/components/editAndCreate/BaseSharedForm";
 import {  FashionAttributes, FashionProduct, FashionVariant, Gender } from '@/types/productsTypes';
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
 import ProductMetaData from "../../A_sharedForAllNiches/components/editAndCreate/ProductMetaData";
 import { Tag as TagType } from "@/types/tagsTypes";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
@@ -16,6 +15,7 @@ import VariantBuilder from "../components/VariantBuilder";
 
 import AttributesSection from "../components/AttributesSection";
 import { ImagePreviewItem } from "@/types/mediaTypes";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 
 const keys: Array<keyof FashionAttributes> = [
@@ -37,7 +37,7 @@ const FashionBasicInfoForm = () => {
   const { basicInfoForm : bif, setBasicInfoForm } = useProductDataCtx();
   const basicInfoForm = bif as FashionProduct  ; 
 
-  const { currentTheme } = useColorsCtx();
+  const { state :{currentTheme} } = useStoreConfigCtx();
 
   const [videoPreview, setVideoPreview] = useState<string | null>(getVideoPreview(basicInfoForm.video));
 
@@ -127,8 +127,10 @@ const FashionBasicInfoForm = () => {
   };
 
   return (
-    <div className="w-full h-full overflow-y-auto" style={{ backgroundColor: currentTheme.bg }}>
-      <div className="space-y-8 p-8 rounded-xl bg-white shadow-2xl m-4">
+    <div className="w-full h-full overflow-y-auto" style={{background : currentTheme.bg , color : currentTheme.text}}>
+      <div className="space-y-8 p-8 rounded-xl shadow-2xl m-4"
+      style={{background : currentTheme.bgSecondary , color : currentTheme.text}}
+      >
 
         {/* Base Shared Info */}
         <BaseSharedForm />

@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import TagSection from "@/components/TagInput";
 import { v4 } from "uuid";
 import ProductMetaData from "../../A_sharedForAllNiches/components/editAndCreate/ProductMetaData";
-import { useColorsCtx } from "@/contextHooks/useColorsCtx";
-import { UIColorsType } from "@/types/UIColorsType";
+
 import { Tag as TagType } from "@/types/tagsTypes";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 
 const PerfumesBasicInfoForm = () => {
@@ -28,7 +28,7 @@ const PerfumesBasicInfoForm = () => {
   const volumesRef = useRef<HTMLDivElement | null>(null);
   const advancedRef = useRef<HTMLDivElement | null>(null);
   const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
-  const {currentTheme} = useColorsCtx()
+  const {state :{currentTheme}} = useStoreConfigCtx()
 
 
   useEffect(() => {
@@ -89,8 +89,12 @@ const PerfumesBasicInfoForm = () => {
 
 
   return (
-    <div className="w-full h-full z-[999] overflow-y-auto" style={{ backgroundColor: currentTheme.bg }}>
-      <div className="space-y-8 p-8 rounded-xl bg-white shadow-2xl m-4">
+    <div className="w-full h-full z-[999] overflow-y-auto" 
+    
+        style={{background : currentTheme.bg , color : currentTheme.text}}
+
+    >
+      <div className="space-y-8 p-8 rounded-xl  shadow-2xl m-4">
 
         {/* BASE INFO - Always Visible */}
         <section>

@@ -1,4 +1,5 @@
-import { useColorsCtx } from '@/contextHooks/useColorsCtx';
+
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import React from 'react';
 
 
@@ -13,7 +14,9 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
   onChange, 
   id = 'switch' 
 }) => {
-  const { currentTheme } = useColorsCtx();
+
+     const {state :{currentTheme}} = useStoreConfigCtx()
+
 
   return (
     <>
@@ -64,7 +67,7 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
           height: var(--round);
           left: var(--p);
           border-radius: 9999px;
-          background-color: ${currentTheme.buttonHover};
+          background-color: ${currentTheme.buttonPrimaryHover};
           will-change: left, width, margin, padding;
           transition: left 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275),
             width 300ms ease, padding 300ms ease, margin 300ms ease,
