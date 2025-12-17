@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import StorePreview from "../StorePreview";
+import StorePreview from "../layoutConfig/StorePreview";
 import { useNicheWarning } from "@/functions/useNicheWarning";
 import NicheWarning from "./components/NicheWarning";
+import TogglableCard from "@/components/partials/TooglableCard";
 
 interface NicheConfigProps {
   config: any;
@@ -67,44 +68,14 @@ const NicheConfig: React.FC<NicheConfigProps> = ({ config, setConfig }) => {
               const isCurrent = config.niche === niche.id;
               const isPreview = previewNicheId === niche.id;
               return (
-                <div
-                  key={niche.id}
-                  onClick={() => setPreviewNicheId(niche.id)}
-                  className={`relative rounded-xl overflow-hidden border-2 transition-all flex flex-col cursor-pointer
-                    ${isPreview ? "border-blue-500" : "border-slate-200"}
-                  `}
-                >
-                  <div className="flex items-center justify-between p-3 bg-slate-50 border-b border-slate-200">
-                    <h4 className="font-semibold text-slate-900">{niche.label}</h4>
-                    <button
-                      onClick={() => handleNicheToggle(niche.id)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        isCurrent ? "bg-blue-500" : "bg-slate-300 hover:bg-slate-400"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          isCurrent ? "translate-x-6" : "translate-x-1"
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  <img
-                    src={niche.image}
-                    alt={niche.label}
-                    className="w-full h-32 object-cover cursor-pointer"
-                  />
-
-                  {isCurrent && (
-                    <div className="absolute inset-0 bg-black/20 flex items-start justify-start p-2 rounded-b-xl">
-                      <div className="flex items-center gap-2 bg-white rounded-full px-2 py-1">
-                        <span className="w-3 h-3 rounded-full bg-green-500 block"></span>
-                        <span className="text-xs font-medium">Active</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                 
+                   <TogglableCard  key={niche.id} 
+                     handleOptionToggle={handleNicheToggle} 
+                     isCurrent={isCurrent} 
+                     isPreview={isPreview}
+                    changeToggledId={(id:string) => setPreviewNicheId(id)}  
+                     option={niche}
+                    />
               );
             })}
           </div>
@@ -121,3 +92,6 @@ const NicheConfig: React.FC<NicheConfigProps> = ({ config, setConfig }) => {
 };
 
 export default NicheConfig;
+
+
+

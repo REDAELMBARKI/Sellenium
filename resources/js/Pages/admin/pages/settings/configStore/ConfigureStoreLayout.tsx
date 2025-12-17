@@ -6,7 +6,7 @@ import NicheConfig from "./nicheConfig/NicheConfig";
 import CardsConfig from "./cardsConfig/Components/CardsConfig";
 import LayoutOptions from "./layoutConfig/LayoutConfig";
 import ThemeOptions from "./ThemeOptions";
-import StorePreview from "./StorePreview";
+import StorePreview from "./layoutConfig/StorePreview";
 
 // Example fake data for preview
 const mockProducts = [
@@ -55,15 +55,10 @@ export const ConfigureStoreLayout = () => {
       label: "Layout",
       Icon: List,
       content: (
-        <div className="flex gap-6">
-          <div className="w-2/3 p-4">
+        
             <LayoutOptions config={currentConfig} setConfig={setCurrentConfig} />
-          </div>
-          <div className="w-1/3 p-4 border rounded-lg bg-white">
-            <h3 className="text-lg font-bold mb-4">Store Preview</h3>
-            <StorePreview products={mockProducts} config={currentConfig} />
-          </div>
-        </div>
+       
+
       ),
     },
     {
