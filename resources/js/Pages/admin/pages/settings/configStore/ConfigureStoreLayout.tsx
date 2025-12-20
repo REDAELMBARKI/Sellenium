@@ -36,7 +36,7 @@ export const ConfigureStoreLayout = () => {
       content: (
          <>
           
-            <NicheConfig config={currentConfig} setConfig={setCurrentConfig} />
+            <NicheConfig />
       
          </>
       ),
@@ -48,7 +48,7 @@ export const ConfigureStoreLayout = () => {
       content: (
       
          
-            <CardsConfig config={currentConfig} setConfig={setCurrentConfig} />
+            <CardsConfig />
     
       
       ),
@@ -71,11 +71,11 @@ export const ConfigureStoreLayout = () => {
       content: (
         <div className="flex gap-6">
           <div className="w-2/3 p-4">
-            <ThemeOptions config={currentConfig} setConfig={setCurrentConfig} />
+            <ThemeOptions  />
           </div>
           <div className="w-1/3 p-4 border rounded-lg bg-white">
             <h3 className="text-lg font-bold mb-4">Store Preview</h3>
-            <StorePreview products={mockProducts} config={currentConfig} />
+            <StorePreview products={mockProducts}  />
           </div>
         </div>
       ),

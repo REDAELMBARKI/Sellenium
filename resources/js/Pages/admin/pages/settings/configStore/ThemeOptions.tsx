@@ -1,11 +1,9 @@
 import React from "react";
 
-interface ThemeOptionsProps {
-  config: any;
-  setConfig: React.Dispatch<React.SetStateAction<any>>;
-}
 
-const ThemeOptions: React.FC<ThemeOptionsProps> = ({ config, setConfig }) => {
+
+const ThemeOptions: React.FC = () => {
+  
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Theme Options</h2>

@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import StorePreview from "./StorePreview";
 
 import TogglableCard from "@/components/partials/TooglableCard";
-import { LayoutConfigProps, LayoutDataType, LayoutStyle } from "@/types/StoreConfigTypes";
+import {  LayoutDataType, LayoutStyle } from "@/types/StoreConfigTypes";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import SkeletonLayout from "@/components/partials/previewSkeletons/SkeletonLayout";
 
 
 const Layouts : LayoutDataType[] = [
@@ -38,13 +40,13 @@ const mockProducts: any = {
   ],
 };
 
-const LayoutConfig: React.FC<LayoutConfigProps> = ({ config, setConfig }) => {
-  const [previewLayoutId, setPreviewLayoutId] = useState<LayoutStyle>(config.Layout);
- 
-  const previewLayout = Layouts.find((n) => n.id === previewLayoutId);
+const LayoutConfig = () => {
+  const {state : {currentLayoutId } , dispatch} = useStoreConfigCtx()
 
+  const [previewLayoutId, setPreviewLayoutId] = useState<LayoutStyle>(currentLayoutId);
+ 
   const handleLayoutToggle = (LayoutId: LayoutStyle) => {
-    setConfig((prev: any) => ({ ...prev, Layout: LayoutId }));
+    dispatch({type : "SET_LAYOUT" , payload : LayoutId})
     setPreviewLayoutId(LayoutId);
   };
 
@@ -57,7 +59,7 @@ const LayoutConfig: React.FC<LayoutConfigProps> = ({ config, setConfig }) => {
           <h2 className="text-xl font-semibold mb-4">Layouts</h2>
           <div className="grid grid-cols-2  gap-4">
             {Layouts.map((Layout) => {
-              const isCurrent = config.Layout === Layout.id;
+              const isCurrent = currentLayoutId === Layout.id;
               const isPreview = previewLayoutId === Layout.id;
               return (
                  
@@ -74,9 +76,11 @@ const LayoutConfig: React.FC<LayoutConfigProps> = ({ config, setConfig }) => {
         </div>
 
       
-        <div className="w-2/4 p-4 border rounded-lg bg-white">
+        <div className="w-2/4 p-4  rounded-lg ">
           <h3 className="text-lg font-bold mb-4">Store Preview</h3>
-          <StorePreview previewLayoutId={previewLayoutId}  config={config} />
+          <StorePreview>
+               <SkeletonLayout previewLayoutId={previewLayoutId} />
+          </StorePreview>
         </div>
       </div>
     </div>

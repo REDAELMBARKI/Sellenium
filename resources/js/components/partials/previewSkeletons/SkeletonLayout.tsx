@@ -43,26 +43,7 @@ const SkeletonLayout = ({previewLayoutId} : {previewLayoutId : LayoutStyle}) => 
         <main style={{ flex: 1, padding: '24px' }}>
           {/* HEADER BAR */}
           <div style={{ marginBottom: '24px' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
-              }}
-            >
-              <div
-                style={{
-                  width: '160px',
-                  height: '26px',
-                  borderRadius: '6px',
-                  background: skTheme.card,
-                }}
-              />
-
-          
-            </div>
-
+           
             {/* Sort / chips */}
             <div style={{ display: 'flex', gap: '8px' }}>
               {Array.from({ length: 4 }).map((_, i) => (
@@ -81,9 +62,15 @@ const SkeletonLayout = ({previewLayoutId} : {previewLayoutId : LayoutStyle}) => 
 
           {/* GRID SKELETON */}
           <div
-           className='grid grid-cols-3 gap-3'
-   
-          >
+           className={`  
+            
+            ${previewLayoutId === "grid" ? "grid grid-cols-3 gap-3" : 
+              previewLayoutId === "list" ? "flex flex-col gap-3" :
+              //premium layout fallback
+              "grid grid-cols-4 gap-3"
+            }`}
+           
+           >
             {Array.from({ length: 12 }).map((_, i) => (
               <div
                 key={i}

@@ -2,12 +2,10 @@ import React, { useState } from "react";
 import StorePreview from "../layoutConfig/StorePreview";
 import { useNicheWarning } from "@/functions/useNicheWarning";
 import NicheWarning from "./components/NicheWarning";
-import TogglableCard from "@/components/partials/TooglableCard";
+import TogglableCard, { TogglableOption } from "@/components/partials/TooglableCard";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import { LayoutStyle, NicheItem } from "@/types/StoreConfigTypes";
 
-interface NicheConfigProps {
-  config: any;
-  setConfig: React.Dispatch<React.SetStateAction<any>>;
-}
 
 const niches = [
   {
@@ -45,14 +43,15 @@ const mockProducts: any = {
   ],
 };
 
-const NicheConfig: React.FC<NicheConfigProps> = ({ config, setConfig }) => {
-  const [previewNicheId, setPreviewNicheId] = useState<string>(config.niche);
-  const { isVisible, dismiss } = useNicheWarning();
+const NicheConfig = () => {
 
+  const {state : {currentTheme ,  currentNiche} , dispatch} = useStoreConfigCtx()
+  const [previewNicheId, setPreviewNicheId] = useState<NicheItem>(currentNiche);
+  const { isVisible, dismiss } = useNicheWarning();
   const previewNiche = niches.find((n) => n.id === previewNicheId);
 
-  const handleNicheToggle = (nicheId: string) => {
-    setConfig((prev: any) => ({ ...prev, niche: nicheId }));
+  const handleNicheToggle = (nicheId: NicheItem) => {
+    dispatch({type : "SET_NICHE" , payload : nicheId})
     setPreviewNicheId(nicheId);
   };
 
@@ -65,7 +64,7 @@ const NicheConfig: React.FC<NicheConfigProps> = ({ config, setConfig }) => {
           <h2 className="text-xl font-semibold mb-4">Niches</h2>
           <div className="grid grid-cols-2  gap-4">
             {niches.map((niche) => {
-              const isCurrent = config.niche === niche.id;
+              const isCurrent = currentNiche === niche.id;
               const isPreview = previewNicheId === niche.id;
               return (
                  
@@ -73,7 +72,7 @@ const NicheConfig: React.FC<NicheConfigProps> = ({ config, setConfig }) => {
                      handleOptionToggle={handleNicheToggle} 
                      isCurrent={isCurrent} 
                      isPreview={isPreview}
-                    changeToggledId={(id:string) => setPreviewNicheId(id)}  
+                     changeToggledId={(id:TogglableOption) => setPreviewNicheId(id)}  
                      option={niche}
                     />
               );
@@ -83,8 +82,8 @@ const NicheConfig: React.FC<NicheConfigProps> = ({ config, setConfig }) => {
 
       
         <div className="w-1/4 p-4 border rounded-lg bg-white">
-          <h3 className="text-lg font-bold mb-4">Store Preview</h3>
-          <StorePreview products={mockProducts[previewNicheId] || []} config={config} />
+          <h3 className="text-lg font-bold mb-4" style={{color : currentTheme.text}}>Store Preview</h3>
+          <StorePreview products={mockProducts[previewNicheId] || []}  />
         </div>
       </div>
     </div>

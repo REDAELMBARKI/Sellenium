@@ -18,13 +18,13 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab }) => {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id || "");
   const {state : {currentTheme}} = useStoreConfigCtx()
   return (
-    <div className="shadow-lg border border-slate-200 overflow-hidden w-full "
+    <div className="shadow-lg  overflow-hidden w-full "
      style={{background : currentTheme.bg , color : currentTheme.text}}
     >
       <div className=" shadow-sm  overflow-x-auto" 
        style={{background : currentTheme.bgSecondary , color : currentTheme.text}}
       >
-        <div className="flex border-b border-gray-200 min-w-max  " 
+        <div className="flex  min-w-max  " 
        
         >
           {tabs.map(({Icon , ...tab}) => {

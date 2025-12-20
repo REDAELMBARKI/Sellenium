@@ -1,16 +1,16 @@
 import { StoreConfigContext } from "@/context/StoreConfigContext";
 import { currentThemeExample } from "@/data/currentTheme";
-import { NicheItem, StoreConfigAction, StoreConfigType } from "@/types/StoreConfigTypes";
+import { StoreConfigAction, StoreConfigType } from "@/types/StoreConfigTypes";
 import { useReducer, useState } from "react"
 
 
 
 const initialState : StoreConfigType= { 
   currentNiche : "fashion" , 
-  currentThemeMode : "light" ,
+  currentThemeMode : "dark" ,
   currentTheme : currentThemeExample.luxuryNoir.dark,
-  layoutType : 'grid'  , 
-  cardConf : {
+  currentLayoutId : 'grid'  , 
+  currentCardConf : {
     cardId : 'card-1'  , 
     showPrice : true , 
     showRating : true  , 
@@ -25,9 +25,17 @@ const initialState : StoreConfigType= {
 const reducer = (state : StoreConfigType , action : StoreConfigAction) : StoreConfigType  => {
    switch(action.type) {
       case "SET_LAYOUT" :
+       return {...state , currentLayoutId : action.payload }
+
       case "SET_NICHE" : 
+       return {...state , currentNiche : action.payload }
       case "SET_THEME_MODE" :
+       return {...state , currentThemeMode : action.payload }
       case "SET_CARD" : 
+       return {...state ,
+              currentCardConf : action.payload // this payload is an intaire object isshowprice / isRounded etc
+         }
+
       default : return state ;
       
    }
