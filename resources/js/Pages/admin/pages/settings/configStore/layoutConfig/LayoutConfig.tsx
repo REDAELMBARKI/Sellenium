@@ -2,24 +2,24 @@ import React, { useState } from "react";
 import StorePreview from "./StorePreview";
 
 import TogglableCard from "@/components/partials/TooglableCard";
-import {  LayoutDataType, LayoutStyle } from "@/types/StoreConfigTypes";
+import {  LayoutCardsDataType, LayoutStyle } from "@/types/StoreConfigTypes";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import SkeletonLayout from "@/components/partials/previewSkeletons/SkeletonLayout";
 
 
-const Layouts : LayoutDataType[] = [
+const Layouts : LayoutCardsDataType[] = [
   {
-    id:  "grid",
+    style:  "grid",
     label: "grid",
     image: "/images/fashionNiche.png",
   },
   {
-    id: "list",
+    style: "list",
     label: "list",
     image: "/images/perfumesNiche.png",
   },
   {
-    id: "premium",
+    style: "premium",
     label: "premium",
     image: "/images/electronicsNiche.png",
   },
@@ -41,13 +41,13 @@ const mockProducts: any = {
 };
 
 const LayoutConfig = () => {
-  const {state : {currentLayoutId } , dispatch} = useStoreConfigCtx()
+  const {state : {currentLayoutStyle , currentThemeStyle} , dispatch} = useStoreConfigCtx()
 
-  const [previewLayoutId, setPreviewLayoutId] = useState<LayoutStyle>(currentLayoutId);
+  const [previewLayoutStyle, setPreviewLayoutStyle] = useState<LayoutStyle>(currentLayoutStyle);
  
   const handleLayoutToggle = (LayoutId: LayoutStyle) => {
     dispatch({type : "SET_LAYOUT" , payload : LayoutId})
-    setPreviewLayoutId(LayoutId);
+    setPreviewLayoutStyle(LayoutId);
   };
 
   return (
@@ -59,15 +59,15 @@ const LayoutConfig = () => {
           <h2 className="text-xl font-semibold mb-4">Layouts</h2>
           <div className="grid grid-cols-2  gap-4">
             {Layouts.map((Layout) => {
-              const isCurrent = currentLayoutId === Layout.id;
-              const isPreview = previewLayoutId === Layout.id;
+              const isCurrent = currentLayoutStyle === Layout.style;
+              const isPreview = previewLayoutStyle === Layout.style;
               return (
                  
-                   <TogglableCard  key={Layout.id} 
+                   <TogglableCard  key={Layout.style} 
                      handleOptionToggle={handleLayoutToggle} 
                      isCurrent={isCurrent} 
                      isPreview={isPreview}
-                     changeToggledId={(id:LayoutStyle) => setPreviewLayoutId(id)}  
+                     changeToggledStyle={(style:LayoutStyle) => setPreviewLayoutStyle(style)}  
                      option={Layout}
                     />
               );
@@ -79,7 +79,7 @@ const LayoutConfig = () => {
         <div className="w-2/4 p-4  rounded-lg ">
           <h3 className="text-lg font-bold mb-4">Store Preview</h3>
           <StorePreview>
-               <SkeletonLayout previewLayoutId={previewLayoutId} />
+               <SkeletonLayout previewLayoutStyle={previewLayoutStyle} previewThemeStyle={currentThemeStyle} />
           </StorePreview>
         </div>
       </div>

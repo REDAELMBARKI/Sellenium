@@ -46,13 +46,11 @@ const mockProducts: any = {
 const NicheConfig = () => {
 
   const {state : {currentTheme ,  currentNiche} , dispatch} = useStoreConfigCtx()
-  const [previewNicheId, setPreviewNicheId] = useState<NicheItem>(currentNiche);
+  const [previewNicheStyle, setPreviewNicheStyle] = useState<NicheItem>(currentNiche);
   const { isVisible, dismiss } = useNicheWarning();
-  const previewNiche = niches.find((n) => n.id === previewNicheId);
-
   const handleNicheToggle = (nicheId: NicheItem) => {
     dispatch({type : "SET_NICHE" , payload : nicheId})
-    setPreviewNicheId(nicheId);
+    setPreviewNicheStyle(nicheId);
   };
 
   return (
@@ -65,14 +63,14 @@ const NicheConfig = () => {
           <div className="grid grid-cols-2  gap-4">
             {niches.map((niche) => {
               const isCurrent = currentNiche === niche.id;
-              const isPreview = previewNicheId === niche.id;
+              const isPreview = previewNicheStyle === niche.id;
               return (
                  
                    <TogglableCard  key={niche.id} 
                      handleOptionToggle={handleNicheToggle} 
                      isCurrent={isCurrent} 
                      isPreview={isPreview}
-                     changeToggledId={(id:TogglableOption) => setPreviewNicheId(id)}  
+                     changeToggledStyle={(style:NicheItem) => setPreviewNicheStyle(style)}  
                      option={niche}
                     />
               );
@@ -83,7 +81,7 @@ const NicheConfig = () => {
       
         <div className="w-1/4 p-4 border rounded-lg bg-white">
           <h3 className="text-lg font-bold mb-4" style={{color : currentTheme.text}}>Store Preview</h3>
-          <StorePreview products={mockProducts[previewNicheId] || []}  />
+          <StorePreview products={mockProducts[previewNicheStyle] || []}  />
         </div>
       </div>
     </div>

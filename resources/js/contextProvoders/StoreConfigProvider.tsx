@@ -9,13 +9,13 @@ const initialState : StoreConfigType= {
   currentNiche : "fashion" , 
   currentThemeMode : "dark" ,
   currentTheme : currentThemeExample.luxuryNoir.dark,
-  currentLayoutId : 'grid'  , 
+  currentLayout : 'grid'  , 
   currentCardConf : {
     cardId : 'card-1'  , 
     showPrice : true , 
     showRating : true  , 
     isRounded : true
-     
+   
   }
 
 }

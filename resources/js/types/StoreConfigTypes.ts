@@ -1,27 +1,41 @@
-import { number } from "framer-motion";
-import { ThemeId, ThemeMode, ThemePalette } from "./ThemeTypes";
+import {  ThemeMode, ThemePalette, ThemeStyle } from "./ThemeTypes";
 
 export type LayoutStyle = "grid" | "list" | "mansonry" | "premium" ;
 
 
 
-
-export interface LayoutDataType {
-  id : LayoutStyle 
+export type LayoutCardsDataType = {
+  style : LayoutStyle 
   label : LayoutStyle 
   image : string 
+
 }
 
+export type ThemeCardsDataType = {
+  style : ThemeStyle
+  label : ThemeStyle 
+  image : string 
+
+}
+
+export type NicheCardsDataType = {
+  style : NicheItem 
+  label : NicheItem 
+  image : string 
+
+}
 
 
 export type NicheItem = "perfumes" | "fashion" | "electronics"  
 
 
 export interface StoreConfigType {  
+     
+    currentThemeStyle : ThemeStyle // is the theme name
     currentNiche : NicheItem
-    currentThemeMode : ThemeMode ,
-    currentTheme  : ThemePalette
-    currentLayoutId : LayoutStyle 
+    currentThemeMode : ThemeMode 
+    currentTheme  : ThemePalette // this is real theme has colors 
+    currentLayoutStyle : LayoutStyle 
     currentCardConf : CardConfig
 
 }
@@ -29,7 +43,7 @@ export interface StoreConfigType {
 export type StoreConfigAction =
   | { type: "SET_LAYOUT"; payload: LayoutStyle }
   | { type: "SET_THEME_MODE"; payload: ThemeMode }
-  | { type: "SET_THEME_PALETTE"; payload: ThemeId }
+  | { type: "SET_THEME_PALETTE"; payload: ThemeStyle }
   | { type: "SET_NICHE"; payload: NicheItem }
   | { type: "SET_CARD"; payload:  CardConfig};
 

@@ -4,10 +4,10 @@ import { CardSim, Grid, List, Palette } from "lucide-react";
 import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import NicheConfig from "./nicheConfig/NicheConfig";
 import CardsConfig from "./cardsConfig/Components/CardsConfig";
-import LayoutOptions from "./layoutConfig/LayoutConfig";
-import ThemeOptions from "./ThemeOptions";
-import StorePreview from "./layoutConfig/StorePreview";
+import ThemeOptions from "./themeConfig/ThemeConfig";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import LayoutConfig from "./layoutConfig/LayoutConfig";
+import ThemeConfig from "./themeConfig/ThemeConfig";
 
 // Example fake data for preview
 const mockProducts = [
@@ -59,7 +59,7 @@ export const ConfigureStoreLayout = () => {
       Icon: List,
       content: (
         
-            <LayoutOptions config={currentConfig} setConfig={setCurrentConfig} />
+            <LayoutConfig />
        
 
       ),
@@ -69,15 +69,9 @@ export const ConfigureStoreLayout = () => {
       label: "Theme",
       Icon: Palette,
       content: (
-        <div className="flex gap-6">
-          <div className="w-2/3 p-4">
-            <ThemeOptions  />
-          </div>
-          <div className="w-1/3 p-4 border rounded-lg bg-white">
-            <h3 className="text-lg font-bold mb-4">Store Preview</h3>
-            <StorePreview products={mockProducts}  />
-          </div>
-        </div>
+        
+            <ThemeConfig  />
+          
       ),
     },
   ];

@@ -1,25 +1,26 @@
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import {
-    LayoutDataType,
-    LayoutStyle as LayoutStyleId,
-    NicheItem as NicheItemId,
+    LayoutStyle  , 
+    NicheItem as NicheItemStyle,
 } from "@/types/StoreConfigTypes";
-import { ThemeId } from "@/types/ThemeTypes";
+import { ThemeStyle } from "@/types/ThemeTypes";
 
-export type TogglableOption = NicheItemId | LayoutStyleId | ThemeId;
-const TogglableCard = ({
-    changeToggledId,
+export type TogglableOption = NicheItemStyle | LayoutStyle | ThemeStyle;
+
+interface TogglableCardProps<T extends TogglableOption > {
+    handleOptionToggle: (style: T) => void;
+    isPreview: boolean;
+    isCurrent: boolean;
+    changeToggledStyle: (style: T) => void;
+    option: any;
+}
+const TogglableCard = <T extends TogglableOption>({
+    changeToggledStyle,
     option,
     isPreview,
     isCurrent,
     handleOptionToggle,
-}: {
-    handleOptionToggle: (id: TogglableOption) => void;
-    isPreview: boolean;
-    isCurrent: boolean;
-    changeToggledId: (id: TogglableOption) => void;
-    option: LayoutDataType;
-}) => {
+}:TogglableCardProps<T>) => {
     const {
         state: { currentTheme },
     } = useStoreConfigCtx();
@@ -27,7 +28,7 @@ const TogglableCard = ({
 
     return (
         <div
-            onClick={() => changeToggledId(option.id)}
+            onClick={() => changeToggledStyle(option.style)}
             className={`relative rounded-xl overflow-hidden border-4 transition-all flex flex-col cursor-pointer
                    
                   `}
@@ -51,7 +52,7 @@ const TogglableCard = ({
                 >{option.label}</h4>
 
                 <button
-                    onClick={() => handleOptionToggle(option.id)}
+                    onClick={() => handleOptionToggle(option.style)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                         isCurrent
                             ? "bg-blue-500"

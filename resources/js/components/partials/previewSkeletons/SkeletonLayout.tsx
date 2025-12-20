@@ -1,10 +1,10 @@
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { getSkeletonColors } from '@/functions/getSkeletonColors';
 import { LayoutStyle } from '@/types/StoreConfigTypes';
-import React, { useState } from 'react';
-const SkeletonLayout = ({previewLayoutId} : {previewLayoutId : LayoutStyle}) => {
-  const {state : {currentTheme}} = useStoreConfigCtx()
-  const skTheme = getSkeletonColors( currentTheme, 'light')
+import { ThemeStyle } from '@/types/ThemeTypes';
+const SkeletonLayout = ({previewLayoutStyle , previewThemeStyle} : {previewLayoutStyle : LayoutStyle  , previewThemeStyle : ThemeStyle}) => {
+  const {state : {currentThemeMode}} = useStoreConfigCtx()
+  const skTheme = getSkeletonColors( previewThemeStyle, currentThemeMode)
   
   return (
     <div
@@ -23,7 +23,6 @@ const SkeletonLayout = ({previewLayoutId} : {previewLayoutId : LayoutStyle}) => 
         style={{
         
           borderBottom: `1px solid ${skTheme.border}`,
-          padding: '16px 24px',
           boxShadow: skTheme.shadow,
         }}
       >
@@ -31,7 +30,6 @@ const SkeletonLayout = ({previewLayoutId} : {previewLayoutId : LayoutStyle}) => 
         <div
           style={{
             height: '36px',
-            borderRadius: skTheme.borderRadius,
             background: skTheme.card,
           }}
         />
@@ -40,35 +38,27 @@ const SkeletonLayout = ({previewLayoutId} : {previewLayoutId : LayoutStyle}) => 
       <div style={{ display: 'flex', minHeight: 'calc(100vh - 68px)' }}>
        
         {/* MAIN CONTENT */}
-        <main style={{ flex: 1, padding: '24px' }}>
+        <main style={{ flex: 1, padding: '0px' }}>
           {/* HEADER BAR */}
           <div style={{ marginBottom: '24px' }}>
            
             {/* Sort / chips */}
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: '90px',
-                    height: '30px',
-                    borderRadius: '6px',
-                    background: skTheme.gray200,
-                  }}
-                />
-              ))}
-            </div>
+            <div style={{ display: 'flex', gap: '8px' ,  width: '100%',
+                    height: '15vh',
+                    background: skTheme.gray300 }} 
+            />
+                
           </div>
 
           {/* GRID SKELETON */}
-          <div
-           className={`  
-            
-            ${previewLayoutId === "grid" ? "grid grid-cols-3 gap-3" : 
-              previewLayoutId === "list" ? "flex flex-col gap-3" :
+          <section  className='p-4'>
+             <div
+           className={
+              previewLayoutStyle === "grid" ? "grid grid-cols-3 gap-3" : 
+              previewLayoutStyle === "list" ? "flex flex-col gap-3" :
               //premium layout fallback
               "grid grid-cols-4 gap-3"
-            }`}
+            }
            
            >
             {Array.from({ length: 12 }).map((_, i) => (
@@ -115,6 +105,7 @@ const SkeletonLayout = ({previewLayoutId} : {previewLayoutId : LayoutStyle}) => 
               </div>
             ))}
           </div>
+          </section>
         </main>
       </div>
     </div>

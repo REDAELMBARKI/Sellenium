@@ -1,7 +1,7 @@
-export type Themes =  Record<ThemeId ,Record<ThemeMode , ThemePalette>>
+export type Themes =  Record<ThemeStyle ,Record<ThemeMode , ThemePalette>>
 
 
- export type ThemeId  =  "luxuryNoir" | "softPastel"
+  export type ThemeStyle  =  "luxuryNoir" | "softPastel"
   export type ThemePalette = {
   // -------------------------
   // SURFACES / BACKGROUNDS
