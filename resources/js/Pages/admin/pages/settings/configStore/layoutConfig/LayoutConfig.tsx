@@ -45,9 +45,9 @@ const LayoutConfig = () => {
 
   const [previewLayoutStyle, setPreviewLayoutStyle] = useState<LayoutStyle>(currentLayoutStyle);
  
-  const handleLayoutToggle = (LayoutId: LayoutStyle) => {
-    dispatch({type : "SET_LAYOUT" , payload : LayoutId})
-    setPreviewLayoutStyle(LayoutId);
+  const handleLayoutToggle = (LayoutStyle: LayoutStyle) => {
+    dispatch({type : "SET_LAYOUT" , payload : LayoutStyle})
+    setPreviewLayoutStyle(LayoutStyle);
   };
 
   return (

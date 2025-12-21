@@ -31,9 +31,9 @@ const ThemeConfig = () => {
 
   const [previewThemeStyle, setPreviewThemeStyle] = useState<ThemeStyle>(currentThemeStyle);
  
-  const handleThemeToggle = (ThemeId: ThemeStyle) => {
-    dispatch({type : "SET_THEME_PALETTE" , payload : ThemeId})
-    setPreviewThemeStyle(ThemeId);
+  const handleThemeToggle = (ThemeStyle: ThemeStyle) => {
+    dispatch({type : "SET_THEME_STYLE" , payload : ThemeStyle})
+    setPreviewThemeStyle(ThemeStyle);
   };
 
   return (

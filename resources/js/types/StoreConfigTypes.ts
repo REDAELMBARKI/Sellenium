@@ -22,7 +22,7 @@ export type NicheCardsDataType = {
   style : NicheItem 
   label : NicheItem 
   image : string 
-
+  info? : string
 }
 
 
@@ -43,7 +43,7 @@ export interface StoreConfigType {
 export type StoreConfigAction =
   | { type: "SET_LAYOUT"; payload: LayoutStyle }
   | { type: "SET_THEME_MODE"; payload: ThemeMode }
-  | { type: "SET_THEME_PALETTE"; payload: ThemeStyle }
+  | { type: "SET_THEME_STYLE"; payload: ThemeStyle }
   | { type: "SET_NICHE"; payload: NicheItem }
   | { type: "SET_CARD"; payload:  CardConfig};
 

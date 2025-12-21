@@ -2,9 +2,16 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { getSkeletonColors } from '@/functions/getSkeletonColors';
 import { LayoutStyle } from '@/types/StoreConfigTypes';
 import { ThemeStyle } from '@/types/ThemeTypes';
+import { useEffect, useState } from 'react';
 const SkeletonLayout = ({previewLayoutStyle , previewThemeStyle} : {previewLayoutStyle : LayoutStyle  , previewThemeStyle : ThemeStyle}) => {
   const {state : {currentThemeMode}} = useStoreConfigCtx()
-  const skTheme = getSkeletonColors( previewThemeStyle, currentThemeMode)
+  const [previewThemePallete , setpreviewThemePallete] = useState() ;
+
+  useEffect(() => {
+     
+  }, [previewThemeStyle]);
+
+  const skTheme = getSkeletonColors( previewThemePallete, currentThemeMode)
   
   return (
     <div

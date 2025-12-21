@@ -4,25 +4,25 @@ import { useNicheWarning } from "@/functions/useNicheWarning";
 import NicheWarning from "./components/NicheWarning";
 import TogglableCard, { TogglableOption } from "@/components/partials/TooglableCard";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
-import { LayoutStyle, NicheItem } from "@/types/StoreConfigTypes";
+import { LayoutStyle, NicheCardsDataType, NicheItem } from "@/types/StoreConfigTypes";
 
 
-const niches = [
+const niches : NicheCardsDataType[] = [
   {
-    id: "fashion",
-    label: "Fashion",
+    style: "fashion",
+    label: "fashion",
     image: "/images/fashionNiche.png",
     info: "Fashion products like clothing & accessories. Backend provides related layouts and options.",
   },
   {
-    id: "perfume",
-    label: "Perfume",
+    style: "perfumes",
+    label: "perfumes",
     image: "/images/perfumesNiche.png",
     info: "Perfume products. Backend ensures only perfume-related options and layouts.",
   },
   {
-    id: "electronics",
-    label: "Electronics",
+    style: "electronics",
+    label: "electronics",
     image: "/images/electronicsNiche.png",
     info: "Electronics products. Backend provides electronics-specific options and store structure.",
   },
@@ -62,11 +62,11 @@ const NicheConfig = () => {
           <h2 className="text-xl font-semibold mb-4">Niches</h2>
           <div className="grid grid-cols-2  gap-4">
             {niches.map((niche) => {
-              const isCurrent = currentNiche === niche.id;
-              const isPreview = previewNicheStyle === niche.id;
+              const isCurrent = currentNiche === niche.style;
+              const isPreview = previewNicheStyle === niche.style;
               return (
                  
-                   <TogglableCard  key={niche.id} 
+                   <TogglableCard  key={niche.style} 
                      handleOptionToggle={handleNicheToggle} 
                      isCurrent={isCurrent} 
                      isPreview={isPreview}

@@ -1,33 +1,42 @@
-// getSkeletonColors.ts
-import { grayColors, accentColors } from "@/data/currentTheme";
-import { UIColorsType } from "@/types/UIColorsType";
+import { ThemePalette } from "@/types/ThemeTypes";
 
-export const getSkeletonColors = (theme: UIColorsType, mode: 'light' | 'dark') => {
-  if (mode === 'light') {
-    return {
-      page: grayColors.gray50,
-      card: grayColors.gray100,
-      image: grayColors.gray200,
-      line: grayColors.gray300,
-      border: grayColors.gray200,
-      accent: accentColors.lightAccent, // subtle warm/cool tint
-      shadow: '0 2px 6px rgba(0,0,0,0.08)',
-      borderRadius: '8px',
-      gray200: grayColors.gray200,
-      gray300: grayColors.gray300,
-    };
-  } else {
-    return {
-      page: grayColors.gray900,
-      card: grayColors.gray800,
-      image: grayColors.gray700,
-      line: grayColors.gray600,
-      border: grayColors.gray700,
-      accent: accentColors.darkAccent, // subtle glow/tint
-      shadow: '0 2px 6px rgba(0,0,0,0.4)',
-      borderRadius: '8px',
-      gray200: grayColors.gray700,
-      gray300: grayColors.gray600,
-    };
-  }
+export const getSkeletonColors = (
+  theme: ThemePalette,
+  mode: "light" | "dark"
+) => {
+  const isDark = mode === "dark";
+
+  // Neutral grayscale (content)
+  const gray = isDark
+    ? {
+        card: "#1f2937",     // gray-800
+        image: "#374151",    // gray-700
+        lineStrong: "#4b5563", // gray-600
+        lineSoft: "#374151",   // gray-700
+        border: "#374151",
+      }
+    : {
+        card: "#f1f5f9",     // gray-100
+        image: "#e5e7eb",    // gray-200
+        lineStrong: "#d1d5db", // gray-300
+        lineSoft: "#e5e7eb",   // gray-200
+        border: "#e5e7eb",
+      };
+
+  return {
+    // 🔹 STRUCTURE (theme-aware)
+    page: theme.bg,
+    surface: theme.bgSecondary,
+    header: theme.bgSecondary,
+    accent: theme.accent,          // use VERY sparingly
+    shadow: theme.shadow,
+    radius: theme.borderRadius ,
+
+    // 🔹 CONTENT (always neutral)
+    card: gray.card,
+    image: gray.image,
+    lineStrong: gray.lineStrong,
+    lineSoft: gray.lineSoft,
+    border: gray.border,
+  };
 };

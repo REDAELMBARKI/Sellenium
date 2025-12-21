@@ -44,7 +44,7 @@ export type Themes =  Record<ThemeStyle ,Record<ThemeMode , ThemePalette>>
   // -------------------------
   border: string        // General borders (cards, inputs, panels)
   borderHover: string   // Border highlight on hover/focus
-
+  borderRadius : string
   // -------------------------
   // LINKS
   // -------------------------
