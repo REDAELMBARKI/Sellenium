@@ -12,7 +12,7 @@ const initialState : StoreConfigType= {
   currentTheme : currentThemeExample.luxuryNoir.dark,
   currentLayoutStyle : 'grid'  , 
   currentCardConf : {
-    cardId : 'card-1'  , 
+    cardId : 'card-3'  , 
     showPrice : true , 
     showRating : true  , 
     isRounded : true

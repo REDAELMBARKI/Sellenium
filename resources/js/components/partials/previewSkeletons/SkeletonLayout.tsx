@@ -1,11 +1,11 @@
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { getSkeletonColors } from '@/functions/getSkeletonColors';
 import { LayoutStyle } from '@/types/StoreConfigTypes';
-import { ThemeStyle } from '@/types/ThemeTypes';
+import { ThemePalette, ThemeStyle } from '@/types/ThemeTypes';
 import { useEffect, useState } from 'react';
 const SkeletonLayout = ({previewLayoutStyle , previewThemeStyle} : {previewLayoutStyle : LayoutStyle  , previewThemeStyle : ThemeStyle}) => {
-  const {state : {currentThemeMode}} = useStoreConfigCtx()
-  const [previewThemePallete , setpreviewThemePallete] = useState() ;
+  const {state : {currentThemeMode , currentTheme}} = useStoreConfigCtx()
+  const [previewThemePallete , setpreviewThemePallete] = useState<ThemePalette>(currentTheme) ;
 
   useEffect(() => {
      
@@ -52,7 +52,7 @@ const SkeletonLayout = ({previewLayoutStyle , previewThemeStyle} : {previewLayou
             {/* Sort / chips */}
             <div style={{ display: 'flex', gap: '8px' ,  width: '100%',
                     height: '15vh',
-                    background: skTheme.gray300 }} 
+                    background: skTheme.card }} 
             />
                 
           </div>

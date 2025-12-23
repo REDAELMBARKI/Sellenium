@@ -48,11 +48,12 @@ export type StoreConfigAction =
   | { type: "SET_CARD"; payload:  CardConfig};
 
 
-export type CardOption = "card-1" | "card-2" | "card-3"
+export type CardOption = "card-1" | "card-2" | "card-3" | "card-4" | "card-5" | "card-6" 
 export type CardConfig = {
   cardId : CardOption 
   showPrice : boolean 
   showRating : boolean 
   isRounded : boolean 
+  hasBorder : boolean
 }
 

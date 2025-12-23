@@ -1,35 +1,63 @@
-import { Heart, Star } from "lucide-react";
+import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
+import { Eye, Heart, ShoppingCart, Star } from "lucide-react";
 
 // Card 2: Horizontal Card
-const Card2 = ({ product, config }) => {
+const Card2 = ({ product }:{product : any}) => {
+  console.log(product)
+  if(!product ) return null
   return (
-    <div className={`bg-white rounded-lg flex overflow-hidden ${config.showBorder ? 'border-2 border-gray-200' : 'shadow-lg'}`}>
-      <img src={product.image} alt={product.name} className="w-32 h-32 object-cover" />
-      <div className="flex-1 p-4 flex flex-col justify-between">
-        <div>
-          <h3 className="font-semibold text-base mb-1">{product.name}</h3>
-          {config.showRating && (
-            <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-sm text-gray-600">{product.rating}</span>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center justify-between">
-          {config.showPrice && (
-            <span className="text-lg font-bold">${product.price}</span>
-          )}
-          <div className="flex gap-2">
-            <button className="p-1.5 hover:bg-gray-100 rounded">
-              <Heart className="w-5 h-5 text-red-500" />
-            </button>
-            <button className="bg-blue-600 text-white px-4 py-1.5 rounded hover:bg-blue-700 text-sm">
-              Add
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+      <div key={product.id} className="group">
+                <div className="relative overflow-hidden rounded-lg bg-gray-100 mb-4">
+                  <img
+                    src={product?.image ?? ''}
+                    alt={product.name ?? 'image'}
+                    className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  
+                  {/* Product Actions */}
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex space-x-2">
+                      <button className="bg-white text-gray-900 p-3 rounded-full hover:bg-gray-100 transition-colors">
+                        <ShoppingCart className="w-5 h-5" />
+                      </button>
+                      <button className="bg-white text-gray-900 p-3 rounded-full hover:bg-gray-100 transition-colors">
+                        <Eye className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Wishlist Button */}
+                  <button className="absolute top-4 right-4 bg-white bg-opacity-90 text-gray-600 p-2 rounded-full hover:bg-white hover:text-red-500 transition-colors">
+                    <Heart className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                    {product?.name ?? ''}
+                  </h3>
+                  
+                  {/* Rating */}
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < Math.floor(product?.rating ?? 0)
+                              ? 'text-yellow-400 fill-current'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm text-gray-500">({product?.reviews ?? 'unrated'})</span>
+                  </div>
+
+                  <p className="text-xl font-bold text-gray-900">${product?.price ?? '00'}</p>
+                </div>
+              </div>
+              
   );
 };
 

@@ -9,19 +9,32 @@ import {
   Menu, 
   X, 
   ChevronRight,
-  Facebook,
+  Facebook , 
+
+  ChevronUp,
   Instagram,
-  Twitter,
-  Star,
-  Plus,
-  Minus,
-  Eye,
-  Filter,
-  ChevronUp
+  Twitter
 } from 'lucide-react';
 import { Link } from '@inertiajs/react';
+import StoreConfigProvider from '@/contextProvoders/StoreConfigProvider';
 
-const Layout = ({ children, currentPage = 'home' }) => {
+
+interface LayoutProps {
+  children : React.ReactNode 
+  currentPage : string 
+}
+
+const Layout = ({ children, currentPage = 'home' }:LayoutProps) => {
+     return (
+       <>
+          <StoreConfigProvider >
+                      <LayoutContent {...{children , currentPage}}/>
+          </StoreConfigProvider>
+       </>
+     )
+} 
+
+const LayoutContent = ({ children, currentPage}:LayoutProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
