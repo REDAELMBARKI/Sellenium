@@ -1,13 +1,15 @@
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
 import { Eye, Heart, ShoppingCart, Star } from "lucide-react";
 
 // Card 2: Horizontal Card
 const Card2 = ({ product }:{product : any}) => {
-  console.log(product)
+     const {state :{currentCardConf :{isRounded , showPrice , showRating , showBorder}} } = useStoreConfigCtx()
+
   if(!product ) return null
   return (
       <div key={product.id} className="group">
-                <div className="relative overflow-hidden rounded-lg bg-gray-100 mb-4">
+                <div className={`relative overflow-hidden rounded-lg bg-gray-100 mb-4 ${showBorder ? 'border-2 border-gray-300' : ''}`} >
                   <img
                     src={product?.image ?? ''}
                     alt={product.name ?? 'image'}
@@ -38,7 +40,9 @@ const Card2 = ({ product }:{product : any}) => {
                   </h3>
                   
                   {/* Rating */}
-                  <div className="flex items-center space-x-2">
+                  {showRating && (
+
+                    <div className="flex items-center space-x-2">
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
                         <Star
@@ -53,9 +57,12 @@ const Card2 = ({ product }:{product : any}) => {
                     </div>
                     <span className="text-sm text-gray-500">({product?.reviews ?? 'unrated'})</span>
                   </div>
-
+                  )}
+                  {showPrice && (
                   <p className="text-xl font-bold text-gray-900">${product?.price ?? '00'}</p>
-                </div>
+                  ) 
+                  }
+                  </div>
               </div>
               
   );

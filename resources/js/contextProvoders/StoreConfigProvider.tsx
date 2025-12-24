@@ -1,4 +1,5 @@
 import { StoreConfigContext } from "@/context/StoreConfigContext";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { currentThemeExample } from "@/data/currentTheme";
 import { StoreConfigAction, StoreConfigType } from "@/types/StoreConfigTypes";
 import { useReducer } from "react"
@@ -12,9 +13,10 @@ const initialState : StoreConfigType= {
   currentTheme : currentThemeExample.luxuryNoir.dark,
   currentLayoutStyle : 'grid'  , 
   currentCardConf : {
-    cardId : 'card-3'  , 
+    cardId : 'card-2'  , 
     showPrice : true , 
     showRating : true  , 
+    showBorder : true ,
     isRounded : true
    
   }

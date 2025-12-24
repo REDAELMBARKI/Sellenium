@@ -1,18 +1,22 @@
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import { ProductClient } from "@/types/clientSideTypes";
 import { Heart, Star } from "lucide-react";
 
 // Card 4: Overlay Card
-const Card4 = ({ product, config }) => {
+const Card4 = ({ product }:{product : ProductClient}) => {
+    const {state :{currentCardConf :{isRounded , showPrice , showRating , showBorder}} } = useStoreConfigCtx()
+
   return (
-    <div className={`relative rounded-xl overflow-hidden ${config.showBorder ? 'border-2 border-gray-300' : ''}`}>
+    <div className={`relative rounded-xl overflow-hidden ${showBorder ? 'border-2 border-gray-300' : ''}`}>
       <img src={product.image} alt={product.name} className="w-full h-64 object-cover" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
         <h3 className="font-bold text-white text-lg mb-1">{product.name}</h3>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {config.showPrice && (
+            {showPrice && (
               <span className="text-white font-semibold text-lg">${product.price}</span>
             )}
-            {config.showRating && (
+            {showRating && (
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                 <span className="text-white text-sm">{product.rating}</span>

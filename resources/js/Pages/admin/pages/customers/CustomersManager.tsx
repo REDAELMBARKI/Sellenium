@@ -3,11 +3,15 @@ import { Download, Plus, Calendar, RefreshCw, Phone, Mail, Eye, Ban, CheckCircle
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import SelectByRadix from '@/components/ui/SelectByRadix';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import CustomerDetails from './CustomerDetails';
 import { SectionHeader } from '@/admin/components/layout/SectionHeader';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
+import CustomSelectForObject from '@/components/ui/CustomSelectForObject';
+import { AvatarImage } from '@/components/ui/avatar';
 
 // Types
 type CustomerStatus = 'active' | 'vip' | 'blocked';
@@ -79,16 +83,13 @@ interface StatsCardProps {
   icon?: React.ComponentType<{ className?: string }>;
 }
 
-interface CustomerFiltersProps {
-  searchQuery: string;
+interface CustomersTableProps {
+    searchQuery: string;
   statusFilter: string;
   onSearchChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
-}
-
-interface CustomersTableProps {
   customers: Customer[];
   onViewDetails: (customer: Customer) => void;
 }
@@ -99,18 +100,7 @@ interface CustomerDetailsModalProps {
   onClose: () => void;
 }
 
-interface PaginationTableProps {
-  totalPages: number;
-  currentPage: number;
-  setCurrentPage: (page: number) => void;
-}
 
-interface SelectByRadixProps {
-  value: string;
-  setter: (value: string) => void;
-  elements: string[];
-  extraLabel?: string;
-}
 
 // Mock data
 const mockCustomers: Customer[] = [
@@ -161,70 +151,102 @@ const StatsCard: FC<StatsCardProps> = ({ title, value, change, trend, icon: Icon
   </Card>
 );
 
-const CustomerFilters: FC<CustomerFiltersProps> = ({ 
-  searchQuery, 
-  statusFilter, 
-  onSearchChange, 
-  onStatusChange, 
-  onClearFilters, 
-  hasActiveFilters 
-}) => (
-  <div className="space-y-4">
-    <div className=" flex  gap-4">
-       
-        <Input
-          placeholder="Search by name, phone, or email..."
-          value={searchQuery}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
-          className="pl-9"
-        >
-           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        </Input>
-      
-      <Select
-        value={statusFilter}
-        onChange={onStatusChange}
-        options={[
-          { value: 'all', label: 'All Status' },
-          { value: 'active', label: 'Active' },
-          { value: 'vip', label: 'VIP' },
-          { value: 'blocked', label: 'Blocked' },
-        ]}
-      />
-      
-      {hasActiveFilters && (
-        <Button variant="outline" onClick={onClearFilters} className="rounded-lg">
-          <X size={16} />
-          Clear Filters
-        </Button>
-      )}
-    </div>
-  </div>
-);
 
-const CustomersTable: FC<CustomersTableProps> = ({ customers, onViewDetails }) => (
+const CustomersTable: FC<CustomersTableProps> = ({ customers, onViewDetails  , 
+            searchQuery , 
+            statusFilter,
+            onSearchChange,
+            onStatusChange,
+            onClearFilters,
+            hasActiveFilters,
+}) => {
+const {state : {currentTheme: theme}} =  useStoreConfigCtx()
+return (
   <Card className="rounded-xl overflow-hidden">
     <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="bg-muted/50 border-b">
-          <tr>
-            <th className="text-left p-4 font-medium">Customer</th>
-            <th className="text-left p-4 font-medium">Contact</th>
-            <th className="text-left p-4 font-medium">Orders</th>
-            <th className="text-left p-4 font-medium">Total Spent</th>
-            <th className="text-left p-4 font-medium">Last Order</th>
-            <th className="text-left p-4 font-medium">Status</th>
-            <th className="text-left p-4 font-medium">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
+      <CardHeader style={{ background: theme.bg, borderBottom: `1px solid ${theme.border}` }}>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search 
+                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" 
+                style={{ color: theme.textMuted }}
+              />
+              <Input
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="transition-all focus:scale-[1.02]"
+                style={{
+                  border: `2px solid ${theme.border}`,
+                }}
+              >
+                <Search size={16} />
+              </Input>
+            </div>
+           
+            <CustomSelectForObject
+            label="Filter by Status"
+            value={{value: statusFilter , label : statusFilter === "all" ? "All Status" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1) }}
+            onChange={(option : {value:string , label:string}) => onStatusChange(option.value)} 
+            options={[{label : "All Status" , value : "all" } ,
+            {label : "Active" , value : "active" } ,
+            {label : "Draft" , value : "draft" } ,
+            {label : "Inactive" , value : "inactive"}
+            ]}
+
+             />
+          </div>
+      </CardHeader>
+      <Table className="w-full">
+        <TableHeader >
+          <TableRow style={{ background: theme.bgSecondary, borderBottom: `2px solid ${theme.border}` }}>
+            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Avatar</TableHead>
+            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Customer</TableHead>
+            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Contact</TableHead>
+            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Orders</TableHead>
+            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Total Spent</TableHead>
+            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Last Order</TableHead>
+            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Status</TableHead>
+            <TableHead className="text-right" style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {customers.map((customer: Customer) => (
-            <tr key={customer.id} className="border-b hover:bg-muted/50 transition-colors">
-              <td className="p-4">
+            <TableRow key={customer.id}                         
+            className="hover:bg-opacity-50 transition-colors"
+            style={{ 
+                          borderBottom: `1px solid ${theme.border}`,
+                          background: theme.bg,
+                        }}
+             >
+              <TableCell >
+               <div className="flex items-center gap-3" >
+                            {customer?.image ? (
+                              <img
+                                src={(customer?.image as any).url}
+                                alt={customer.name}
+                                className="h-14 w-14 rounded-lg object-cover"
+                              />
+                            ) : (
+                              <div 
+                                className="flex h-14 w-14 items-center justify-center rounded-lg"
+                                style={{
+                                  background: `linear-gradient(135deg, ${theme.gray100} 0%, ${theme.gray200} 100%)`,
+                                  border: `2px solid ${theme.border}`,
+                                  borderRadius : "50%"
+                                }}
+                              >
+                                <AvatarImage className="h-6 w-6" style={{ color: theme.textMuted }} />
+                              </div>
+                            )}
+                            
+                          </div>
+              </TableCell>
+              <TableCell >
                 <div className="font-medium">{customer.name}</div>
                 <div className="text-xs text-muted-foreground">Joined {customer.joinedDate}</div>
-              </td>
-              <td className="p-4">
+              </TableCell>
+              <TableCell >
                 <div className="flex items-center gap-2 text-sm mb-1">
                   <Phone size={14} className="text-muted-foreground" />
                   <a href={`tel:${customer.phone}`} className="hover:underline">{customer.phone}</a>
@@ -235,16 +257,16 @@ const CustomersTable: FC<CustomersTableProps> = ({ customers, onViewDetails }) =
                     <a href={`mailto:${customer.email}`} className="hover:underline">{customer.email}</a>
                   </div>
                 )}
-              </td>
-              <td className="p-4 font-medium">{customer.totalOrders}</td>
-              <td className="p-4 font-medium">{customer.totalSpent} MAD</td>
-              <td className="p-4 text-sm">{customer.lastOrderDate}</td>
-              <td className="p-4">
+              </TableCell>
+              <TableCell className="p-4 font-medium">{customer.totalOrders}</TableCell>
+              <TableCell className="p-4 font-medium">{customer.totalSpent} MAD</TableCell>
+              <TableCell className="p-4 text-sm">{customer.lastOrderDate}</TableCell>
+              <TableCell >
                 {customer.status === 'vip' && <Badge variant="warning" className="gap-1"><Award size={12} /> VIP</Badge>}
                 {customer.status === 'active' && <Badge variant="success" className="gap-1"><CheckCircle size={12} /> Active</Badge>}
                 {customer.status === 'blocked' && <Badge variant="destructive" className="gap-1"><Ban size={12} /> Blocked</Badge>}
-              </td>
-              <td className="p-4">
+              </TableCell>
+              <TableCell >
                 <Button
                   size="sm"
                   variant="outline"
@@ -254,49 +276,18 @@ const CustomersTable: FC<CustomersTableProps> = ({ customers, onViewDetails }) =
                   <Eye size={16} />
                   View
                 </Button>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   </Card>
-);
 
+)
 
-const PaginationTable: FC<PaginationTableProps> = ({ totalPages, currentPage, setCurrentPage }) => (
-  <div className="flex items-center justify-center gap-2">
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-      disabled={currentPage === 1}
-      className="rounded-lg"
-    >
-      Previous
-    </Button>
-    {[...Array(totalPages)].map((_: undefined, i: number) => (
-      <Button
-        key={i + 1}
-        variant={currentPage === i + 1 ? 'default' : 'outline'}
-        size="sm"
-        onClick={() => setCurrentPage(i + 1)}
-        className="rounded-lg"
-      >
-        {i + 1}
-      </Button>
-    ))}
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-      disabled={currentPage === totalPages}
-      className="rounded-lg"
-    >
-      Next
-    </Button>
-  </div>
-);
+};
+
 
 
 const CustomersManager = () => {
@@ -375,16 +366,6 @@ const CustomersManager = () => {
           <StatsCard title="Blocked" value={stats.blocked} change="3.2%" trend="down" />
         </div>
 
-        <Card className="p-4 rounded-xl">
-          <CustomerFilters
-            searchQuery={searchQuery}
-            statusFilter={statusFilter}
-            onSearchChange={setSearchQuery}
-            onStatusChange={setStatusFilter}
-            onClearFilters={clearFilters}
-            hasActiveFilters={hasActiveFilters}
-          />
-        </Card>
 
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="text-sm text-muted-foreground">
@@ -395,12 +376,18 @@ const CustomersManager = () => {
           <SelectByRadix value={perPage} setter={setPerPage} elements={['5', '10', '20', '50']} extraLabel='per page' />
         </div>
 
-        <CustomersTable
+        <CustomersTable 
+          searchQuery={searchQuery}
+          statusFilter={statusFilter}
+          onSearchChange={setSearchQuery}
+          onStatusChange={setStatusFilter}
+          onClearFilters={clearFilters}
+          hasActiveFilters={hasActiveFilters}
           customers={paginatedCustomers}
           onViewDetails={handleViewDetails}
         />
 
-        <PaginationTable totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      
       </div>
 
       <CustomerDetails  

@@ -54,6 +54,8 @@ export type CardConfig = {
   showPrice : boolean 
   showRating : boolean 
   isRounded : boolean 
-  hasBorder : boolean
+  showBorder : boolean
 }
+
+
 

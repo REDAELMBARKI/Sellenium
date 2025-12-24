@@ -6,37 +6,42 @@ export const getSkeletonColors = (
 ) => {
   const isDark = mode === "dark";
 
-  // Neutral grayscale (content)
   const gray = isDark
     ? {
-        card: "#1f2937",     // gray-800
-        image: "#374151",    // gray-700
-        lineStrong: "#4b5563", // gray-600
-        lineSoft: "#374151",   // gray-700
+        card: "#1f2937",
+        image: "#374151",
+        lineStrong: "#4b5563",
+        lineSoft: "#374151",
         border: "#374151",
       }
     : {
-        card: "#f1f5f9",     // gray-100
-        image: "#e5e7eb",    // gray-200
-        lineStrong: "#d1d5db", // gray-300
-        lineSoft: "#e5e7eb",   // gray-200
+        card: "#f9fafb",
+        image: "#e5e7eb",
+        lineStrong: "#d1d5db",
+        lineSoft: "#e5e7eb",
         border: "#e5e7eb",
       };
 
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   return {
-    // 🔹 STRUCTURE (theme-aware)
     page: theme.bg,
     surface: theme.bgSecondary,
-    header: theme.bgSecondary,
-    accent: theme.accent,          // use VERY sparingly
     shadow: theme.shadow,
-    radius: theme.borderRadius ,
+    radius: theme.borderRadius,
 
-    // 🔹 CONTENT (always neutral)
     card: gray.card,
     image: gray.image,
     lineStrong: gray.lineStrong,
     lineSoft: gray.lineSoft,
     border: gray.border,
+
+    accentRail: hexToRgba(theme.accent, 0.25),
+    accentIconTint: hexToRgba(theme.accent, 0.15),
   };
 };

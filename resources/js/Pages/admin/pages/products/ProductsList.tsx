@@ -101,7 +101,6 @@ export default function ProductsList({ response }: { response?: ProductsResponse
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   const filteredProducts = products.filter((product) => {
@@ -150,7 +149,7 @@ export default function ProductsList({ response }: { response?: ProductsResponse
           onClick={() => router.visit("/products/create")}
           className="hover:scale-105 transition-transform"
           style={{
-            background: `linear-gradient(135deg, ${theme.buttonPrimary} 0%, ${theme.accentHover} 100%)`,
+            background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.accentHover} 100%)`,
             boxShadow: `0 4px 15px ${theme.accent}40`,
           }}
         >
