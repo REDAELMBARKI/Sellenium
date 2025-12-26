@@ -12,6 +12,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import CustomSelectForObject from '@/components/ui/CustomSelectForObject';
 import { AvatarImage } from '@/components/ui/avatar';
+import CustomSelect from '@/components/ui/CustomSelect';
+import { TableMeta } from '@/components/ui/TableMeta';
+import { PaginationTable } from '@/admin/components/layout/Pagination';
 
 // Types
 type CustomerStatus = 'active' | 'vip' | 'blocked';
@@ -152,151 +155,240 @@ const StatsCard: FC<StatsCardProps> = ({ title, value, change, trend, icon: Icon
 );
 
 
-const CustomersTable: FC<CustomersTableProps> = ({ customers, onViewDetails  , 
-            searchQuery , 
-            statusFilter,
-            onSearchChange,
-            onStatusChange,
-            onClearFilters,
-            hasActiveFilters,
+const CustomersTable: FC<CustomersTableProps> = ({
+  customers,
+  onViewDetails,
+  searchQuery,
+  statusFilter,
+  onSearchChange,
+  onStatusChange,
 }) => {
-const {state : {currentTheme: theme}} =  useStoreConfigCtx()
-return (
-  <Card className="rounded-xl overflow-hidden">
-    <div className="overflow-x-auto">
-      <CardHeader style={{ background: theme.bg, borderBottom: `1px solid ${theme.border}` }}>
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search 
-                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" 
-                style={{ color: theme.textMuted }}
-              />
-              <Input
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="transition-all focus:scale-[1.02]"
+  const {
+    state: { currentTheme: theme },
+  } = useStoreConfigCtx();
+  const [perPage, setPerPage] = useState<string>('10');
+
+  return (
+    <Card
+      className="overflow-hidden"
+      style={{
+        background: theme.card,
+        border: `1px solid ${theme.border}`,
+        borderRadius: theme.borderRadius,
+        boxShadow: theme.shadowLg,
+      }}
+    >
+      {/* ================= HEADER / FILTERS ================= */}
+      <CardHeader
+        style={{
+          background: theme.bg,
+          borderBottom: `1px solid ${theme.border}`,
+        }}
+      >
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[220px]">
+            <Search
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+              style={{ color: theme.textMuted }}
+            />
+            <Input
+              placeholder="Search customers..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="transition-all focus:scale-[1.02]"
+              style={{ border: `2px solid ${theme.border}` }}
+            />
+          </div>
+
+          {/* Status Filter */}
+          <CustomSelectForObject
+            label="Status"
+            value={{
+              value: statusFilter,
+              label:
+                statusFilter === "all"
+                  ? "All Status"
+                  : statusFilter.charAt(0).toUpperCase() +
+                    statusFilter.slice(1),
+            }}
+            onChange={(opt: { value: string; label: string }) =>
+              onStatusChange(opt.value)
+            }
+            options={[
+              { label: "All Status", value: "all" },
+              { label: "Active", value: "active" },
+              { label: "VIP", value: "vip" },
+              { label: "Blocked", value: "blocked" },
+            ]}
+          />          
+        </div>
+      </CardHeader>
+
+      {/* ================= TABLE ================= */}
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow
+              style={{
+                background: theme.bgSecondary,
+                borderBottom: `2px solid ${theme.border}`,
+              }}
+            >
+              {[
+                "Customer",
+                "Contact",
+                "Orders",
+                "Total Spent",
+                "Last Order",
+                "Status",
+                "Actions",
+              ].map((head) => (
+                <TableHead
+                  key={head}
+                  className={head === "Actions" ? "text-right" : ""}
+                  style={{
+                    color: theme.textSecondary,
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    fontSize: "0.85rem",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  {head}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {customers.map((customer) => (
+              <TableRow
+                key={customer.id}
+                className="hover:bg-opacity-50 transition-colors"
                 style={{
-                  border: `2px solid ${theme.border}`,
+                  background: theme.bg,
+                  borderBottom: `1px solid ${theme.border}`,
                 }}
               >
-                <Search size={16} />
-              </Input>
-            </div>
-           
-            <CustomSelectForObject
-            label="Filter by Status"
-            value={{value: statusFilter , label : statusFilter === "all" ? "All Status" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1) }}
-            onChange={(option : {value:string , label:string}) => onStatusChange(option.value)} 
-            options={[{label : "All Status" , value : "all" } ,
-            {label : "Active" , value : "active" } ,
-            {label : "Draft" , value : "draft" } ,
-            {label : "Inactive" , value : "inactive"}
-            ]}
+                {/* Customer */}
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-full"
+                      style={{
+                        background: `linear-gradient(135deg, ${theme.gray100} 0%, ${theme.gray200} 100%)`,
+                        border: `1px solid ${theme.border}`,
+                      }}
+                    >
+                      <PersonStanding
+                        size={18}
+                        style={{ color: theme.textMuted }}
+                      />
+                    </div>
 
-             />
-          </div>
-      </CardHeader>
-      <Table className="w-full">
-        <TableHeader >
-          <TableRow style={{ background: theme.bgSecondary, borderBottom: `2px solid ${theme.border}` }}>
-            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Avatar</TableHead>
-            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Customer</TableHead>
-            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Contact</TableHead>
-            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Orders</TableHead>
-            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Total Spent</TableHead>
-            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Last Order</TableHead>
-            <TableHead style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Status</TableHead>
-            <TableHead className="text-right" style={{ color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {customers.map((customer: Customer) => (
-            <TableRow key={customer.id}                         
-            className="hover:bg-opacity-50 transition-colors"
-            style={{ 
-                          borderBottom: `1px solid ${theme.border}`,
-                          background: theme.bg,
-                        }}
-             >
-              <TableCell >
-               <div className="flex items-center gap-3" >
-                            {customer?.image ? (
-                              <img
-                                src={(customer?.image as any).url}
-                                alt={customer.name}
-                                className="h-14 w-14 rounded-lg object-cover"
-                              />
-                            ) : (
-                              <div 
-                                className="flex h-14 w-14 items-center justify-center rounded-lg"
-                                style={{
-                                  background: `linear-gradient(135deg, ${theme.gray100} 0%, ${theme.gray200} 100%)`,
-                                  border: `2px solid ${theme.border}`,
-                                  borderRadius : "50%"
-                                }}
-                              >
-                                <AvatarImage className="h-6 w-6" style={{ color: theme.textMuted }} />
-                              </div>
-                            )}
-                            
-                          </div>
-              </TableCell>
-              <TableCell >
-                <div className="font-medium">{customer.name}</div>
-                <div className="text-xs text-muted-foreground">Joined {customer.joinedDate}</div>
-              </TableCell>
-              <TableCell >
-                <div className="flex items-center gap-2 text-sm mb-1">
-                  <Phone size={14} className="text-muted-foreground" />
-                  <a href={`tel:${customer.phone}`} className="hover:underline">{customer.phone}</a>
-                </div>
-                {customer.email && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Mail size={14} className="text-muted-foreground" />
-                    <a href={`mailto:${customer.email}`} className="hover:underline">{customer.email}</a>
+                    <div>
+                      <div
+                        className="font-medium"
+                        style={{ color: theme.text }}
+                      >
+                        {customer.name}
+                      </div>
+                      <div
+                        className="text-xs"
+                        style={{ color: theme.textMuted }}
+                      >
+                        Joined {customer.joinedDate}
+                      </div>
+                    </div>
                   </div>
-                )}
-              </TableCell>
-              <TableCell className="p-4 font-medium">{customer.totalOrders}</TableCell>
-              <TableCell className="p-4 font-medium">{customer.totalSpent} MAD</TableCell>
-              <TableCell className="p-4 text-sm">{customer.lastOrderDate}</TableCell>
-              <TableCell >
-                {customer.status === 'vip' && <Badge variant="warning" className="gap-1"><Award size={12} /> VIP</Badge>}
-                {customer.status === 'active' && <Badge variant="success" className="gap-1"><CheckCircle size={12} /> Active</Badge>}
-                {customer.status === 'blocked' && <Badge variant="destructive" className="gap-1"><Ban size={12} /> Blocked</Badge>}
-              </TableCell>
-              <TableCell >
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onViewDetails(customer)}
-                  className="rounded-lg"
-                >
-                  <Eye size={16} />
-                  View
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  </Card>
+                </TableCell>
 
-)
+                {/* Contact */}
+                <TableCell>
+                  <div className="flex items-center gap-2 text-sm mb-1">
+                    <Phone size={14} style={{ color: theme.textMuted }} />
+                    <a href={`tel:${customer.phone}`} className="hover:underline">
+                      {customer.phone}
+                    </a>
+                  </div>
+                  {customer.email && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Mail size={14} style={{ color: theme.textMuted }} />
+                      <a
+                        href={`mailto:${customer.email}`}
+                        className="hover:underline"
+                      >
+                        {customer.email}
+                      </a>
+                    </div>
+                  )}
+                </TableCell>
 
+                <TableCell className="font-medium">
+                  {customer.totalOrders}
+                </TableCell>
+
+                <TableCell className="font-medium">
+                  {customer.totalSpent} MAD
+                </TableCell>
+
+                <TableCell className="text-sm">
+                  {customer.lastOrderDate}
+                </TableCell>
+
+                {/* Status */}
+                <TableCell>
+                  {customer.status === "vip" && (
+                    <Badge variant="warning" className="gap-1">
+                      <Award size={12} /> VIP
+                    </Badge>
+                  )}
+                  {customer.status === "active" && (
+                    <Badge variant="success" className="gap-1">
+                      <CheckCircle size={12} /> Active
+                    </Badge>
+                  )}
+                  {customer.status === "blocked" && (
+                    <Badge variant="destructive" className="gap-1">
+                      <Ban size={12} /> Blocked
+                    </Badge>
+                  )}
+                </TableCell>
+
+                {/* Actions */}
+                <TableCell className="text-right">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onViewDetails(customer)}
+                  >
+                    <Eye size={16} />
+                    View
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </Card>
+  );
 };
+
+
+
+
 
 
 
 const CustomersManager = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [perPage, setPerPage] = useState<string>('10');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
+  const [perPage, setPerPage] = useState<string>('10');
 
   const stats = useMemo(() => ({
     total: mockCustomers.length,
@@ -367,15 +459,7 @@ const CustomersManager = () => {
         </div>
 
 
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="text-sm text-muted-foreground">
-            Showing {(currentPage - 1) * parseInt(perPage) + 1} to{' '}
-            {Math.min(currentPage * parseInt(perPage), filteredCustomers.length)} of {filteredCustomers.length}
-          </div>
-
-          <SelectByRadix value={perPage} setter={setPerPage} elements={['5', '10', '20', '50']} extraLabel='per page' />
-        </div>
-
+     
         <CustomersTable 
           searchQuery={searchQuery}
           statusFilter={statusFilter}
@@ -386,6 +470,13 @@ const CustomersManager = () => {
           customers={paginatedCustomers}
           onViewDetails={handleViewDetails}
         />
+
+        {/* pagination */}
+        {totalPages > 1 && (
+        <TableMeta perPage={perPage} currentPage={currentPage} totalItems={totalPages} setPerPage={setPerPage} >
+            <PaginationTable  totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        </TableMeta>
+        ) }
 
       
       </div>

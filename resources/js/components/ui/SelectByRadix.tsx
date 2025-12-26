@@ -4,15 +4,15 @@ import { ChevronDown } from 'lucide-react';
 interface props {
     elements : string[]
     value : string ; 
-    setter : React.Dispatch<React.SetStateAction<string>> 
+    onChange : (value : any) => void
     extraLabel? : string
 }
 
-const  SelectByRadix = ({elements = ['none'] , value , setter , extraLabel}:props) => {
+const  SelectByRadix = ({elements = ['none'] , value , onChange , extraLabel}:props) => {
     return <>
     
     <Select.Root  value={value} defaultValue='all'
-    onValueChange={(value) => setter(value)}
+    onValueChange={(value) => onChange(value)}
     
     >
               <Select.Trigger className="inline-flex items-center justify-between gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all w-40">

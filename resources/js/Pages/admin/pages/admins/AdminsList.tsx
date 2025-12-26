@@ -1,11 +1,20 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Shield, Check, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Shield, Check, Upload, Search } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { createPortal } from "react-dom";
 import SelectByRadix from "@/components/ui/SelectByRadix";
+import CustomSelectForObject from "@/components/ui/CustomSelectForObject";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import { Input } from "@/components/ui/input";
+import CustomSelect from "@/components/ui/CustomSelect";
+import { TableMeta } from "@/components/ui/TableMeta";
+import { PaginationTable } from "@/admin/components/layout/Pagination";
 
 interface Admin {
     id: string;
@@ -106,8 +115,9 @@ export default function AdminsList() {
         string | null
     >(null);
     const [processing, setProcessing] = useState(false);
-
-
+    const [searchTerm , setSearchTerm] = useState("") ; 
+    const [roleFilter , setRoleFilter] = useState('') ; 
+    const [statusFilter , setStatusFilter] = useState('') ; 
     const [data, setData] = useState<FormData>({
         name: "",
         email: "",
@@ -117,6 +127,8 @@ export default function AdminsList() {
         permissions: [],
         profilePhoto: null,
     });
+     
+    const {state :{currentTheme : theme}} = useStoreConfigCtx()
 
     const handleOpenDialog = (admin?: Admin) => {
         if (admin) {
@@ -159,7 +171,7 @@ export default function AdminsList() {
             setAdminToDelete(null);
         }
     };
-   
+
     const handleDeleteFromModal = () => {
         if (editingAdmin) {
             handleCloseDialog();
@@ -236,126 +248,284 @@ export default function AdminsList() {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 ">
             <div className="space-y-6 p-6 max-w-7xl mx-auto">
-               
-
-                <SectionHeader title="Admin Management Section" 
-                  description="Manage admin users and their permissions"
-                  >
-                    <Button 
-                     onClick={() => handleOpenDialog()}
-                    >
+                <SectionHeader
+                    title="Admin Management Section"
+                    description="Manage admin users and their permissions"
+                >
+                    <Button onClick={() => handleOpenDialog()}>
                         <Plus className="mr-2 h-4 w-4" />
                         Add Admin
                     </Button>
                 </SectionHeader>
 
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-                        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                            All Admins
-                        </h2>
-                    </div>
+                <Card
+                    className="overflow-hidden"
+                    style={{
+                        background: theme.card,
+                        border: `1px solid ${theme.border}`,
+                        borderRadius: theme.borderRadius,
+                        boxShadow: theme.shadowLg,
+                    }}
+                >
+                    {/* ================= HEADER / FILTERS ================= */}
+                    <CardHeader
+                        style={{
+                            background: theme.bg,
+                            borderBottom: `1px solid ${theme.border}`,
+                        }}
+                    >
+                        <div className="flex flex-wrap items-center gap-4">
+                            <h2
+                                className="text-lg font-semibold mr-auto"
+                                style={{ color: theme.text }}
+                            >
+                                All Admins
+                            </h2>
 
-                    {admins.length > 0 ? (
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="bg-slate-50 dark:bg-slate-700/50">
-                                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
-                                            Name
-                                        </th>
-                                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
-                                            Email
-                                        </th>
-                                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
-                                            Role
-                                        </th>
-                                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
-                                            Last Activity
-                                        </th>
-                                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
-                                            Status
-                                        </th>
-                                        <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                                    {admins.map((admin) => (
-                                        <tr
-                                            key={admin.id}
-                                            className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                            {/* Search */}
+                            <div className="relative min-w-[220px]">
+                               
+                                <Input
+                                    placeholder="Search admins..."
+                                    value={searchTerm}
+                                    onChange={(e) =>
+                                        setSearchTerm(e.target.value)
+                                    }
+                                    style={{
+                                        border: `2px solid ${theme.border}`,
+                                    }}
+                                >
+                                     <Search
+                                   
+                                    />
+                                </Input>
+                            </div>
+
+                            {/* Role Filter */}
+                            <CustomSelect
+                               placeholder="Role"
+                                value={roleFilter}
+                                onChange={(opt) => setRoleFilter(opt)}
+                                options={[
+                                    { label: "All Roles", value: "all" },
+                                    ...ADMIN_ROLES,
+                                ]}
+                            />
+
+                            {/* Status Filter */}
+                            <CustomSelect
+                                placeholder="Status"
+                                value={statusFilter}
+                                onChange={(opt) => setStatusFilter(opt)}
+                                options={[
+                                    { label: "All Status", value: "all" },
+                                    { label: "Active", value: "active" },
+                                    { label: "Inactive", value: "inactive" },
+                                ]}
+                            />
+
+
+                        </div>
+                    </CardHeader>
+
+                    {/* ================= TABLE ================= */}
+                    <CardContent className="p-0">
+                        {admins.length > 0 ? (
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow
+                                            style={{
+                                                background: theme.bgSecondary,
+                                                borderBottom: `2px solid ${theme.border}`,
+                                            }}
                                         >
-                                            <td className="px-4 py-4">
-                                                <div className="flex items-center gap-2">
-                                                    <Shield className="h-4 w-4 text-slate-400" />
-                                                    <span className="font-medium text-slate-900 dark:text-slate-100">
-                                                        {admin.name}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-4 text-slate-500 dark:text-slate-400">
-                                                {admin.email}
-                                            </td>
-                                            <td className="px-4 py-4">
-                                                <span className="inline-flex px-2.5 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                                                    {ADMIN_ROLES.find(
-                                                        (r) =>
-                                                            r.value ===
-                                                            admin.role
-                                                    )?.label || admin.role}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-4 text-slate-500 dark:text-slate-400">
-                                                {admin.lastActivity ||
-                                                    "No recent activity"}
-                                            </td>
-                                            <td className="px-4 py-4">
-                                                <span
-                                                    className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full ${
-                                                        admin.status ===
-                                                        "active"
-                                                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                                            : "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-400"
-                                                    }`}
+                                            {[
+                                                "Name",
+                                                "Email",
+                                                "Role",
+                                                "Last Activity",
+                                                "Status",
+                                                "Actions",
+                                            ].map((head) => (
+                                                <TableHead
+                                                    key={head}
+                                                    className={
+                                                        head === "Actions"
+                                                            ? "text-right"
+                                                            : ""
+                                                    }
+                                                    style={{
+                                                        color: theme.textSecondary,
+                                                        fontWeight: 600,
+                                                        textTransform:
+                                                            "uppercase",
+                                                        fontSize: "0.85rem",
+                                                        letterSpacing: "0.05em",
+                                                    }}
                                                 >
-                                                    {admin.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-4">
-                                                <div className="flex justify-end gap-2">
-                                                    <button
-                                                        onClick={() =>
-                                                            handleOpenDialog(
-                                                                admin
-                                                            )
-                                                        }
-                                                        className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                                                    >
-                                                        <Pencil className="h-4 w-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() =>
-                                                            handleDelete(admin)
-                                                        }
-                                                        className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </button>
+                                                    {head}
+                                                </TableHead>
+                                            ))}
+                                        </TableRow>
+                                    </TableHeader>
+
+                                    <TableBody>
+                                        {admins.map((admin) => (
+                                            <TableRow
+                                                key={admin.id}
+                                                className="hover:bg-opacity-50 transition-colors"
+                                                style={{
+                                                    background: theme.bg,
+                                                    borderBottom: `1px solid ${theme.border}`,
+                                                }}
+                                            >
+                                             <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                {/* Circle Avatar */}
+                                                <div
+                                                className="flex items-center justify-center rounded-full h-10 w-10 overflow-hidden text-white font-semibold text-sm"
+                                                style={{
+                                                    backgroundColor: admin.image
+                                                    ? 'transparent'
+                                                    : `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`,
+                                                }}
+                                                >
+                                                {admin.image ? (
+                                                    <img src={admin.image} alt={admin.name} className="h-full w-full object-cover" />
+                                                ) : (
+                                                    admin.name.slice(0, 2).toUpperCase()
+                                                )}
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <div className="py-12 text-center text-slate-500 dark:text-slate-400">
-                            No admins yet. Create your first admin user.
-                        </div>
-                    )}
-                </div>
+
+                                                {/* Admin Name */}
+                                                <span
+                                                className="font-medium"
+                                                style={{
+                                                    color: theme.text,
+                                                }}
+                                                >
+                                                {admin.name}
+                                                </span>
+                                            </div>
+                                            </TableCell>
+
+
+                                                <TableCell
+                                                    style={{
+                                                        color: theme.textMuted,
+                                                    }}
+                                                >
+                                                    {admin.email}
+                                                </TableCell>
+
+                                                <TableCell>
+                                                    <Badge
+                                                        style={{
+                                                            background: `${theme.info}15`,
+                                                            color: theme.info,
+                                                            border: `1px solid ${theme.info}30`,
+                                                        }}
+                                                    >
+                                                        {
+                                                            ADMIN_ROLES.find(
+                                                                (r) =>
+                                                                    r.value ===
+                                                                    admin.role
+                                                            )?.label
+                                                        }
+                                                    </Badge>
+                                                </TableCell>
+
+                                                <TableCell
+                                                    style={{
+                                                        color: theme.textMuted,
+                                                    }}
+                                                >
+                                                    {admin.lastActivity ||
+                                                        "No recent activity"}
+                                                </TableCell>
+
+                                                <TableCell>
+                                                    <Badge
+                                                        style={{
+                                                            background:
+                                                                admin.status ===
+                                                                "active"
+                                                                    ? `${theme.success}15`
+                                                                    : `${theme.textMuted}15`,
+                                                            color:
+                                                                admin.status ===
+                                                                "active"
+                                                                    ? theme.success
+                                                                    : theme.textMuted,
+                                                            border: `1px solid ${
+                                                                admin.status ===
+                                                                "active"
+                                                                    ? theme.success
+                                                                    : theme.textMuted
+                                                            }30`,
+                                                        }}
+                                                    >
+                                                        {admin.status}
+                                                    </Badge>
+                                                </TableCell>
+
+                                                <TableCell className="text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() =>
+                                                                handleOpenDialog(
+                                                                    admin
+                                                                )
+                                                            }
+                                                            style={{
+                                                                border: `1px solid ${theme.border}`,
+                                                            }}
+                                                        >
+                                                            <Pencil className="h-4 w-4" />
+                                                        </Button>
+
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    admin
+                                                                )
+                                                            }
+                                                            style={{
+                                                                border: `1px solid ${theme.border}`,
+                                                                color: theme.error,
+                                                            }}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+
+                                {/* pagination */}
+
+                                {/* <TableMeta>
+                                      <PaginationTable />
+                                </TableMeta> */}
+                            </div>
+                        ) : (
+                            <div
+                                className="py-16 text-center"
+                                style={{ color: theme.textMuted }}
+                            >
+                                No admins yet. Create your first admin user.
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
 
                 <DeleteConfirmationModal
                     isOpen={isDeleteModalOpen}
@@ -368,7 +538,7 @@ export default function AdminsList() {
                     entityType="admin"
                 />
                 {isDialogOpen ? (
-                    <AdminAddEditForm 
+                    <AdminAddEditForm
                         asModel={true}
                         editingAdmin={editingAdmin}
                         profilePhotoPreview={profilePhotoPreview}
@@ -378,7 +548,7 @@ export default function AdminsList() {
                         handleCloseDialog={handleCloseDialog}
                         handleSubmit={handleSubmit}
                         handlePhotoChange={handlePhotoChange}
-                        togglePermission={togglePermission} 
+                        togglePermission={togglePermission}
                         processing={processing}
                     />
                 ) : null}
@@ -388,42 +558,37 @@ export default function AdminsList() {
 }
 
 interface AdminAddEditFormProps {
-    asModel?: boolean ;
-    editingAdmin : Admin | null ;
-    profilePhotoPreview : string | null;
-    data : FormData;
-    setData :React.Dispatch<React.SetStateAction<FormData>>;
-    handleDeleteFromModal : () => void ;
-    handleCloseDialog : () => void ; 
-    handleSubmit :  (e: React.FormEvent) => void ; 
-    handlePhotoChange : (e: React.ChangeEvent<HTMLInputElement>) => void ; 
-    togglePermission : (permission: string) => void
-    processing : boolean
+    asModel?: boolean;
+    editingAdmin: Admin | null;
+    profilePhotoPreview: string | null;
+    data: FormData;
+    setData: React.Dispatch<React.SetStateAction<FormData>>;
+    handleDeleteFromModal: () => void;
+    handleCloseDialog: () => void;
+    handleSubmit: (e: React.FormEvent) => void;
+    handlePhotoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    togglePermission: (permission: string) => void;
+    processing: boolean;
 }
 
 function AdminAddEditForm({
-    asModel =  false,
+    asModel = false,
     editingAdmin,
     profilePhotoPreview,
     data,
     setData,
-    handleDeleteFromModal , 
-    handleCloseDialog , 
-    handleSubmit , 
-    handlePhotoChange , 
-    togglePermission , 
-    processing , 
-
-  
+    handleDeleteFromModal,
+    handleCloseDialog,
+    handleSubmit,
+    handlePhotoChange,
+    togglePermission,
+    processing,
 }: AdminAddEditFormProps) {
-    
-
-    
-   
-    const Form =  (
+    const Form = (
         <>
-            <div className="fixed inset-0 z-50 overflow-y-auto" 
-            style={{
+            <div
+                className="fixed inset-0 z-50 overflow-y-auto"
+                style={{
                     backdropFilter: "blur(10px)",
                     background: "rgba(0, 0, 0, 0.4)",
                 }}
@@ -431,11 +596,11 @@ function AdminAddEditForm({
                 <div className="flex min-h-full items-center justify-center p-4">
                     <div
                         className="fixed inset-0 bg-black/50 "
-                        
                         onClick={handleCloseDialog}
                     />
-                    <div  className="relative  w-full max-w-2xl  bg-white dark:bg-slate-800  shadow-xl max-h-[90vh] overflow-hidden "
-                     style={{borderRadius : "30px" }}
+                    <div
+                        className="relative  w-full max-w-2xl  bg-white dark:bg-slate-800  shadow-xl max-h-[90vh] overflow-hidden "
+                        style={{ borderRadius: "30px" }}
                     >
                         <div className="p-4 border-b border-slate-200 dark:border-slate-700 absolute w-full top-0 bg-white dark:bg-slate-800 ">
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
@@ -450,9 +615,9 @@ function AdminAddEditForm({
                             </p>
                         </div>
 
-                        <form onSubmit={handleSubmit} >
+                        <form onSubmit={handleSubmit}>
                             <div className="p-4 space-y-6  ">
-                                <div style={{marginTop : "100px"}}>
+                                <div style={{ marginTop: "100px" }}>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                                         Profile Photo
                                     </label>
@@ -575,8 +740,6 @@ function AdminAddEditForm({
                                                 </option>
                                             ))}
                                         </select>
-
-
                                     </div>
                                 </div>
 
@@ -695,10 +858,7 @@ function AdminAddEditForm({
         </>
     );
 
-
-
-
-    return asModel ? createPortal(Form , document.body) : Form ;
+    return asModel ? createPortal(Form, document.body) : Form;
 }
 
 AdminsList.layout = (page: any) => <AdminLayout children={page} />;

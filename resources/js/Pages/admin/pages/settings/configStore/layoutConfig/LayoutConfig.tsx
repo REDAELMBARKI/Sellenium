@@ -41,7 +41,7 @@ const mockProducts: any = {
 };
 
 const LayoutConfig = () => {
-  const {state : {currentLayoutStyle , currentThemeStyle} , dispatch} = useStoreConfigCtx()
+  const {state : {currentLayoutStyle , currentThemeStyle , currentThemeMode , currentTheme} , dispatch} = useStoreConfigCtx()
 
   const [previewLayoutStyle, setPreviewLayoutStyle] = useState<LayoutStyle>(currentLayoutStyle);
  
@@ -78,9 +78,16 @@ const LayoutConfig = () => {
       
         <div className="w-2/4 p-4  rounded-lg ">
           <h3 className="text-lg font-bold mb-4">Store Preview</h3>
-          <StorePreview>
-               <SkeletonLayout previewLayoutStyle={previewLayoutStyle} previewThemeStyle={currentThemeStyle} />
-          </StorePreview>
+           <StorePreview 
+             previewThemePalette={currentTheme}
+            >
+              <SkeletonLayout 
+                previewThemePalette={currentTheme}
+                previewThemeMode={currentThemeMode}
+                previewLayoutStyle={currentLayoutStyle}
+                previewThemeStyle={currentThemeStyle}
+              />
+            </StorePreview>
         </div>
       </div>
     </div>

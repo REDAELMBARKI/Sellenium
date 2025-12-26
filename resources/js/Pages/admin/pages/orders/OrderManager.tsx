@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button';
 import SelectByRadix from '@/components/ui/SelectByRadix';
 import { SectionHeader } from '@/admin/components/layout/SectionHeader';
 import { PaginationTable } from '@/admin/components/layout/Pagination';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
+import { TableMeta } from '@/components/ui/TableMeta';
 
 
 function OrderManager() {
@@ -24,7 +26,7 @@ function OrderManager() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
-
+  const {state : {currentTheme}} =  useStoreConfigCtx()
   const allOrders = generateOrders();
 
   const filteredOrders = useMemo(() => {
@@ -124,60 +126,18 @@ function OrderManager() {
           <StatsCard title="Returned" value={stats.returned} change="2.3%" trend="down" />
         </div>
 
-        <Card className="p-4 rounded-xl">
-          <OrderFilters
-            searchQuery={searchQuery}
-            statusFilter={statusFilter}
-            dateFrom={dateFrom}
-            dateTo={dateTo}
-            onSearchChange={handleFilterChange(setSearchQuery)}
-            setStatusFilter={setStatusFilter}
-            onDateFromChange={handleFilterChange(setDateFrom)}
-            onDateToChange={handleFilterChange(setDateTo)}
-            onClearFilters={clearFilters}
-            hasActiveFilters={!!hasActiveFilters}
-          />
-        </Card>
-
-        {selectedOrders.length > 0 ? (
-          <Card className="p-4 rounded-xl bg-primary/10 border-primary">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <span className="font-medium">
-                {selectedOrders.length} order{selectedOrders.length !== 1 ? 's' : ''} selected
-              </span>
-              <div className="flex gap-2 flex-wrap">
-                <Button type="button" size="sm" className="rounded-lg">Mark as Shipped</Button>
-                <Button type="button" size="sm" className="rounded-lg">Mark as Delivered</Button>
-                <Button type="button" size="sm" variant="destructive" className="rounded-lg">Delete</Button>
-              </div>
-            </div>
-          </Card>
-        ) : null}
-
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="text-sm text-muted-foreground">
-            Showing {(currentPage - 1) * parseInt(perPage) + 1} to{' '}
-            {Math.min(currentPage * parseInt(perPage), filteredOrders.length)} of {filteredOrders.length}
-          </div>
-  
-
-          <SelectByRadix value={perPage} setter={setPerPage} elements={['5' , '10' , '20' , '50' ]} extraLabel='per page'  />
-        </div>
-
+      
         <OrdersTable
           orders={paginatedOrders}
-          selectedOrders={selectedOrders}
-          onSelectOrder={handleSelectOrder}
-          onSelectAll={handleSelectAll}
-          onViewDetails={handleViewDetails}
         />
 
          {/* pagination */}
 
-         <PaginationTable  totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+         <TableMeta perPage={perPage} currentPage={currentPage} totalItems={totalPages} setPerPage={setPerPage} >
+             <PaginationTable  totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+         </TableMeta>
       </div>
 
-      <OrderDetailsModal order={selectedOrder} open={detailsOpen} onClose={() => setDetailsOpen(false)} />
     </div>
   );
 }

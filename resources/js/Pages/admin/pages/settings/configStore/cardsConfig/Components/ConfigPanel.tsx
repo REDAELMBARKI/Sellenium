@@ -6,6 +6,7 @@ import Card3 from '../cardsPrototypes/Card3';
 import Card4 from '../cardsPrototypes/Card4';
 import { Card5 } from '../cardsPrototypes/Card5';
 import { Card6 } from '../cardsPrototypes/Card6';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 
 export const TEMPLATE_NAMES: Record<string, string> = {
   'card-1': 'Classic Grid',
@@ -32,23 +33,37 @@ const componentMap: Record<any, React.FC<any>> = {
 export const ConfigPanel: React.FC<any> = ({ selectedCardId, config, setConfig, product }) => {
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const SelectedComponent = componentMap[selectedCardId];
+  const [customButtonHover , setCustomButtonHover] =  useState(false)
+  const {state: {currentTheme}} = useStoreConfigCtx()
 
   const toggleOption = (key: keyof any) => {
     setConfig(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
-    <div className="relative flex flex-col h-full bg-slate-50/50 overflow-hidden">
+    <div className="relative flex flex-col h-full  overflow-hidden"
+    
+        style={{ color : currentTheme.text , background : currentTheme.bgSecondary}}
+    
+    >
       
       {/* Header with Customize Button */}
-      <div className="flex-none  md:p-6 bg-white border-b border-slate-200 flex justify-between items-center z-20 shadow-sm">
+      <div className="flex-none  md:p-6  border-b 0 flex justify-between items-center z-20 shadow-sm"
+      
+        style={{ color : currentTheme.text , background : currentTheme.bg ,  borderColor : currentTheme.border }}
+      
+      >
         <div>
           <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">Preview</h2>
           <h3 className="font-bold text-slate-800 text-lg leading-tight">{TEMPLATE_NAMES[selectedCardId]}</h3>
         </div>
+     
         <button 
           onClick={() => setIsCustomizeOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors shadow-sm"
+          className="flex items-center gap-2 px-4 py-2  rounded-lg text-sm font-medium my-button transition-colors shadow-sm"
+          style={{color : customButtonHover ? currentTheme.textInverse : currentTheme.text , background : customButtonHover ?  currentTheme.primaryHover : currentTheme.bgSecondary }}
+          onMouseEnter={() => setCustomButtonHover(true)}
+          onMouseLeave={() => setCustomButtonHover(false)}
         >
           <Settings2 className="w-4 h-4" />
           Customize
@@ -65,7 +80,11 @@ export const ConfigPanel: React.FC<any> = ({ selectedCardId, config, setConfig, 
                    <SelectedComponent product={product} config={config} className="" />
                 </div>
             ) : (
-                <div className="w-full h-64 flex items-center justify-center bg-slate-200 text-slate-400 rounded-xl">
+                <div className="w-full h-64 flex items-center justify-center  rounded-xl"
+                 style={{ color : currentTheme.textInverse , background : currentTheme.bgSecondary}}
+                
+                
+                >
                     Select a card
                 </div>
             )}

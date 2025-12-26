@@ -10,7 +10,7 @@ export function ThemeToggle() {
     <Button
       variant="ghost"
       size="icon"
-      onClick={() => dispatch({type : "SET_THEME_MODE"})}
+      onClick={() => dispatch({type : "SET_THEME_MODE"  , payload : currentThemeMode == 'dark' ? "light" : 'dark'})}
       data-testid="button-theme-toggle"
       className="h-9 w-9"
     >

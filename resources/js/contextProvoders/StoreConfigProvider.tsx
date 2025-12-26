@@ -8,9 +8,9 @@ import { useReducer } from "react"
 
 const initialState : StoreConfigType= { 
   currentNiche : "fashion" , 
-  currentThemeMode : "dark" ,
+  currentThemeMode : "light" ,
   currentThemeStyle : "luxuryNoir" , 
-  currentTheme : currentThemeExample.luxuryNoir.dark,
+  currentTheme : currentThemeExample.luxuryNoir.light,
   currentLayoutStyle : 'grid'  , 
   currentCardConf : {
     cardId : 'card-2'  , 
@@ -31,9 +31,15 @@ const reducer = (state : StoreConfigType , action : StoreConfigAction) : StoreCo
        return {...state , currentLayoutStyle : action.payload }
 
       case "SET_THEME_STYLE" :
-       return {...state , currentThemeStyle : action.payload }
+       return {...state , 
+         currentThemeStyle : action.payload , 
+          currentTheme: currentThemeExample[action.payload][state.currentThemeMode] 
+       }
       case "SET_THEME_MODE" :
-       return {...state , currentThemeMode : action.payload }
+       return {...state , 
+               currentThemeMode : action.payload  , 
+               currentTheme: currentThemeExample[state.currentThemeStyle][action.payload] 
+            }
 
       case "SET_NICHE" : 
        return {...state , currentNiche : action.payload }

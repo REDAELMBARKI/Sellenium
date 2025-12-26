@@ -12,7 +12,6 @@ export function Header() {
   const { admin } = useAuth();
   const { state : {currentTheme} } = useStoreConfigCtx();
   const toggleSidebar = () => {
-    console.log("Sidebar toggled");
     // Implement your sidebar toggle logic here, e.g. updating state or triggering a class
   };
 

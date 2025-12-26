@@ -1,30 +1,29 @@
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { LayoutStyle } from "@/types/StoreConfigTypes";
-import { ThemePalette, ThemeStyle } from "@/types/ThemeTypes";
+import { ThemeMode, ThemePalette, ThemeStyle } from "@/types/ThemeTypes";
 import { useEffect, useState } from "react";
-import { Package } from "lucide-react";
+import { Package, Search, Grid3x3, ShoppingCart } from "lucide-react";
 import { getSkeletonColors } from "@/functions/getSkeletonColors";
 
 const SkeletonLayout = ({
   previewLayoutStyle,
   previewThemeStyle,
+  previewThemeMode , 
+  previewThemePalette
 }: {
+  previewThemePalette : ThemePalette
+  previewThemeMode :ThemeMode
   previewLayoutStyle: LayoutStyle;
-  previewThemeStyle: ThemeStyle;
+  previewThemeStyle: ThemeStyle; 
 }) => {
   const {
-    state: { currentThemeMode, currentTheme },
+    state: {currentTheme },
   } = useStoreConfigCtx();
 
-  const [previewThemePalette, setPreviewThemePalette] =
-    useState<ThemePalette>(currentTheme);
+  
 
-  // later: resolve ThemeStyle → ThemePalette
-  useEffect(() => {
-    setPreviewThemePalette(currentTheme);
-  }, [previewThemeStyle, currentTheme]);
 
-  const sk = getSkeletonColors(previewThemePalette, currentThemeMode);
+  const sk = getSkeletonColors(previewThemePalette,previewThemeMode );
 
   /* ---------------------------------- */
   /* Reusable blocks                     */
@@ -40,6 +39,7 @@ const SkeletonLayout = ({
         alignItems: "center",
         justifyContent: "center",
         position: "relative",
+        border: `1px solid ${sk.border}`,
       }}
     >
       {showAccentTint && (
@@ -52,7 +52,7 @@ const SkeletonLayout = ({
           }}
         />
       )}
-      <Package size={32} color={sk.lineSoft} style={{ position: "relative" }} />
+      <Package size={32} color={sk.iconColor} style={{ position: "relative" }} />
     </div>
   );
 
@@ -81,7 +81,7 @@ const SkeletonLayout = ({
           style={{
             height: 16,
             width: "30%",
-            background: sk.lineStrong,
+            background: sk.accentMedium,
             borderRadius: 4,
           }}
         />
@@ -95,6 +95,7 @@ const SkeletonLayout = ({
         background: sk.card,
         borderRadius: sk.radius,
         boxShadow: sk.shadow,
+        border: `1px solid ${sk.border}`,
         padding: isHero ? 20 : horizontal ? 16 : 14,
         display: horizontal ? "flex" : "block",
         gap: horizontal ? 16 : undefined,
@@ -113,7 +114,7 @@ const SkeletonLayout = ({
     <div className="grid grid-cols-3 gap-5">
       {Array.from({ length: 9 }).map((_, i) => (
         <CardBase key={i}>
-          <SkeletonImage height={160} />
+          <SkeletonImage height={160} showAccentTint={i === 0 || i === 4} />
           <div style={{ marginTop: 14 }}>
             <SkeletonLines />
           </div>
@@ -127,7 +128,7 @@ const SkeletonLayout = ({
       {Array.from({ length: 6 }).map((_, i) => (
         <CardBase key={i} horizontal>
           <div style={{ flexShrink: 0, width: 120 }}>
-            <SkeletonImage height={110} />
+            <SkeletonImage height={110} showAccentTint={i === 0 || i === 3} />
           </div>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 8 }}>
             <SkeletonLines />
@@ -164,7 +165,7 @@ const SkeletonLayout = ({
             style={{
               height: 18,
               width: "25%",
-              background: sk.lineStrong,
+              background: sk.accentMedium,
               borderRadius: 6,
             }}
           />
@@ -174,7 +175,7 @@ const SkeletonLayout = ({
       <div className="grid grid-cols-4 gap-4">
         {Array.from({ length: 8 }).map((_, i) => (
           <CardBase key={i}>
-            <SkeletonImage height={140} />
+            <SkeletonImage height={140} showAccentTint={i % 3 === 0} />
             <div style={{ marginTop: 12 }}>
               <SkeletonLines />
             </div>
@@ -209,15 +210,21 @@ const SkeletonLayout = ({
       >
         {/* LEFT: Logo + Title */}
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          {/* Logo */}
+          {/* Logo with accent tint */}
           <div
             style={{
               width: 36,
               height: 36,
-              background: sk.card,
+              background: sk.accentSubtle,
               borderRadius: 8,
+              border: `1px solid ${sk.accentMedium}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
-          />
+          >
+            <Grid3x3 size={20} color={sk.iconColor} />
+          </div>
 
           {/* Title */}
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -240,7 +247,6 @@ const SkeletonLayout = ({
           </div>
         </div>
 
-
         {/* RIGHT: Circle icon (profile / cart) */}
         <div
           style={{
@@ -248,10 +254,15 @@ const SkeletonLayout = ({
             height: 36,
             background: sk.card,
             borderRadius: "50%",
+            border: `1px solid ${sk.border}`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-        />
+        >
+          <ShoppingCart size={18} color={sk.iconColor} />
+        </div>
       </nav>
-
 
       {/* CONTENT */}
       <main className="py-6">
@@ -267,6 +278,7 @@ const SkeletonLayout = ({
             alignItems: "center",
             justifyContent: "space-between",
             boxShadow: sk.shadow,
+            border: `1px solid ${sk.border}`,
           }}
         >
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -276,14 +288,21 @@ const SkeletonLayout = ({
                 height: 36,
                 background: sk.image,
                 borderRadius: sk.radius,
+                border: `1px solid ${sk.border}`,
+                display: "flex",
+                alignItems: "center",
+                paddingLeft: 12,
               }}
-            />
+            >
+              <Search size={16} color={sk.iconColor} />
+            </div>
             <div
               style={{
                 width: 100,
                 height: 36,
-                background: sk.image,
+                background: sk.accentSubtle,
                 borderRadius: sk.radius,
+                border: `1px solid ${sk.accentMedium}`,
               }}
             />
           </div>
@@ -297,6 +316,7 @@ const SkeletonLayout = ({
                   height: size,
                   background: sk.image,
                   borderRadius: sk.radius,
+                  border: `1px solid ${sk.border}`,
                 }}
               />
             ))}

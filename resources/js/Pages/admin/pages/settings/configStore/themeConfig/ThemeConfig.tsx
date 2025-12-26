@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 
 import TogglableCard from "@/components/partials/TooglableCard";
@@ -6,7 +6,9 @@ import {   LayoutCardsDataType, LayoutStyle, ThemeCardsDataType } from "@/types/
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import SkeletonLayout from "@/components/partials/previewSkeletons/SkeletonLayout";
 import StorePreview from "../layoutConfig/StorePreview";
-import { ThemeStyle } from "@/types/ThemeTypes";
+import { ThemeMode, ThemePalette, ThemeStyle } from "@/types/ThemeTypes";
+import { currentThemeExample } from "@/data/currentTheme";
+import { MoonIcon, SunIcon } from "lucide-react";
 
 
 const themes : ThemeCardsDataType[] = [
@@ -25,16 +27,48 @@ const themes : ThemeCardsDataType[] = [
 
 
 const ThemeConfig = () => {
-  const {state : {currentThemeStyle , 
+  const {state : {currentThemeStyle , currentThemeMode ,currentTheme , 
     currentLayoutStyle // this is current Layout that can be used as a preview in the skelepton
   } , dispatch} = useStoreConfigCtx()
 
   const [previewThemeStyle, setPreviewThemeStyle] = useState<ThemeStyle>(currentThemeStyle);
- 
+  const [previewThemeMode, setPreviewThemeMode] = useState<ThemeMode>(currentThemeMode);
+  const [previewThemePalette, setPreviewThemePalette] =
+      useState<ThemePalette>(currentTheme);
+   const [animate, setAnimate] = useState(false);
+
+  // Toggle animation state every 2 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAnimate((prev) => !prev);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    setPreviewThemePalette(currentTheme);
+  }, [previewThemeStyle, currentTheme]);
+
+
+  useEffect(() => {
+     setPreviewThemePalette(currentThemeExample[previewThemeStyle][previewThemeMode])
+  }, [previewThemeMode , previewThemeStyle]);
+
+
+
+  useEffect(() => {
+     setPreviewThemeMode(currentThemeMode)
+  }, [currentThemeMode]);
+
   const handleThemeToggle = (ThemeStyle: ThemeStyle) => {
     dispatch({type : "SET_THEME_STYLE" , payload : ThemeStyle})
     setPreviewThemeStyle(ThemeStyle);
   };
+
+  const toggleThemeMode = () => {
+       setPreviewThemeMode( prev => prev === "dark" ? "light" : 'dark')
+       
+  }
 
   return (
     <div>
@@ -62,12 +96,39 @@ const ThemeConfig = () => {
         </div>
 
       
-        <div className="w-2/4 p-4  rounded-lg ">
-          <h3 className="text-lg font-bold mb-4">Store Preview</h3>
-          <StorePreview>
-               <SkeletonLayout previewLayoutStyle={currentLayoutStyle} previewThemeStyle={previewThemeStyle} />
-          </StorePreview>
-        </div>
+            <div className="w-2/4 p-4 rounded-lg border "
+            style={{borderColor : currentTheme.border }}
+            >
+             <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold">Store Preview</h3>
+              <button
+                onClick={toggleThemeMode}
+                className={`
+                  p-2 rounded-md text-sm 
+                 
+                  transition-transform duration-500
+                  ${animate ? " rotate-12" : "rotate-0"}
+                `}
+                style={{background : animate ? currentTheme.accent : currentTheme.accentHover , 
+                      color : currentTheme.textInverse
+                }}
+              >
+
+                {previewThemeMode === "dark" ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
+              </button>
+            </div>
+
+            <StorePreview 
+             previewThemePalette={previewThemePalette}
+            >
+              <SkeletonLayout 
+                previewThemePalette={previewThemePalette}
+                previewThemeMode={previewThemeMode}
+                previewLayoutStyle={currentLayoutStyle}
+                previewThemeStyle={previewThemeStyle}
+              />
+            </StorePreview>
+          </div>
       </div>
     </div>
   );
