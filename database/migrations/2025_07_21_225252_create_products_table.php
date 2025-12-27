@@ -15,14 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('brand');
-           
-            $table->string('thumbnail')->nullable();
-            $table->boolean('is_featured')->default(true);
-            $table->integer('rating_count')->unsigned()->default(1)->nullable(true);
-            $table->float('rating_average')->unsigned()->default(1.0)->nullable(true);
-            $table->boolean('free_shipping')->nullable(true)->default(true);
             $table->float('price')->unsigned();
             $table->text('description');
+            $table->string('thumbnail')->nullable();
+            $table->boolean('is_featured')->default(true);
+            $table->integer('rating')->unsigned()->default(1)->nullable(true);
             $table->timestamps();
         });
     }

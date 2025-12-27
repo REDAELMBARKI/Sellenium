@@ -1,7 +1,7 @@
-import { NicheItem } from "@/context/NicheContext";
 import { Color, Cover, Fit , Material, NicheOptions, Season, Size, Style } from "./inventoryTypes";
 import { Tag } from "./tagsTypes";
 import { ImagePreviewItem } from "./mediaTypes";
+import { NicheItem } from "./StoreConfigTypes";
 export interface ProductBackendProps {
     children : React.ReactNode ;
     product?: ProductDataGlobal;
@@ -19,9 +19,6 @@ export interface ProductBasicInfoData {
   id?: string | null;
   name: string;
   brand: string;
-  price: string;
-  compareAtPrice?: string;
-  costPrice?: string;  
   category: {id: string , name : string}[];
   description: string;
   rating_average?: number;
@@ -30,9 +27,6 @@ export interface ProductBasicInfoData {
   covers : (Cover | ImagePreviewItem)[] , 
   tags: Tag[];
   isFeatured?: boolean;
-
-  sku?: string;
-  stockQuantity?: number | string;
   releaseDate?: string;
 
 }
@@ -87,8 +81,18 @@ export interface FashionVariantAttributes {
 export interface FashionVariant {
   niche : "fashion",
   id :string 
+  productId: string;
+  
+  sku: string;
+  price: number;
+  compareAtPrice?: number;
+  costPrice?: number;
+
+  
+  stockQuantity?: number; // optional
+  stockManaged: boolean;  // THIS is the key
+  
   attributes : FashionVariantAttributes
-  quantity : number
 }
 
 
