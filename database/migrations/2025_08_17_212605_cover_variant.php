@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cover_inventory', function (Blueprint $table) {
+        Schema::create('cover_variant', function (Blueprint $table) {
             $table->foreignId('cover_id')->references('id')->on('covers')->constrained()->onDelete('cascade')->onUpdate('cascade');
-            $table->foreignId('inventory_id')->references('id')->on('inventories')->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('variant_id')->references('id')->on('variants')->constrained()->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cover_inventory');
+        Schema::dropIfExists('cover_variant');
     }
 };

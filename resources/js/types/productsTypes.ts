@@ -86,7 +86,6 @@ export interface FashionVariant {
   sku: string;
   price: number;
   compareAtPrice?: number;
-  costPrice?: number;
 
   
   stockQuantity?: number; // optional
