@@ -13,23 +13,23 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->json('aggregated_attributes')->nullable(); // this stores cashed varaints attributes for first fitch {colors : [] , sizes: []}
             $table->string('name');
             $table->string('brand');
-            
             // Shared / descriptive fields
             $table->text('description')->nullable();
-            $table->string('thumbnail')->nullable();
-            $table->string('video')->nullable();
-            $table->json('covers')->nullable(); // array of images
+
             $table->boolean('is_featured')->default(false);
-            
+            $table->boolean('is_free_shipping')->default(false);
+
             // Ratings
             $table->float('rating_average', 3, 2)->nullable()->default(null); // average rating
             $table->unsignedInteger('rating_count')->default(0);               // number of ratings
-
             // Relational / foreign keys
             $table->foreignId('niche_id')->constrained('niches'); // assuming you have a niches table
-
+            $table->json('aggregated_attributes')->nullable(); // fast filters / first fetch
+            $table->json('attributes')->nullable();            // niche-specific info
+          
             $table->timestamps();
         });
 
