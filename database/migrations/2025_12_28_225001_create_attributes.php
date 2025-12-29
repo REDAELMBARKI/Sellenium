@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('attributes', function (Blueprint $table) {
         $table->id();
         $table->string('owner_type');   // product | variant
-        $table->unsignedBigInteger('owner_id');
+        $table->unsignedBigInteger('owner_id'); // product_id / variant_id
         $table->string('namespace');    // niche
         $table->string('key');
         $table->string('type');         // string | number | list | json

@@ -27,8 +27,6 @@ return new class extends Migration
             $table->unsignedInteger('rating_count')->default(0);               // number of ratings
             // Relational / foreign keys
             $table->foreignId('niche_id')->constrained('niches'); // assuming you have a niches table
-            $table->json('aggregated_attributes')->nullable(); // fast filters / first fetch
-            $table->json('attributes')->nullable();            // niche-specific info
           
             $table->timestamps();
         });

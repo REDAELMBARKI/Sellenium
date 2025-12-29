@@ -15,11 +15,27 @@ return new class extends Migration
     {
         Schema::create('covers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained('products');
+
+            // Polymorphic owner
+            $table->string('owner_type');   // Product or Variant
+            $table->unsignedBigInteger('owner_id');
+
             $table->string('path');
-            $table->string('type')->nullable();    //"thumbnail", "gallery", "video"
+
+            // what this media is used for
+            $table->enum('type', [
+                'thumbnail',
+                'gallery',
+                'variant',
+                'video'
+            ]);
+
             $table->unsignedInteger('position')->default(0);
+            $table->string('alt_text')->nullable();
+
             $table->timestamps();
+
+            $table->index(['owner_type', 'owner_id']);
         });
     }
 
