@@ -1,5 +1,5 @@
 import { RefObject } from "react";
-import {  FashionAttributes, ProductVariant } from "./productsTypes";
+import { ProductVariant } from "./products/productVariantType";
 
 // Base types
 export interface Color {
@@ -12,6 +12,14 @@ export interface Size {
     id: string | number ;
     name: string;
 }
+
+export  interface Country {
+    code: string;
+    name: string;
+}
+
+export type Gender ="male" | "female" | "kids" | "all genders"
+
 
 export interface Fit {
     id: string | number;
