@@ -5,7 +5,7 @@ import ProductInfoForm from './BasicInfoFormMaster';
 import { useToasts } from '@/contextHooks/useToasts';
 import { ToasterNative } from '@/components/ui/ToasterNative';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
-import { ProductBasicInfoData, ProductDataGlobal } from '@/types/productsTypes';
+import {  ProductDataGlobal } from '@/types/productsTypes';
 import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
 import BasicInfoFormMaster from './BasicInfoFormMaster';
 import { useBasicinfoActions } from '@/functions/useBasicinfoActions';
@@ -37,7 +37,7 @@ const ProductBasicInfoRouter: React.FC = () => {
   useEffect(() => {
     if(!productData) return ;
     if (isEditingBasicInfo && productData) {
-        const editedData = getEditedData(productData! ,  productData.niche) as ProductDataGlobal // this gived me undifined  shuold i check first if there is editedData before setting isEditingBasicInfo to  true 
+        const editedData = getEditedData(productData! ,  productData.category) as ProductDataGlobal // this gived me undifined  shuold i check first if there is editedData before setting isEditingBasicInfo to  true 
         if (editedData) {
           setBasicInfoForm(editedData);
         }

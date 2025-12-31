@@ -1,14 +1,15 @@
 
 import { useState } from 'react';
 import { ModeForm, ProductDataContext } from '@/context/sharedProductContext/ProductDataContext';
-import { FashionProduct, FashionVariant, Gender, PerfumesProduct, ProductBackendProps, ProductBasicInfoData, ProductDataGlobal, ProductVariant } from '@/types/productsTypes';
 
 import { Product } from '@/types/dashboardTypes';
 
 import {  Color, NicheOptions } from '@/types/inventoryTypes';
-import { EmptyInitialProductDataMap, getEditedData } from '@/data/initialProductData';
+import { getEditedData, getEmptyInitialProductData } from '@/data/initialProductData';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import { NicheItem } from '@/types/StoreConfigTypes';
+import { CategoryCode } from '@/types/products/categories';
+import { FashionProduct } from '@/types/products/fashionTypes';
+import { ProductBackendProps, ProductDataGlobal } from '@/types/productsTypes';
 
 
 
@@ -17,63 +18,14 @@ import { NicheItem } from '@/types/StoreConfigTypes';
 
 
 
-const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions : tagSuggestionsSource }:ProductBackendProps) => {
-//     const productSource: PerfumesProduct = {
-//   niche: "perfumes",
-//   id: "1",
-//   name: "Oud Mystique",
-//   brand: "Maison Elixir",
-//   price: "129.99",
-//   compareAtPrice: "149.99",
-//   costPrice: "65.00",
-//   category: ["Luxury Perfume"],
-//   video : "/uploads/products/perfumes/oud-mystique-thumb.jpg" , 
-
-//   description: "A warm and captivating unisex fragrance blending oud, amber, and sweet floral notes.",
-//   rating_average: 4.7,
-//   thumbnail: "/uploads/products/perfumes/oud-mystique-thumb.jpg",
-//   tags: [
-//     { id: "3", name: "Oud" , category : "as" },
-//     { id: "7", name: "Luxury" , category : "as" },
-//     { id: "11", name: "Unisex" , category : "as" },
-//   ],
-//   isFeatured: true,
-//   sku: "OU-12345",
-//   stockQuantity: 25,
-//   releaseDate: "2025-01-10",
-//   visible: true,
-
-//   concentration: "EDP",
-//   quantity: 25,
-//   fragranceFamily: "oriental",
-//   gender: ["male", "female"],
-
-//   topNotes: ["Saffron", "Rose", "Bergamot"],
-//   middleNotes: ["Oud Wood", "Amber", "Geranium"],
-//   baseNotes: ["Vanilla", "Patchouli", "Musk"],
-
-//   covers: [
-//     {id:1 , path : "/uploads/products/perfumes/oud-mystique-1.jpg"},
-//     {id:2 , path :"/uploads/products/perfumes/oud-mystique-2.jpg"},
-//   ],
-//   longevity: "long-lasting",
-//   sillage: "strong",
-
-//   volumes: [
-//     { volume: 50, price: 129.99 },
-//     { volume: 100, price: 179.99 },
-//   ],
-//   };
+const ProductDataProvider = ({children , product , options : backendOptions }:ProductBackendProps) => {
 
   const productSource : FashionProduct  = {
-  niche: "fashion",
+  category: "fashion",
   id: "fash123",
   name: "Urban Street Jacket",
   brand: "TrendCo",
-  price: "129.99",
-  compareAtPrice: "159.99",
-  costPrice: "80.00",
-  category: [{id:"1" , name:"Outerwear"}, {id:"2" , name: "Jackets"}, {id:"3" , name: "Streetwear"}],
+  subCategory: [{id:"1" , name:"Outerwear"}, {id:"2" , name: "Jackets"}, {id:"3" , name: "Streetwear"}],
   description: "A versatile street jacket made from premium materials, perfect for urban adventures.",
   rating_average: 4.5,
   thumbnail: {path:"/images/red.jpg" , id:"23"},
@@ -87,31 +39,33 @@ const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions
     { id: "t2", name: "Bestseller" },
   ],
   isFeatured: true,
-  sku: "TSHIRT-001",
-  stockQuantity: 50,
   releaseDate: "2025-10-01",
+  isFreeShipping : true , 
 
-  materials: [
-    { id: 1, name: "Cotton" },
-    { id: 2, name: "Polyester" },
-  ],
-  fits: [
-    { id: 1, name: "Slim Fit" },
-    { id: 2, name: "Regular Fit" },
-  ],
-  gender: ["male", "female"],
-  styles: ["casual", "streetwear" , "oversize"],
-  season: [
-   "automn" , "winter"
-  ],
-  madeCountry: { code: "IT", name: "Italy" },
+  attributes : {
+      materials: [
+        { id: 1, name: "Cotton" },
+        { id: 2, name: "Polyester" },
+      ],
+      fits: [
+        { id: 1, name: "Slim Fit" },
+        { id: 2, name: "Regular Fit" },
+      ],
+      gender: ["male", "female"],
+      styles: ["casual", "streetwear" , "oversize"],
+      season: [
+      "automn" , "winter"
+      ],
+      madeCountry: { code: "IT", name: "Italy" },
+  } , 
 
   variants:  [
     {
       id: "v1",
-      niche: "fashion",
-      quantity: 100,
-      attributes:{
+       productId : '' ,
+      price : 100 , 
+      stockQuantity: 100,
+      options:{
         color: { name: "Red", hex: "#FF0000" } as Color,
         sizes: [{id : 1 ,  name : "S"}, {id : 2 , name : "M"}, {id : 3 , name : "L"}],
         covers: [
@@ -122,12 +76,13 @@ const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions
     },
     {
       id: "v2",
-      niche: "fashion",
-      quantity: 100,
-      attributes:{
+      productId : '' ,
+      price : 100 , 
+      stockQuantity: 100,
+      options:{
          color: { name: "Blue", hex: "#0000FF" } as Color,
-        sizes: [{id : 1 ,  name : "S"}, {id : 2 , name : "M"}, {id : 3 , name : "L"}],
-        covers: [
+         sizes: [{id : 1 ,  name : "S"}, {id : 2 , name : "M"}, {id : 3 , name : "L"}],
+         covers: [
           {id:"1" ,  path: "https://via.placeholder.com/150/000000?text=Black+Jacket" },
           {id:"2" ,  path: "https://via.placeholder.com/150/000000?text=Black+Side" },
         ],
@@ -137,30 +92,27 @@ const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions
   ],
 };
    
-// const productSource = undefined ; 
-      const {state :{currentNiche}} = useStoreConfigCtx()
-   
+ const category = product?.category ?? "fashion" ; 
+
     
-  const getInitialData = (niche: NicheItem, mode: ModeForm, product?: ProductDataGlobal) => {
-      if (mode === "create") return EmptyInitialProductDataMap[niche];
-      if (mode === "edit" && product) return getEditedData(product, niche);
+  const getInitialData = (category: CategoryCode, mode: ModeForm, product?: ProductDataGlobal) => {
+      if (mode === "create") return getEmptyInitialProductData(category);
+      if (mode === "edit" && product) return getEditedData(product, category);
       throw new Error("Invalid state");
       };
       
       const modeForm : ModeForm = productSource ? "edit" : "create" ; 
 
-     const initialData = getInitialData(currentNiche, modeForm, productSource) as ProductDataGlobal;
+     const initialData = getInitialData(category, modeForm, productSource) ;
 
     const [productData ,   setProductData] = useState<ProductDataGlobal | undefined>(() => productSource)
     const [basicInfoForm , setBasicInfoForm] = useState<ProductDataGlobal>(() => initialData);
 
     // const inventoryOptions : FashionOptions  = inventoryOptions ;  
-    const [nicheOptionsState, setNicheOptionsState] = useState<NicheOptions>(nicheOptions);
+    const [nicheCategory, setNicheCategory] = useState<CategoryCode>(category);
 
-    console.log('nicheOptionsState in ProductDataProvider', product);
-    const [tagSuggestionsState, setTagSuggestionsState] = useState(tagSuggestionsSource);
+    const [options, setOptions] = useState(backendOptions);
 
-    const [variantForm ,  setVariantForm] = useState<ProductVariant | null>(); 
     const [variantToDelete ,  setVariantToDelete] = useState<number | null>()
     
 
@@ -176,11 +128,10 @@ const ProductDataProvider = ({children , product , nicheOptions , tagSuggestions
     <ProductDataContext.Provider value={{
         modeForm , 
         variantToDelete ,  setVariantToDelete , 
-        variantForm ,  setVariantForm , 
         productData ,   setProductData , 
         basicInfoForm , setBasicInfoForm , 
-        nicheOptionsState, setNicheOptionsState ,
-        tagSuggestionsState, setTagSuggestionsState
+        nicheCategory, setNicheCategory ,
+        options
     }}>
         {children}
     </ProductDataContext.Provider>

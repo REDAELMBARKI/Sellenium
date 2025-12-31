@@ -1,25 +1,30 @@
 
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
-import { DEFAULT_PRODUCT_IMAGE } from "@/data/defaults";
 import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
 import { Cover } from "@/types/inventoryTypes";
 import { ImagePreviewItem } from "@/types/mediaTypes";
 import { Upload, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { v4 } from "uuid";
 
-interface MediaSectionProps {
-    setVideoPreview: React.Dispatch<React.SetStateAction<string | null>>
-    videoPreview : string | null;
-}
 
-const MediaSection = ({
-    setVideoPreview,
-    videoPreview,
-}: MediaSectionProps) => {
+const MediaSection = () => {
       const {state :{currentTheme}} = useStoreConfigCtx()
 
     const { basicInfoForm , setBasicInfoForm} = useProductDataCtx()
+    const [videoPreview , setVideoPreview] = useState()
+    
+
+
+    useEffect(() => {
+        return () => {
+          if (videoPreview) URL.revokeObjectURL(videoPreview);
+        };
+      }, [videoPreview]);
+      // scroll into the view of the section opened
+    
+
 
     const handleCoversUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;

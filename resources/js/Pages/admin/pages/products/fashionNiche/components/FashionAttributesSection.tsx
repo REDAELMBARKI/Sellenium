@@ -16,7 +16,7 @@ const countryList = Object.entries(countries.getNames("en")).map(([code, name]) 
 }));
 
 
-const AttributesSection = () => {
+const FashionAttributesSection = () => {
   const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
   const {state :{currentTheme}} = useStoreConfigCtx()
 
@@ -120,4 +120,4 @@ const AttributesSection = () => {
 };
 
 
-export default AttributesSection ; 
+export default FashionAttributesSection ; 

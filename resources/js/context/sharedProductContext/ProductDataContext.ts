@@ -1,6 +1,7 @@
 
 import { NicheOptions } from "@/types/inventoryTypes"
-import { ProductBasicInfoData, ProductDataGlobal, ProductVariant } from "@/types/productsTypes"
+import { CategoryCode } from "@/types/products/categories"
+import { ProductDataGlobal } from "@/types/productsTypes"
 import { Tag } from "@/types/tagsTypes"
 import { createContext } from "react"
 
@@ -11,14 +12,11 @@ interface ProductDataContextProps {
     modeForm : ModeForm
     productData?: ProductDataGlobal | undefined
     setProductData: React.Dispatch<React.SetStateAction<ProductDataGlobal | undefined>>
-    nicheOptionsState : NicheOptions
-    setNicheOptionsState: React.Dispatch<React.SetStateAction<NicheOptions>>
-    variantForm?: ProductVariant | undefined | null
-    setVariantForm: React.Dispatch<React.SetStateAction<ProductVariant | undefined | null>>
+    nicheCategory : CategoryCode
+    setNicheCategory: React.Dispatch<React.SetStateAction<CategoryCode>>
     variantToDelete?: number | undefined | null
     setVariantToDelete: React.Dispatch<React.SetStateAction<number | undefined | null>> 
-    tagSuggestionsState: Tag[] 
-    setTagSuggestionsState: React.Dispatch<React.SetStateAction<Tag[] >>
+    options: any
     
     basicInfoForm: ProductDataGlobal
     setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductDataGlobal>>

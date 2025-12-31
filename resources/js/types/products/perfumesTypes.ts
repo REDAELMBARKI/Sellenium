@@ -1,7 +1,8 @@
 import { Gender } from "../inventoryTypes";
-import { ProductBasicInfoData } from "./baseProductTypes";
+import { ProductBase } from "./baseProductTypes";
+import { ProductVariant } from "./productVariantType";
 
-export interface PerfumesProduct extends  ProductBasicInfoData {
+export interface PerfumesAttributes  {
   category: "perfumes";
   concentration: "EDT" | "EDP" | "Parfum" | "Cologne" | undefined;
   quantity: number;
@@ -18,11 +19,11 @@ export interface PerfumesProduct extends  ProductBasicInfoData {
   
 }
 
-export interface ParfumesFields {
-  concentration: "EDT" | "EDP" | "Parfum" | "Cologne";
-  notes: string[];
-  longevity: number;
-  sillage: "soft" | "moderate" | "strong";
-  volume_ml: number;
-  fragranceFamily: "fresh" | "woody" | "oriental" | "floral" | "aromatic";
+
+
+export interface PerfumesProduct extends ProductBase {
+  category: "perfumes";
+  attributes: PerfumesAttributes;
+  variants: ProductVariant[];
 }
+

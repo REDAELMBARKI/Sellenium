@@ -1,29 +1,23 @@
 import { Color } from "../inventoryTypes";
-import { ProductBasicInfoData } from "./baseProductTypes";
+import { ProductBase } from "./baseProductTypes";
+import { ProductVariant } from "./productVariantType";
 
-export interface ElectronicsFields {
-  brandModel?: string;
-  batteryLife?: string;
-  voltage?: string;
-  warrantyMonths?: number;
-  dimensions?: string;
-  weightGrams?: number;
-  connectivity?: string[];
-  powerConsumption?: string;
-}
 
-export interface ElectronicsProduct extends ProductBasicInfoData {
+export interface ElectronicsAttributes {
   category: "electronics";
-  batteryLife?: string;        // "10h"
-  connectivity?: string[];     // e.g., ["Bluetooth","WiFi"]
-  voltage?: string;            // e.g., "220V"
-  storage?: string;            // e.g., "128GB", "256GB"
-  colors: Color[];          // optional if devices have color variants
+  batteryLife?: string;
+  connectivity?: string[];
+  voltage?: string;
+  storage?: string;
+  colors: Color[];
   warrantyMonths?: number;
   model?: string;
   brandSeries?: string;
   techSpecs?: Record<string, string>;
 }
 
-
-
+export interface ElectronicsProduct extends ProductBase {
+  category: "electronics";
+  attributes: ElectronicsAttributes;
+  variants: ProductVariant[];
+}

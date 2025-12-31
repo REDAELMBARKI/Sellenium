@@ -1,3 +1,4 @@
+import { CategoryCode } from "./products/categories";
 import {  ThemeMode, ThemePalette, ThemeStyle } from "./ThemeTypes";
 
 export type LayoutStyle = "grid" | "list" | "mansonry" | "premium" ;
@@ -18,21 +19,13 @@ export type ThemeCardsDataType = {
 
 }
 
-export type NicheCardsDataType = {
-  style : NicheItem 
-  label : NicheItem 
-  image : string 
-  info? : string
-}
 
 
-export type NicheItem = "perfumes" | "fashion" | "electronics"  
 
 
 export interface StoreConfigType {  
-     
+    currentCategory : CategoryCode
     currentThemeStyle : ThemeStyle // is the theme name
-    currentNiche : NicheItem
     currentThemeMode : ThemeMode 
     currentTheme  : ThemePalette // this is real theme has colors 
     currentLayoutStyle : LayoutStyle 
@@ -44,7 +37,7 @@ export type StoreConfigAction =
   | { type: "SET_LAYOUT"; payload: LayoutStyle }
   | { type: "SET_THEME_MODE"; payload: ThemeMode }
   | { type: "SET_THEME_STYLE"; payload: ThemeStyle }
-  | { type: "SET_NICHE"; payload: NicheItem }
+  | { type: "SET_CATEGORY"; payload: CategoryCode }
   | { type: "SET_CARD"; payload:  CardConfig};
 
 

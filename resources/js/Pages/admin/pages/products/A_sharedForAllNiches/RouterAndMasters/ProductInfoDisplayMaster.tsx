@@ -9,7 +9,7 @@ import { P } from 'node_modules/framer-motion/dist/types.d-BJcRxCew';
 import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown';
 
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
-import FashionBasicInfoForm from '../../fashionNiche/forms/FashionBasicInfoForm';
+import FashionBasicInfoForm from './ProductCrEdForm';
 import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
 import FashionReadonlyDisplay from '../../fashionNiche/displays/FashionReadonlyDisplay';
 import PerfumesReadonlyDisplay from '../../perfumesNiche/displays/PerfumesReadonlyDisplay';

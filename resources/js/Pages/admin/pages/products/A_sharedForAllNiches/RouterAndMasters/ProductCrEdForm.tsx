@@ -4,28 +4,17 @@ import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { Upload, X, Plus, Video, Droplet, Settings  ,Trash2, Edit2, AlertCircle } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import MediaSection from "../../A_sharedForAllNiches/components/editAndCreate/MediaSection";
+import MediaSection from "../components/editAndCreate/MediaSection";
 import { Color, Cover, Fit, Material, Season, Size, Style } from "@/types/inventoryTypes";
-import BaseSharedForm from "../../A_sharedForAllNiches/components/editAndCreate/BaseSharedForm";
-import {  FashionAttributes, FashionProduct, FashionVariant, Gender } from '@/types/productsTypes';
-import ProductMetaData from "../../A_sharedForAllNiches/components/editAndCreate/ProductMetaData";
+import BaseSharedForm from "../components/editAndCreate/BaseSharedForm";
+import ProductMetaData from "../components/editAndCreate/ProductMetaData";
 import { Tag as TagType } from "@/types/tagsTypes";
-import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
-import VariantBuilder from "../components/VariantBuilder";
 
-import AttributesSection from "../components/AttributesSection";
 import { ImagePreviewItem } from "@/types/mediaTypes";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import { ATTRIBUTES_FORM_SECTIONS, VARIANTS_FORM_SECTIONS } from "@/data/formSectionConfigurations";
+import { CategoryCode } from "@/types/products/categories";
 
-
-const keys: Array<keyof FashionAttributes> = [
-  "materials",
-  "gender",
-  "fits",
-  "madeCountry",
-  "season",
-  "styles",
-];
 function getVideoPreview(video: Cover | ImagePreviewItem | null) {
   if (!video) return null;
   if ("path" in video) return video.path;
@@ -33,11 +22,11 @@ function getVideoPreview(video: Cover | ImagePreviewItem | null) {
   return null;
 }
 
-const FashionBasicInfoForm = () => {
+const ProductCrEdForm = () => {
   const { basicInfoForm : bif, setBasicInfoForm } = useProductDataCtx();
   const basicInfoForm = bif as FashionProduct  ; 
 
-  const { state :{currentTheme} } = useStoreConfigCtx();
+  const { state :{currentTheme , currentCategory} } = useStoreConfigCtx();
 
   const [videoPreview, setVideoPreview] = useState<string | null>(getVideoPreview(basicInfoForm.video));
 
@@ -78,13 +67,7 @@ const FashionBasicInfoForm = () => {
   const variantRef = useRef<HTMLDivElement | null>(null);
   const advancedRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (videoPreview) URL.revokeObjectURL(videoPreview);
-    };
-  }, [videoPreview]);
-  // scroll into the view of the section opened
-
+  
  
  useEffect(() => {
   if (!isMountedRef.current) {
@@ -126,6 +109,10 @@ const FashionBasicInfoForm = () => {
     }
   };
 
+  const VariantBuilder  = VARIANTS_FORM_SECTIONS[currentCategory as CategoryCode] ; 
+  const AttibutesBuilder  = ATTRIBUTES_FORM_SECTIONS[currentCategory as CategoryCode] ; 
+
+
   return (
     <div className="w-full h-full overflow-y-auto" style={{background : currentTheme.bg , color : currentTheme.text}}>
       <div className="space-y-8 p-8 rounded-xl shadow-2xl m-4"
@@ -154,7 +141,7 @@ const FashionBasicInfoForm = () => {
                 })
               }
             >
-              <MediaSection {...{ setVideoPreview, videoPreview }} />
+              <MediaSection  />
             </CollapsibleSection>
           </div>
 
@@ -166,7 +153,7 @@ const FashionBasicInfoForm = () => {
               isOpen={showAttributes}
               onToggle={() => handleToggleSection("Product Attributes", showAttributes, setShowAttributes)}
             >
-              <AttributesSection />
+              <AttibutesBuilder />
             </CollapsibleSection>
           </div>
 
@@ -206,5 +193,5 @@ const FashionBasicInfoForm = () => {
   );
 };
 
-export default FashionBasicInfoForm;
+export default ProductCrEdForm;
 

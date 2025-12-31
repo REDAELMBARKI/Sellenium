@@ -1,5 +1,5 @@
 import { Size , Fit , Color , Material , Cover , Gender, Style, Season, Country } from "../inventoryTypes";
-import { ProductBasicInfoData } from "./baseProductTypes";
+import { ProductBase } from "./baseProductTypes";
 import { ProductVariant } from "./productVariantType";
 
 export interface FashionAttributes {
@@ -11,17 +11,8 @@ export interface FashionAttributes {
   madeCountry : Country | null
 }
 
-export interface FashionProduct extends FashionAttributes ,  ProductBasicInfoData {
+export interface FashionProduct extends ProductBase {
   category: "fashion";
-  variants : ProductVariant[]
-}
-
-export interface FashionFields {
-  sizes: Size[];
-  materials: Material[];
-  colors: Color[];
-  covers: Cover[] , 
-  fits: Fit[];
-  fabricType?: string[];
-  gender?: "men" | "women" | "unisex";
+  attributes: FashionAttributes;
+  variants: ProductVariant[];
 }

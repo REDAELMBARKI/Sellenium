@@ -28,7 +28,7 @@ const PRESET_COLORS : Color[] = [
     { id: 3, name: "Red", hex: "#EF4444" },
     { id: 4, name: "Blue", hex: "#3B82F6" },
   ]
-const VariantBuilder = () => {
+const FashionVariantBuilder = () => {
 
   const  {basicInfoForm  ,  setBasicInfoForm , nicheOptionsState } = useProductDataCtx()
   const fashionForm = basicInfoForm as FashionProduct;
@@ -445,7 +445,7 @@ const VariantBuilder = () => {
   );
 };
 
-export default VariantBuilder;
+export default FashionVariantBuilder;
 
 
 

@@ -1,13 +1,18 @@
 import React from 'react';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
-import FashionBasicInfoForm from '../../fashionNiche/forms/FashionBasicInfoForm';
+import FashionBasicInfoForm from './ProductCrEdForm';
 import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
 import { Button } from '@/components/ui/button';
 import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import { NicheItem } from '@/types/StoreConfigTypes';
+import { CategoryCode } from '@/types/products/categories';
+import { ATTRIBUTES_FORM_SECTIONS, CATEGORY_FORM_SECTIONS, VARIANTS_FORM_SECTIONS } from '@/data/formSectionConfigurations';
+import CollapsibleSection from '@/components/CollapsibleSection';
+import BaseSharedForm from '../components/editAndCreate/BaseSharedForm';
+import MediaSection from '../components/editAndCreate/MediaSection';
+import ProductMetaData from '../components/editAndCreate/ProductMetaData';
 
 
 
@@ -17,7 +22,7 @@ const BasicInfoFormMaster: React.FC = () => {
    
    const {post} = useForm()
 
-  const {state :{currentNiche}} = useStoreConfigCtx()
+  const {state :{currentCategory}} = useStoreConfigCtx()
 
   const  { productData = {} , modeForm , basicInfoForm } = useProductDataCtx()
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
@@ -38,24 +43,10 @@ const BasicInfoFormMaster: React.FC = () => {
 
  
  
-  const formsMap : Record<NicheItem  , React.FC<any>> =  {
-          "fashion" : FashionBasicInfoForm,
-          "perfumes" : PerfumesBasicInfoForm ,
-          "electronics" : FashionBasicInfoForm ,
-  }
-  // const PropsMap : Record<NicheItem , any> = {
-  //      "fashion" : {} 
-  //       "perfumes" : {}
-  //       "electronics" : {}
-  // }
-
-  const Form = formsMap[currentNiche]
-  // const props = PropsMap[currentNiche]
-
-
-  return ( <form action={"products/create"} method='post' onSubmit={handleSubmit}> 
-   
-   <Form />
+  return ( 
+  <form action={"products/create"} method='post' onSubmit={handleSubmit}> 
+  
+  <Form />
    {/* save product */}
    <div className="flex justify-center">
       <Button 

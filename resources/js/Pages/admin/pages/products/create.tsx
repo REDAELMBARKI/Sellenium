@@ -6,11 +6,10 @@ import { ProductBackendProps } from "@/types/productsTypes";
 import BasicInfoFormMaster from "./A_sharedForAllNiches/RouterAndMasters/BasicInfoFormMaster";
 
 
-export default function Create({nicheOptions , tagSuggestions  }: ProductBackendProps) { 
-    console.log("nicheOptions in create page", nicheOptions );
-    console.log("tagSuggestions in create page", tagSuggestions );
+export default function Create({options  }: ProductBackendProps) { 
+   
     return (      
-                <ProductDataProvider nicheOptions={nicheOptions}  tagSuggestions={tagSuggestions}>
+                <ProductDataProvider  options={options}>
               
                         <ProductUIProvider>
                                     <CreateContent  />
