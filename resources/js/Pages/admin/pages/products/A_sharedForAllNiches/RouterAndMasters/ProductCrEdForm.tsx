@@ -118,7 +118,6 @@ const ProductCrEdForm = () => {
 
   const VariantBuilder  = VARIANTS_FORM_SECTIONS[currentCategory] ; 
   const AttibutesBuilder  = ATTRIBUTES_FORM_SECTIONS[currentCategory] ; 
-
   return (
     <div className="w-full h-full overflow-y-auto" style={{background : currentTheme.bg , color : currentTheme.text}}>
       <div className="space-y-8 p-8 rounded-xl shadow-2xl m-4"
@@ -156,6 +155,7 @@ const ProductCrEdForm = () => {
           </div>
 
           {/* Attributes */}
+          {AttibutesBuilder && (
           <div ref={attributesRef}>
             <CollapsibleSection
               title="Product Attributes"
@@ -163,11 +163,13 @@ const ProductCrEdForm = () => {
               isOpen={showAttributes}
               onToggle={() => handleToggleSection("Product Attributes", showAttributes, setShowAttributes)}
             >
-              {/* <AttibutesBuilder /> */}
+              <AttibutesBuilder />
             </CollapsibleSection>
           </div>
+          )}
 
           {/* Variant Builder */}
+          {VariantBuilder && (
           <div ref={variantRef}>
             <CollapsibleSection
               title="Variant Builder"
@@ -180,6 +182,7 @@ const ProductCrEdForm = () => {
               <VariantBuilder />
             </CollapsibleSection>
           </div>
+          )}
 
           {/* Advanced / Meta  tags and sku*/}
           <div ref={advancedRef}>

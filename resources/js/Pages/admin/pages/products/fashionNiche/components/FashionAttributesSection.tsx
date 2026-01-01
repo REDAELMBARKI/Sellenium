@@ -4,8 +4,7 @@ import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownFor
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
-import { Fit, Material, Season, Style } from "@/types/inventoryTypes";
-import { Gender } from "@/types/productsTypes";
+import { Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
 
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
@@ -21,7 +20,7 @@ const FashionAttributesSection = () => {
   const {state :{currentTheme}} = useStoreConfigCtx()
 
 
-  if (!basicInfoForm || basicInfoForm.niche !== 'fashion') return null;
+  if (!basicInfoForm || basicInfoForm.category !== 'fashion') return null;
 
   return (
     <div className="space-y-4 p-4 border rounded-lg" style={{ backgroundColor: currentTheme.card }}>
@@ -35,8 +34,13 @@ const FashionAttributesSection = () => {
       <MultiSelectDropdownForObject
         label="Materials" 
         options={[]} 
-        selectedValues={basicInfoForm?.materials || []}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, materials: v  as Material[]})}
+        selectedValues={basicInfoForm?.attributes.materials || []}
+        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, 
+             attributes : {
+               ...basicInfoForm.attributes , 
+               materials: v  as Material[]
+             }
+        })}
       />
 
 
@@ -51,8 +55,13 @@ const FashionAttributesSection = () => {
       <MultiSelectDropdownForObject
         label="Fits"
         options={[]} 
-        selectedValues={basicInfoForm?.fits || []}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, fits: v as Fit[]})}
+        selectedValues={basicInfoForm?.attributes.fits || []}
+        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, 
+             attributes : {
+               ...basicInfoForm.attributes , 
+               fits: v  as Fit[]
+             }
+        })}
       />
 
 
@@ -67,8 +76,13 @@ const FashionAttributesSection = () => {
       <MultiSelectDropdown
         label="Styles"
         options={[]} 
-        selectedValues={basicInfoForm?.styles || []}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, styles: v as Style[]})}
+        selectedValues={basicInfoForm?.attributes.styles || []}
+        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, 
+             attributes : {
+               ...basicInfoForm.attributes , 
+               styles : v  as Style[]
+             }
+        })}
       />
 
 
@@ -83,8 +97,13 @@ const FashionAttributesSection = () => {
       <MultiSelectDropdown
         label="Season"
         options={[]} 
-        selectedValues={basicInfoForm?.season || []}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, season: v  as Season[]})}
+        selectedValues={basicInfoForm?.attributes.season || []}
+        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, 
+             attributes : {
+               ...basicInfoForm.attributes , 
+               season : v  as Season[]
+             }
+        })}
       />
 
 
@@ -97,8 +116,13 @@ const FashionAttributesSection = () => {
       <MultiSelectDropdown
         label="Gender"
         options={[]} 
-        selectedValues={basicInfoForm?.gender || []}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, gender: v as Gender[] })}
+        selectedValues={basicInfoForm?.attributes.gender || []}
+        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, 
+             attributes : {
+               ...basicInfoForm.attributes , 
+               gender: v  as Gender[]
+             }
+        })}
       />
 
 
@@ -111,8 +135,13 @@ const FashionAttributesSection = () => {
       <CustomSelectForObject
         label="select a countries of Origin"
 
-        value={basicInfoForm?.madeCountry ? { label: basicInfoForm.madeCountry.name , value: basicInfoForm.madeCountry.code}  : null}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, madeCountry : {code : v.value , name : v.label} })}
+        value={basicInfoForm?.attributes.madeCountry ? { label: basicInfoForm.attributes.madeCountry.name , value: basicInfoForm.attributes.madeCountry.code}  : null}
+        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, 
+                attributes : {
+                   ...basicInfoForm.attributes , 
+                   madeCountry : {code : v.value , name : v.label} 
+                }
+        })}
         options={countryList.map(c => ({ label: c.name , value: c.code }))}
       />
     </div>
