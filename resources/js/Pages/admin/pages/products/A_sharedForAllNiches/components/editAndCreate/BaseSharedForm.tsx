@@ -112,7 +112,7 @@ const BaseSharedForm = () => {
                 </div>
               )}
               <label className="flex items-center gap-3 px-6 py-3 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-md font-semibold"
-                     style={{ backgroundColor: currentTheme.buttonSecondary, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}>
+                     style={{ backgroundColor: currentTheme.secondary, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}>
                 <Upload className="w-6 h-6" />
                 Upload Image
                 <input type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
@@ -180,7 +180,7 @@ const BaseSharedForm = () => {
                 step="0.01"
                 value={basicInfoForm.price}
                 onChange={(e) => {
-                  setBasicInfoForm({ ...basicInfoForm, price: e.target.value });
+                  setBasicInfoForm({ ...basicInfoForm, price: Number(e.target.value)});
                   validateField('price', e.target.value);
                 }}
                 onBlur={(e) => validateField('price', e.target.value)}
@@ -201,21 +201,8 @@ const BaseSharedForm = () => {
               <input
                 type="number"
                 step="0.01"
-                value={basicInfoForm.compareAtPrice || ''}
-                onChange={(e) => setBasicInfoForm({ ...basicInfoForm, compareAtPrice: e.target.value })}
-                className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
-                style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                Cost Price <span className="text-xs font-normal">(optional)</span>
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={basicInfoForm.costPrice || ''}
-                onChange={(e) => setBasicInfoForm({ ...basicInfoForm, costPrice: e.target.value })}
+                value={basicInfoForm.oldPrice || ''}
+                onChange={(e) => setBasicInfoForm({ ...basicInfoForm, oldPrice: Number(e.target.value) })}
                 className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
                 style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
               />
@@ -229,9 +216,9 @@ const BaseSharedForm = () => {
             </label>
             <MultiSelectDropdownForObject
               label="Product Type"
-              options={Array.isArray(basicInfoForm.category) ? basicInfoForm.category : []}
-              selectedValues={Array.isArray(basicInfoForm.category) ? basicInfoForm.category : []}
-              onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, category: selected as Category[] })}
+              options={Array.isArray(basicInfoForm.subCategory) ? basicInfoForm.subCategory : []}
+              selectedValues={Array.isArray(basicInfoForm.subCategory) ? basicInfoForm.subCategory : []}
+              onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, subCategory: selected as Category[] })}
             />
           </div>
 
@@ -270,60 +257,7 @@ const BaseSharedForm = () => {
           
 
 
-          {/* stock  */}
-
-        <div>
-          <label
-            className="block text-sm font-bold mb-4 uppercase tracking-wide"
-            style={{ color: currentTheme.text }}
-          >
-            Stock Quantity
-          </label>
-
-          <div className="grid grid-col-3 gap-3">
- 
-
-                 {/* Quick Select */}
-
-            <div className="relative ">
-              <CustomSelect 
-             
-             value={basicInfoForm.stockQuantity ?? 5} options={[{value : "5" , label : "5" } , {value : "10" , label : "10"} , {value : "20" , label : "20"}]}  
-             placeholder="select a stock "
-             onChange={(value)=> {
-              setBasicInfoForm({
-                  ...basicInfoForm,
-                  stockQuantity: value ,
-                })
-            } } />
-            </div>
-
-
-            {/* Manual Input */}
-            <input
-              type="number"
-              value={basicInfoForm.stockQuantity || ""}
-              onChange={(e) =>
-                setBasicInfoForm({
-                  ...basicInfoForm,
-                  stockQuantity: e.target.value
-                    ? parseInt(e.target.value)
-                    : undefined,
-                })
-              }
-              className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
-              style={{
-                backgroundColor: currentTheme.bg,
-                color: currentTheme.text,
-                borderWidth: "2px",
-                borderColor: currentTheme.border,
-              }}
-            />
-
-      
-
-          </div>
-        </div>
+        
 
         </div>
     

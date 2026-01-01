@@ -47,23 +47,6 @@ export interface Cover {
 
 export type Style = "oversize"  | "streetwear" | "casual" | "formal" | "sportswear"
 
-export interface FashionOptions {
-  colors : Color[]
-  sizes : Size[]
-  fits : Fit[]
-  materials : Material[]
-}
-
-export interface ParfumeOptions {
-
-}
-
-export interface ElectronicsOptions {
-
-}
-
-// Options from Laravel
-export type NicheOptions  =  FashionOptions | ParfumeOptions | ElectronicsOptions
 
 // For Inertia useForm (needs index signature)
 

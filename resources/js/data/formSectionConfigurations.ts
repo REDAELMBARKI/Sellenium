@@ -2,7 +2,7 @@ import BaseSharedForm from "@/Pages/admin/pages/products/A_sharedForAllNiches/co
 import MediaSection from "@/Pages/admin/pages/products/A_sharedForAllNiches/components/editAndCreate/MediaSection";
 import ProductMetaData from "@/Pages/admin/pages/products/A_sharedForAllNiches/components/editAndCreate/ProductMetaData";
 import FashionAttributesSection from "@/Pages/admin/pages/products/fashionNiche/components/FashionAttributesSection";
-import FashionVariantBuilder from "@/Pages/admin/pages/products/fashionNiche/components/FashionVariantBuilder";
+import { FashionVariantBuilder } from "@/Pages/admin/pages/products/fashionNiche/components/FashionVariantBuilder";
 import { CategoryCode } from "@/types/products/categories";
 
 

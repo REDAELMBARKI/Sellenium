@@ -11,8 +11,3 @@ export interface FashionAttributes {
   madeCountry : Country | null
 }
 
-export interface FashionProduct extends ProductBase {
-  category: "fashion";
-  attributes: FashionAttributes;
-  variants: ProductVariant[];
-}

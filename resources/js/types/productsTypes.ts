@@ -2,23 +2,47 @@ import { Tag } from "./tagsTypes";
 import { ProductVariant } from "./products/productVariantType";
 import { CategoryCode } from "./products/categories";
 import { ProductBase } from "./products/baseProductTypes";
-import { FashionProduct } from "./products/fashionTypes";
-import { PerfumesProduct } from "./products/perfumesTypes";
-import { ElectronicsProduct } from "./products/electronicsTypes";
+import { FashionAttributes } from "./products/fashionTypes";
+import { PerfumesAttributes } from "./products/perfumesTypes";
+import { ElectronicsAttributes } from "./products/electronicsTypes";
 export interface ProductBackendProps {
     children : React.ReactNode ;
     product?: ProductDataGlobal;
     options : any
-    [key: string]: any; // ✅ allows other keys
+    [key: string]: any; 
 }
 
 
 
 export type ProductDataGlobal =  
-  | (ProductBase & { category: "fashion"; attributes: FashionProduct })
-  | (ProductBase & { category: "perfumes"; attributes: PerfumesProduct })
-  | (ProductBase & { category: "electronics"; attributes: ElectronicsProduct });
+  | FashionProduct
+  |  PerfumesProduct 
+  |  ElectronicsProduct 
 
+
+
+
+
+export type FashionProduct =
+  ProductBase & {
+    category: "fashion";
+    attributes: FashionAttributes;
+    variants: ProductVariant[];
+  };
+
+export type PerfumesProduct =
+  ProductBase & {
+    category: "perfumes";
+    attributes: PerfumesAttributes;
+    variants: ProductVariant[];
+  };
+
+export type ElectronicsProduct =
+  ProductBase & {
+    category: "electronics";
+    attributes: ElectronicsAttributes;
+    variants: ProductVariant[];
+  };
 
 
 export interface VariantDisplayProps {

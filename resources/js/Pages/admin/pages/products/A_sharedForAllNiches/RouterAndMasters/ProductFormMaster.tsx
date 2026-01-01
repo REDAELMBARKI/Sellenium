@@ -7,18 +7,13 @@ import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import { CategoryCode } from '@/types/products/categories';
-import { ATTRIBUTES_FORM_SECTIONS, CATEGORY_FORM_SECTIONS, VARIANTS_FORM_SECTIONS } from '@/data/formSectionConfigurations';
-import CollapsibleSection from '@/components/CollapsibleSection';
-import BaseSharedForm from '../components/editAndCreate/BaseSharedForm';
-import MediaSection from '../components/editAndCreate/MediaSection';
-import ProductMetaData from '../components/editAndCreate/ProductMetaData';
+import ProductCrEdForm from './ProductCrEdForm';
 
 
 
 
 
-const BasicInfoFormMaster: React.FC = () => {
+const ProductFormMaster: React.FC = () => {
    
    const {post} = useForm()
 
@@ -45,8 +40,8 @@ const BasicInfoFormMaster: React.FC = () => {
  
   return ( 
   <form action={"products/create"} method='post' onSubmit={handleSubmit}> 
-  
-  <Form />
+   {/* edit and create form  */}
+  <ProductCrEdForm />
    {/* save product */}
    <div className="flex justify-center">
       <Button 
@@ -62,4 +57,4 @@ const BasicInfoFormMaster: React.FC = () => {
  );  
 };
 
-export default BasicInfoFormMaster;
+export default ProductFormMaster;

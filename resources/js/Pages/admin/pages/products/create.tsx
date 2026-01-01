@@ -3,7 +3,7 @@ import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import ProductDataProvider from "@/contextProvoders/sharedProviders/ProductDataProvider";
 import ProductUIProvider from "@/contextProvoders/sharedProviders/ProductUIProvider";
 import { ProductBackendProps } from "@/types/productsTypes";
-import BasicInfoFormMaster from "./A_sharedForAllNiches/RouterAndMasters/BasicInfoFormMaster";
+import BasicInfoFormMaster from "./A_sharedForAllNiches/RouterAndMasters/ProductFormMaster";
 
 
 export default function Create({options  }: ProductBackendProps) { 

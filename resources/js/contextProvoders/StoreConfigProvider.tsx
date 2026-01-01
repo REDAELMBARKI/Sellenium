@@ -6,7 +6,8 @@ import { useReducer } from "react"
 
 
 
-const initialState : StoreConfigType= { 
+const initialState : StoreConfigType= {  
+currentCategory : 'fashion' ,
   currentThemeMode : "light" ,
   currentThemeStyle : "luxuryNoir" , 
   currentTheme : currentThemeExample.luxuryNoir.light,

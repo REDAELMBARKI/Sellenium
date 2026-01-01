@@ -20,10 +20,3 @@ export interface PerfumesAttributes  {
 }
 
 
-
-export interface PerfumesProduct extends ProductBase {
-  category: "perfumes";
-  attributes: PerfumesAttributes;
-  variants: ProductVariant[];
-}
-

@@ -26,7 +26,7 @@ export default function ProductMetaData(){
                     onTagsChange={(tags) => setBasicInfoForm({ ...basicInfoForm, tags: tags.map(name => ({ id: v4(), name })) })}
                   />
                 </div>
-                <div className="block">
+                {/* <div className="block">
                   <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
                     SKU
                   </label>
@@ -37,7 +37,7 @@ export default function ProductMetaData(){
                     className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
                     style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
                   />
-                </div>
+                </div> */}
                 
               </div>
               

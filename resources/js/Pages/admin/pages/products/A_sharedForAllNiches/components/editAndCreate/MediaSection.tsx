@@ -5,26 +5,20 @@ import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
 import { Cover } from "@/types/inventoryTypes";
 import { ImagePreviewItem } from "@/types/mediaTypes";
 import { Upload, X } from "lucide-react";
-import { useEffect, useState } from "react";
 import { v4 } from "uuid";
 
+interface MediaSectionProps {
+    setVideoPreview: React.Dispatch<React.SetStateAction<string | null>>
+    videoPreview : string | null;
+}
 
-const MediaSection = () => {
+const MediaSection = ({
+    setVideoPreview,
+    videoPreview,
+}: MediaSectionProps) => {
       const {state :{currentTheme}} = useStoreConfigCtx()
 
     const { basicInfoForm , setBasicInfoForm} = useProductDataCtx()
-    const [videoPreview , setVideoPreview] = useState()
-    
-
-
-    useEffect(() => {
-        return () => {
-          if (videoPreview) URL.revokeObjectURL(videoPreview);
-        };
-      }, [videoPreview]);
-      // scroll into the view of the section opened
-    
-
 
     const handleCoversUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -119,7 +113,7 @@ const MediaSection = () => {
                 <label
                     className="flex items-center gap-3 px-6 py-3 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-md font-semibold w-fit"
                     style={{
-                        backgroundColor: currentTheme.buttonSecondary,
+                        backgroundColor: currentTheme.accent,
                         color: currentTheme.text,
                         borderWidth: "2px",
                         borderColor: currentTheme.border,

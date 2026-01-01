@@ -16,8 +16,3 @@ export interface ElectronicsAttributes {
   techSpecs?: Record<string, string>;
 }
 
-export interface ElectronicsProduct extends ProductBase {
-  category: "electronics";
-  attributes: ElectronicsAttributes;
-  variants: ProductVariant[];
-}

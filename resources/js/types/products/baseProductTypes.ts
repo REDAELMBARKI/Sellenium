@@ -11,17 +11,15 @@ export interface ProductBase {
   subCategory: {id: string , name : string}[];
   description: string;
   rating_average?: number;
-  
   tags: Tag[];
+  price: number;
+  oldPrice?: number;
   isFeatured?: boolean;
   isFreeShipping : boolean ;
   releaseDate?: string;
   thumbnail: Cover | ImagePreviewItem  | null ;
-  video? : Cover | ImagePreviewItem | null ;
-  covers? : (Cover | ImagePreviewItem)[] , 
+  video : Cover | ImagePreviewItem | null ;
+  covers : (Cover | ImagePreviewItem)[] , 
 }
 
 
-interface MediaType {
-  
-}

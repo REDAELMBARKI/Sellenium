@@ -2,9 +2,11 @@
 
 import EmptyListSection from "@/admin/components/partials/EmptyListSection";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { Color, Cover, FashionOptions, Size } from "@/types/inventoryTypes";
+import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
+import { Color, Cover, Size } from "@/types/inventoryTypes";
 import { ImagePreviewItem } from "@/types/mediaTypes";
-import { FashionProduct, FashionVariant } from "@/types/productsTypes";
+import { FashionOptions, ProductVariant } from "@/types/products/productVariantType";
+import { FashionProduct } from "@/types/productsTypes";
 import { set } from "lodash";
 import { Plus, Trash2, Edit2, AlertCircle, Package2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -28,21 +30,20 @@ const PRESET_COLORS : Color[] = [
     { id: 3, name: "Red", hex: "#EF4444" },
     { id: 4, name: "Blue", hex: "#3B82F6" },
   ]
-const FashionVariantBuilder = () => {
+export const FashionVariantBuilder = () => {
 
-  const  {basicInfoForm  ,  setBasicInfoForm , nicheOptionsState } = useProductDataCtx()
+  const  {basicInfoForm  ,  setBasicInfoForm , options } = useProductDataCtx()
   const fashionForm = basicInfoForm as FashionProduct;
-  const fashionOptions = nicheOptionsState  as FashionOptions ;
-  const [savedVariants, setSavedVariants] = useState<FashionVariant[]>(fashionForm.variants as FashionVariant[] || []);
+  const [savedVariants, setSavedVariants] = useState<ProductVariant[]>(fashionForm.variants as ProductVariant[] || []);
 
-  const [editingVariant, setEditingVariant] = useState<FashionVariant | null>(null);
-  const [availableColors, setAvailableColors] = useState<Color[]>(fashionOptions?.colors  ?? PRESET_COLORS);
-  const [availableSizes] = useState<Size[]>(fashionOptions?.sizes  ?? PRESET_SIZES);
+  const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(null);
+  const [availableColors, setAvailableColors] = useState<Color[]>(options?.colors  ?? PRESET_COLORS);
+  const [availableSizes] = useState<Size[]>(options?.sizes  ?? PRESET_SIZES);
   const [previewColor, setPreviewColor] = useState<Color | null>(null);
   // for scrolling to view the form once add variant clicked 
   const addVariantFormRef = useRef<HTMLDivElement | null>(null)
 
-  if (!basicInfoForm || basicInfoForm.niche !== "fashion") return null;
+  if (!basicInfoForm || basicInfoForm.category !== "fashion") return null;
   
 
   useEffect(() => {
@@ -54,13 +55,12 @@ const FashionVariantBuilder = () => {
 
 
   const startNewVariant = () => {
-    console.log('scroll') 
     if(addVariantFormRef.current) addVariantFormRef.current?.scrollIntoView({ behavior: "smooth" })
-    const newVariant: FashionVariant = {
-      niche: "fashion",
-      id: Date.now().toString(),
-      attributes: { color: null, sizes: [], covers: [] },
-      quantity: 0,
+    const newVariant: ProductVariant = {
+      category : "fashion" ,
+      id: v4(),
+      option: { color: null, size : null  , covers : [] },
+      stockQuantity: 0,
     };
     setEditingVariant(newVariant);
 
@@ -71,21 +71,16 @@ const FashionVariantBuilder = () => {
     if (!editingVariant) return;
     setEditingVariant({
       ...editingVariant,
-      attributes: { ...editingVariant.attributes, color },
+      option: { ...editingVariant.option, color },
     });
   };
 
   const toggleVariantSize = (size: Size) => {
     if (!editingVariant) return;
     
-    const hasSize = editingVariant.attributes.sizes.some(s => s.id === size.id);
-    const newSizes = hasSize
-      ? editingVariant.attributes.sizes.filter(s => s.id !== size.id)
-      : [...editingVariant.attributes.sizes, size];
-    
     setEditingVariant({
       ...editingVariant,
-      attributes: { ...editingVariant.attributes, sizes: newSizes },
+      option: { ...editingVariant.option, size },
     });
   };
 
@@ -102,12 +97,16 @@ const FashionVariantBuilder = () => {
       file: file,
     }));
 
-    setEditingVariant({
-      ...editingVariant,
-      attributes: {
-        ...editingVariant.attributes,
-        covers: [...editingVariant.attributes.covers, ...newCovers],
-      },
+    setEditingVariant((prev) => {
+        if(!prev || prev?.category !== 'fashion') return prev
+
+        return {
+        ...prev,
+        option : {
+          ...prev.option,
+          covers: [...(prev.option as FashionOptions).covers, ...newCovers],
+        },
+    }
     });
 
     e.target.value = "";
@@ -116,7 +115,7 @@ const FashionVariantBuilder = () => {
   const removeCover = (coverId: string) => {
     if (!editingVariant) return;
      
-    const coverToRemove : (Cover | ImagePreviewItem) | undefined = editingVariant.attributes.covers.find(c => c.id === coverId);
+    const coverToRemove : (Cover | ImagePreviewItem) | undefined = (editingVariant.option as FashionOptions).covers.find(c => c.id === coverId);
     if(!coverToRemove) return;
 
     if("url" in coverToRemove && coverToRemove.url!.startsWith("blob:")){
@@ -124,18 +123,24 @@ const FashionVariantBuilder = () => {
     }
     
 
-    setEditingVariant({
-      ...editingVariant,
-      attributes: {
-        ...editingVariant.attributes,
-        covers: editingVariant.attributes.covers.filter(c => c.id !== coverId),
+    setEditingVariant(prev => {
+      if(!prev || prev?.category !== 'fashion') return prev ;
+      return {
+      ...prev,
+      option: {
+        ...prev.option,
+        covers: (prev.option as FashionOptions).covers.filter(c => c.id !== coverId),
       },
+    }
+
     });
+
+
   };
 
-  const updateQuantity = (quantity: number) => {
+  const updateQuantity = (stockQuantity: number) => {
     if (!editingVariant) return;
-    setEditingVariant({ ...editingVariant, quantity });
+    setEditingVariant({ ...editingVariant, stockQuantity });
   };
 
   const handleAddColor = () => {
@@ -148,11 +153,11 @@ const FashionVariantBuilder = () => {
     if (!editingVariant) return [];
     const errors = [];
     
-    if (!editingVariant.attributes.color) {
+    if (!(editingVariant.option as FashionOptions).color) {
       errors.push("Color is required");
     }
-    if (editingVariant.attributes.sizes.length === 0) {
-      errors.push("At least one size is required");
+    if (!(editingVariant.option as FashionOptions).size) {
+      errors.push("size is required");
     }
     
     return errors;
@@ -237,7 +242,7 @@ const FashionVariantBuilder = () => {
 
             <div className="flex flex-wrap gap-4">
               {availableColors.map((color) => {
-                const isCurrent = editingVariant.attributes.color?.hex === color.hex;
+                const isCurrent = (editingVariant.option as FashionOptions).color?.hex === color.hex;
 
                 return (
                   <div className="relative w-10 h-10 rounded-full" key={color.id}>
@@ -246,7 +251,7 @@ const FashionVariantBuilder = () => {
                       className={`w-full h-full rounded-full ring-2 ring-slate-400 transition-all duration-200 hover:scale-110 shadow-sm ${
                         isCurrent
                           ? "scale-125 ring-4 ring-blue-500"
-                          : editingVariant.attributes.color
+                          : (editingVariant.option as FashionOptions).color
                           ? "opacity-40"
                           : ""
                       }`}
@@ -327,7 +332,7 @@ const FashionVariantBuilder = () => {
             </label>
             <div className="flex flex-wrap gap-3">
               {availableSizes.map((size) => {
-                const isSelected = editingVariant.attributes.sizes.some(s => s.id === size.id);
+                const isSelected = (editingVariant.option as FashionOptions).size.id === size.id;
                 return (
                   <button
                     type="button"
@@ -373,15 +378,15 @@ const FashionVariantBuilder = () => {
             </div>
 
             {/* Preview Uploaded Covers */}
-            {editingVariant.attributes.covers.length > 0 && (
+            {(editingVariant.option as FashionOptions).covers.length > 0 && (
               <div className="flex flex-wrap gap-4">
-                {editingVariant.attributes.covers.map((cover) => (
+                {(editingVariant.option as FashionOptions).covers.map((cover) => (
                   <div
                     key={cover.id}
                     className="relative w-24 h-24 rounded-lg overflow-hidden ring-2 ring-slate-300 shadow-sm group"
                   >
                     <img
-                      src={"url" in cover ? cover.url : cover.path}
+                      src={getMediaSrcOrDefault(cover , 'image')}
                       alt="Uploaded cover"
                       className="w-full h-full object-cover"
                     />
@@ -409,7 +414,7 @@ const FashionVariantBuilder = () => {
               type="number"
               min="0"
               placeholder="Enter quantity (default: 0)"
-              value={editingVariant.quantity || ""}
+              value={editingVariant.stockQuantity || ""}
               onChange={(e) => updateQuantity(parseInt(e.target.value) || 0)}
               className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
             />
@@ -445,14 +450,14 @@ const FashionVariantBuilder = () => {
   );
 };
 
-export default FashionVariantBuilder;
+
 
 
 
 interface VariantPreviewListProps {
-    setSavedVariants: React.Dispatch<React.SetStateAction<FashionVariant[]>>;
-    setEditingVariant: React.Dispatch<React.SetStateAction<FashionVariant | null>>;
-    savedVariants: FashionVariant[];
+    setSavedVariants: React.Dispatch<React.SetStateAction<ProductVariant[]>>;
+    setEditingVariant: React.Dispatch<React.SetStateAction<ProductVariant | null>>;
+    savedVariants: ProductVariant[];
 }
 
 const VariantPreviewList = ({setSavedVariants ,  setEditingVariant , savedVariants }:VariantPreviewListProps) => {
@@ -461,9 +466,11 @@ const VariantPreviewList = ({setSavedVariants ,  setEditingVariant , savedVarian
     setSavedVariants(savedVariants.filter(v => v.id !== variantId));
   };
 
-  const editVariant = (variant: FashionVariant) => {
+  const editVariant = (variant: ProductVariant) => {
     setEditingVariant({ ...variant });
   };
+   
+
 
 
 
@@ -472,7 +479,10 @@ const VariantPreviewList = ({setSavedVariants ,  setEditingVariant , savedVarian
          <div className="space-y-3">
           <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">Saved Variants</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {savedVariants.map((variant) => (
+            {savedVariants.map((variant) => {
+            
+            const option = variant.option as FashionOptions ;
+            return (
               <div
                 key={variant.id}
                 className="p-4 border-2 border-slate-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
@@ -480,9 +490,9 @@ const VariantPreviewList = ({setSavedVariants ,  setEditingVariant , savedVarian
                 <div className="flex gap-4">
                   {/* Cover Image */}
                   <div className="w-20 h-20 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0">
-                    {variant.attributes.covers[0] ? (
+                    {option.covers[0] ? (
                       <img
-                        src={"url" in variant.attributes.covers[0] ? variant.attributes.covers[0].url : variant.attributes.covers[0].path}
+                        src={getMediaSrcOrDefault(option.covers[0] , 'image')}
                         alt="Variant cover"
                         className="w-full h-full object-cover"
                       />
@@ -497,13 +507,13 @@ const VariantPreviewList = ({setSavedVariants ,  setEditingVariant , savedVarian
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-slate-500 font-medium">Color:</span>
-                      {variant.attributes.color && (
+                      {option.color && (
                         <div className="flex items-center gap-1">
                           <div
                             className="w-5 h-5 rounded-full ring-2 ring-slate-300"
-                            style={{ backgroundColor: variant.attributes.color.hex }}
+                            style={{ backgroundColor: option.color.hex }}
                           />
-                          <span className="text-xs text-slate-600">{variant.attributes.color.name}</span>
+                          <span className="text-xs text-slate-600">{option.color.name}</span>
                         </div>
                       )}
                     </div>
@@ -511,19 +521,19 @@ const VariantPreviewList = ({setSavedVariants ,  setEditingVariant , savedVarian
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-slate-500 font-medium">Sizes:</span>
                       <div className="flex flex-wrap gap-1">
-                        {variant.attributes.sizes.map((size) => (
+                        {option.size && (
                           <span
-                            key={size.id}
+                            key={option.size.id}
                             className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-xs font-medium"
                           >
-                            {size.name}
+                            {option.size.name}
                           </span>
-                        ))}
+                        ) }
                       </div>
                     </div>
 
                     <div className="text-xs text-slate-500">
-                      Quantity: <span className="font-medium text-slate-700">{variant.quantity}</span>
+                      Quantity: <span className="font-medium text-slate-700">{variant.stockQuantity}</span>
                     </div>
                   </div>
                 </div>
@@ -544,7 +554,11 @@ const VariantPreviewList = ({setSavedVariants ,  setEditingVariant , savedVarian
                   </button>
                 </div>
               </div>
-            ))}
+            )}
+          
+          )
+          
+          }
           </div>
         </div>
     )

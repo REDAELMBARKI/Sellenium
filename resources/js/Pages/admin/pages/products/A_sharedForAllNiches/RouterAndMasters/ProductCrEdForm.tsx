@@ -22,9 +22,12 @@ function getVideoPreview(video: Cover | ImagePreviewItem | null) {
   return null;
 }
 
+
+
+
 const ProductCrEdForm = () => {
-  const { basicInfoForm : bif, setBasicInfoForm } = useProductDataCtx();
-  const basicInfoForm = bif as FashionProduct  ; 
+  const { basicInfoForm , setBasicInfoForm } = useProductDataCtx();
+  
 
   const { state :{currentTheme , currentCategory} } = useStoreConfigCtx();
 
@@ -36,30 +39,34 @@ const ProductCrEdForm = () => {
   const isMountedRef = useRef<boolean>(false);
 
 
+
+
+
  // check if at least one of  the attributes is set
-  const isOpenShowAttributes = keys.some(key => { 
-  const value : FashionAttributes[keyof FashionAttributes] = basicInfoForm[key];
+  const isOpenShowAttributes = true ;
+//   const isOpenShowAttributes = keys.some(key => { 
+//   const value : FashionAttributes[keyof FashionAttributes] = basicInfoForm[key];
 
-  // If array: must have at least 1 element
-  if (Array.isArray(value)) {
-    return value.length > 0;
-  }
+//   // If array: must have at least 1 element
+//   if (Array.isArray(value)) {
+//     return value.length > 0;
+//   }
 
-  // If object (like madeCountry)
-  if (typeof value === "object" && value !== undefined) {
-     if(!value) return ;
-     return  Object.keys(value).length > 0;
-  }
+//   // If object (like madeCountry)
+//   if (typeof value === "object" && value !== undefined) {
+//      if(!value) return ;
+//      return  Object.keys(value).length > 0;
+//   }
 
-  return false;
-});
+//   return false;
+// });
 
   const [showAttributes, setShowAttributes] = useState<boolean>(isOpenShowAttributes);
 
   const isOpenShowVariantBuilder = basicInfoForm.variants.length > 0  // check if the variants are set 
   const [showVariantBuilder, setShowVariantBuilder] = useState<boolean>(isOpenShowVariantBuilder);
 
-  const isOpenShowAdvanced = basicInfoForm.tags.length > 0 || basicInfoForm.sku !== '' // check if the meta data is set
+  const isOpenShowAdvanced = basicInfoForm.tags.length > 0  // check if the meta data is set
   const [showAdvanced, setShowAdvanced] = useState<boolean>(isOpenShowAdvanced); // this has meta dat alike sku and tags
 
   const mediaRef = useRef<HTMLDivElement | null>(null);
@@ -90,7 +97,7 @@ const ProductCrEdForm = () => {
 }, [showAttributes, showVariantBuilder, showAdvanced, showMedia]);
 
 
-  if (!basicInfoForm || basicInfoForm.niche !== "fashion") return null;
+  if (!basicInfoForm || basicInfoForm.category !== "fashion") return null;
 
   const handleToggleSection = (
     sectionName: string,
@@ -109,15 +116,18 @@ const ProductCrEdForm = () => {
     }
   };
 
-  const VariantBuilder  = VARIANTS_FORM_SECTIONS[currentCategory as CategoryCode] ; 
-  const AttibutesBuilder  = ATTRIBUTES_FORM_SECTIONS[currentCategory as CategoryCode] ; 
-
+  const VariantBuilder  = VARIANTS_FORM_SECTIONS[currentCategory] ; 
+  const AttibutesBuilder  = ATTRIBUTES_FORM_SECTIONS[currentCategory] ; 
 
   return (
     <div className="w-full h-full overflow-y-auto" style={{background : currentTheme.bg , color : currentTheme.text}}>
       <div className="space-y-8 p-8 rounded-xl shadow-2xl m-4"
       style={{background : currentTheme.bgSecondary , color : currentTheme.text}}
       >
+        
+
+        {/* category selectin here */}
+        
 
         {/* Base Shared Info */}
         <BaseSharedForm />
@@ -141,7 +151,7 @@ const ProductCrEdForm = () => {
                 })
               }
             >
-              <MediaSection  />
+              <MediaSection {...{videoPreview, setVideoPreview}} />
             </CollapsibleSection>
           </div>
 
@@ -153,7 +163,7 @@ const ProductCrEdForm = () => {
               isOpen={showAttributes}
               onToggle={() => handleToggleSection("Product Attributes", showAttributes, setShowAttributes)}
             >
-              <AttibutesBuilder />
+              {/* <AttibutesBuilder /> */}
             </CollapsibleSection>
           </div>
 
@@ -178,7 +188,10 @@ const ProductCrEdForm = () => {
               icon={Settings}
               isOpen={showAdvanced}
               onToggle={() => handleToggleSection("Advanced Settings", showAdvanced, setShowAdvanced, () => {
-                setBasicInfoForm({ ...basicInfoForm, sku: '', tags: [] as TagType[] });
+                setBasicInfoForm({ ...basicInfoForm,  
+                                      tags: [] as TagType[]  , 
+                                      
+                                      });
               })}
             > 
               <ProductMetaData />
