@@ -48,7 +48,7 @@ function CreateContent() {
     return (
         <>
             <div className="py-8 px-6">
-                <div className="max-w-5xl mx-auto">
+                <div className="min-w-[90%] mx-auto">
                     {/* hehader */}
                     <SectionHeader
                         title="add Product"

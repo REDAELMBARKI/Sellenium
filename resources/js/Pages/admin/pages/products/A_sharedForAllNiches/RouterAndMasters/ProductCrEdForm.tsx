@@ -2,212 +2,379 @@ import CollapsibleSection from "@/components/CollapsibleSection";
 import CustomSelect from "@/components/ui/CustomSelect";
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { Upload, X, Plus, Video, Droplet, Settings  ,Trash2, Edit2, AlertCircle } from "lucide-react";
+import {
+    Upload,
+    X,
+    Plus,
+    Video,
+    Droplet,
+    Settings,
+    Trash2,
+    Edit2,
+    AlertCircle,
+} from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import MediaSection from "../components/editAndCreate/MediaSection";
-import { Color, Cover, Fit, Material, Season, Size, Style } from "@/types/inventoryTypes";
+import {
+    Color,
+    Cover,
+    Fit,
+    Material,
+    Season,
+    Size,
+    Style,
+} from "@/types/inventoryTypes";
 import BaseSharedForm from "../components/editAndCreate/BaseSharedForm";
 import ProductMetaData from "../components/editAndCreate/ProductMetaData";
 import { Tag as TagType } from "@/types/tagsTypes";
 
 import { ImagePreviewItem } from "@/types/mediaTypes";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
-import { ATTRIBUTES_FORM_SECTIONS, VARIANTS_FORM_SECTIONS } from "@/data/formSectionConfigurations";
+import {
+    ATTRIBUTES_FORM_SECTIONS,
+    VARIANTS_FORM_SECTIONS,
+} from "@/data/formSectionConfigurations";
 import { CategoryCode } from "@/types/products/categories";
+import { CATEGORIES } from "@/data/listOfCategories";
+import NotifyUser from "@/components/ui/NotifyUser";
+import PricingSection from "../components/editAndCreate/PricingSection";
+import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
 
 function getVideoPreview(video: Cover | ImagePreviewItem | null) {
-  if (!video) return null;
-  if ("path" in video) return video.path;
-  if ("url" in video) return video.url;
-  return null;
+    if (!video) return null;
+    if ("path" in video) return video.path;
+    if ("url" in video) return video.url;
+    return null;
 }
 
-
-
-
 const ProductCrEdForm = () => {
-  const { basicInfoForm , setBasicInfoForm } = useProductDataCtx();
-  
+    const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
 
-  const { state :{currentTheme , currentCategory} } = useStoreConfigCtx();
+    const {
+        state: { currentTheme, currentCategory },
+        dispatch,
+    } = useStoreConfigCtx();
+    const { options } = useProductDataCtx();
 
-  const [videoPreview, setVideoPreview] = useState<string | null>(getVideoPreview(basicInfoForm.video));
+    const [videoPreview, setVideoPreview] = useState<string | null>(
+        getVideoPreview(basicInfoForm.video)
+    );
 
-  const isOpenShowMedia = (basicInfoForm.covers.length > 0) || !!(basicInfoForm.video &&  Object.keys(basicInfoForm.video).length > 0 ) ; // check if media is set
+    const isOpenShowMedia =
+        basicInfoForm.covers.length > 0 ||
+        !!(basicInfoForm.video && Object.keys(basicInfoForm.video).length > 0); // check if media is set
 
-  const [showMedia, setShowMedia] = useState<boolean>(isOpenShowMedia);
-  const isMountedRef = useRef<boolean>(false);
+    const [showMedia, setShowMedia] = useState<boolean>(isOpenShowMedia);
+    const isMountedRef = useRef<boolean>(false);
 
+    // check if at least one of  the attributes is set
+    const isOpenShowAttributes = true;
+    //   const isOpenShowAttributes = keys.some(key => {
+    //   const value : FashionAttributes[keyof FashionAttributes] = basicInfoForm[key];
 
+    //   // If array: must have at least 1 element
+    //   if (Array.isArray(value)) {
+    //     return value.length > 0;
+    //   }
 
+    //   // If object (like madeCountry)
+    //   if (typeof value === "object" && value !== undefined) {
+    //      if(!value) return ;
+    //      return  Object.keys(value).length > 0;
+    //   }
 
+    //   return false;
+    // });
 
- // check if at least one of  the attributes is set
-  const isOpenShowAttributes = true ;
-//   const isOpenShowAttributes = keys.some(key => { 
-//   const value : FashionAttributes[keyof FashionAttributes] = basicInfoForm[key];
+    const [showAttributes, setShowAttributes] =
+        useState<boolean>(isOpenShowAttributes);
 
-//   // If array: must have at least 1 element
-//   if (Array.isArray(value)) {
-//     return value.length > 0;
-//   }
+    const isOpenShowVariantBuilder = basicInfoForm.variants.length > 0; // check if the variants are set
+    const [showVariantBuilder, setShowVariantBuilder] = useState<boolean>(
+        isOpenShowVariantBuilder
+    );
 
-//   // If object (like madeCountry)
-//   if (typeof value === "object" && value !== undefined) {
-//      if(!value) return ;
-//      return  Object.keys(value).length > 0;
-//   }
+    const isOpenShowAdvanced = basicInfoForm.tags.length > 0; // check if the meta data is set
+    const [showAdvanced, setShowAdvanced] =
+        useState<boolean>(isOpenShowAdvanced); // this has meta dat alike sku and tags
+    const [frontEndErrors, setFrontEndErrors] = useState<
+        Record<string, string>
+    >({});
 
-//   return false;
-// });
+    const mediaRef = useRef<HTMLDivElement | null>(null);
+    const attributesRef = useRef<HTMLDivElement | null>(null);
+    const variantRef = useRef<HTMLDivElement | null>(null);
+    const advancedRef = useRef<HTMLDivElement | null>(null);
+    const thumbnailPreviewRef = useRef<any | null>(null);
+    // useEffect(() => {
+    //     if (!isMountedRef.current) {
+    //         isMountedRef.current = true;
+    //         return;
+    //     }
 
-  const [showAttributes, setShowAttributes] = useState<boolean>(isOpenShowAttributes);
+    //     if (showMedia && mediaRef.current) {
+    //         mediaRef.current.scrollIntoView({ behavior: "smooth" });
+    //     }
 
-  const isOpenShowVariantBuilder = basicInfoForm.variants.length > 0  // check if the variants are set 
-  const [showVariantBuilder, setShowVariantBuilder] = useState<boolean>(isOpenShowVariantBuilder);
+    //     // Scroll based on which section is visible
+    //     if (showAttributes && attributesRef.current) {
+    //         attributesRef.current.scrollIntoView({ behavior: "smooth" });
+    //     } else if (showVariantBuilder && variantRef.current) {
+    //         variantRef.current.scrollIntoView({ behavior: "smooth" });
+    //     } else if (showAdvanced && advancedRef.current) {
+    //         advancedRef.current.scrollIntoView({ behavior: "smooth" });
+    //     }
+    // }, [showAttributes, showVariantBuilder, showAdvanced, showMedia]);
 
-  const isOpenShowAdvanced = basicInfoForm.tags.length > 0  // check if the meta data is set
-  const [showAdvanced, setShowAdvanced] = useState<boolean>(isOpenShowAdvanced); // this has meta dat alike sku and tags
+    const handleToggleSection = (
+        sectionName: string,
+        currentState: boolean,
+        setter: (value: boolean) => void,
+        clearData?: () => void
+    ) => {
+        if (currentState && clearData) {
+            const confirmed = window.confirm(
+                `Deactivating "${sectionName}" will clear all data. Proceed?`
+            );
+            if (confirmed) {
+                clearData();
+                setter(false);
+            }
+        } else {
+            setter(!currentState);
+        }
+    };
 
-  const mediaRef = useRef<HTMLDivElement | null>(null);
-  const attributesRef = useRef<HTMLDivElement | null>(null);
-  const variantRef = useRef<HTMLDivElement | null>(null);
-  const advancedRef = useRef<HTMLDivElement | null>(null);
+    const validateField = (field: string, value: any) => {
+        const newFrontEndErrors = { ...frontEndErrors };
 
-  
- 
- useEffect(() => {
-  if (!isMountedRef.current) {
-    isMountedRef.current = true;
-    return;
-  }
+        if (field === "name" && !value?.trim()) {
+            newFrontEndErrors.name = "Product name is required";
+        } else if (field === "name") {
+            delete newFrontEndErrors.name;
+        }
 
-  if (showMedia && mediaRef.current) {
-      mediaRef.current.scrollIntoView({ behavior: "smooth" });
-  }
+        if (field === "brand" && !value?.trim()) {
+            newFrontEndErrors.brand = "Brand is required";
+        } else if (field === "brand") {
+            delete newFrontEndErrors.brand;
+        }
 
-  // Scroll based on which section is visible
-  if (showAttributes && attributesRef.current) {
-    attributesRef.current.scrollIntoView({ behavior: "smooth" });
-  } else if (showVariantBuilder && variantRef.current) {
-    variantRef.current.scrollIntoView({ behavior: "smooth" });
-  } else if (showAdvanced && advancedRef.current) {
-    advancedRef.current.scrollIntoView({ behavior: "smooth" });
-  }
-}, [showAttributes, showVariantBuilder, showAdvanced, showMedia]);
+        if (field === "price" && (!value || parseFloat(value) <= 0)) {
+            newFrontEndErrors.price = "Valid price is required";
+        } else if (field === "price") {
+            delete newFrontEndErrors.price;
+        }
 
+        if (field === "description" && !value?.trim()) {
+            newFrontEndErrors.description = "Description is required";
+        } else if (field === "description") {
+            delete newFrontEndErrors.description;
+        }
 
-  if (!basicInfoForm || basicInfoForm.category !== "fashion") return null;
+        if (field === "thumbnail" && !value && !thumbnailPreviewRef.current) {
+            newFrontEndErrors.thumbnail = "Product thumbnail is required";
+        } else if (field === "thumbnail") {
+            delete newFrontEndErrors.thumbnail;
+        }
 
-  const handleToggleSection = (
-    sectionName: string,
-    currentState: boolean,
-    setter: (value: boolean) => void,
-    clearData?: () => void
-  ) => {
-    if (currentState && clearData) {
-      const confirmed = window.confirm(`Deactivating "${sectionName}" will clear all data. Proceed?`);
-      if (confirmed) {
-        clearData();
-        setter(false);
-      }
-    } else {
-      setter(!currentState);
-    }
-  };
+        setFrontEndErrors(newFrontEndErrors);
+    };
 
-  const VariantBuilder  = VARIANTS_FORM_SECTIONS[currentCategory] ; 
-  const AttibutesBuilder  = ATTRIBUTES_FORM_SECTIONS[currentCategory] ; 
-  return (
-    <div className="w-full h-full overflow-y-auto" style={{background : currentTheme.bg , color : currentTheme.text}}>
-      <div className="space-y-8 p-8 rounded-xl shadow-2xl m-4"
-      style={{background : currentTheme.bgSecondary , color : currentTheme.text}}
-      >
-        
-
-        {/* category selectin here */}
-        
-
-        {/* Base Shared Info */}
-        <BaseSharedForm />
-
-        {/* Optional Sections */}
-        <div className="space-y-6">
-          <h2 className="text-xl font-bold uppercase tracking-wide mb-4" style={{ color: currentTheme.text }}>
-            Optional Sections
-          </h2>
-
-          {/* Media */}
-          <div ref={mediaRef}>
-            <CollapsibleSection
-              title="Add Media"
-              icon={Video}
-              isOpen={showMedia}
-              onToggle={(newState) =>
-                handleToggleSection("Add Media", showMedia, setShowMedia, () => {
-                  setBasicInfoForm({ ...basicInfoForm, covers: [] as Cover[], video: {file : null , url : null , id : null } });
-                  setVideoPreview(null);
-                })
-              }
+    const VariantBuilder = VARIANTS_FORM_SECTIONS[currentCategory];
+    const AttibutesBuilder = ATTRIBUTES_FORM_SECTIONS[currentCategory];
+    return (
+        <div className="w-full h-full overflow-y-auto ">
+            <div
+                className="space-y-8 py-8 px-4 rounded-xl shadow-2xl "
+                style={{ background: "transparent", color: currentTheme.text }}
             >
-              <MediaSection {...{videoPreview, setVideoPreview}} />
-            </CollapsibleSection>
-          </div>
+                {/* category selectin here */}
 
-          {/* Attributes */}
-          {AttibutesBuilder && (
-          <div ref={attributesRef}>
-            <CollapsibleSection
-              title="Product Attributes"
-              icon={Settings}
-              isOpen={showAttributes}
-              onToggle={() => handleToggleSection("Product Attributes", showAttributes, setShowAttributes)}
-            >
-              <AttibutesBuilder />
-            </CollapsibleSection>
-          </div>
-          )}
+                <section
+                    className="p-4 border border-1"
+                    style={{
+                        background: currentTheme.card,
+                        borderColor: currentTheme.border,
+                    }}
+                >
+                    <h2
+                        className="text-xl font-bold uppercase tracking-wide mb-4"
+                        style={{ color: currentTheme.text }}
+                    >
+                        What You are going to sell ??
+                    </h2>
+                    <CustomSelect
+                        options={CATEGORIES}
+                        value={basicInfoForm?.category}
+                        onChange={(value) => {
+                            dispatch({
+                                type: "SET_CATEGORY",
+                                payload: value as CategoryCode,
+                            });
+                            setBasicInfoForm({
+                                ...basicInfoForm,
+                                category: value as CategoryCode,
+                            });
+                        }}
+                    />
 
-          {/* Variant Builder */}
-          {VariantBuilder && (
-          <div ref={variantRef}>
-            <CollapsibleSection
-              title="Variant Builder"
-              icon={Droplet}
-              isOpen={showVariantBuilder}
-              onToggle={() => handleToggleSection("Variant Builder", showVariantBuilder, setShowVariantBuilder)}
-            > 
-           {/* // ------------------ VARIANT BUILDER SECTION ------------------ */}
+                    <NotifyUser message="choose hte category so realted category sections would apear " />
+                </section>
 
-              <VariantBuilder />
-            </CollapsibleSection>
-          </div>
-          )}
+                {/* base form */}
+                <section
+                    className="p-4 border border-1"
+                    style={{
+                        background: currentTheme.card,
+                        borderColor: currentTheme.border,
+                    }}
+                >
+                    {/* Base Shared Info */}
+                    <BaseSharedForm
+                        {...{ frontEndErrors, validateField }}
+                        getThumbnailPreview={(thumbnail) =>
+                            (thumbnailPreviewRef.current = thumbnail)
+                        }
+                    />
+                </section>
 
-          {/* Advanced / Meta  tags and sku*/}
-          <div ref={advancedRef}>
-            <CollapsibleSection
-              title="Advanced Settings"
-              icon={Settings}
-              isOpen={showAdvanced}
-              onToggle={() => handleToggleSection("Advanced Settings", showAdvanced, setShowAdvanced, () => {
-                setBasicInfoForm({ ...basicInfoForm,  
-                                      tags: [] as TagType[]  , 
-                                      
-                                      });
-              })}
-            > 
-              <ProductMetaData />
-            </CollapsibleSection>
-          </div>
+                <section
+                    className="p-4 border border-1"
+                    style={{
+                        background: currentTheme.card,
+                        borderColor: currentTheme.border,
+                    }}
+                >
+                    <PricingSection {...{ frontEndErrors, validateField }} />
+                </section>
 
+                <section
+                    className="p-4 border border-1"
+                    style={{
+                        background: currentTheme.card,
+                        borderColor: currentTheme.border,
+                    }}
+                >
+                    {/* Media */}
+                    <div ref={mediaRef}>
+                        <CollapsibleFrendlySection
+                            title="Add Media"
+                            icon={Video}
+                            isOpen={showMedia} 
+                            onToggle={() => setShowMedia((prev) => !prev)}
+                            headerActions={
+                              <>
+                                <button className="px-3 py-1.5 text-sm rounded-lg border">
+                                  Add images
+                                </button>
+                                <button className="px-3 py-1.5 text-sm rounded-lg border">
+                                  Add video
+                                </button>
+                              </>
+                            }
+                        >
+                            <MediaSection
+                                {...{ videoPreview, setVideoPreview }}
+                            />
+                        </CollapsibleFrendlySection>
+                    </div>
+                </section>
 
-           
+                {/* Attributes */}
+
+                {AttibutesBuilder && (
+                    <section
+                        className="p-4 border border-1"
+                        style={{
+                            background: currentTheme.bg,
+                            borderColor: currentTheme.border,
+                        }}
+                    >
+                        <div ref={attributesRef}>
+                            <CollapsibleSection
+                                title="Product Attributes"
+                                icon={Settings}
+                                isOpen={showAttributes}
+                                onToggle={() =>
+                                    handleToggleSection(
+                                        "Product Attributes",
+                                        showAttributes,
+                                        setShowAttributes
+                                    )
+                                }
+                            >
+                                <AttibutesBuilder />
+                            </CollapsibleSection>
+                        </div>
+                    </section>
+                )}
+
+                {/* Variant Builder */}
+                {VariantBuilder && (
+                    <section
+                        className="p-4 border border-1"
+                        style={{
+                            background: currentTheme.bg,
+                            borderColor: currentTheme.border,
+                        }}
+                    >
+                        <div ref={variantRef}>
+                            <CollapsibleSection
+                                title="Variant Builder"
+                                icon={Droplet}
+                                isOpen={showVariantBuilder}
+                                onToggle={() =>
+                                    handleToggleSection(
+                                        "Variant Builder",
+                                        showVariantBuilder,
+                                        setShowVariantBuilder
+                                    )
+                                }
+                            >
+                                {/* // ------------------ VARIANT BUILDER SECTION ------------------ */}
+
+                                <VariantBuilder />
+                            </CollapsibleSection>
+                        </div>
+                    </section>
+                )}
+
+                {/* Advanced / Meta  tags and sku*/}
+
+                <section
+                    className="p-4 border border-1"
+                    style={{
+                        background: currentTheme.card,
+                        borderColor: currentTheme.border,
+                    }}
+                >
+                    <div ref={advancedRef}>
+                        <CollapsibleSection
+                            title="Advanced Settings"
+                            icon={Settings}
+                            isOpen={showAdvanced}
+                            onToggle={() =>
+                                handleToggleSection(
+                                    "Advanced Settings",
+                                    showAdvanced,
+                                    setShowAdvanced,
+                                    () => {
+                                        setBasicInfoForm({
+                                            ...basicInfoForm,
+                                            tags: [] as TagType[],
+                                        });
+                                    }
+                                )
+                            }
+                        >
+                            <ProductMetaData />
+                        </CollapsibleSection>
+                    </div>
+                </section>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default ProductCrEdForm;
-

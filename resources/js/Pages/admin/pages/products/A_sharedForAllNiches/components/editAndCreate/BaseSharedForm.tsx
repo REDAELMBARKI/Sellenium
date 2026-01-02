@@ -17,22 +17,25 @@ import { v4 } from "uuid";
 
 
 
-const BaseSharedForm = () => {
+const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} : {getThumbnailPreview : (thumbnail:string) => void , validateField : (field: string, value: any) => void , frontEndErrors : Record<string , string>}) => {
     
       const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
       const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-      const [errors, setErrors] = useState<Record<string, string>>({});
      const {state :{currentTheme}} = useStoreConfigCtx()
 
       
     
       
+    
       
-      useEffect(() => {
+    useEffect(() => {
+          if (!thumbnailPreview) return;
+
+          getThumbnailPreview(thumbnailPreview);
           return () => {
-            if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
+           URL.revokeObjectURL(thumbnailPreview);
           };
-        }, [thumbnailPreview]);
+        }, [thumbnailPreview , getThumbnailPreview]);
     
     const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -43,49 +46,11 @@ const BaseSharedForm = () => {
   };
 
 
-    const validateField = (field: string, value: any) => {
-    const newErrors = { ...errors };
-
-    if (field === 'name' && !value?.trim()) {
-      newErrors.name = 'Product name is required';
-    } else if (field === 'name') {
-      delete newErrors.name;
-    }
-
-    if (field === 'brand' && !value?.trim()) {
-      newErrors.brand = 'Brand is required';
-    } else if (field === 'brand') {
-      delete newErrors.brand;
-    }
-
-    if (field === 'price' && (!value || parseFloat(value) <= 0)) {
-      newErrors.price = 'Valid price is required';
-    } else if (field === 'price') {
-      delete newErrors.price;
-    }
-
-    if (field === 'description' && !value?.trim()) {
-      newErrors.description = 'Description is required';
-    } else if (field === 'description') {
-      delete newErrors.description;
-    }
-
-    if (field === 'thumbnail' && !value && !thumbnailPreview) {
-      newErrors.thumbnail = 'Product thumbnail is required';
-    } else if (field === 'thumbnail') {
-      delete newErrors.thumbnail;
-    }
-
-    setErrors(newErrors);
-    };
-
+   
 
     return <>
     <div className="space-y-6 pb-6 border-b" style={{ borderColor: currentTheme.border }}>
-          <h2 className="text-2xl font-bold uppercase tracking-wide" style={{ color: currentTheme.text }}>
-            Base Information
-          </h2>
-
+          
           {/* Thumbnail */}
           <div>
             <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
@@ -94,7 +59,7 @@ const BaseSharedForm = () => {
             <div className="flex items-center gap-6">
               {(basicInfoForm.thumbnail || thumbnailPreview) && (
                 <div className="relative w-40 h-40 group overflow-hidden rounded-2xl shadow-lg border-2"
-                     style={{ borderColor: errors.thumbnail ? '#ef4444' : currentTheme.border }}>
+                     style={{ borderColor: frontEndErrors.thumbnail ? '#ef4444' : currentTheme.border }}>
                   <img
                     src={(thumbnailPreview && thumbnailPreview !== "")  ? thumbnailPreview : getMediaSrcOrDefault(basicInfoForm.thumbnail , 'image')}
                     alt="Product thumbnail"
@@ -118,7 +83,7 @@ const BaseSharedForm = () => {
                 <input type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
               </label>
             </div>
-            {errors.thumbnail && <p className="text-red-500 text-sm mt-2">{errors.thumbnail}</p>}
+            {frontEndErrors.thumbnail && <p className="text-red-500 text-sm mt-2">{frontEndErrors.thumbnail}</p>}
           </div>
 
           {/* Name, Brand */}
@@ -140,10 +105,10 @@ const BaseSharedForm = () => {
                   backgroundColor: currentTheme.bg,
                   color: currentTheme.text,
                   borderWidth: '2px',
-                  borderColor: errors.name ? '#ef4444' : currentTheme.border
+                  borderColor: frontEndErrors.name ? '#ef4444' : currentTheme.border
                 }}
               />
-              {errors.name && <p className="text-red-500 text-sm mt-2">{errors.name}</p>}
+              {frontEndErrors.name && <p className="text-red-500 text-sm mt-2">{frontEndErrors.name}</p>}
             </div>
             <div>
               <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
@@ -162,65 +127,16 @@ const BaseSharedForm = () => {
                   backgroundColor: currentTheme.bg,
                   color: currentTheme.text,
                   borderWidth: '2px',
-                  borderColor: errors.brand ? '#ef4444' : currentTheme.border
+                  borderColor: frontEndErrors.brand ? '#ef4444' : currentTheme.border
                 }}
               />
-              {errors.brand && <p className="text-red-500 text-sm mt-2">{errors.brand}</p>}
+              {frontEndErrors.brand && <p className="text-red-500 text-sm mt-2">{frontEndErrors.brand}</p>}
             </div>
           </div>
 
-          {/* Pricing */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                Price <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={basicInfoForm.price}
-                onChange={(e) => {
-                  setBasicInfoForm({ ...basicInfoForm, price: Number(e.target.value)});
-                  validateField('price', e.target.value);
-                }}
-                onBlur={(e) => validateField('price', e.target.value)}
-                className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
-                style={{
-                  backgroundColor: currentTheme.bg,
-                  color: currentTheme.text,
-                  borderWidth: '2px',
-                  borderColor: errors.price ? '#ef4444' : currentTheme.border
-                }}
-              />
-              {errors.price && <p className="text-red-500 text-sm mt-2">{errors.price}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-                Compare at Price <span className="text-xs font-normal">(optional)</span>
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={basicInfoForm.oldPrice || ''}
-                onChange={(e) => setBasicInfoForm({ ...basicInfoForm, oldPrice: Number(e.target.value) })}
-                className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
-                style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
-              />
-            </div>
-          </div>
+        
 
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-              Category
-            </label>
-            <MultiSelectDropdownForObject
-              label="Product Type"
-              options={Array.isArray(basicInfoForm.subCategory) ? basicInfoForm.subCategory : []}
-              selectedValues={Array.isArray(basicInfoForm.subCategory) ? basicInfoForm.subCategory : []}
-              onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, subCategory: selected as Category[] })}
-            />
-          </div>
+          
 
           {/* Description */}
           <div>
@@ -252,7 +168,7 @@ const BaseSharedForm = () => {
                 ],
               }}
             />
-            {errors.description && <p className="text-red-500 text-sm mt-2">{errors.description}</p>}
+            {frontEndErrors.description && <p className="text-red-500 text-sm mt-2">{frontEndErrors.description}</p>}
           </div>
           
 

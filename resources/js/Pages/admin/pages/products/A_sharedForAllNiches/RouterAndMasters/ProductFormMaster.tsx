@@ -8,6 +8,7 @@ import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import ProductCrEdForm from './ProductCrEdForm';
+import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
 
 
 
@@ -41,7 +42,12 @@ const ProductFormMaster: React.FC = () => {
   return ( 
   <form action={"products/create"} method='post' onSubmit={handleSubmit}> 
    {/* edit and create form  */}
-  <ProductCrEdForm />
+   <div className='flex'>
+
+    <ProductCrEdForm />
+    <RightSectionComponent />
+
+   </div>
    {/* save product */}
    <div className="flex justify-center">
       <Button 

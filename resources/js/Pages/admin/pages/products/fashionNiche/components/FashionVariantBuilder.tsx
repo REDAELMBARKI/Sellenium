@@ -43,7 +43,6 @@ export const FashionVariantBuilder = () => {
   // for scrolling to view the form once add variant clicked 
   const addVariantFormRef = useRef<HTMLDivElement | null>(null)
 
-  if (!basicInfoForm || basicInfoForm.category !== "fashion") return null;
   
 
   useEffect(() => {

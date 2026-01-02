@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ModeForm, ProductDataContext } from '@/context/sharedProductContext/ProductDataContext';
 
 import { Product } from '@/types/dashboardTypes';
@@ -96,7 +96,7 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
   ],
   };
    
-  const {state : {currentCategory : category}} = useStoreConfigCtx() 
+  const {state : {currentCategory : category} , dispatch} = useStoreConfigCtx() 
 
     
   const getInitialData = (category: CategoryCode, mode: ModeForm, product?: ProductDataGlobal) => {
@@ -118,7 +118,7 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
 
     const [variantToDelete ,  setVariantToDelete] = useState<number | null>()
     
-
+  
     return (
     <ProductDataContext.Provider value={{
         modeForm , 

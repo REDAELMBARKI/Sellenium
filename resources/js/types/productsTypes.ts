@@ -25,21 +25,21 @@ export type ProductDataGlobal =
 
 export type FashionProduct =
   ProductBase & {
-    category: "fashion";
+    category: CategoryCode;
     attributes: FashionAttributes;
     variants: ProductVariant[];
   };
 
 export type PerfumesProduct =
   ProductBase & {
-    category: "perfumes";
+    category: CategoryCode;
     attributes: PerfumesAttributes;
     variants: ProductVariant[];
   };
 
 export type ElectronicsProduct =
   ProductBase & {
-    category: "electronics";
+    category: CategoryCode;
     attributes: ElectronicsAttributes;
     variants: ProductVariant[];
   };

@@ -20,7 +20,6 @@ const FashionAttributesSection = () => {
   const {state :{currentTheme}} = useStoreConfigCtx()
 
 
-  if (!basicInfoForm || basicInfoForm.category !== 'fashion') return null;
 
   return (
     <div className="space-y-4 p-4 border rounded-lg" style={{ backgroundColor: currentTheme.card }}>
