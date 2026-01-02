@@ -1,4 +1,4 @@
-import { Cover } from "../inventoryTypes";
+import { Country, Cover } from "../inventoryTypes";
 import { ImagePreviewItem } from "../mediaTypes";
 import { Tag } from "../tagsTypes";
 import { CategoryCode } from "./categories";
@@ -17,6 +17,7 @@ export interface ProductBase {
   isFeatured?: boolean;
   isFreeShipping : boolean ;
   releaseDate?: string;
+  madeCountry : string
   thumbnail: Cover | ImagePreviewItem  | null ;
   video : Cover | ImagePreviewItem | null ;
   covers : (Cover | ImagePreviewItem)[] , 
@@ -28,7 +29,11 @@ export interface ProductBase {
   vendor?: VendorAttributes;
 }
 
-
+interface DimensionType {
+  height : string 
+  width : string 
+  length : string
+}
 interface InventoryAttributes {
   quantity?: string;
   sku?: string;
@@ -37,7 +42,7 @@ interface InventoryAttributes {
 
 interface ShippingAttributes {
   weight?: string;
-  dimensions?: string;
+  dimensions?: DimensionType;
   shippingClass?: string;
 }
 

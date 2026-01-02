@@ -2,6 +2,7 @@
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { Input } from './input';
 
 interface OptionObject {
   label: string;
@@ -13,6 +14,7 @@ interface CustomSelectProps {
   onChange: (option: OptionObject) => void;
   options: OptionObject[]; 
   label?: string;
+  isSearchable : boolean 
 }
 
 const CustomSelectForObject: React.FC<CustomSelectProps> = ({
@@ -20,6 +22,7 @@ const CustomSelectForObject: React.FC<CustomSelectProps> = ({
   onChange,
   options,
   label = 'Select ...',
+  isSearchable = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -57,6 +60,10 @@ const CustomSelectForObject: React.FC<CustomSelectProps> = ({
       </button>
 
       {isOpen && (
+        <>
+        {isSearchable && 
+        <Input />
+        }
         <div
           className="absolute z-[99999] w-full mt-2 rounded-xl shadow-lg overflow-hidden"
           style={{
@@ -79,7 +86,7 @@ const CustomSelectForObject: React.FC<CustomSelectProps> = ({
                   color: currentTheme.text,
                   backgroundColor:
                     selectedOption?.value === option.value
-                      ? currentTheme.buttonSecondary
+                      ? currentTheme.secondary
                       : 'transparent',
                 }}
               >
@@ -88,6 +95,7 @@ const CustomSelectForObject: React.FC<CustomSelectProps> = ({
             ))}
           </div>
         </div>
+        </>
       )}
     </div>
   );

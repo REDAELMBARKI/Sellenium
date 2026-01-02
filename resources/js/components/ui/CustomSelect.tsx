@@ -3,15 +3,17 @@
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { Input } from './input';
 
 interface CustomSelectProps {
   value: string | number;
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
   placeholder?: string;
+  isSearchable : boolean
 }
 
-const CustomSelect: React.FC<CustomSelectProps> = ({ value, onChange, options, placeholder = 'Select...' }) => {
+const CustomSelect: React.FC<CustomSelectProps> = ({ value, onChange, options, placeholder = 'Select...' , isSearchable = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
      const {state :{currentTheme}} = useStoreConfigCtx()
@@ -47,6 +49,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ value, onChange, options, p
       </button>
 
       {isOpen && (
+        <>
+        {isSearchable && 
+        <Input />
+        }
         <div
           className="absolute z-[99999] w-full mt-2 rounded-xl shadow-lg overflow-hidden"
           style={{
@@ -67,7 +73,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ value, onChange, options, p
                 className="w-full px-5 py-3 text-left hover:bg-gray-100 transition-colors font-medium"
                 style={{
                   color: currentTheme.text,
-                  backgroundColor: value === option.value ? currentTheme.buttonSecondary : 'transparent',
+                  backgroundColor: value === option.value ? currentTheme.secondary : 'transparent',
                 }}
               >
                 {option.label}
@@ -75,6 +81,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ value, onChange, options, p
             ))}
           </div>
         </div>
+        </>
       )}
     </div>
   );

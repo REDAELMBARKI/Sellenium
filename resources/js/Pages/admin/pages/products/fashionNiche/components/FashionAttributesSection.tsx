@@ -124,25 +124,7 @@ const FashionAttributesSection = () => {
         })}
       />
 
-
-     {/*section title */}
-      <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
-        Choose Made Country 
-      </label>
-      <div className="h-1 w-12 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${currentTheme.accent}, ${currentTheme.accentHover})` }}></div>
-      {/*end section title */}
-      <CustomSelectForObject
-        label="select a countries of Origin"
-
-        value={basicInfoForm?.attributes.madeCountry ? { label: basicInfoForm.attributes.madeCountry.name , value: basicInfoForm.attributes.madeCountry.code}  : null}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, 
-                attributes : {
-                   ...basicInfoForm.attributes , 
-                   madeCountry : {code : v.value , name : v.label} 
-                }
-        })}
-        options={countryList.map(c => ({ label: c.name , value: c.code }))}
-      />
+     
     </div>
   );
 };
