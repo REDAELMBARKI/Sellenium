@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 type IconPosition = "left" | "right";
 
@@ -12,31 +13,42 @@ const DEFAULT_ICON_GAP_PX = 40;
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, children, type = "text", iconPosition = "left", style, ...props }, ref) => {
+
+    const {state : {currentTheme}} = useStoreConfigCtx()
     const hasIcon = !!children;
 
-    const iconPaddingStyle: React.CSSProperties = hasIcon
+    const iconPaddingStyle: React.CSSProperties =  hasIcon
       ? iconPosition === "left"
         ? { paddingLeft: `${DEFAULT_ICON_GAP_PX}px` }
         : { paddingRight: `${DEFAULT_ICON_GAP_PX}px` }
       : {};
+  
 
     const mergedStyle = { ...iconPaddingStyle, ...style };
 
     return (
-      <div
-        className={cn(
-          "relative flex items-center w-full transition duration-300 bg-white border border-gray-500/30 rounded-lg h-[46px] overflow-hidden focus-within:border-indigo-500",
-          className
-        )}
-      >
+    
+         <div
+          className={cn(
+            "relative  flex items-center w-full rounded-md h-[46px] overflow-hidden transition",
+            "focus-within:outline-none focus-within:ring-0 focus-within:ring-offset-0"
+          )}
+        
+     
+        >
+
         <input
           ref={ref}
           type={type}
-          style={mergedStyle}
+          style={{...mergedStyle ,  ...{backgroundColor: currentTheme.bg,
+                  color: currentTheme.text,
+                  borderWidth: '2px',}}}
           className={cn(
-            "w-full h-full outline-none placeholder-gray-500 text-sm bg-transparent px-3",
-            "rounded-lg" 
+            "w-full h-full bg-transparent px-5 py-4 rounded-md font-medium shadow-sm",
+            "outline-none focus:outline-none focus:ring-0 focus-visible:outline-none",
+            "appearance-none [-webkit-appearance:none]"
           )}
+
           {...props}
         />
 

@@ -106,7 +106,7 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
           width: 44px;
           height: 44px;
           border-radius: 0.375rem;
-          background: ${currentTheme.buttonPrimary};
+          background: ${currentTheme.primary};
           border: 0;
           display: inline-flex;
           align-items: center;
@@ -116,7 +116,7 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
         }
         
         .search-button:hover {
-          background-color: ${currentTheme.buttonPrimaryHover};
+          background-color: ${currentTheme.primaryHover};
           box-shadow: rgba(0, 0, 0, 0.3) 0 10px 20px;
           transform: translateY(-3px);
         }
@@ -168,8 +168,11 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
             type="button"
             onClick={handleAddClick}
             className="search-button"
+            style={{ color : currentTheme.text , 
+                background : currentTheme.primary
+             }}
           >
-            <Plus className="w-6 h-6" />
+            <Plus className="w-6 h-6" color={currentTheme.accent} />
           </button>
         </div>
 
@@ -189,8 +192,11 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
                   key={suggestion}
                   type="button"
                   onClick={() => addTag(suggestion)}
-                  className="w-full px-5 py-3 text-left hover:bg-gray-100 transition-colors font-medium"
-                  style={{ color: currentTheme.text }}
+
+                  className="w-full px-5 py-3 text-left  transition-colors font-medium"
+                  style={{ color: currentTheme.textInverse  , 
+                    background : currentTheme.secondary
+                  }}
                 >
                   {suggestion} 
                 </Button>
@@ -202,13 +208,13 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
 
       <div
         className="rounded-md p-6 min-h-32"
-        style={{ backgroundColor: '#f3f4f6', borderWidth: '2px', borderColor: currentTheme.border }}
+        style={{ backgroundColor: currentTheme.bgSecondary, borderWidth: '2px', borderColor: currentTheme.border }}
       >
         {tags.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full">
-            <Tag className="w-12 h-12 text-gray-400 mb-3" />
-            <div className="text-gray-500 font-medium text-lg">No tags</div>
-            <div className="text-gray-400 text-sm mt-1">Add tags to organize your product</div>
+            <Tag className="w-12 h-12  mb-3" style={{color :currentTheme.textSecondary }} />
+            <div style={{color :currentTheme.textSecondary }} className=" font-medium text-lg">No tags</div>
+            <div style={{color :currentTheme.textSecondary }} className=" text-sm mt-1">Add tags to organize your product</div>
           </div>
         ) : (
           <div className="flex flex-wrap gap-2">
@@ -223,7 +229,7 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
         <div 
           className="rounded-md p-6 space-y-4"
           style={{ 
-            backgroundColor: '#e5e7eb',
+            backgroundColor: currentTheme.bgSecondary,
             borderWidth: '2px',
             borderColor: currentTheme.border 
           }}

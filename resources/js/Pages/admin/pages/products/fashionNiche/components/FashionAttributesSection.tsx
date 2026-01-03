@@ -6,13 +6,6 @@ import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 import { Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
 
-import countries from "i18n-iso-countries";
-import enLocale from "i18n-iso-countries/langs/en.json";
-countries.registerLocale(enLocale);
-const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
-  code,
-  name,
-}));
 
 
 const FashionAttributesSection = () => {

@@ -10,14 +10,12 @@ const CollapsibleSection = ({
   onToggle,
   children,
   ref , 
-  isCollapsible = true ,
 }: {
   title: string;
   icon: any;
   isOpen: boolean;
   onToggle: (newState: boolean) => void;
   children: React.ReactNode;
-  isCollapsible :boolean ;
   ref?: React.RefObject<HTMLDivElement | null>;
 }) => {
       const {state :{currentTheme}} = useStoreConfigCtx()
@@ -37,14 +35,12 @@ const CollapsibleSection = ({
         <Icon className="w-6 h-6 transition-transform" style={{ color: currentTheme.text }} />
         <span style={{ color: currentTheme.text }}>{title}</span>
       </div>
-      {isCollapsible &&
       ( <SwitchToggler
         checked={isOpen} 
         onChange={onToggle}
         id={`switch-${title.toLowerCase().replace(/\s+/g, '-')}`}
       />
       )
-    }
      
     </div>
     {isOpen && (

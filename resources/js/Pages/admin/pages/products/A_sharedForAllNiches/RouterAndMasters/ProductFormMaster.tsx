@@ -8,7 +8,7 @@ import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import ProductCrEdForm from './ProductCrEdForm';
-import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
+import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/RightSectionComponent';
 
 
 

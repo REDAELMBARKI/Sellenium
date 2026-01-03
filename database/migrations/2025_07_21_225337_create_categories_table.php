@@ -13,22 +13,9 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            
             $table->string('name');           // Category name
             $table->string('slug')->unique(); // URL-friendly identifier
-            
-            $table->foreignId('niche_id')
-                ->nullable()                // null = generic category
-                ->constrained('niches')
-                ->nullOnDelete();           // optional: remove niche, keep category
-            
-            $table->foreignId('parent_id')    // For subcategories
-                ->nullable()
-                ->constrained('categories')
-                ->nullOnDelete();
-            
-            $table->text('description')->nullable() ;
-            
+            $table->foreignId('parent_id')->constrained('categories')->cascadeOnDelete(); // parentcategory / subcategory
             $table->timestamps();
         });
     }

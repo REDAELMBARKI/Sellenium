@@ -21,7 +21,12 @@ return new class extends Migration
 
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_free_shipping')->default(false);
-
+            
+            $table->json('shipping');
+            $table->json('inventory');
+            $table->json('meta');
+            $table->json('vendor');
+            $table->string('made_country') ;
             // Ratings
             $table->float('rating_average', 3, 2)->nullable()->default(null); // average rating
             $table->unsignedInteger('rating_count')->default(0);               // number of ratings

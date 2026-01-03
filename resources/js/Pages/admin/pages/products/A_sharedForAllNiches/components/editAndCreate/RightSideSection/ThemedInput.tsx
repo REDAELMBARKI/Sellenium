@@ -1,3 +1,4 @@
+import { Input } from '@/components/ui/input';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 
@@ -9,19 +10,11 @@ export function ThemedInput({ className = '', ...props }: ThemedInputProps) {
   } = useStoreConfigCtx();
 
   return (
-    <input
+    <Input
       {...props}
-      className={`w-full px-3 py-2 text-sm transition-colors ${className}`}
-      style={{
-        backgroundColor: currentTheme.bgSecondary,
-        border: `1px solid ${currentTheme.border}`,
-        borderRadius: currentTheme.borderRadius,
-        color: currentTheme.text,
-        boxShadow: currentTheme.shadow,
-      }}
-      onFocus={(e) => {
-        e.currentTarget.style.outline = `2px solid ${currentTheme.primary}`;
-        e.currentTarget.style.borderColor = currentTheme.primary;
+         onFocus={(e) => {
+        e.currentTarget.style.outline = `2px solid ${currentTheme.border}`;
+        e.currentTarget.style.borderColor = currentTheme.accent;
       }}
       onBlur={(e) => {
         e.currentTarget.style.outline = 'none';
@@ -50,8 +43,8 @@ export function ThemedSelect({ className = '', children, ...props }: ThemedSelec
         boxShadow: currentTheme.shadow,
       }}
       onFocus={(e) => {
-        e.currentTarget.style.outline = `2px solid ${currentTheme.primary}`;
-        e.currentTarget.style.borderColor = currentTheme.primary;
+        e.currentTarget.style.outline = `2px solid ${currentTheme.border}`;
+        e.currentTarget.style.borderColor = currentTheme.accent;
       }}
       onBlur={(e) => {
         e.currentTarget.style.outline = 'none';

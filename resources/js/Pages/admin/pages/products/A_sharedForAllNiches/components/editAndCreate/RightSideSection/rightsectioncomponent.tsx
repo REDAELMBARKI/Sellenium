@@ -5,6 +5,7 @@ import {
   Search,
   Users,
   Globe,
+  Tag,
 } from 'lucide-react';
 import { SectionWrapper } from './sectionwrapper';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
@@ -14,11 +15,22 @@ import { Category } from '@/types/inventoryTypes';
 import { SUBCATEGORIES } from '@/data/listOfSubCategories';
 import MultiSelectDropdownForObject from '@/components/ui/MultiSelectDropdownForObject';
 import CustomSelectForObject from '@/components/ui/CustomSelectForObject';
+import countries from "i18n-iso-countries";
+import enLocale from "i18n-iso-countries/langs/en.json";
+import CustomSelectForObjectNative from '@/components/ui/CustomSelectForObjectNative';
+import TagSection from '@/components/TagInput';
+import { v4 } from 'uuid';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
+countries.registerLocale(enLocale);
+const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
+  code,
+  name,
+}));
 
 
 export function RightSectionComponent() {
   const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
-
+  const {state : {currentTheme}} = useStoreConfigCtx()
   return (
     <div className="w-full lg:w-[35%] space-y-6 py-8 pr-4">
       <SectionWrapper title="Subcategories" icon={FolderTree}>
@@ -37,9 +49,28 @@ export function RightSectionComponent() {
         </div>
       </SectionWrapper>
 
+      <SectionWrapper  title="Tags / Keywords" icon={Tag} >
+        <div>
+
+          <HoverInfoLabel 
+            htmlFor="tags / keywords"
+            label="tags / keywords"
+            tooltip="Add Tags And Keywords for this product this would helps to show related products"
+          />
+           {/* tags */}
+          <div>
+                 
+                  <TagSection
+                    tags={(basicInfoForm.tags || []).map(t => t.name)}
+                    onTagsChange={(tags) => setBasicInfoForm({ ...basicInfoForm, tags: tags.map(name => ({ id: v4(), name })) })}
+                  />
+            </div>
+        </div>
+      </SectionWrapper>
+
       <SectionWrapper title="Made Country" icon={Globe}>
 
-        <CustomSelectForObject
+        <CustomSelectForObjectNative
         label="select a countries of Origin"
         isSearchable={true}
         value={basicInfoForm?.madeCountry ? { label: basicInfoForm.madeCountry.name , value: basicInfoForm.attributes.madeCountry.code}  : null}
@@ -247,15 +278,6 @@ export function RightSectionComponent() {
             rows={3}
             maxLength={160}
           />
-        </div>
-
-        <div>
-          <HoverInfoLabel
-            htmlFor="tags"
-            label="Tags / Keywords"
-            tooltip="Labels to make this product searchable"
-          />
-          {/* tags */}
         </div>
       </SectionWrapper>
 

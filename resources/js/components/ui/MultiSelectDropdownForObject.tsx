@@ -1,15 +1,11 @@
-import { useTheme } from "@/admin";
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import SelectedChip from "./SelectedChip";
-import { Select } from '@/components/ui/select';
-import { Category, Color, Fit, Material, Size } from "@/types/inventoryTypes";
-import { Country, Gender } from "@/types/productsTypes";
-
 import { isObject } from "lodash";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
-type AllowedObjectsType = Size | Material  | Fit | Color | Category 
+type AllowedObjectsType = { id: string; name: string }; // simplified
+
 interface MultiSelectDropdownForObjectProps {
   label: string;
   options: AllowedObjectsType[];
@@ -17,98 +13,129 @@ interface MultiSelectDropdownForObjectProps {
   onChange: (selected: AllowedObjectsType[]) => void;
 }
 
-
-
-const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> = ({ label, options, selectedValues, onChange }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> = ({
+  label,
+  options,
+  selectedValues,
+  onChange
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
-       const {state :{currentTheme}} = useStoreConfigCtx()
+  const { state: { currentTheme } } = useStoreConfigCtx();
 
-  
-  
-
-
+  // Click outside closes dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
+          triggerRef.current && !triggerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const toggleOption = (option:AllowedObjectsType ) => {
-    let newSelected : AllowedObjectsType[];
-    if(isObject(option)){
-        // here i stringify=ied the objec cause option is an object so i can use includesd method
-       const exists : boolean = selectedValues.map(obj => JSON.stringify(obj)).includes(JSON.stringify(option)) ; 
-       newSelected = exists
-      ? selectedValues.filter((v : AllowedObjectsType ) => v.id !== option.id)
-      : [...selectedValues, option];
-      onChange(newSelected);
-    }else{
-     
-       throw new Error("Option is not an object");
-    }
+  useEffect(() => {
+  const handleScroll = (e: Event) => {
+    if (!dropdownRef.current) return;
+
+    const target = e.target as HTMLElement;
+
+    // If scrolling inside the dropdown itself
+    if (dropdownRef.current.contains(target)) {
     
+       return; // ignore scroll inside dropdown if it can scroll
+    }
+
+    // Otherwise, close dropdown
+    setIsOpen(false);
+  };
+
+  window.addEventListener('scroll', handleScroll, true); // capture phase
+  return () => window.removeEventListener('scroll', handleScroll, true);
+}, []);
+
+
+  // Update dropdown position
+  useEffect(() => {
+    if (isOpen && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownStyle({
+        position: "fixed",
+        top: rect.bottom,
+        left: rect.left,
+        width: rect.width,
+        zIndex: 99999
+      });
+    }
+  }, [isOpen]);
+
+  const toggleOption = (option: AllowedObjectsType) => {
+    if (!isObject(option)) return;
+    const exists = selectedValues.map(v => v.id).includes(option.id);
+    const newSelected = exists
+      ? selectedValues.filter(v => v.id !== option.id)
+      : [...selectedValues, option];
+    onChange(newSelected);
   };
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-5 py-4 rounded-xl font-medium transition-all duration-200 focus:outline-none shadow-sm flex items-center justify-between"
-        style={{ 
+        className="w-full px-5 py-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-between focus:outline-none shadow-sm"
+        style={{
           backgroundColor: currentTheme.bg,
           color: currentTheme.text,
-          borderWidth: '2px',
+          borderWidth: "2px",
           borderColor: isOpen ? currentTheme.accent : currentTheme.border
         }}
       >
-        <span className={selectedValues.length === 0 ? 'text-gray-400' : ''}>
-          {selectedValues.length === 0 
-            ? `Select ${label.toLowerCase()}` 
+        <span className={selectedValues.length === 0 ? "text-gray-400" : ""}>
+          {selectedValues.length === 0
+            ? `Select ${label.toLowerCase()}`
             : `${selectedValues.length} selected`}
         </span>
         <ChevronDown
-          className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           style={{ color: currentTheme.text }}
         />
       </button>
 
       {isOpen && (
-        <div 
-          className="absolute z-50 w-full mt-2 rounded-xl shadow-lg overflow-hidden"
-          style={{ 
+        <div
+          className="rounded-xl shadow-lg overflow-y-auto"
+          style={{
+            ...dropdownStyle,
+            maxHeight: "250px",
             backgroundColor: currentTheme.bg,
-            borderWidth: '2px',
+            borderWidth: "2px",
             borderColor: currentTheme.border,
-            maxHeight: '250px',
-            overflowY: 'auto'
           }}
         >
-          {options.map((option, idx) => {
-            const isSelected = selectedValues.includes(option);
+          {options.map(option => {
+            const isSelected = selectedValues.map(v => v.id).includes(option.id);
             return (
               <button
-                key={idx}
+                key={option.id}
                 type="button"
                 onClick={() => toggleOption(option)}
-                className="w-full px-5 py-3 flex items-center gap-3 transition-all duration-150 hover:bg-opacity-50"
+                className="w-full px-5 py-3 flex items-center gap-3 hover:bg-opacity-50 transition-all duration-150"
                 style={{
-                  backgroundColor: isSelected ? `${currentTheme.accent}10` : 'transparent',
+                  backgroundColor: isSelected ? `${currentTheme.accent}10` : "transparent",
                   color: currentTheme.text
                 }}
               >
-                <div 
+                <div
                   className="w-5 h-5 rounded flex items-center justify-center transition-all"
                   style={{
-                    backgroundColor: isSelected ? currentTheme.accent : 'transparent',
-                    borderWidth: '2px',
+                    backgroundColor: isSelected ? currentTheme.accent : "transparent",
+                    borderWidth: "2px",
                     borderColor: isSelected ? currentTheme.accent : currentTheme.border
                   }}
                 >
@@ -120,16 +147,12 @@ const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> 
           })}
         </div>
       )}
-     
-     {/* show selected valeus  */}
+
+      {/* Selected chips */}
       {selectedValues.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-3">
-          {selectedValues.map((value, idx) => (
-            <SelectedChip
-              key={idx}
-              label={value.name ?? 'unfigured '}
-              onRemove={() => toggleOption(value)}
-            />
+          {selectedValues.map(value => (
+            <SelectedChip key={value.id} label={value.name} onRemove={() => toggleOption(value)} />
           ))}
         </div>
       )}
@@ -137,5 +160,4 @@ const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> 
   );
 };
 
-
-export default MultiSelectDropdownForObject ; 
+export default MultiSelectDropdownForObject;

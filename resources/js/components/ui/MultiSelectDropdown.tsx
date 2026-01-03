@@ -3,8 +3,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import SelectedChip from "./SelectedChip";
 import { Select } from '@/components/ui/select';
-import { Color, Fit, Material, Season, Style } from "@/types/inventoryTypes";
-import { Gender } from "@/types/productsTypes";
+import { Color, Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 

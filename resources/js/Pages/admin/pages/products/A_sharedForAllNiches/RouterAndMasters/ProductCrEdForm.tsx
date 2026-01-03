@@ -39,6 +39,7 @@ import { CATEGORIES } from "@/data/listOfCategories";
 import NotifyUser from "@/components/ui/NotifyUser";
 import PricingSection from "../components/editAndCreate/PricingSection";
 import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
+import CustomSelectNative from "@/components/ui/CustomSelectNative";
 
 function getVideoPreview(video: Cover | ImagePreviewItem | null) {
     if (!video) return null;
@@ -204,7 +205,7 @@ const ProductCrEdForm = () => {
                     >
                         What You are going to sell ??
                     </h2>
-                    <CustomSelect
+                    <CustomSelectNative 
                         options={CATEGORIES}
                         value={basicInfoForm?.category}
                         onChange={(value) => {
@@ -292,7 +293,7 @@ const ProductCrEdForm = () => {
                         }}
                     >
                         <div ref={attributesRef}>
-                            <CollapsibleSection
+                            <CollapsibleSection 
                                 title="Product Attributes"
                                 icon={Settings}
                                 isOpen={showAttributes}
@@ -340,38 +341,7 @@ const ProductCrEdForm = () => {
                     </section>
                 )}
 
-                {/* Advanced / Meta  tags and sku*/}
-
-                <section
-                    className="p-4 border border-1"
-                    style={{
-                        background: currentTheme.card,
-                        borderColor: currentTheme.border,
-                    }}
-                >
-                    <div ref={advancedRef}>
-                        <CollapsibleSection
-                            title="Advanced Settings"
-                            icon={Settings}
-                            isOpen={showAdvanced}
-                            onToggle={() =>
-                                handleToggleSection(
-                                    "Advanced Settings",
-                                    showAdvanced,
-                                    setShowAdvanced,
-                                    () => {
-                                        setBasicInfoForm({
-                                            ...basicInfoForm,
-                                            tags: [] as TagType[],
-                                        });
-                                    }
-                                )
-                            }
-                        >
-                            <ProductMetaData />
-                        </CollapsibleSection>
-                    </div>
-                </section>
+             
             </div>
         </div>
     );

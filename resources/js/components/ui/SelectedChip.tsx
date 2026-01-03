@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 interface SelectedChipProps {
   label: string;
@@ -6,13 +7,14 @@ interface SelectedChipProps {
   removable?: boolean;
 }
 const SelectedChip: React.FC<SelectedChipProps> = ({ label, onRemove, removable = true }) => {
+  const {state : {currentTheme}} = useStoreConfigCtx()
   return (
     <span
       className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200"
       style={{ 
-        backgroundColor: '#e5e7eb',
-        color: '#374151',
-        border: '1px solid #d1d5db'
+        backgroundColor: currentTheme.primary,
+        color: currentTheme.textInverse,
+        borderColor: currentTheme.accent
       }}
     >
       {label}
@@ -25,13 +27,13 @@ const SelectedChip: React.FC<SelectedChipProps> = ({ label, onRemove, removable 
             color: '#6b7280'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#fee2e2';
-            e.currentTarget.style.color = '#dc2626';
+            e.currentTarget.style.backgroundColor = currentTheme.error;
+            e.currentTarget.style.color = currentTheme.textInverse;
             e.currentTarget.style.transform = 'scale(1.1)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = '#6b7280';
+            e.currentTarget.style.color = currentTheme.textInverse;
             e.currentTarget.style.transform = 'scale(1)';
           }}
           onMouseDown={(e) => {
