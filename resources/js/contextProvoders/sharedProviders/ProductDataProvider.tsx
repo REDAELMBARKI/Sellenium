@@ -42,6 +42,32 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
   isFeatured: true,
   releaseDate: "2025-10-01",
   isFreeShipping : true , 
+  madeCountry: "italy",
+  
+
+  inventory : {
+  quantity: "20",
+  sku: "SKU-123"
+  } , 
+   
+  shipping : {
+    weight: "1.5",
+    dimensions: {
+      height: "10",
+      width: "20",
+      length: "30"
+    },
+    shippingClass : 'express'
+  } ,
+  meta: {
+    metaTitle: "meta title" , 
+    metaDescription: "meta description"
+  } ,
+  vendor: {
+    vendorName: "vendor Name" , 
+    vendorSku: "vendor sku" , 
+    vendorNotes: "vendor notes",
+  } ,
 
   attributes : {
       materials: [
@@ -57,7 +83,6 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
       season: [
       "automn" , "winter"
       ],
-      madeCountry: { code: "IT", name: "Italy" },
   } , 
 
   variants:  [

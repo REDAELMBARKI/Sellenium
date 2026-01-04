@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FormEventHandler } from 'react';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
 import FashionBasicInfoForm from './ProductCrEdForm';
 import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
@@ -8,7 +8,9 @@ import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import ProductCrEdForm from './ProductCrEdForm';
-import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/RightSectionComponent';
+import { Save } from 'lucide-react';
+import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
+import { ProductDataGlobal } from '@/types/productsTypes';
 
 
 
@@ -16,31 +18,32 @@ import { RightSectionComponent } from '../components/editAndCreate/RightSideSect
 
 const ProductFormMaster: React.FC = () => {
    
-   const {post} = useForm()
-
-  const {state :{currentCategory}} = useStoreConfigCtx()
-
+  
+  
+  const {state :{currentCategory , currentTheme}} = useStoreConfigCtx()
+  
   const  { productData = {} , modeForm , basicInfoForm } = useProductDataCtx()
+  const form = useForm<ProductDataGlobal>(basicInfoForm) // setData 
+
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
   const handleSaveAllChanges = () => {
-      console.log("Saving all changes:", productData);
-      alert("Changes saved successfully!");
-      setHasUnsavedChanges(false);
-      setShowToast(false);
+    alert("Changes saved successfully!");
+    setHasUnsavedChanges(false);
+    setShowToast(false);
   };
-
-
-
-  const handleSubmit = (e : Event) => {
-      e.preventDefault();
-      console.log('clicked submit basic info form master');
-    //   post(route('/products'),basicInfoForm);
+  
+  
+  
+  const handleSubmit = (e : React.FormEvent) => {
+    e.preventDefault();
+    form.setData(basicInfoForm)
+    form.post(route('products.store'))
   }
 
  
  
   return ( 
-  <form action={"products/create"} method='post' onSubmit={handleSubmit}> 
+  <form action={"products/create"} method='post' onSubmit={(e) => handleSubmit(e)}> 
    {/* edit and create form  */}
    <div className='flex'>
 
@@ -49,14 +52,40 @@ const ProductFormMaster: React.FC = () => {
 
    </div>
    {/* save product */}
-   <div className="flex justify-center">
-      <Button 
-          type="submit"
-          variant="outline"
-      >
-          {modeForm === "create" ? "create  Product" : "Save Product Changes"}
-      </Button>
-    </div>
+   <div
+  className="
+    sticky bottom-0 z-30
+    flex justify-center
+    px-6 py-4
+    border-t
+    backdrop-blur
+  "
+  style={{
+    background: currentTheme.bgSecondary,
+    borderColor: currentTheme.border,
+  }}
+>
+  <Button
+    type="submit"
+    className="
+      min-w-[220px]
+      text-sm font-semibold
+      rounded-lg
+      shadow-lg
+      transition
+      hover:opacity-90
+      active:scale-[0.98]
+    "
+    style={{
+      background: currentTheme.primary,
+      color: currentTheme.textInverse,
+    }}
+  >
+    <Save />
+    {modeForm === "create" ? "Create Product" : "Update Product"}
+  </Button>
+</div>
+
 
   </form>
   

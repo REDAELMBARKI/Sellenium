@@ -2,8 +2,8 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import * as React from 'react';
 
 interface OptionObject {
-  value: string;
-  label: string;
+  value: string | number;
+  label: string | number;
 }
 
 interface CustomSelectNativeProps {

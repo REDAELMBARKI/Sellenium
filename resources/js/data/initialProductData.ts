@@ -6,6 +6,7 @@ import { ProductDataGlobal } from "@/types/productsTypes";
 import { Tag } from "@/types/tagsTypes";
 import { video } from "framer-motion/client";
 import { CATEGORY_CONFIG } from "./categoryConfigurations";
+import { ProductVariant } from "@/types/products/productVariantType";
 
 
 export const getEmptyInitialProductData = (category : CategoryCode) => { // for create new product
@@ -20,6 +21,7 @@ const baseProductData : ProductBase = {
   rating_average: undefined,
   price : 0, 
   oldPrice : 0 , 
+  madeCountry :  '' , 
   thumbnail: null as Cover | ImagePreviewItem | null,
   video: null as Cover | ImagePreviewItem | null,
   tags: [] as Tag[],
@@ -28,11 +30,13 @@ const baseProductData : ProductBase = {
   isFeatured: false,
 };
  
+  const variants = []  as ProductVariant[]
  
- const productAttributesDefault = CATEGORY_CONFIG[category].attributes ?? null
+ const productAttributesDefaults = CATEGORY_CONFIG[category].attributes ?? null
  return {
      ...baseProductData , 
-     ...productAttributesDefault
+     variants , 
+     attributes: { ...productAttributesDefaults }
  }
         
 }
@@ -50,6 +54,7 @@ export const getEditedData = (
     description: product.description ?? "",
     price : product.price ?? 0 , 
     oldPrice : product.price ?? 0 , 
+    madeCountry : product.madeCountry ?? '' , 
     thumbnail: product.thumbnail ?? null,
     video: product.video ?? null,
     covers: product.covers ?? [],
@@ -59,11 +64,14 @@ export const getEditedData = (
     category,
   };
 
+  const variants = product.variants ?? [] as ProductVariant[]
+
   const productAttributesDefaults = CATEGORY_CONFIG[category]?.attributes ?? null;
 
   return {
     ...baseData,
-    ...productAttributesDefaults, // provide coorect  fields for each category
     ...product,          // overides the fields 
+    variants ,
+    attributes: { ...productAttributesDefaults }, // provide coorect  fields for each category
   };
 };

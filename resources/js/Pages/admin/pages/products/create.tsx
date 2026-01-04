@@ -47,7 +47,7 @@ function CreateContent() {
 
     return (
         <>
-            <div className="py-8 px-6">
+            <div className="py-8">
                 <div className="min-w-[90%] mx-auto">
                     {/* hehader */}
                     <SectionHeader

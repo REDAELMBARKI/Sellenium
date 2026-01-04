@@ -16,22 +16,22 @@ type CategoryCode = keyof VariantOptionsByCategory;
 
 
 type VariantOptionsByCategory = {
-  fashion: FashionOptions;
-  perfumes: PerfumesOptions;
-  electronics: ElectronicsOptions;
+  fashion: FashionVariant;
+  perfumes: PerfumesVariant;
+  electronics: ElectronicsVariant;
 };
-export interface FashionOptions {
+export interface FashionVariant {
    size : Size
    color : Color
    covers : (Cover | ImagePreviewItem)[]
 }
 
 
-export interface PerfumesOptions {
+export interface PerfumesVariant {
 
 }
 
-export interface ElectronicsOptions {
+export interface ElectronicsVariant {
   storage?: string;
   color?: Color;
 }

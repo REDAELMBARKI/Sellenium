@@ -44,9 +44,10 @@ const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
   // }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-dvh" 
+    >
   {/* Sidebar: fixed width, full height, stays visible */}
-  <div className="w-64 flex-shrink-0">
+  <div className="w-64 flex-shrink-0 h-full">
     <Sidebar />
   </div>
 

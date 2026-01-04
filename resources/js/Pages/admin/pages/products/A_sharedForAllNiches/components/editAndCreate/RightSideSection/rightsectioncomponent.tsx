@@ -21,11 +21,16 @@ import CustomSelectForObjectNative from '@/components/ui/CustomSelectForObjectNa
 import TagSection from '@/components/TagInput';
 import { v4 } from 'uuid';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
+import CustomSelectNative from '@/components/ui/CustomSelectNative';
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
   code,
   name,
 }));
+
+// year
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 50 }, (_, i) => currentYear - i); // last 50 years
 
 
 export function RightSectionComponent() {
@@ -42,9 +47,9 @@ export function RightSectionComponent() {
           />
           <MultiSelectDropdownForObject
             label="Select categories"
-            options={SUBCATEGORIES}
-            selectedValues={Array.isArray(basicInfoForm.subCategory) ? basicInfoForm.subCategory : []}
-            onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, subCategory: selected as Category[] })}
+            options={SUBCATEGORIES.map(c => ({label : c.name , value : c.id}))}
+            selectedValues={basicInfoForm?.subCategory.map(c => ({label : c.name , value : c.id})) ?? []}
+            onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, subCategory: selected.map(s => ({id : s.value , name : s.label })) as Category[] })}
           />
         </div>
       </SectionWrapper>
@@ -68,21 +73,43 @@ export function RightSectionComponent() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper title="Made Country" icon={Globe}>
+      <SectionWrapper title="Made Country & Release Date" icon={Globe}>
+        <HoverInfoLabel 
+            htmlFor="country of origin "
+            label="country of origin "
+            tooltip="made origin coutry of the product (optional)"
+        />
 
-        <CustomSelectForObjectNative
-        label="select a countries of Origin"
-        isSearchable={true}
-        value={basicInfoForm?.madeCountry ? { label: basicInfoForm.madeCountry.name , value: basicInfoForm.attributes.madeCountry.code}  : null}
-        onChange={(v) => setBasicInfoForm({ ...basicInfoForm, 
-                attributes : {
-                   ...basicInfoForm.attributes , 
-                   madeCountry : {code : v.value , name : v.label} 
-                }
-        })}
-        options={countryList.map(c => ({ label: c.name , value: c.code }))}
+
+      <CustomSelectNative
+        placeholder="Select country of origin"
+        value={basicInfoForm?.madeCountry ?? ""}
+        onChange={(v) =>
+          setBasicInfoForm({
+            ...basicInfoForm,
+            madeCountry: v.toString(),
+          })
+        }
+        options={countryList.map((c) => ({ label: c.name, value: c.code }))}
       />
-      </SectionWrapper>
+
+       <HoverInfoLabel 
+            htmlFor="Release Date"
+            label="Release Date"
+            tooltip="add a release year for this product (optional)"
+        />
+
+        <CustomSelectNative 
+         placeholder='select release year'
+         options={years.map(y => ({label : y , value : y}))}
+         value={basicInfoForm.releaseDate ?? ''}
+         onChange={(value) => setBasicInfoForm({...basicInfoForm , 
+          releaseDate : value.toString()
+         })}
+        /> 
+      
+    </SectionWrapper>
+
 
       <SectionWrapper title="Inventory / Stock" icon={Package}>
         <div>

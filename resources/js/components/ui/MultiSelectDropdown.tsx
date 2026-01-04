@@ -7,7 +7,6 @@ import { Color, Fit, Gender, Material, Season, Style } from "@/types/inventoryTy
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 
-type AllowedStringAttributes = Style | Gender | Season
 interface MultiSelectDropdownProps {
   label: string;
   options: string[];

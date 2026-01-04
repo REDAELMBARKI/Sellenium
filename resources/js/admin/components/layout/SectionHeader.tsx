@@ -5,16 +5,18 @@ import React from "react";
 
 
 
-export const SectionHeader = ({title , description , Icon ,  children}:{title:string  , Icon? : React.ElementType; description : string ; children? : React.ReactNode}) => {
+export const SectionHeader = ({title , description , Icon ,  children}:{title:string  , Icon? : React.ElementType; description? : string ; children? : React.ReactNode}) => {
   const {state : {currentTheme : theme}} = useStoreConfigCtx();  
   return (
       <>
       
        {/* Header */}
-        <div  className="flex flex-wrap items-center justify-between gap-4">
+        <div  className="flex flex-wrap items-center justify-between gap-4  p-5"
+        style={{background : theme.card }}
+        >
            <div>
                 <h1 
-                  className="text-4xl font-bold mb-2 flex items-center gap-3"
+                  className="text-4xl font-bold mb-2 flex items-center gap-3 "
                   style={{
                     background: `linear-gradient(135deg, ${theme.text} 0%, ${theme.accent} 100%)`,
                     WebkitBackgroundClip: 'text',
@@ -31,9 +33,7 @@ export const SectionHeader = ({title , description , Icon ,  children}:{title:st
                   </div>
                   {title}
                 </h1>
-                <p className="text-base" style={{ color: theme.textMuted }}>
-                  {description}
-                </p>
+                
            </div>
           {/* right side dev */}
           <section>

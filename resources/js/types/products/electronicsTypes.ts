@@ -8,8 +8,6 @@ export interface ElectronicsAttributes {
   batteryLife?: string;
   connectivity?: string[];
   voltage?: string;
-  storage?: string;
-  colors: Color[];
   warrantyMonths?: number;
   model?: string;
   brandSeries?: string;

@@ -49,7 +49,6 @@ interface ShippingAttributes {
 interface MetaAttributes {
   metaTitle?: string;
   metaDescription?: string;
-  tags?: string;
 }
 
 interface VendorAttributes {

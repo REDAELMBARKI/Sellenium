@@ -4,7 +4,7 @@ import SelectedChip from "./SelectedChip";
 import { isObject } from "lodash";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
-type AllowedObjectsType = { id: string; name: string }; // simplified
+export type AllowedObjectsType = { value: string | number; label: string }; // simplified
 
 interface MultiSelectDropdownForObjectProps {
   label: string;
@@ -75,9 +75,9 @@ const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> 
 
   const toggleOption = (option: AllowedObjectsType) => {
     if (!isObject(option)) return;
-    const exists = selectedValues.map(v => v.id).includes(option.id);
+    const exists = selectedValues.map(v => v.value).includes(option.value);
     const newSelected = exists
-      ? selectedValues.filter(v => v.id !== option.id)
+      ? selectedValues.filter(v => v.value !== option.value)
       : [...selectedValues, option];
     onChange(newSelected);
   };
@@ -119,10 +119,10 @@ const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> 
           }}
         >
           {options.map(option => {
-            const isSelected = selectedValues.map(v => v.id).includes(option.id);
+            const isSelected = selectedValues.map(v => v.value).includes(option.value);
             return (
               <button
-                key={option.id}
+                key={option.value}
                 type="button"
                 onClick={() => toggleOption(option)}
                 className="w-full px-5 py-3 flex items-center gap-3 hover:bg-opacity-50 transition-all duration-150"
@@ -141,7 +141,7 @@ const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> 
                 >
                   {isSelected && <Check className="w-3 h-3 text-white" />}
                 </div>
-                <span className="font-medium capitalize">{option.name}</span>
+                <span className="font-medium capitalize">{option.label}</span>
               </button>
             );
           })}
@@ -152,7 +152,7 @@ const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> 
       {selectedValues.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-3">
           {selectedValues.map(value => (
-            <SelectedChip key={value.id} label={value.name} onRemove={() => toggleOption(value)} />
+            <SelectedChip key={value.value} label={value.label} onRemove={() => toggleOption(value)} />
           ))}
         </div>
       )}

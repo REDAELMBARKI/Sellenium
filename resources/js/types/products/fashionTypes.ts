@@ -8,6 +8,5 @@ export interface FashionAttributes {
   gender : Gender[]
   styles: Style[],
   season: Season[],
-  madeCountry : Country | null
 }
 
