@@ -4,27 +4,30 @@ import SelectedChip from './ui/SelectedChip';
 import { Button } from './ui/button';
 
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
+import { Tag  as TagType} from '@/types/tagsTypes';
+import { isString } from 'lodash';
+import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
 
 
 interface TagInputProps {
-  tags: string[];
-  onTagsChange: (tags: string[]) => void;
+  tags: (TagType | string)[];
 }
 
-const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
+const TagSection: React.FC<TagInputProps> = ({ tags}) => {
   const [inputValue, setInputValue] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<(TagType)[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const suggestions = ["Luxury", "Summer", "Floral", "Woody", "Fresh", "Evening", "Citrus", "Spicy", "Oriental", "Casual"];
-       const {state :{currentTheme}} = useStoreConfigCtx()
+  const [suggestions , setSuggestions]  = useState<TagType[]>([{id : "12" , name : "winter"}, {id : "32" , name : "Summer"}]);
 
- 
+       const {state :{currentTheme}} = useStoreConfigCtx()
+  const {setBasicInfoForm} = useProductDataCtx()
+  
   useEffect(() => {
     if (inputValue.trim()) {
       const filtered = suggestions.filter(
-        (s) => s.toLowerCase().includes(inputValue.toLowerCase()) && !tags.includes(s)
+        (s) => s.name.toLowerCase().includes(inputValue.toLowerCase()) && !tags.includes(s)
       );
       setFilteredSuggestions(filtered);
       setShowSuggestions(filtered.length > 0);
@@ -49,19 +52,36 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const addTag = (tag: string) => {
-    const trimmedTag = tag.trim();
-    if (trimmedTag && !tags.includes(trimmedTag)) {
-      onTagsChange([...tags, trimmedTag]);
-      setInputValue('');
-      setShowSuggestions(false);
+  const addTag = (tag: (string | TagType)) => {
+    if(tag && isString(tag)){
+
+        const trimmed = tag.trim() ;
+        if (!tags.map((t) => (t as TagType).name).includes(trimmed)) {
+          setBasicInfoForm(prev => ({
+            ...prev , 
+            tags : [...prev.tags , trimmed ]
+          }));
+          setInputValue('');
+          setShowSuggestions(false);
+        }
     }
+    else if(typeof tag === "object" && "id" in tag){
+      setBasicInfoForm(prev => ({
+            ...prev , 
+            tags : [...prev.tags , tag ]
+          }));
+          setInputValue('');
+          setShowSuggestions(false);
+          setSuggestions(prev  => prev.filter(t => t.id !== tag.id))
+          
+    }
+   
   };
 
   const handleAddClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (inputValue.trim()) {
-      addTag(inputValue);
+      addTag(inputValue.toString());
     } else {
       inputRef.current?.focus();
     }
@@ -75,13 +95,31 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
         addTag(filteredSuggestions[0]);
       } else if (inputValue.trim()) {
         // Otherwise, add what the user typed
-        addTag(inputValue);
+        addTag(inputValue.toString());
       }
     }
   };
 
-  const removeTag = (tagToRemove: string) => {
-    onTagsChange(tags.filter((t) => t !== tagToRemove));
+  const removeTag = (tagToRemove: (string | TagType)) => {
+    if(tagToRemove && isString(tagToRemove)){
+        const trimmed = tagToRemove.trim() ;
+        if (!tags.map((t) => (t as TagType).name).includes(trimmed)) {
+          setBasicInfoForm(prev => ({
+            ...prev , 
+            tags : prev.tags.filter((t) => t !== trimmed)
+          }));
+        }
+    }
+    else if(typeof tagToRemove === "object" && "id" in tagToRemove){
+       setBasicInfoForm(prev => ({
+            ...prev , 
+            tags :  prev.tags.filter((t) => typeof t === 'object' ?  t.id !== tagToRemove.id : null)
+          }));
+          setInputValue('');
+          setShowSuggestions(false);
+      }
+      setSuggestions(prev  => [...prev , tagToRemove as TagType ])
+
   };
 
   return (
@@ -187,9 +225,9 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
             }}
           >
             <div className="max-h-48 overflow-y-auto">
-              {filteredSuggestions.map((suggestion) => (
+              {filteredSuggestions.map((suggestion , index) => (
                 <Button
-                  key={suggestion}
+                  key={index}
                   type="button"
                   onClick={() => addTag(suggestion)}
 
@@ -198,7 +236,7 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
                     background : currentTheme.secondary
                   }}
                 >
-                  {suggestion} 
+                  {suggestion.name} 
                 </Button>
               ))}
             </div>
@@ -218,13 +256,13 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
           </div>
         ) : (
           <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <SelectedChip key={tag} label={tag} onRemove={() => removeTag(tag)} removable />
+            {tags.map((tag , index) => (
+              <SelectedChip key={index} label={typeof tag === "object" && "name" in tag ? tag.name : tag} onRemove={() => removeTag(tag)} removable />
             ))}
           </div>
         )}
       </div>
-
+      {/* suggestions */}
       {suggestions.length > 0 && (
         <div 
           className="rounded-md p-6 space-y-4"
@@ -242,11 +280,11 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
           </h4>
           <div className="flex flex-wrap gap-2">
             {suggestions
-              .filter((s) => !tags.includes(s))
+              .filter((s) => !tags.includes(JSON.stringify(s)))
               .slice(0, 10)
-              .map((suggestion) => (
+              .map((suggestion , index) => (
                 <Button
-                  key={suggestion}
+                  key={index}
                   type="button"
                   onClick={() => addTag(suggestion)}
                   className="suggestion-tag px-4 py-2 rounded-md text-sm font-medium"
@@ -258,7 +296,7 @@ const TagSection: React.FC<TagInputProps> = ({ tags, onTagsChange}) => {
                   }}
                 >
                   <TagIcon />
-                  {suggestion}
+                  {suggestion.name}
 
                 </Button>
               ))}

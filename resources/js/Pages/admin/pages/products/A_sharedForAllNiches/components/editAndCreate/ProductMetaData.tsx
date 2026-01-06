@@ -1,4 +1,4 @@
-import TagSection from "@/components/TagInput"
+import TagSection from "@/components/TagSection"
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx"
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 

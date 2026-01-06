@@ -18,7 +18,7 @@ import CustomSelectForObject from '@/components/ui/CustomSelectForObject';
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
 import CustomSelectForObjectNative from '@/components/ui/CustomSelectForObjectNative';
-import TagSection from '@/components/TagInput';
+import TagSection from '@/components/TagSection';
 import { v4 } from 'uuid';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import CustomSelectNative from '@/components/ui/CustomSelectNative';
@@ -66,8 +66,7 @@ export function RightSectionComponent() {
           <div>
                  
                   <TagSection
-                    tags={(basicInfoForm.tags || []).map(t => t.name)}
-                    onTagsChange={(tags) => setBasicInfoForm({ ...basicInfoForm, tags: tags.map(name => ({ id: v4(), name })) })}
+                    tags={basicInfoForm.tags ?? []} 
                   />
             </div>
         </div>

@@ -11,7 +11,7 @@ export interface ProductBase {
   subCategory: {id: string , name : string}[];
   description: string;
   rating_average?: number;
-  tags: Tag[];
+  tags: (Tag | string)[] ;
   price: number;
   oldPrice?: number;
   isFeatured?: boolean;

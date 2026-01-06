@@ -1,4 +1,4 @@
-import TagSection from "@/components/TagInput";
+import TagSection from "@/components/TagSection";
 import CustomSelect from "@/components/ui/CustomSelect";
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";

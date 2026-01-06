@@ -9,7 +9,7 @@ import MediaSection from "../../A_sharedForAllNiches/components/editAndCreate/Me
 import { Cover } from "@/types/inventoryTypes";
 import BaseSharedForm from "../../A_sharedForAllNiches/components/editAndCreate/BaseSharedForm";
 import { Button } from "@/components/ui/button";
-import TagSection from "@/components/TagInput";
+import TagSection from "@/components/TagSection";
 import { v4 } from "uuid";
 import ProductMetaData from "../../A_sharedForAllNiches/components/editAndCreate/ProductMetaData";
 
