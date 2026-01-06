@@ -107,6 +107,7 @@ const ProductCrEdForm = () => {
     const variantRef = useRef<HTMLDivElement | null>(null);
     const advancedRef = useRef<HTMLDivElement | null>(null);
     const thumbnailPreviewRef = useRef<any | null>(null);
+
     // useEffect(() => {
     //     if (!isMountedRef.current) {
     //         isMountedRef.current = true;
@@ -282,35 +283,6 @@ const ProductCrEdForm = () => {
                     </div>
                 </section>
 
-                {/* Attributes */}
-
-                {AttibutesBuilder && (
-                    <section
-                        className="p-4 border border-1"
-                        style={{
-                            background: currentTheme.bg,
-                            borderColor: currentTheme.border,
-                        }}
-                    >
-                        <div ref={attributesRef}>
-                            <CollapsibleSection 
-                                title="Product Attributes"
-                                icon={Settings}
-                                isOpen={showAttributes}
-                                onToggle={() =>
-                                    handleToggleSection(
-                                        "Product Attributes",
-                                        showAttributes,
-                                        setShowAttributes
-                                    )
-                                }
-                            >
-                                <AttibutesBuilder />
-                            </CollapsibleSection>
-                        </div>
-                    </section>
-                )}
-
                 {/* Variant Builder */}
                 {VariantBuilder && (
                     <section
@@ -340,6 +312,37 @@ const ProductCrEdForm = () => {
                         </div>
                     </section>
                 )}
+
+                
+                {/* Attributes */}
+
+                {AttibutesBuilder && (
+                    <section
+                        className="p-4 border border-1"
+                        style={{
+                            background: currentTheme.bg,
+                            borderColor: currentTheme.border,
+                        }}
+                    >
+                        <div ref={attributesRef}>
+                            <CollapsibleSection 
+                                title="Product Attributes"
+                                icon={Settings}
+                                isOpen={showAttributes}
+                                onToggle={() =>
+                                    handleToggleSection(
+                                        "Product Attributes",
+                                        showAttributes,
+                                        setShowAttributes
+                                    )
+                                }
+                            >
+                                <AttibutesBuilder />
+                            </CollapsibleSection>
+                        </div>
+                    </section>
+                )}
+
 
              
             </div>

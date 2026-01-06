@@ -121,6 +121,7 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
   ],
   };
    
+  // const productSource = undefined 
   const {state : {currentCategory : category} , dispatch} = useStoreConfigCtx() 
 
     
@@ -139,7 +140,7 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
 
     // const inventoryOptions : FashionOptions  = inventoryOptions ;  
 
-    const [options, setOptions] = useState(backendOptions);
+    const [options] = useState(backendOptions);
 
     const [variantToDelete ,  setVariantToDelete] = useState<number | null>()
     

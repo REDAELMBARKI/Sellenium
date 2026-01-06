@@ -45,7 +45,10 @@ export interface Cover {
 
 
 
-export type Style = "oversize"  | "streetwear" | "casual" | "formal" | "sportswear"
+export type Style = {
+        id: string;
+        name: string;
+}
 
 
 // For Inertia useForm (needs index signature)

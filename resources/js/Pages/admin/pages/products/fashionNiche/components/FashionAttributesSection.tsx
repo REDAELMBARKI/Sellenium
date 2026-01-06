@@ -1,23 +1,23 @@
-import CustomSelectForObject from "@/components/ui/CustomSelectForObject";
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import MultiSelectDropdownForObject, { AllowedObjectsType } from "@/components/ui/MultiSelectDropdownForObject";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import selectAdapters from "@/functions/adapters";
 
-import { Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
+import {  Gender, Season, Style } from "@/types/inventoryTypes";
 import { FashionAttributes } from "@/types/products/fashionTypes";
-import { FashionVariant } from "@/types/products/productVariantType";
-import { Select } from '@/components/ui/select';
+import { label } from "framer-motion/client";
 
 
 
 const FashionAttributesSection = () => {
-  const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
+  const { basicInfoForm, setBasicInfoForm , options } = useProductDataCtx();
   const {state :{currentTheme}} = useStoreConfigCtx()
 
-
   const attributes = basicInfoForm?.attributes as FashionAttributes ; 
+  const {toSelectOptionAdapter  , toSetterAdapter} = selectAdapters()
 
+  
   return (
     <div className="space-y-4 p-4 border rounded-lg" style={{ backgroundColor: currentTheme.card }}>
       {/*section title */}
@@ -29,12 +29,12 @@ const FashionAttributesSection = () => {
       
       <MultiSelectDropdownForObject
         label="Materials" 
-        options={[]} 
+        options={options.materials.map(toSelectOptionAdapter) ?? []} 
         selectedValues={attributes.materials.map(m => ({label : m.name , value : m.id})) || []}
         onChange={(selected : AllowedObjectsType[]) => setBasicInfoForm({ ...basicInfoForm, 
              attributes : {
                ...(basicInfoForm.attributes) as FashionAttributes , 
-               materials: selected.map(s => ({id : s.value , name : s.label}))
+               materials: selected.map(toSetterAdapter)
              }
         })}
       />
@@ -50,12 +50,12 @@ const FashionAttributesSection = () => {
 
       <MultiSelectDropdownForObject
         label="Fits"
-        options={[]} 
+        options={options.fits.map(toSelectOptionAdapter)?? []} 
         selectedValues={attributes.fits.map(f => ({label : f.name , value : f.id})) || []}
         onChange={(selected : AllowedObjectsType[]) => setBasicInfoForm({ ...basicInfoForm, 
              attributes : {
                ...(basicInfoForm.attributes) as FashionAttributes , 
-               fits: selected.map(s => ({id : s.value , name : s.label}))
+               fits: selected.map(toSetterAdapter)
              }
         })}
       />
@@ -69,14 +69,14 @@ const FashionAttributesSection = () => {
       {/*end section title */}
 
 
-      <MultiSelectDropdown
+      <MultiSelectDropdownForObject
         label="Styles"
-        options={[]} 
-        selectedValues={attributes.styles || []}
+        options={options.styles.map(toSelectOptionAdapter) ?? []} 
+        selectedValues={attributes.styles.map(s => ({label : s.name , value : s.id})) || []}
         onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, 
              attributes : {
                ...(basicInfoForm.attributes) as FashionAttributes , 
-               styles : selected  as Style[]
+               styles : selected.map(toSetterAdapter)  as Style[]
              }
         })}
       />
@@ -92,7 +92,7 @@ const FashionAttributesSection = () => {
 
       <MultiSelectDropdown
         label="Season"
-        options={[]} 
+        options={options.seasons.map(toSelectOptionAdapter) ?? []} 
         selectedValues={attributes.season || []}
         onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, 
              attributes : {
@@ -111,7 +111,7 @@ const FashionAttributesSection = () => {
       {/*end section title */}
       <MultiSelectDropdown
         label="Gender"
-        options={[]} 
+        options={options.genders.map(toSelectOptionAdapter) ?? []} 
         selectedValues={attributes.gender || []}
         onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, 
              attributes : {

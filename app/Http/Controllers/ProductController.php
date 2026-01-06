@@ -75,6 +75,19 @@ class ProductController extends Controller
                 [ 'id' => 1, 'name' => 'Cotton' ],
                 [ 'id' => 2, 'name' => 'Polyester' ],
             ],
+            'seasons' => [
+                [ 'id' => 1, 'name' => 'winter' ],
+                [ 'id' => 2, 'name' => 'summer' ],
+            ],
+            'genders' => [
+                [ 'id' => 1, 'name' => 'man' ],
+                [ 'id' => 2, 'name' => 'women' ],
+                [ 'id' => 2, 'name' => 'kids' ],
+            ],
+             'styles' => [
+                [ 'id' => 1, 'name' => 'street' ],
+                [ 'id' => 2, 'name' => 'coatic' ],
+            ],
         ];
 
 
@@ -82,7 +95,7 @@ class ProductController extends Controller
         
 
 
-        return inertia::render("admin/pages/products/Create" , ['nicheOptions' => $nicheOptions , 'tagSuggestions' => []]);
+        return inertia::render("admin/pages/products/Create" , ['options' => $nicheOptions , 'tagSuggestions' => []]);
     }
 
 
