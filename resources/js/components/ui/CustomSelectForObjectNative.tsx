@@ -2,19 +2,19 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import * as React from 'react';
 
 interface OptionObject {
-  value: string;
+  value: string | number;
   label: string;
 }
 
-interface CustomSelectNativeProps {
+interface CustomSelectForObjectNativeProps {
   value: OptionObject;
-  onChange: (value: string | number) => void;
+  onChange: (value: OptionObject) => void;
   options: OptionObject[];
   placeholder?: string;
   isSearchable?: boolean;
 }
 
-const CustomSelectNative: React.FC<CustomSelectNativeProps> = ({
+const CustomSelectForObjectNative: React.FC<CustomSelectForObjectNativeProps> = ({
   value,
   onChange,
   options,
@@ -37,7 +37,7 @@ const CustomSelectNative: React.FC<CustomSelectNativeProps> = ({
             const matched = options.find(
               (opt) => opt.label === e.target.value || opt.value === e.target.value
             );
-            if (matched) onChange(matched.value);
+            if (matched) onChange(matched);
           }}
           placeholder={placeholder}
           className="w-full h-[56px] rounded-xl px-4 font-medium shadow-sm appearance-none transition-colors outline-none"
@@ -73,30 +73,35 @@ const CustomSelectNative: React.FC<CustomSelectNativeProps> = ({
   // NATIVE SELECT MODE
   return (
     <div className="relative w-full">
-      <select
-        value={value.value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full h-[56px] rounded-xl px-4 font-medium appearance-none shadow-sm transition-colors outline-none"
-        style={{
-          backgroundColor: currentTheme.bg,
-          color: value ? currentTheme.text : '#94a3b8',
-          borderWidth: '2px',
-          borderColor: currentTheme.border,
-        }}
-      >
-        <option value="" disabled hidden>
-          {value.label ?? placeholder}
+     <select
+      value={value.value}
+      onChange={(e) => {
+        // Find the full object from options
+        const selected = options.find((opt) => String(opt.value) === e.target.value);
+        if (selected) onChange(selected);
+      }}
+      className="w-full h-[56px] rounded-xl px-4 font-medium appearance-none shadow-sm transition-colors outline-none"
+      style={{
+        backgroundColor: currentTheme.bg,
+        color: value ? currentTheme.text : '#94a3b8',
+        borderWidth: '2px',
+        borderColor: currentTheme.border,
+      }}
+    >
+      <option value="" disabled hidden>
+        {placeholder}
+      </option>
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
         </option>
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      ))}
+    </select>
+
 
     
     </div>
   );
 };
 
-export default CustomSelectNative;
+export default CustomSelectForObjectNative;

@@ -7,7 +7,7 @@ interface OptionObject {
 }
 
 interface CustomSelectNativeProps {
-  value: string | number | '';
+  value: string | '';
   onChange: (value: string | number) => void;
   options: OptionObject[];
   placeholder?: string;

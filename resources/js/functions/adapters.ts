@@ -9,7 +9,7 @@ export default function adapters() {
     const toBackendAttribute =  (item : {id : number|string , name : string })  => item.id
 
     return {
-        toSelectOptionAdapter , 
+         toSelectOptionAdapter , 
          toSetterAdapter , 
          toBackendAttribute
     }

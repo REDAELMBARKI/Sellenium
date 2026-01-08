@@ -1,4 +1,4 @@
-import { Color, Country, Cover, Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
+import { Category, Color, Country, Cover, Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
 import { ImagePreviewItem } from "@/types/mediaTypes";
 import { ProductBase } from "@/types/products/baseProductTypes";
 import { CategoryCode } from "@/types/products/categories";
@@ -9,7 +9,7 @@ import { CATEGORY_CONFIG } from "./categoryConfigurations";
 import { ProductVariant } from "@/types/products/productVariantType";
 
 
-export const getEmptyInitialProductData = (category : CategoryCode) => { // for create new product
+export const getEmptyInitialProductData = (category : Category) => { // for create new product
    // Base attributes shared by all niches
 const baseProductData : ProductBase = {
   category , 
@@ -24,7 +24,7 @@ const baseProductData : ProductBase = {
   madeCountry :  '' , 
   thumbnail: null as Cover | ImagePreviewItem | null,
   video: null as Cover | ImagePreviewItem | null,
-  tags: [] as Tag[],
+  tags: [] as string[],
   covers: [] as (Cover | ImagePreviewItem)[],
   isFreeShipping : false ,
   isFeatured: false,
@@ -32,7 +32,7 @@ const baseProductData : ProductBase = {
  
   const variants = []  as ProductVariant[]
  
- const productAttributesDefaults = CATEGORY_CONFIG[category].attributes ?? null
+ const productAttributesDefaults = CATEGORY_CONFIG[category.name as CategoryCode].attributes ?? null
  return {
      ...baseProductData , 
      variants , 
@@ -44,7 +44,7 @@ const baseProductData : ProductBase = {
 
 export const getEditedData = (
   product: ProductDataGlobal,
-  category: CategoryCode
+  category: Category
 ) => {
   const baseData : ProductBase = {
     id: product.id ?? "",
@@ -61,12 +61,12 @@ export const getEditedData = (
     tags: product.tags ?? [],
     isFreeShipping : product.isFreeShipping , 
     isFeatured: product.isFeatured ?? false,
-    category,
+    category : product.category,
   };
 
   const variants = product.variants ?? [] as ProductVariant[]
 
-  const productAttributesDefaults = CATEGORY_CONFIG[category]?.attributes ?? null;
+  const productAttributesDefaults = CATEGORY_CONFIG[category.name as CategoryCode]?.attributes ?? null;
 
   return {
     ...baseData,

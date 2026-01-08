@@ -1,17 +1,17 @@
-import { Country, Cover } from "../inventoryTypes";
+import { Category, Country, Cover } from "../inventoryTypes";
 import { ImagePreviewItem } from "../mediaTypes";
 import { Tag } from "../tagsTypes";
 import { CategoryCode } from "./categories";
 
 export interface ProductBase { 
-  category: CategoryCode;
+  category: Category;
   id?: string | null;
   name: string;
   brand: string;
   subCategory: {id: string , name : string}[];
   description: string;
   rating_average?: number;
-  tags: (Tag | string)[] ;
+  tags: string[] ;
   price: number;
   oldPrice?: number;
   isFeatured?: boolean;
@@ -20,7 +20,7 @@ export interface ProductBase {
   madeCountry : string
   thumbnail: Cover | ImagePreviewItem  | null ;
   video : Cover | ImagePreviewItem | null ;
-  covers : (Cover | ImagePreviewItem)[] , 
+  covers : (Cover | ImagePreviewItem )[] , 
 
 
   inventory?: InventoryAttributes;
@@ -30,18 +30,18 @@ export interface ProductBase {
 }
 
 interface DimensionType {
-  height : string 
-  width : string 
-  length : string
+  height : number 
+  width : number 
+  length : number
 }
 interface InventoryAttributes {
-  quantity?: string;
+  quantity?: number;
   sku?: string;
   backorderOptions?: string;
 }
 
 interface ShippingAttributes {
-  weight?: string;
+  weight?: number;
   dimensions?: DimensionType;
   shippingClass?: string;
 }

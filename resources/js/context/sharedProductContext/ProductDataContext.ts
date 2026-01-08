@@ -1,7 +1,6 @@
 
 import { CategoryCode } from "@/types/products/categories"
 import { ProductDataGlobal } from "@/types/productsTypes"
-import { Tag } from "@/types/tagsTypes"
 import { createContext } from "react"
 
 

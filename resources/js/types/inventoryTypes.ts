@@ -2,41 +2,29 @@ import { RefObject } from "react";
 import { ProductVariant } from "./products/productVariantType";
 
 // Base types
-export interface Color {
-    id?: string | number;
-    name?: string;
+
+
+
+export interface BaseAttribute {
+  id: string;
+  name: string;
+}
+
+
+
+export interface Color extends BaseAttribute {
     hex: string;
-}
-export type Season = "summer" | "winter" | "automn" | "spring"
-export interface Size {
-    id: string | number ;
-    name: string;
+    
 }
 
-export  interface Country {
-    code: string;
-    name: string;
-}
-
-export type Gender ="male" | "female" | "kids" | "all genders"
-
-
-export interface Fit {
-    id: string | number;
-    name: string;
-}
-
-export interface Material {
-    id: string | number;
-    name: string;
-}
-
-
-
-export interface Category {
-        id: string;
-        name: string;
-}
+// Specific attributes inherit from BaseAttribute
+export interface Size extends BaseAttribute {}
+export interface Fit extends BaseAttribute {}
+export interface Material extends BaseAttribute {}
+export interface Category extends BaseAttribute {}
+export interface Style extends BaseAttribute {}
+export interface Season extends BaseAttribute {}
+export interface Gender extends BaseAttribute {}
 
 export interface Cover {
     id: string | null ;
@@ -44,10 +32,9 @@ export interface Cover {
 }
 
 
-
-export type Style = {
-        id: string;
-        name: string;
+export  interface Country {
+    code: string;
+    name: string;
 }
 
 
@@ -57,18 +44,18 @@ export type Style = {
 
 
 // Context type
-export interface InventoryContextType {
-    productVariants: ProductVariant[];
-    setProductVariants: React.Dispatch<React.SetStateAction<ProductVariant[]>>;
-    currentVariant: ProductVariant;
-    setCurrentVariant: React.Dispatch<React.SetStateAction<ProductVariant>>;
-    inventoryValid: boolean;
-    setInventoryValid: React.Dispatch<React.SetStateAction<boolean>>;
-    newSelectedColors: Color[];
-    setNewSelectedColors: React.Dispatch<React.SetStateAction<Color[]>>;
-    updateVariantMode: boolean;
-    setUpdateVariantMode: React.Dispatch<React.SetStateAction<boolean>>;
-    isCurrentVariantActive: boolean;
-    setIsCurrentVariantActive: React.Dispatch<React.SetStateAction<boolean>>;
-    variantFormRef: RefObject<HTMLFormElement | null>;
-}
+// export interface InventoryContextType {
+//     productVariants: ProductVariant[];
+//     setProductVariants: React.Dispatch<React.SetStateAction<ProductVariant[]>>;
+//     currentVariant: ProductVariant;
+//     setCurrentVariant: React.Dispatch<React.SetStateAction<ProductVariant>>;
+//     inventoryValid: boolean;
+//     setInventoryValid: React.Dispatch<React.SetStateAction<boolean>>;
+//     newSelectedColors: Color[];
+//     setNewSelectedColors: React.Dispatch<React.SetStateAction<Color[]>>;
+//     updateVariantMode: boolean;
+//     setUpdateVariantMode: React.Dispatch<React.SetStateAction<boolean>>;
+//     isCurrentVariantActive: boolean;
+//     setIsCurrentVariantActive: React.Dispatch<React.SetStateAction<boolean>>;
+//     variantFormRef: RefObject<HTMLFormElement | null>;
+// }

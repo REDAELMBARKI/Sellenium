@@ -82,7 +82,7 @@ class ProductController extends Controller
             'genders' => [
                 [ 'id' => 1, 'name' => 'man' ],
                 [ 'id' => 2, 'name' => 'women' ],
-                [ 'id' => 2, 'name' => 'kids' ],
+                [ 'id' => 3, 'name' => 'kids' ],
             ],
              'styles' => [
                 [ 'id' => 1, 'name' => 'street' ],

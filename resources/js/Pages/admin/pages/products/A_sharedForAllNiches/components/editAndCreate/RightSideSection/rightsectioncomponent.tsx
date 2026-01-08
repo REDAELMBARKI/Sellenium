@@ -22,6 +22,7 @@ import TagSection from '@/components/TagSection';
 import { v4 } from 'uuid';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import CustomSelectNative from '@/components/ui/CustomSelectNative';
+import adapters from '@/functions/adapters';
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
   code,
@@ -31,11 +32,13 @@ const countryList = Object.entries(countries.getNames("en")).map(([code, name]) 
 // year
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 50 }, (_, i) => currentYear - i); // last 50 years
-
+ 
 
 export function RightSectionComponent() {
   const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
-  const {state : {currentTheme}} = useStoreConfigCtx()
+  const {state : {currentTheme}} = useStoreConfigCtx() 
+
+  const {toSelectOptionAdapter , toSetterAdapter} = adapters()
   return (
     <div className="w-full lg:w-[35%] space-y-6 py-8 pr-4">
       <SectionWrapper title="Subcategories" icon={FolderTree}>
@@ -48,8 +51,8 @@ export function RightSectionComponent() {
           <MultiSelectDropdownForObject
             label="Select categories"
             options={SUBCATEGORIES.map(c => ({label : c.name , value : c.id}))}
-            selectedValues={basicInfoForm?.subCategory.map(c => ({label : c.name , value : c.id})) ?? []}
-            onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, subCategory: selected.map(s => ({id : s.value , name : s.label })) as Category[] })}
+            selectedValues={basicInfoForm?.subCategory.map(c => toSelectOptionAdapter(c)) ?? []}
+            onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, subCategory: selected.map( item =>toSetterAdapter(item)) as Category[] })}
           />
         </div>
       </SectionWrapper>
@@ -123,7 +126,7 @@ export function RightSectionComponent() {
             value={basicInfoForm?.inventory?.quantity || ''}
             onChange={(e) => setBasicInfoForm(prev => ({
               ...prev,
-              inventory: {...prev.inventory, quantity: e.target.value}
+              inventory: {...prev.inventory, quantity: Number(e.target.value)}
             }))}
             placeholder="0"
           />
@@ -183,7 +186,7 @@ export function RightSectionComponent() {
                 value={basicInfoForm.shipping?.dimensions?.height || ''}
                 onChange={(e) => setBasicInfoForm(prev => ({
                   ...prev,
-                  shipping: {...prev.shipping, height: e.target.value}
+                  shipping: {...prev.shipping, height: Number(e.target.value)}
                 }))}
                 placeholder="0"
                 step="0.01"
@@ -197,7 +200,7 @@ export function RightSectionComponent() {
                 value={basicInfoForm.shipping?.dimensions?.width || ''}
                 onChange={(e) => setBasicInfoForm(prev => ({
                   ...prev,
-                  shipping: {...prev.shipping, width: e.target.value}
+                  shipping: {...prev.shipping, width: Number(e.target.value)}
                 }))}
                 placeholder="0"
                 step="0.01"
@@ -233,7 +236,7 @@ export function RightSectionComponent() {
               value={basicInfoForm.shipping?.weight || ''}
               onChange={(e) => setBasicInfoForm(prev => ({
                 ...prev,
-                shipping: {...prev.shipping, weight: e.target.value}
+                shipping: {...prev.shipping, weight: Number(e.target.value)}
               }))}
               placeholder="0.0"
               step="0.01"

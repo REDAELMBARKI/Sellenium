@@ -40,6 +40,8 @@ import NotifyUser from "@/components/ui/NotifyUser";
 import PricingSection from "../components/editAndCreate/PricingSection";
 import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
 import CustomSelectNative from "@/components/ui/CustomSelectNative";
+import adapters from "@/functions/adapters";
+import CustomSelectForObjectNative from "@/components/ui/CustomSelectForObjectNative";
 
 function getVideoPreview(video: Cover | ImagePreviewItem | null) {
     if (!video) return null;
@@ -101,6 +103,7 @@ const ProductCrEdForm = () => {
     const [frontEndErrors, setFrontEndErrors] = useState<
         Record<string, string>
     >({});
+    const {toSelectOptionAdapter , toSetterAdapter} = adapters()
 
     const mediaRef = useRef<HTMLDivElement | null>(null);
     const attributesRef = useRef<HTMLDivElement | null>(null);
@@ -183,8 +186,8 @@ const ProductCrEdForm = () => {
         setFrontEndErrors(newFrontEndErrors);
     };
 
-    const VariantBuilder = VARIANTS_FORM_SECTIONS[currentCategory];
-    const AttibutesBuilder = ATTRIBUTES_FORM_SECTIONS[currentCategory];
+    const VariantBuilder = VARIANTS_FORM_SECTIONS[currentCategory.name as CategoryCode ];
+    const AttibutesBuilder = ATTRIBUTES_FORM_SECTIONS[currentCategory.name  as CategoryCode];
     return (
         <div className="w-full h-full overflow-y-auto ">
             <div
@@ -206,17 +209,17 @@ const ProductCrEdForm = () => {
                     >
                         What You are going to sell ??
                     </h2>
-                    <CustomSelectNative 
-                        options={CATEGORIES}
-                        value={basicInfoForm?.category}
+                    <CustomSelectForObjectNative
+                        options={CATEGORIES.map(toSelectOptionAdapter)}
+                        value={{ label : basicInfoForm?.category.name ?? '' , value : basicInfoForm?.category.id ?? '' }}
                         onChange={(value) => {
                             dispatch({
                                 type: "SET_CATEGORY",
-                                payload: value as CategoryCode,
+                                payload: {id :  value.value as string , name :value.label} ,
                             });
                             setBasicInfoForm({
                                 ...basicInfoForm,
-                                category: value as CategoryCode,
+                                category: {name : value.label  , id : value.value as string} ,
                             });
                         }}
                     />

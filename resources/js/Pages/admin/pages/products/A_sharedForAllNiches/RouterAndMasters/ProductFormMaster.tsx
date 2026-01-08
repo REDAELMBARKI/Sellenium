@@ -1,4 +1,4 @@
-import React, { FormEventHandler, useEffect } from 'react';
+import React, { FormEventHandler, useEffect, useState } from 'react';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
 import FashionBasicInfoForm from './ProductCrEdForm';
 import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
@@ -12,9 +12,10 @@ import { Save } from 'lucide-react';
 import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
 import { ProductDataGlobal } from '@/types/productsTypes';
 import { CATEGORY_CONFIG } from '@/data/categoryConfigurations';
-import { forEach } from 'lodash';
+import { forEach, isArray, isEqual } from 'lodash';
 import adapters from '@/functions/adapters';
 import { Inertia } from '@inertiajs/inertia'
+import { BaseAttribute } from '@/types/inventoryTypes';
 
 
 
@@ -27,7 +28,9 @@ const ProductFormMaster: React.FC = () => {
   
   const  { productData = {} , modeForm , basicInfoForm } = useProductDataCtx()
   const form = useForm<ProductDataGlobal>(basicInfoForm) // setData 
-const {toBackendAttribute}  = adapters()
+  const [formDataSnapShot , setFormDataSnapShot] = useState(basicInfoForm) // snapshot to detect if should this be saved as a draft 
+  const [isDirty , setIsDirty] = useState(false) ; 
+  const {toBackendAttribute}  = adapters()
 
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
 
@@ -71,18 +74,36 @@ const {toBackendAttribute}  = adapters()
 
   return cleaned
  }
+
+ function cleanObjectToIids(items : (BaseAttribute[])|BaseAttribute) {
+      
+      if (Array.isArray(items))  return items.map(e => e.id)
+      else  return items.id  
+ }
  
+ useEffect(() => {
+  const isDr  =  !isEqual(basicInfoForm ,formDataSnapShot)
+  console.log('isdirty' , isDr )
+  console.log("formdata" , formDataSnapShot)
+  console.log("basicinfo" , basicInfoForm)
+ }, [basicInfoForm]);
+
+
  useEffect(() => {
    form.setData(basicInfoForm)
  }, [basicInfoForm]);
-  
+
+
+ 
  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault()
 
 
    const payload = {
     ...form.data,
+    category : cleanObjectToIids(form.data.category) , 
     attributes: cleanAttributesForBackend(form.data.attributes),
+    subCategory : cleanObjectToIids(form.data.subCategory)
   }
 
     // 2️⃣ Send payload directly
@@ -136,7 +157,7 @@ const {toBackendAttribute}  = adapters()
     <Save />
     {modeForm === "create" ? "Create Product" : "Update Product"}
   </Button>
-</div>
+   </div>
 
 
   </form>
