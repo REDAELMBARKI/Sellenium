@@ -1,4 +1,4 @@
-import React, { FormEventHandler, useEffect, useState } from 'react';
+import React, { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
 import FashionBasicInfoForm from './ProductCrEdForm';
 import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
@@ -11,31 +11,32 @@ import ProductCrEdForm from './ProductCrEdForm';
 import { Save } from 'lucide-react';
 import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
 import { ProductDataGlobal } from '@/types/productsTypes';
-import { CATEGORY_CONFIG } from '@/data/categoryConfigurations';
-import { forEach, isArray, isEqual } from 'lodash';
 import adapters from '@/functions/adapters';
 import { Inertia } from '@inertiajs/inertia'
-import { BaseAttribute } from '@/types/inventoryTypes';
+import { toBackendDataCleaners } from '@/functions/toBackendDataCleaners';
+import { isFormWorthSavingAsDraft } from '@/functions/souldSaveDraft';
+import { DeleteConfirmationModal } from '@/components/ui/DeleteConfirmationModal';
 
-
-
+import { router } from '@inertiajs/react';
+import WarningModal from '@/components/ui/WarningModal';
 
 const ProductFormMaster: React.FC = () => {
    
   
   
   const {state :{currentCategory , currentTheme}} = useStoreConfigCtx()
-  
   const  { productData = {} , modeForm , basicInfoForm } = useProductDataCtx()
   const form = useForm<ProductDataGlobal>(basicInfoForm) // setData 
-  const [formDataSnapShot , setFormDataSnapShot] = useState(basicInfoForm) // snapshot to detect if should this be saved as a draft 
-  const [isDirty , setIsDirty] = useState(false) ; 
-  const {toBackendAttribute}  = adapters()
-
+  const [isDirty , setIsDirty] = useState<boolean>(isFormWorthSavingAsDraft(basicInfoForm)) ; 
+  const [showLeaveDraftModal , setShowLeaveDraftModal] = useState(false) ; 
+  const [pendingDestination , setPendingDestination] = useState<any | null>(null) ; 
+  const hasEverBeenDirty = useRef<boolean>(true) ;
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
 
-
-
+  const {
+    cleanAttributesForBackend , 
+    cleanObjectToIids
+  } = toBackendDataCleaners()
 
 
   const handleSaveAllChanges = () => {
@@ -44,50 +45,31 @@ const ProductFormMaster: React.FC = () => {
     setShowToast(false);
   };
   
- function cleanAttributesForBackend(
-  attributes: Record<string, any>
-  ) {
-  const cleaned: Record<string, any> = {}
 
-  Object.entries(attributes || {}).forEach(([key, value]) => {
-    // Array of objects: map to ids
-    if (Array.isArray(value)) {
-      if (value.length && typeof value[0] === 'object' && 'id' in value[0]) {
-        cleaned[key] = value.map((v: { id: number }) => v.id)
-      } else {
-        // array of primitives (already ids or values)
-        cleaned[key] = value
-      }
-    } else if (value && typeof value === 'object') {
-      // Single object with an `id` property: use the id
-      if ('id' in value) {
-        cleaned[key] = (value as any).id
-      } else {
-        // plain object without id: keep as-is
-        cleaned[key] = value
-      }
-    } else {
-      // primitive value (string, number, boolean, null, undefined)
-      cleaned[key] = value
-    }
-  })
-
-  return cleaned
- }
-
- function cleanObjectToIids(items : (BaseAttribute[])|BaseAttribute) {
-      
-      if (Array.isArray(items))  return items.map(e => e.id)
-      else  return items.id  
- }
+  //form is dirty checkers
  
- useEffect(() => {
-  const isDr  =  !isEqual(basicInfoForm ,formDataSnapShot)
-  console.log('isdirty' , isDr )
-  console.log("formdata" , formDataSnapShot)
-  console.log("basicinfo" , basicInfoForm)
+  useEffect(() => {
+     const remove =  router.on('before' , (event)=> {
+        if(!hasEverBeenDirty.current) return ;
+        event.preventDefault()
+        setPendingDestination(event.detail.visit.url)
+        setShowLeaveDraftModal(true)
+     })
+
+
+     return () => remove()
+  }, []);
+
+ useEffect(() => { 
+    if(hasEverBeenDirty.current) return;
+    setIsDirty(isFormWorthSavingAsDraft(basicInfoForm))
  }, [basicInfoForm]);
 
+ useEffect(() => {
+   if(hasEverBeenDirty.current) return;
+   if(isDirty) hasEverBeenDirty.current = true ;
+ }, [isDirty]);
+ // end is dirty form checkers 
 
  useEffect(() => {
    form.setData(basicInfoForm)
@@ -115,11 +97,16 @@ const ProductFormMaster: React.FC = () => {
 }
 
  
+  
   return ( 
   <form  onSubmit={handleSubmit}> 
+   
    {/* edit and create form  */}
    <div className='flex'>
-
+    <WarningModal title='save as draft ' isOpen={showLeaveDraftModal} onDeny={() => setShowLeaveDraftModal(false)} onConfirm={() => {
+      if(pendingDestination) Inertia.visit(pendingDestination)
+        
+    }} />
     <ProductCrEdForm />
     <RightSectionComponent />
 
