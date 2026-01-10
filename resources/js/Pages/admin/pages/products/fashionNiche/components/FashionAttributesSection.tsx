@@ -30,8 +30,8 @@ const FashionAttributesSection = () => {
       
       <MultiSelectDropdownForObject
         label="Materials" 
-        options={options.materials.map(toSelectOptionAdapter) ?? []} 
-        selectedValues={attributes.materials.map(m => ({label : m.name , value : m.id})) || []}
+        options={options?.materials.map(toSelectOptionAdapter) ?? []} 
+        selectedValues={attributes?.materials.map(m => ({label : m.name , value : m.id})) || []}
         onChange={(selected : AllowedObjectsType[]) => setBasicInfoForm({ ...basicInfoForm, 
              attributes : {
                ...(basicInfoForm.attributes) as FashionAttributes , 
@@ -51,8 +51,8 @@ const FashionAttributesSection = () => {
 
       <MultiSelectDropdownForObject
         label="Fits"
-        options={options.fits.map(toSelectOptionAdapter)?? []} 
-        selectedValues={attributes.fits.map(toSelectOptionAdapter) || []}
+        options={options?.fits.map(toSelectOptionAdapter)?? []} 
+        selectedValues={attributes?.fits.map(toSelectOptionAdapter) || []}
         onChange={(selected : AllowedObjectsType[]) => setBasicInfoForm({ ...basicInfoForm, 
              attributes : {
                ...(basicInfoForm.attributes) as FashionAttributes , 
@@ -72,8 +72,8 @@ const FashionAttributesSection = () => {
 
       <MultiSelectDropdownForObject
         label="Styles"
-        options={options.styles.map(toSelectOptionAdapter) ?? []} 
-        selectedValues={attributes.styles.map(toSelectOptionAdapter) || []}
+        options={options?.styles.map(toSelectOptionAdapter) ?? []} 
+        selectedValues={attributes?.styles.map(toSelectOptionAdapter) || []}
         onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, 
              attributes : {
                ...(basicInfoForm.attributes) as FashionAttributes , 
@@ -93,8 +93,8 @@ const FashionAttributesSection = () => {
 
       <MultiSelectDropdownForObject
         label="Season"
-        options={options.seasons.map(toSelectOptionAdapter) ?? []} 
-        selectedValues={attributes.season.map(toSelectOptionAdapter) || []}
+        options={options?.seasons.map(toSelectOptionAdapter) ?? []} 
+        selectedValues={attributes?.season.map(toSelectOptionAdapter) || []}
         onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, 
              attributes : {
                ...(basicInfoForm.attributes ) as FashionAttributes, 
@@ -112,8 +112,8 @@ const FashionAttributesSection = () => {
       {/*end section title */}
       <MultiSelectDropdownForObject
         label="Gender"
-        options={options.genders.map(toSelectOptionAdapter) ?? []} 
-        selectedValues={attributes.gender.map(toSelectOptionAdapter) || []}
+        options={options?.genders.map(toSelectOptionAdapter) ?? []} 
+        selectedValues={attributes?.gender.map(toSelectOptionAdapter) || []}
         onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, 
              attributes : {
                ...(basicInfoForm.attributes) as FashionAttributes , 

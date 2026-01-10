@@ -108,7 +108,7 @@ const ProductCrEdForm = () => {
     const mediaRef = useRef<HTMLDivElement | null>(null);
     const attributesRef = useRef<HTMLDivElement | null>(null);
     const variantRef = useRef<HTMLDivElement | null>(null);
-    const advancedRef = useRef<HTMLDivElement | null>(null);
+    
     const thumbnailPreviewRef = useRef<any | null>(null);
 
     // useEffect(() => {

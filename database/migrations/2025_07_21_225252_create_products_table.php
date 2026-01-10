@@ -32,8 +32,11 @@ return new class extends Migration
             $table->json('vendor')->nullable();
             $table->string('made_country')->nullable() ;
             // Relational / foreign keys
-            $table->foreignId('category_nich_id')->constrained('niches')->nullable(); // assuming you have a niches table
-          
+            $table->foreignId('category_nich_id')
+            ->nullable()
+            ->default(null)
+            ->constrained('category_niches')
+            ->nullOnDelete();
             $table->timestamps();
         });
 

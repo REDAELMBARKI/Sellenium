@@ -3,9 +3,11 @@ import CustomSelect from "@/components/ui/CustomSelect";
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDraft } from "@/contextHooks/sharedhooks/useProductDraft";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
+import { uploadProductFiles } from "@/functions/ProductFilesUploader";
 import { Category } from "@/types/inventoryTypes";
 import { Description } from "@radix-ui/react-dialog";
 import { Upload, X } from "lucide-react";
@@ -22,7 +24,7 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
       const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
       const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
      const {state :{currentTheme}} = useStoreConfigCtx()
-
+    const {draftId , saveDraft} = useProductDraft()
       
     
       
@@ -38,12 +40,12 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
         }, [thumbnailPreview , getThumbnailPreview]);
     
     const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setThumbnailPreview(url);
-    validateField('thumbnail', url);
-  };
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const draftId = saveDraft()
+          uploadProductFiles(file , 'thumbnail' , draftId) ;
+          // validateField('thumbnail', url);
+    };
 
 
    

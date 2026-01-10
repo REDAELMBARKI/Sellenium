@@ -45,63 +45,14 @@ class ProductController extends Controller
     public function create()
     {
     
-        $colors = Color::select('id', 'hex')->distinct()->get();
 
-        $sizes = Size::select('id', 'name')->distinct()->get();
-        $fits = Fit::select('id', 'name')->distinct()->get();
-        $materials = Material::select('id', 'name')->distinct()->get();;
     
-        $nicheOptions = [
-            'colors' => [
-                [ 'id' => 1, 'hex' => '#e5ff00ff', 'name' => 'Red' ],
-                [ 'id' => 2, 'hex' => '#ff00fbff', 'name' => 'Blue' ],
-                [ 'id' => 3, 'hex' => '#00FF00', 'name' => 'Green' ],
-            ],
 
-            'sizes' => [
-                [ 'id' => 1, 'name' => 'S' ],
-                [ 'id' => 2, 'name' => 'M' ],
-                [ 'id' => 3, 'name' => 'Llll' ],
-                [ 'id' => 4, 'name' => 'XL' ],
-            ],
-
-            'fits' => [
-                [ 'id' => 1, 'name' => 'regular' ],
-                [ 'id' => 2, 'name' => 'slim' ],
-                [ 'id' => 3, 'name' => 'oversized' ],
-            ],
-
-            'materials' => [
-                [ 'id' => 1, 'name' => 'Cotton' ],
-                [ 'id' => 2, 'name' => 'Polyester' ],
-            ],
-            'seasons' => [
-                [ 'id' => 1, 'name' => 'winter' ],
-                [ 'id' => 2, 'name' => 'summer' ],
-            ],
-            'genders' => [
-                [ 'id' => 1, 'name' => 'man' ],
-                [ 'id' => 2, 'name' => 'women' ],
-                [ 'id' => 3, 'name' => 'kids' ],
-            ],
-             'styles' => [
-                [ 'id' => 1, 'name' => 'street' ],
-                [ 'id' => 2, 'name' => 'coatic' ],
-            ],
-        ];
-
-
-
-        
-
-
-        return inertia::render("admin/pages/products/Create" , ['options' => $nicheOptions , 'tagSuggestions' => []]);
+        return inertia::render("admin/pages/products/Create");
     }
 
 
-    public function store(StoreProductRequest $request ,
-                            InventoryServices $inventoryServices ,
-                           )
+    public function store(StoreProductRequest $request)
     {
 
 
@@ -112,7 +63,7 @@ class ProductController extends Controller
             'price' => $request->price ?? null,
         ]);
 
-        // store product data
+        // store product data 
         return response()->json(
                [
                 "id" => $product->id ,
@@ -122,202 +73,10 @@ class ProductController extends Controller
     }
 
 
-    public function storeProductData($product_input_data , $request_files){
-        // store thumbnail
-        if (! Storage::exists('public/images/products/thumbnails')) {
-            Storage::makeDirectory('public/images/products/thumbnails');
-        }
-        $thum_fileName = uniqid() . '-thumbnail' . '.' . $request_files['thumbnail']->getClientOriginalExtension();
-        $thum_path = $request_files['thumbnail']->storeAs('/products/thumbnails', $thum_fileName, 'public');
-        $thum_relative_path = 'storage/' . $thum_path;
-
-
-        $product_info = $product_input_data->only(['name' , 'brand' , 'description' , 'price' , 'is_featured' , 'free_shipping'])->toArray();
-        $product_info['thumbnail'] = $thum_relative_path;
-
-    
-        return  Product::create($product_info);
-    }
-     
-    public function storeAttachCover($variant_covers , $variant_ids){
-        //check the directory if exist of create it 
-        if (! Storage::exists('public/images/products')) {
-            Storage::makeDirectory('public/images/products');
-        }
-
-        $covers_ids = [];
-        $i = 1;
-        foreach ($variant_covers as $cover) {
-            $cover = $cover["cover_$i"];
-            $fileName = uniqid() . '.' . $cover->getClientOriginalExtension();
-            $path = $cover->storeAs('products', $fileName, 'public');
-            $relative_path = 'storage/' . $path;
-
-            $cover = Cover::create([
-                'path' => $relative_path
-            ]);
-
-            $covers_ids[] = $cover->id;
-             
-            
-            $i++;
-        }
- 
-
-
-        foreach($variant_ids as $inventory_id){
-              foreach($covers_ids  as $cover_id){
-                DB::table('cover_inventory')->insert([
-                    'cover_id' => $cover_id ,
-                    'inventory_id' => $inventory_id
-                ]);
-              }
-        }
-    
-        
-    }
-    public function storeTags($product_input_data , $product){
-        $tags = $product_input_data->get('tags');
-        
-        foreach ($tags as $tag) {
-
-
-            $exist = Tag::where(function ($q) use ($tag) {
-                if (! empty($tag['id'])) {
-                    $q->orWhere('id', $tag['id']);
-                }
-                if (! empty($tag['name'])) {
-                    $q->orWhere('name', 'like', '%' . $tag['name'] . '%');
-                }
-            })->first();
-
-
-            if ($exist) {
-                $product->tags()->attach($exist->id);
-            } else {
-                $newtagAdded = Tag::create([
-                    'name' => $tag['name'],
-                    'slug' => Str::slug($tag['name']),
-                ]);
-                $product->tags()->attach($newtagAdded->id);
-            }
-        }
-    }
-
-
-     public function storeToInventory($product_input_data ,$product_id , $inventoryServices){
-
-        $inventory_data = $product_input_data->get('inventory');
-
-    
-        foreach ($inventory_data  as $variant) {
-            // store covers in covers table 
-           
-
-            // store new colors (none existing ones );
-            $inventoryServices->storeNewColors($variant);
-
-            // getVariant  idies 
-            $quantity = $variant['quantity'];
-          
-            $sizes_ids =  $inventoryServices->getVariantSizesIdies($variant);
-            $fits_ids =  $inventoryServices->getVariantFitsIdies($variant);
-
-            $colors_ids =  $inventoryServices->getVariantColorsIdies($variant);
-            $materials_ids =  $inventoryServices->getVariantMaterialsIdies($variant);
- 
-            // get variant covers
-            $variant_ids = [];
-            $variantRows = []; 
-            foreach ($colors_ids as $color_id) {
-                foreach ($materials_ids as $material_id) {
-                     foreach($sizes_ids as $size_id){
-                          foreach($fits_ids as $fit_id){
-                            $inventory = Inventory::create(
-                                [
-                                    'product_id' => $product_id,
-                                    'color_id' => $color_id,
-                                    'size_id' => $size_id,
-                                    'fit_id' => $fit_id,
-                                    'material_id' => $material_id,
-                                    'quantity' => $quantity,
-                                ]);
-
-                            $variant_ids[] = $inventory->id;
-                          }
-                     }
-                }
-            }
-
-
-          
-            // store varaint's images
-            // Covers =======================================================================================
-            // store  the covers to covers table with foreign key product_id
-            $variant_covers_data = collect();
-            
-            if(isset($variant['covers'])){
-                foreach ($variant['covers'] as $cover) {
-                    $variant_covers_data->push($cover);
-                }
-            }
-            
-            
-
-            $this->storeAttachCover($variant_covers_data, $variant_ids);
-            
-        }
-
-    }
-
-
-
-    
 
 
     public function edit(){ 
-        $product =  Product::with('tags')-> find(1) ;
-        
-        $product['category'] = ['pants', 'jeans'];
-        $product['gender']   = ['man', 'female'];
-
-        $colors = Color::select('id', 'hex')->distinct()->get();
-
-        $sizes = Size::select('id', 'name')->distinct()->get();
-        $fits = Fit::select('id', 'name')->distinct()->get();
-        $materials = Material::select('id', 'name')->distinct()->get();;
-    
-       $nicheOptions = [
-            'colors' => [
-                [ 'id' => 1, 'hex' => '#e5ff00ff', 'name' => 'Red' ],
-                [ 'id' => 2, 'hex' => '#ff00fbff', 'name' => 'Blue' ],
-                [ 'id' => 3, 'hex' => '#00FF00', 'name' => 'Green' ],
-            ],
-
-            'sizes' => [
-                [ 'id' => 1, 'name' => 'S' ],
-                [ 'id' => 2, 'name' => 'M' ],
-                [ 'id' => 3, 'name' => 'Llll' ],
-                [ 'id' => 4, 'name' => 'XL' ],
-            ],
-
-            'fits' => [
-                [ 'id' => 1, 'name' => 'regular' ],
-                [ 'id' => 2, 'name' => 'slim' ],
-                [ 'id' => 3, 'name' => 'oversized' ],
-            ],
-
-            'materials' => [
-                [ 'id' => 1, 'name' => 'Cotton' ],
-                [ 'id' => 2, 'name' => 'Polyester' ],
-            ],
-        ];
-
-
-
-        $tagSuggestions = Tag::select('id' , 'slug')->get();
-        
-        return inertia::render('admin/pages/products/Edit' , compact('product' , 'nicheOptions' , 'tagSuggestions'));
+       
     }
 
     public function update(UpdateProductRequest $request, $id)
@@ -327,8 +86,12 @@ class ProductController extends Controller
     }
 
 
-    public function destroy(UpdateProductRequest $request, $id){
-
+    public function destroy($id){
+         
+         Product::findOrFail($id)->delete() ;
+         return response()->json([
+            'message' => 'Product deleted successfully'
+         ]);
     }
 
 

@@ -21,13 +21,14 @@ const ProductFormMaster: React.FC = () => {
   
   
   const {state :{currentCategory , currentTheme}} = useStoreConfigCtx()
-  const  { productData = {} , modeForm , basicInfoForm } = useProductDataCtx()
+  const  { productData = {} , modeForm , basicInfoForm , setBasicInfoForm } = useProductDataCtx()
   const form = useForm<ProductDataGlobal>(basicInfoForm) // setData 
   const [isDirty , setIsDirty] = useState<boolean>(isFormWorthSavingAsDraft(basicInfoForm)) ; 
   const [showLeaveDraftModal , setShowLeaveDraftModal] = useState(false) ; 
   const [pendingDestination , setPendingDestination] = useState<any | null>(null) ; 
   const hasEverBeenDirty = useRef<boolean>(true) ;
   const allowNextVisit = useRef(false)
+  const draftId = useRef<string | null>(basicInfoForm.id ? String(basicInfoForm.id) : null) ;
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
 
   const {
@@ -57,13 +58,16 @@ const ProductFormMaster: React.FC = () => {
   }, []);
 
  useEffect(() => { 
-    if(hasEverBeenDirty.current) return;
+    // if(hasEverBeenDirty.current) return;
     setIsDirty(isFormWorthSavingAsDraft(basicInfoForm))
  }, [basicInfoForm]);
 
  useEffect(() => {
    if(hasEverBeenDirty.current) return;
-   if(isDirty) hasEverBeenDirty.current = true ;
+   if(isDirty) {
+    saveDraft()
+    hasEverBeenDirty.current = true ;
+   }
  }, [isDirty]);
  // end is dirty form checkers 
 
@@ -72,8 +76,10 @@ const ProductFormMaster: React.FC = () => {
    form.setData(basicInfoForm)
  }, [basicInfoForm]);
 
-
  
+ // ProductFormMaster.tsx
+
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -99,31 +105,18 @@ const ProductFormMaster: React.FC = () => {
     router.visit(pendingDestination)
   }
   
-  
 
-  const saveDraft = async () => {
-        try {
-          const response = await axios.post('/products', {...basicInfoForm , is_draft: true } );
-          console.log('Draft saved with id:', response.data.id);
-        } catch (err: any) {
-          console.error('Draft save failed:', err.response?.data || err.message);
-        }
-  }
 
-  const unsaveDraftCleanup = () => {
-    // setShowToast({ show: true, message: 'Draft discarded.', type: 'info' })
-  }
  
   const handleConfirmLeaveWithDraft = () => {
     saveDraft()
-    // proceedToPendingDestination()
+    proceedToPendingDestination()
   }
 
-
   const handleDenyLeaveWithDraft = () => {
-      setShowLeaveDraftModal(false)
-      unsaveDraftCleanup()
-      proceedToPendingDestination()
+    unsaveDraftCleanup()
+    setShowLeaveDraftModal(false)
+    proceedToPendingDestination()
   }
 
   return ( 
@@ -147,18 +140,18 @@ const ProductFormMaster: React.FC = () => {
    </div>
    {/* save product */}
    <div
-  className="
-    sticky bottom-0 z-30
-    flex justify-center
-    px-6 py-4
-    border-t
-    backdrop-blur
-  "
-  style={{
-    background: currentTheme.bgSecondary,
-    borderColor: currentTheme.border,
-  }}
->
+      className="
+        sticky bottom-0 z-30
+        flex justify-center
+        px-6 py-4
+        border-t
+        backdrop-blur
+      "
+      style={{
+        background: currentTheme.bgSecondary,
+        borderColor: currentTheme.border,
+      }}
+    >
   <Button
     type="submit"
     className="

@@ -8,6 +8,7 @@ use App\Http\Controllers\admin\MessageController;
 use App\Http\Controllers\admin\OrderController as AdminOrderController;
 use App\Http\Controllers\admin\StoreConfigController;
 use App\Http\Controllers\admin\VariantsController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
@@ -51,7 +52,9 @@ Route::get('/products/edit' , [ProductController::class, 'edit']) ;
 Route::get('/products' , [ProductController::class, 'index'])->name('products') ;
 Route::get('/products/show' , [ProductController::class, 'show']) ;
 Route::post('/products' , [ProductController::class, 'store'])->name('products.store');
-
+Route::delete('/products/{id}' , [ProductController::class, 'destroy']) ;
+// store media route
+Route::post('/media' , [MediaController::class, 'store'])->name('media.store') ;
 
 // settings 
 Route::get("/store" , [StoreConfigController::class ,  'index'])->name("store") ; 
