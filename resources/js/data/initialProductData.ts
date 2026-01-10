@@ -47,7 +47,7 @@ export const getEditedData = (
   category: Category
 ) => {
   const baseData : ProductBase = {
-    id: product.id ?? "",
+    id: product.id ?? undefined,
     name: product.name ?? "",
     brand: product.brand ?? "",
     subCategory: product.subCategory   ?? [],

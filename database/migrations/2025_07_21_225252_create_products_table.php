@@ -13,25 +13,26 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->json('aggregated_attributes')->nullable(); // this stores cashed varaints attributes for first fitch {colors : [] , sizes: []}
-            $table->string('name');
-            $table->string('brand');
-            // Shared / descriptive fields
-            $table->text('description')->nullable();
-
+            $table->string('name')->nullable();        // user might not fill yet
+            $table->string('brand')->nullable();       // optional in draft
+            $table->text('description')->nullable();   // optional in draft
+            $table->decimal('price', 10, 2)->nullable();
+            $table->decimal('old_price', 10, 2)->nullable();
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_free_shipping')->default(false);
-            
-            $table->json('shipping');
-            $table->json('inventory');
-            $table->json('meta');
-            $table->json('vendor');
-            $table->string('made_country') ;
+            $table->enum('status', ['draft','published'])->default('draft');
             // Ratings
             $table->float('rating_average', 3, 2)->nullable()->default(null); // average rating
-            $table->unsignedInteger('rating_count')->default(0);               // number of ratings
+            $table->unsignedInteger('rating_count')->default(0);
+           
+            $table->json('shipping')->nullable();
+            $table->json('aggregated_attributes')->nullable(); // this stores cashed varaints attributes for first fitch {colors : [] , sizes: []}
+            $table->json('inventory')->nullable();
+            $table->json('meta')->nullable();
+            $table->json('vendor')->nullable();
+            $table->string('made_country')->nullable() ;
             // Relational / foreign keys
-            $table->foreignId('niche_id')->constrained('niches'); // assuming you have a niches table
+            $table->foreignId('category_nich_id')->constrained('niches')->nullable(); // assuming you have a niches table
           
             $table->timestamps();
         });

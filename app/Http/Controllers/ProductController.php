@@ -102,27 +102,26 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request ,
                             InventoryServices $inventoryServices ,
                            )
-                           {
+    {
 
-        
-        $product_input_data = collect($request->validated());
-       
-        // Products basic Info =======================================================================================
-        // store to  products table  and return it 
-        $product = $this->storeProductData($product_input_data , $request->allFiles());
 
-       
-        // Tags =======================================================================================
-        // store product related tags and store the none existed tags to tags table 
-        $this->storeTags($product_input_data , $product);
+        $product = Product::create([
+            'name' => $request->name ?? null,
+            'brand' => $request->brand ?? null,
+            'description' => $request->description ?? null,
+            'price' => $request->price ?? null,
+        ]);
 
-        // Inventory =======================================================================================
-        // store  the inventry's data to covers table with foreign key product_id
-
-        $this->storeToInventory($product_input_data,$product->id, $inventoryServices);
-        
+        // store product data
+        return response()->json(
+               [
+                "id" => $product->id ,
+               ] 
+        ) ;
 
     }
+
+
     public function storeProductData($product_input_data , $request_files){
         // store thumbnail
         if (! Storage::exists('public/images/products/thumbnails')) {

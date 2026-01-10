@@ -11,7 +11,7 @@ import { isMeaningfulValue } from "./isMeaningfulValue";
  */
 export function isFormWorthSavingAsDraft(
   formData: Record<string, any>,
-  minFilledFields = 4,
+  minFilledFields = 2,
   skipKeys: string[] = ["category"]
 ) {
   let filledFields = 0;
@@ -21,7 +21,7 @@ export function isFormWorthSavingAsDraft(
     .forEach(([_, value]) => {
       if (isMeaningfulValue(value)) filledFields++;
     });
-
+    
   return filledFields >= minFilledFields 
    
 }

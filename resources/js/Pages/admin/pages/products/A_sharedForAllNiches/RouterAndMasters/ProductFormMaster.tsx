@@ -1,25 +1,20 @@
-import React, { FormEventHandler, useEffect, useRef, useState } from 'react';
+import React, {  useEffect, useRef, useState } from 'react';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
-import FashionBasicInfoForm from './ProductCrEdForm';
-import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
 import { Button } from '@/components/ui/button';
 import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
-import { useForm } from '@inertiajs/react' 
+import { useForm , router } from '@inertiajs/react' 
 import { route } from 'ziggy-js';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import ProductCrEdForm from './ProductCrEdForm';
 import { Save } from 'lucide-react';
 import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
 import { ProductDataGlobal } from '@/types/productsTypes';
-import adapters from '@/functions/adapters';
 import { Inertia } from '@inertiajs/inertia'
 import { toBackendDataCleaners } from '@/functions/toBackendDataCleaners';
 import { isFormWorthSavingAsDraft } from '@/functions/souldSaveDraft';
-import { DeleteConfirmationModal } from '@/components/ui/DeleteConfirmationModal';
 
-import { router } from '@inertiajs/react';
 import WarningModal from '@/components/ui/WarningModal';
-import { isEqual } from 'lodash';
+import axios from 'axios';
 
 const ProductFormMaster: React.FC = () => {
    
@@ -31,8 +26,8 @@ const ProductFormMaster: React.FC = () => {
   const [isDirty , setIsDirty] = useState<boolean>(isFormWorthSavingAsDraft(basicInfoForm)) ; 
   const [showLeaveDraftModal , setShowLeaveDraftModal] = useState(false) ; 
   const [pendingDestination , setPendingDestination] = useState<any | null>(null) ; 
-  const hasEverBeenDirty = useRef<boolean>(false) ;
-  const allowNextVisit = useRef(!hasEverBeenDirty.current)
+  const hasEverBeenDirty = useRef<boolean>(true) ;
+  const allowNextVisit = useRef(false)
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
 
   const {
@@ -41,16 +36,10 @@ const ProductFormMaster: React.FC = () => {
   } = toBackendDataCleaners()
 
 
-  const handleSaveAllChanges = () => {
-    alert("Changes saved successfully!");
-    setHasUnsavedChanges(false);
-    setShowToast(false);
-  };
 
   //form is dirty checkers
- 
   useEffect(() => {
-     const remove =  router.on('before' , (event)=> {
+     const remove =  router.on('before' , (event)=> { 
         if(allowNextVisit.current) {
           allowNextVisit.current = false ;
           return ;
@@ -78,50 +67,80 @@ const ProductFormMaster: React.FC = () => {
  }, [isDirty]);
  // end is dirty form checkers 
 
+
  useEffect(() => {
    form.setData(basicInfoForm)
  }, [basicInfoForm]);
 
 
  
- const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault()
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
 
 
-   const payload = {
-    ...form.data,
-    category : cleanObjectToIids(form.data.category) , 
-    attributes: cleanAttributesForBackend(form.data.attributes),
-    subCategory : cleanObjectToIids(form.data.subCategory)
+    const payload = {
+      ...form.data,
+      category : cleanObjectToIids(form.data.category) , 
+      attributes: cleanAttributesForBackend(form.data.attributes),
+      subCategory : cleanObjectToIids(form.data.subCategory)
+    }
+
+      // 2️⃣ Send payload directly
+      Inertia.post(route('products.store'), payload as any, {
+        onError: (errors) => form.setError(errors),
+        onSuccess: () => console.log('Success'),
+      })
+
+  }
+  
+  const proceedToPendingDestination = () => {
+    if (!pendingDestination) return
+    allowNextVisit.current = true
+    router.visit(pendingDestination)
+  }
+  
+  
+
+  const saveDraft = async () => {
+        try {
+          const response = await axios.post('/products', {...basicInfoForm , is_draft: true } );
+          console.log('Draft saved with id:', response.data.id);
+        } catch (err: any) {
+          console.error('Draft save failed:', err.response?.data || err.message);
+        }
   }
 
-    // 2️⃣ Send payload directly
-    Inertia.post(route('products.store'), payload as any, {
-      onError: (errors) => form.setError(errors),
-      onSuccess: () => console.log('Success'),
-    })
-
-}
-
+  const unsaveDraftCleanup = () => {
+    // setShowToast({ show: true, message: 'Draft discarded.', type: 'info' })
+  }
  
-  
+  const handleConfirmLeaveWithDraft = () => {
+    saveDraft()
+    // proceedToPendingDestination()
+  }
+
+
+  const handleDenyLeaveWithDraft = () => {
+      setShowLeaveDraftModal(false)
+      unsaveDraftCleanup()
+      proceedToPendingDestination()
+  }
+
   return ( 
   <form  onSubmit={handleSubmit}> 
    
    {/* edit and create form  */}
    <div className='flex'>
-    <WarningModal
+     <WarningModal
       title='Unsaved changes' 
       description='You have unsaved changes. If you leave this page, your draft will be lost.' 
       confirmText='Save draft & leave'
-       denyText='Continue editing'
+       denyText='Discard Changes'
+
         isOpen={showLeaveDraftModal} 
-       onDeny={() => setShowLeaveDraftModal(false)} 
-       onConfirm={() => {
-      if(!pendingDestination) return ;
-      allowNextVisit.current = true
-      router.visit(pendingDestination)
-     }} />
+       onDeny={() => handleDenyLeaveWithDraft()} 
+       onClose={() => setShowLeaveDraftModal(false)}
+       onConfirm={() => handleConfirmLeaveWithDraft()} />
     <ProductCrEdForm />
     <RightSectionComponent />
 

@@ -1,7 +1,7 @@
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ModeForm, ProductDataContext } from '@/context/sharedProductContext/ProductDataContext';
-import {  Category, Color } from '@/types/inventoryTypes';
+import {  Category } from '@/types/inventoryTypes';
 import { getEditedData, getEmptyInitialProductData } from '@/data/initialProductData';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { FashionProduct, ProductBackendProps, ProductDataGlobal } from '@/types/productsTypes';
@@ -127,7 +127,7 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
   const productSource = undefined 
 
 
-  const {state : {currentCategory : category} , dispatch} = useStoreConfigCtx() 
+  const {state : {currentCategory : category} } = useStoreConfigCtx() 
 
     
   const getInitialData = (category: Category, mode: ModeForm, product?: ProductDataGlobal) => {
@@ -143,7 +143,6 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
     const [productData ,   setProductData] = useState<ProductDataGlobal | undefined>(() => productSource)
     const [basicInfoForm , setBasicInfoForm] = useState<ProductDataGlobal>(() => initialData);
 
-    // const inventoryOptions : FashionOptions  = inventoryOptions ;  
 
     const [options] = useState(backendOptions);
 
