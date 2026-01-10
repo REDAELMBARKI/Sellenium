@@ -19,6 +19,7 @@ import { DeleteConfirmationModal } from '@/components/ui/DeleteConfirmationModal
 
 import { router } from '@inertiajs/react';
 import WarningModal from '@/components/ui/WarningModal';
+import { isEqual } from 'lodash';
 
 const ProductFormMaster: React.FC = () => {
    
@@ -30,7 +31,8 @@ const ProductFormMaster: React.FC = () => {
   const [isDirty , setIsDirty] = useState<boolean>(isFormWorthSavingAsDraft(basicInfoForm)) ; 
   const [showLeaveDraftModal , setShowLeaveDraftModal] = useState(false) ; 
   const [pendingDestination , setPendingDestination] = useState<any | null>(null) ; 
-  const hasEverBeenDirty = useRef<boolean>(true) ;
+  const hasEverBeenDirty = useRef<boolean>(false) ;
+  const allowNextVisit = useRef(!hasEverBeenDirty.current)
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
 
   const {
@@ -44,14 +46,19 @@ const ProductFormMaster: React.FC = () => {
     setHasUnsavedChanges(false);
     setShowToast(false);
   };
-  
 
   //form is dirty checkers
  
   useEffect(() => {
      const remove =  router.on('before' , (event)=> {
+        if(allowNextVisit.current) {
+          allowNextVisit.current = false ;
+          return ;
+        } ;
+
         if(!hasEverBeenDirty.current) return ;
         event.preventDefault()
+
         setPendingDestination(event.detail.visit.url)
         setShowLeaveDraftModal(true)
      })
@@ -103,10 +110,18 @@ const ProductFormMaster: React.FC = () => {
    
    {/* edit and create form  */}
    <div className='flex'>
-    <WarningModal title='save as draft ' isOpen={showLeaveDraftModal} onDeny={() => setShowLeaveDraftModal(false)} onConfirm={() => {
-      if(pendingDestination) Inertia.visit(pendingDestination)
-        
-    }} />
+    <WarningModal
+      title='Unsaved changes' 
+      description='You have unsaved changes. If you leave this page, your draft will be lost.' 
+      confirmText='Save draft & leave'
+       denyText='Continue editing'
+        isOpen={showLeaveDraftModal} 
+       onDeny={() => setShowLeaveDraftModal(false)} 
+       onConfirm={() => {
+      if(!pendingDestination) return ;
+      allowNextVisit.current = true
+      router.visit(pendingDestination)
+     }} />
     <ProductCrEdForm />
     <RightSectionComponent />
 
