@@ -1,30 +1,23 @@
-import TagSection from "@/components/TagSection";
-import CustomSelect from "@/components/ui/CustomSelect";
-import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
-import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { useProductDraft } from "@/contextHooks/sharedhooks/useProductDraft";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
-import { uploadProductFiles } from "@/functions/ProductFilesUploader";
-import { Category } from "@/types/inventoryTypes";
-import { Description } from "@radix-ui/react-dialog";
+import { uploadProductFiles } from "@/functions/productFilesUploader";
 import { Upload, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { v4 } from "uuid";
 
 
 
 
 const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} : {getThumbnailPreview : (thumbnail:string) => void , validateField : (field: string, value: any) => void , frontEndErrors : Record<string , string>}) => {
     
-      const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
-      const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-     const {state :{currentTheme}} = useStoreConfigCtx()
-    const {draftId , saveDraft} = useProductDraft()
+    const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
+    const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+    const {state :{currentTheme}} = useStoreConfigCtx()
+    const {saveDraft} = useProductDraft()
       
     
       
@@ -37,20 +30,28 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
           return () => {
            URL.revokeObjectURL(thumbnailPreview);
           };
-        }, [thumbnailPreview , getThumbnailPreview]);
+    }, [thumbnailPreview , getThumbnailPreview]);
     
-    const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-          const file = e.target.files?.[0];
-          if (!file) return;
-          const draftId = saveDraft()
-          uploadProductFiles(file , 'thumbnail' , draftId) ;
-          // validateField('thumbnail', url);
+
+    const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      try{
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            // validateField('thumbnail', url);
+
+            const draftId = await saveDraft()
+            const imageData =  await uploadProductFiles(file , 'thumbnail' , 'Product', draftId!);
+            setBasicInfoForm({ ...basicInfoForm, thumbnail: imageData.id });
+            setThumbnailPreview(imageData.url);
+          }catch(err){
+             throw err ;
+          }
     };
 
 
    
-
-    return <>
+    return (
     <div className="space-y-6 pb-6 border-b" style={{ borderColor: currentTheme.border }}>
           
           {/* Thumbnail */}
@@ -62,8 +63,12 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
               {(basicInfoForm.thumbnail || thumbnailPreview) && (
                 <div className="relative w-40 h-40 group overflow-hidden rounded-2xl shadow-lg border-2"
                      style={{ borderColor: frontEndErrors.thumbnail ? '#ef4444' : currentTheme.border }}>
-                  <img
-                    src={(thumbnailPreview && thumbnailPreview !== "")  ? thumbnailPreview : getMediaSrcOrDefault(basicInfoForm.thumbnail , 'image')}
+                  <img 
+                    src={(thumbnailPreview && thumbnailPreview !== "")  ?
+                       thumbnailPreview :  
+                       typeof basicInfoForm?.thumbnail === 'object' ?
+                        getMediaSrcOrDefault(basicInfoForm?.thumbnail , 'image') : '' 
+                      }
                     alt="Product thumbnail"
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-hover:blur-sm"
                   />
@@ -177,9 +182,8 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
 
         
 
-        </div>
+        </div>)
     
-    </>
 }
 
 

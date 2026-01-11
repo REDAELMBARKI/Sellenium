@@ -1,3 +1,4 @@
+import { style } from "framer-motion/client";
 
 
 export interface ImagesMap {
@@ -28,4 +29,14 @@ export interface MediaContextType {
   file: File | null;
   url: string | null;
 }
+
+
+export type FlagMedia = 
+  | 'thumbnail'       // main product image
+  | 'cover'           // gallery or variant cover images
+  | 'video'           // product video
+  | 'avatar_user'     // customer or user avatar
+  | 'avatar_admin'    // admin avatar
+  | 'brand_logo'      // brand logos
+  | 'general';        // anything else / fallback
 

@@ -17,24 +17,21 @@ return new class extends Migration
     Schema::create('media', function (Blueprint $table) {
         $table->id();
 
-        
-        $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-        
-        $table->string('collection');
+        $table->string('collection')->nullable();
         // thumbnail, gallery, avatar, variant_cover, banner
-        $table->string('path');
+        $table->string('url');
         
-        $table->string('disk')->default('public');
-        $table->string('mime_type')->nullable();
+        $table->string('disk')->nullable()->default('public');
+        
+        $table->string('mime_type')->nullable(); // image, video, document
         
         $table->nullableMorphs('model'); // model_type + model_id
         $table->unsignedBigInteger('size')->nullable();
         $table->unsignedInteger('width')->nullable();
         $table->unsignedInteger('height')->nullable();
 
-        $table->boolean('is_temporary')->default(false);
-        $table->integer('order')->default(0);
-
+        $table->boolean('is_temporary')->default(true);
+        $table->integer('order')->nullable()->default(0);
         $table->timestamps();
 
         $table->index(['is_temporary', 'collection']);

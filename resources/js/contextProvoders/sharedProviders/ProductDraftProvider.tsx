@@ -15,30 +15,19 @@ export const ProductDraftProvider: React.FC<ProductDraftProviderProps> = ({
 
   const saveDraft = async () => {
         if(draftId.current) return draftId.current ;
-        
-        try {
-          const response = await axios.post('/products', {...basicInfoForm , is_draft: true } );
-          draftId.current = response.data.id 
-          setBasicInfoForm({...basicInfoForm , id : draftId.current})
-          return response.data.id ;
-        } catch (err: any) {
-          console.error('Draft save failed:', err.response?.data || err.message);
-          return null
-        }
+        const response = await axios.post('/products', {...basicInfoForm , is_draft: true } );
+        if(!response.data.id)  throw new Error("no draft id ")
+        draftId.current = response.data.id
+        return draftId.current;
   }
 
   const unsaveDraftCleanup = async () => {
     if(!draftId.current) return ;
-    try{
-        const response = await axios.delete(`/products/${draftId.current}`)
-        draftId.current = null ;
-        if(response.status === 200){
-          // setShowToast({ show: true, message: 'Draft discarded.', type: 'info' })
-        }
-    } catch (err: any) {
-         console.error('Draft deletion failed:', err.response?.data || err.message);
-    }
+    const response = await axios.delete(`/products/${draftId.current}`)
+    if(!response.data.status) throw new Error('failed to delete the draft ')
+    draftId.current = null ;
   }
+
   
   return (
     <ProductDraftContext.Provider

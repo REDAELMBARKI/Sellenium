@@ -15,6 +15,7 @@ import { isFormWorthSavingAsDraft } from '@/functions/souldSaveDraft';
 
 import WarningModal from '@/components/ui/WarningModal';
 import axios from 'axios';
+import { useProductDraft } from '@/contextHooks/sharedhooks/useProductDraft';
 
 const ProductFormMaster: React.FC = () => {
    
@@ -30,7 +31,7 @@ const ProductFormMaster: React.FC = () => {
   const allowNextVisit = useRef(false)
   const draftId = useRef<string | null>(basicInfoForm.id ? String(basicInfoForm.id) : null) ;
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
-
+  const { saveDraft , unsaveDraftCleanup } = useProductDraft() ;
   const {
     cleanAttributesForBackend , 
     cleanObjectToIids
@@ -58,16 +59,24 @@ const ProductFormMaster: React.FC = () => {
   }, []);
 
  useEffect(() => { 
-    // if(hasEverBeenDirty.current) return;
+    if(hasEverBeenDirty.current) return;
     setIsDirty(isFormWorthSavingAsDraft(basicInfoForm))
  }, [basicInfoForm]);
 
  useEffect(() => {
    if(hasEverBeenDirty.current) return;
-   if(isDirty) {
-    saveDraft()
-    hasEverBeenDirty.current = true ;
-   }
+   if(!isDirty) return ;
+
+  const save = async () => {
+    try {
+      await saveDraft();
+      hasEverBeenDirty.current = true;
+    } catch (err) {
+      console.error('Draft save failed in effect:', err);
+    }
+  };
+
+  save();
  }, [isDirty]);
  // end is dirty form checkers 
 

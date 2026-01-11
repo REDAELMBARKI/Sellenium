@@ -2,10 +2,10 @@ import { createContext } from "react";
 
 export const ProductDraftContext = createContext<{
   draftId: string | null;
-  saveDraft: () => Promise<void>;
+  saveDraft: () => Promise<string | null>;
   unsaveDraftCleanup : () => Promise<void>;
 }>({
   draftId: null,
-  saveDraft: async () => {} ,
+  saveDraft: async () => null ,
   unsaveDraftCleanup: async () => {} ,
 });

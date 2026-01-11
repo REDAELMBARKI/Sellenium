@@ -1,7 +1,8 @@
 <?php
-
 namespace App\Http\Requests;
-class MediaRequest {
+use Illuminate\Foundation\Http\FormRequest;
+
+class MediaRequest extends FormRequest {
     public function authorize()
     {
         return true;

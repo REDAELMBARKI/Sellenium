@@ -1,22 +1,21 @@
+import { ModelType } from "@/types/backendTypes";
+import { FlagMedia } from "@/types/mediaTypes";
 import axios from "axios";
 import { route } from "ziggy-js";
 
-export  const uploadProductFiles = async (file: File, type: string , toDraftId : string) => {
+export  const uploadProductFiles = async (file: File, collection: FlagMedia  , model_type : ModelType , toDraftId : string) => {
     
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('type', type);
+    formData.append('collection', collection);
+    formData.append('model_type', model_type);
     formData.append('draft_id', toDraftId);
-
-    try {
-        const response = await axios.post(route('media.store'), formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        console.log('File uploaded:', response.data);
-        // update state if needed
-    } catch (err) {
-        console.error('File upload failed:', err);
-    }
+    const response = await axios.post(route('media.store'), formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    console.log(response.data)
+    if(response.status !== 200 ) throw new Error('faild to upload the file')
+    return response.data;
   };

@@ -28,7 +28,7 @@ export interface Gender extends BaseAttribute {}
 
 export interface Cover {
     id: string | null ;
-    path: string | null;
+    url: string | null;
 }
 
 
