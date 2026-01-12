@@ -1,34 +1,17 @@
 import CollapsibleSection from "@/components/CollapsibleSection";
-import CustomSelect from "@/components/ui/CustomSelect";
-import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import {
-    Upload,
-    X,
-    Plus,
     Video,
     Droplet,
     Settings,
-    Trash2,
-    Edit2,
-    AlertCircle,
 } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import MediaSection from "../components/editAndCreate/MediaSection";
 import {
-    Color,
     Cover,
-    Fit,
-    Material,
-    Season,
-    Size,
-    Style,
 } from "@/types/inventoryTypes";
 import BaseSharedForm from "../components/editAndCreate/BaseSharedForm";
-import ProductMetaData from "../components/editAndCreate/ProductMetaData";
-import { Tag as TagType } from "@/types/tagsTypes";
 
-import { ImagePreviewItem } from "@/types/mediaTypes";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import {
     ATTRIBUTES_FORM_SECTIONS,
@@ -39,16 +22,11 @@ import { CATEGORIES } from "@/data/listOfCategories";
 import NotifyUser from "@/components/ui/NotifyUser";
 import PricingSection from "../components/editAndCreate/PricingSection";
 import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
-import CustomSelectNative from "@/components/ui/CustomSelectNative";
 import adapters from "@/functions/adapters";
 import CustomSelectForObjectNative from "@/components/ui/CustomSelectForObjectNative";
+import { Button } from "@/components/ui/button";
+import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
 
-function getVideoPreview(video: Cover | ImagePreviewItem | null) {
-    if (!video) return null;
-    if ("path" in video) return video.path;
-    if ("url" in video) return video.url;
-    return null;
-}
 
 const ProductCrEdForm = () => {
     const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
@@ -60,7 +38,7 @@ const ProductCrEdForm = () => {
     const { options } = useProductDataCtx();
 
     const [videoPreview, setVideoPreview] = useState<string | null>(
-        getVideoPreview(basicInfoForm.video)
+        getMediaSrcOrDefault(basicInfoForm.video , 'video')
     );
 
     const isOpenShowMedia =
@@ -270,12 +248,12 @@ const ProductCrEdForm = () => {
                             onToggle={() => setShowMedia((prev) => !prev)}
                             headerActions={
                               <>
-                                <button className="px-3 py-1.5 text-sm rounded-lg border">
+                                <Button type="button" className="px-3 py-1.5 text-sm rounded-lg border">
                                   Add images
-                                </button>
-                                <button className="px-3 py-1.5 text-sm rounded-lg border">
+                                </Button>
+                                <Button type="button" className="px-3 py-1.5 text-sm rounded-lg border">
                                   Add video
-                                </button>
+                                </Button>
                               </>
                             }
                         >

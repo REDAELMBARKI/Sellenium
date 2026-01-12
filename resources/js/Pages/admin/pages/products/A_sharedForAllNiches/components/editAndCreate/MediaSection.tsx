@@ -1,225 +1,367 @@
+import { Button } from "@/components/ui/button";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDraft } from "@/contextHooks/sharedhooks/useProductDraft";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
-import { Cover } from "@/types/inventoryTypes";
-import { ImagePreviewItem } from "@/types/mediaTypes";
+import { productFilesUploaderCleaner } from "@/functions/productFilesUploaderCleaner";
 import { Film, Image as ImageIcon, X, Upload } from "lucide-react";
 import { useState, useRef } from "react";
 import { v4 } from "uuid";
+import { Oval } from "react-loader-spinner";
+import NotifyUser from "@/components/ui/NotifyUser";
 
 interface MediaSectionProps {
-  setVideoPreview: React.Dispatch<React.SetStateAction<string | null>>;
-  videoPreview: string | null;
+    setVideoPreview: React.Dispatch<React.SetStateAction<string | null>>;
+    videoPreview: string | null;
 }
 
 const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
-  const { state: { currentTheme } } = useStoreConfigCtx();
-  const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
-  const [isOpen, setIsOpen] = useState(true);
-  const [isDragging, setIsDragging] = useState(false);
-  const imageInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
+    const {
+        state: { currentTheme : theme },
+    } = useStoreConfigCtx();
+    const { basicInfoForm, setBasicInfoForm, setCoversPreview, coversPreview } =
+        useProductDataCtx();
+    const [isDragging, setIsDragging] = useState(false);
+    const imageInputRef = useRef<HTMLInputElement>(null);
+    const videoInputRef = useRef<HTMLInputElement>(null);
+    const [imageUploading , setImageUploading] = useState(false);
+    const [uploadError , setUploadError] = useState<string | null>('jeweopwepw')
+    const { draftId, saveDraft } = useProductDraft();
+    const { cleanProductTempMedia, uploadProductFiles } =
+    productFilesUploaderCleaner();
 
-  const handleCoversUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    const newCovers = Array.from(files).map((f) => ({
-      id: v4(),
-      path: URL.createObjectURL(f),
-    }));
-    setBasicInfoForm({
-      ...basicInfoForm,
-      covers: [...(basicInfoForm.covers || []), ...newCovers],
-    });
-  };
+    const handleCoversUpload = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-  const handleRemoveCover = (index: number) => {
-    const updated = [...(basicInfoForm.covers || [])];
-    updated.splice(index, 1);
-    setBasicInfoForm({ ...basicInfoForm, covers: updated });
-  };
+        try {
+            setImageUploading(true)
+            // validateField('cover', url);
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    const id = v4();
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setVideoPreview(url);
-    setBasicInfoForm({ ...basicInfoForm, video: { file, url, id } });
-  };
+            const draftId = await saveDraft();
+            const imageData = await uploadProductFiles(
+                file,
+                "cover",
+                "Product",
+                draftId!
+            );
+            setCoversPreview((prev) => [
+                ...(prev || []),
+                { url: imageData.url, id: imageData.id },
+            ]);
+        } catch (err) {
+            throw err;
+        }finally {
+            if(imageInputRef.current) imageInputRef.current.value = "";
+            setImageUploading(false);
+         }
+    };
 
-  const handleRemoveVideo = () => {
-    setVideoPreview(null);
-    setBasicInfoForm({ ...basicInfoForm, video: {} });
-    if (videoInputRef.current) {
-      videoInputRef.current.value = "";
-    }
-  };
+    const handleRemoveCover = (mediaId: string) => {
+        if(!draftId || !mediaId) return;
+        setImageUploading(true) 
+        try{
+        cleanProductTempMedia(draftId, mediaId);
+        setCoversPreview((prev) =>
+            (prev || []).filter((media) => media.id != mediaId)
+        );
+        }catch(err){
+          throw err
+        }finally {
+            if (imageInputRef.current) imageInputRef.current.value = "";
+            setImageUploading(false);
+         }
+    };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
+    const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        const id = v4();
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        setVideoPreview(url);
+    };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
+    const handleRemoveVideo = () => {
+        setVideoPreview(null);
+        setBasicInfoForm({ ...basicInfoForm, video: null });
+        if (videoInputRef.current) {
+            videoInputRef.current.value = "";
+        }
+    };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
 
-    const files = Array.from(e.dataTransfer.files).filter((file) =>
-      file.type.startsWith("image/")
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        // drag logic
+    };
+
+    const hasImages = basicInfoForm.covers && basicInfoForm.covers.length > 0;
+    const hasVideo =
+        basicInfoForm.video &&
+        Object.keys(basicInfoForm.video).length > 0 &&
+        videoPreview !== null;
+
+    const headerActions = (
+        <>
+            <Button 
+                variant="danger"
+                onClick={() => imageInputRef.current?.click()}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all"
+                style={{
+                    background: theme.bgSecondary,
+                    color: theme.text,
+                    border: `1px solid ${theme.border}`,
+                }}
+            >
+                <ImageIcon
+                    className="w-4 h-4"
+                    style={{ color: theme.textSecondary }}
+                />
+                Add Images
+            </Button>
+
+            <Button
+                onClick={() => videoInputRef.current?.click()}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all"
+                style={{
+                    background: theme.bgSecondary,
+                    color: theme.text,
+                    border: `1px solid ${theme.border}`,
+                }}
+            >
+                <Film
+                    className="w-4 h-4"
+                    style={{ color: theme.textSecondary }}
+                />
+                Add Video
+            </Button>
+        </>
     );
 
-    if (files.length > 0) {
-      const newCovers = files.map((f) => ({
-        id: v4(),
-        path: URL.createObjectURL(f),
-      }));
-      setBasicInfoForm({
-        ...basicInfoForm,
-        covers: [...(basicInfoForm.covers || []), ...newCovers],
-      });
-    }
-  };
+    return (
+        <>
+            <input
+                ref={imageInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={handleCoversUpload}
+            />
+            <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={handleVideoUpload}
+            />
 
-  const hasImages = basicInfoForm.covers && basicInfoForm.covers.length > 0;
-  const hasVideo =
-    basicInfoForm.video &&
-    Object.keys(basicInfoForm.video).length > 0 &&
-    videoPreview !== null;
-
-  const headerActions = (
-    <>
-      <button
-        onClick={() => imageInputRef.current?.click()}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm transition-all"
-      >
-        <ImageIcon className="w-4 h-4" />
-        Add Images
-      </button>
-      <button
-        onClick={() => videoInputRef.current?.click()}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm transition-all"
-      >
-        <Film className="w-4 h-4" />
-        Add Video
-      </button>
-    </>
-  );
-
-  return (
-    <>
-      <input
-        ref={imageInputRef}
-        type="file"
-        multiple
-        accept="image/*"
-        className="hidden"
-        onChange={handleCoversUpload}
-      />
-      <input
-        ref={videoInputRef}
-        type="file"
-        accept="video/*"
-        className="hidden"
-        onChange={handleVideoUpload}
-      />
-
-      <div className="space-y-6">
-        <div>
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">Images</h4>
-          <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 rounded-lg border-2 border-dashed transition-all ${
-              isDragging
-                ? "border-blue-400 bg-blue-50"
-                : "border-gray-300 bg-gray-50"
-            }`}
-          >
-            {(basicInfoForm.covers || ([] as (Cover | ImagePreviewItem)[])).map(
-              (c, i) => (
-                <div
-                  key={i}
-                  className="relative aspect-square group animate-in fade-in zoom-in duration-200"
+            <div className="space-y-6">
+               
+                {/* IMAGES */}
+                <div className="bg-black bg-opacity-50 rounded-lg border-2 border-dashed transition-all  p-4 "
+                 style={{
+                            borderColor: isDragging
+                                ? theme.accent
+                                : theme.border,
+                            background: isDragging
+                                ? theme.bgSecondary
+                                : theme.bg,
+                        }}
                 >
-                  <img
-                    src={getMediaSrcOrDefault(c, "image")}
-                    alt={`cover-${i}`}
-                    className="w-full h-full object-cover rounded-lg shadow-sm group-hover:shadow-md transition-all"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
-                  <button
-                    onClick={() => handleRemoveCover(i)}
-                    className="absolute top-2 right-2 p-1.5 rounded-full bg-white hover:bg-red-50 shadow-md opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
-                    aria-label="Remove image"
-                  >
-                    <X className="w-4 h-4 text-red-600" />
-                  </button>
+                    
+                    <h4
+                        className="text-sm font-semibold mb-3"
+                        style={{ color: theme.textSecondary }}
+                    >
+                        Images
+                    </h4>
+                    
+                    
+                    
+                    <div
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 "
+                       
+                    >  
+
+                        
+
+                         
+                        {(coversPreview || basicInfoForm.covers || []).map(
+                            (media, i) => (
+                                <div
+                                    key={i}
+                                    className="relative aspect-square group animate-in fade-in zoom-in duration-200"
+                                >
+                                    <img
+                                        src={getMediaSrcOrDefault(
+                                            media,
+                                            "image"
+                                        )}
+                                        alt={`cover-${i}`}
+                                        className="w-full h-full object-cover rounded-lg shadow-sm transition-all"
+                                        style={{ boxShadow: theme.shadow }}
+                                    />
+
+                                    <div
+                                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
+                                        style={{ background: theme.overlay }}
+                                    />
+
+                                    <Button 
+                                        type="button"
+                                        onClick={() =>
+                                            handleRemoveCover(String(media.id))
+                                        }
+                                        className="absolute top-2 right-2 p-1.5 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                                        style={{ background: theme.card }}
+                                        aria-label="Remove image"
+                                    >
+                                        <X
+                                            className="w-4 h-4"
+                                            style={{ color: theme.error }}
+                                        />
+                                    </Button>
+                                </div>
+                            )
+                        )}
+                        {/* // image upload loding skelepton */}
+                        {imageUploading && (
+                             <div 
+                              className="w-full h-full animate-pulse rounded-lg border-2 border-dashed transition-all" 
+                              style={{background : theme.bgSecondary}}
+                             >
+                                <Oval
+                                        height={30}
+                                        width={30}
+                                        
+                                        color="#fff"
+                                        visible={imageUploading}
+                                />
+
+                             </div>
+                        )}
+
+                        {/* ADD IMAGE */}
+                        <button 
+                            type="button"
+                            onClick={() => imageInputRef.current?.click()}
+                            className="aspect-square flex flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all cursor-pointer"
+                            style={{
+                                borderColor: theme.border,
+                                background: theme.bgSecondary,
+                            }}
+                        >
+                            <Upload
+                                className="w-8 h-8 mb-2"
+                                style={{ color: theme.textMuted }}
+                            />
+                            <p
+                                className="text-xs font-medium"
+                                style={{ color: theme.textSecondary }}
+                            >
+                                Add Images
+                            </p>
+                        </button>
+                    </div>
+
+                    {/* // upload errors  */}
+                        {uploadError && (
+                              <NotifyUser  message={uploadError} />
+
+                        )}
                 </div>
-              )
-            )}
-            <button
-              onClick={() => imageInputRef.current?.click()}
-              className="aspect-square flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100 transition-all cursor-pointer"
-            >
-              <Upload className="w-8 h-8 text-gray-400 mb-2" />
-              <p className="text-xs font-medium text-gray-600">
-                Add Images
-              </p>
-            </button>
-          </div>
-        </div>
 
-        <div>
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">Video</h4>
-          <div className="space-y-4">
-            {hasVideo && (
-              <div className="relative group">
-                <video
-                  src={
-                    videoPreview ??
-                    ("url" in basicInfoForm.video
-                      ? basicInfoForm.video.url
-                      : "path" in basicInfoForm.video
-                      ? basicInfoForm.video.path
-                      : "/images/ .mp4")
-                  }
-                  controls
-                  className="w-full max-w-2xl rounded-lg shadow-md"
-                />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none" />
-                <button
-                  onClick={handleRemoveVideo}
-                  className="absolute top-3 right-3 p-2 rounded-full bg-white hover:bg-red-50 shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
-                  aria-label="Remove video"
-                >
-                  <X className="w-5 h-5 text-red-600" />
-                </button>
-              </div>
-            )}
-            <button
-              onClick={() => videoInputRef.current?.click()}
-              className="w-full flex flex-col items-center justify-center p-12 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100 transition-all"
-            >
-              <Upload className="w-12 h-12 text-gray-400 mb-3" />
-              <p className="text-sm font-medium text-gray-600 mb-1">
-                {hasVideo ? "Replace Video" : "Upload Video"}
-              </p>
-              <p className="text-xs text-gray-400">
-                Click to {hasVideo ? "change" : "upload"} video
-              </p>
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+                {/* VIDEO */}
+                <div>
+                    <h4
+                        className="text-sm font-semibold mb-3"
+                        style={{ color: theme.textSecondary }}
+                    >
+                        Video
+                    </h4>
+
+                    <div className="space-y-4">
+                        {hasVideo && (
+                            <div className="relative group">
+                                <video
+                                    src={
+                                        videoPreview ??
+                                        getMediaSrcOrDefault(
+                                            basicInfoForm.video!,
+                                            "video"
+                                        )
+                                    }
+                                    controls
+                                    className="w-full max-w-2xl rounded-lg"
+                                    style={{ boxShadow: theme.shadowMd }}
+                                />
+
+                                <div
+                                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none"
+                                    style={{ background: theme.overlay }}
+                                />
+
+                                <button 
+                                    type="button"
+                                    onClick={handleRemoveVideo}
+                                    className="absolute top-3 right-3 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                                    style={{ background: theme.card }}
+                                    aria-label="Remove video"
+                                >
+                                    <X
+                                        className="w-5 h-5"
+                                        style={{ color: theme.error }}
+                                    />
+                                </button>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={() => videoInputRef.current?.click()}
+                            className="w-full flex flex-col items-center justify-center p-12 rounded-lg border-2 border-dashed transition-all"
+                            style={{
+                                borderColor: theme.border,
+                                background: theme.bgSecondary,
+                            }}
+                        >
+                            <Upload
+                                className="w-12 h-12 mb-3"
+                                style={{ color: theme.textMuted }}
+                            />
+                            <p
+                                className="text-sm font-medium mb-1"
+                                style={{ color: theme.text }}
+                            >
+                                {hasVideo ? "Replace Video" : "Upload Video"}
+                            </p>
+                            <p
+                                className="text-xs"
+                                style={{ color: theme.textMuted }}
+                            >
+                                Click to {hasVideo ? "change" : "upload"} video
+                            </p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
 };
 
 export default MediaSection;

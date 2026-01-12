@@ -1,4 +1,5 @@
 
+import { Cover } from "@/types/inventoryTypes"
 import { CategoryCode } from "@/types/products/categories"
 import { ProductDataGlobal } from "@/types/productsTypes"
 import { createContext } from "react"
@@ -14,6 +15,11 @@ interface ProductDataContextProps {
     setVariantToDelete: React.Dispatch<React.SetStateAction<number | undefined | null>> 
     options: any
     
+    setThumbnailPreview: React.Dispatch<React.SetStateAction<Cover| null>>
+    thumbnailPreview: Cover | null
+    setCoversPreview: React.Dispatch<React.SetStateAction<Cover[]>>
+    coversPreview: Cover[]
+
     basicInfoForm: ProductDataGlobal
     setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductDataGlobal>>
      

@@ -17,7 +17,7 @@ export interface ToastContextType {
   toasts: ToastType[];
   addToast: (toast: ToastType) => void;
   removeToast: (id: string) => void; 
-    toastContainerRef : React.RefObject<HTMLDivElement |null>
+  toastContainerRef : React.RefObject<HTMLDivElement |null>
 }
 
 export const ToastContext = createContext<ToastContextType>(null!);

@@ -3,9 +3,10 @@ import { useProductDraft } from "@/contextHooks/sharedhooks/useProductDraft";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
-import { uploadProductFiles } from "@/functions/productFilesUploader";
+import { productFilesUploaderCleaner } from "@/functions/productFilesUploaderCleaner";
+import { th } from "framer-motion/client";
 import { Upload, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -14,27 +15,16 @@ import "react-quill/dist/quill.snow.css";
 
 const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} : {getThumbnailPreview : (thumbnail:string) => void , validateField : (field: string, value: any) => void , frontEndErrors : Record<string , string>}) => {
     
-    const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
-    const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+    const { basicInfoForm, setBasicInfoForm , thumbnailPreview, setThumbnailPreview } = useProductDataCtx();
     const {state :{currentTheme}} = useStoreConfigCtx()
-    const {saveDraft} = useProductDraft()
+    const  thumbnailInputRef = useRef<HTMLInputElement>(null);
+    const {draftId , saveDraft} = useProductDraft()
+    const {cleanProductTempMedia , uploadProductFiles} = productFilesUploaderCleaner()
       
     
-      
     
-      
-    useEffect(() => {
-          if (!thumbnailPreview) return;
-
-          getThumbnailPreview(thumbnailPreview);
-          return () => {
-           URL.revokeObjectURL(thumbnailPreview);
-          };
-    }, [thumbnailPreview , getThumbnailPreview]);
-    
-
     const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      try{
+      try{  
             const file = e.target.files?.[0];
             if (!file) return;
 
@@ -42,15 +32,20 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
 
             const draftId = await saveDraft()
             const imageData =  await uploadProductFiles(file , 'thumbnail' , 'Product', draftId!);
-            setBasicInfoForm({ ...basicInfoForm, thumbnail: imageData.id });
-            setThumbnailPreview(imageData.url);
+            setThumbnailPreview({url : imageData.url , id : imageData.id});
           }catch(err){
              throw err ;
           }
     };
 
 
-   
+
+    const handleThumnailRemove = (mediaId : string) => {
+        cleanProductTempMedia(draftId! , mediaId);
+        setThumbnailPreview(null);
+        if (thumbnailInputRef.current) thumbnailInputRef.current.value = '';
+    }
+
     return (
     <div className="space-y-6 pb-6 border-b" style={{ borderColor: currentTheme.border }}>
           
@@ -60,23 +55,21 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
               Thumbnail <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-6">
-              {(basicInfoForm.thumbnail || thumbnailPreview) && (
+              {!!thumbnailPreview && (
                 <div className="relative w-40 h-40 group overflow-hidden rounded-2xl shadow-lg border-2"
                      style={{ borderColor: frontEndErrors.thumbnail ? '#ef4444' : currentTheme.border }}>
                   <img 
-                    src={(thumbnailPreview && thumbnailPreview !== "")  ?
-                       thumbnailPreview :  
+                    src={!!thumbnailPreview || !!basicInfoForm.thumbnail  ?
+                       thumbnailPreview.url :  
                        typeof basicInfoForm?.thumbnail === 'object' ?
-                        getMediaSrcOrDefault(basicInfoForm?.thumbnail , 'image') : '' 
+                        getMediaSrcOrDefault(basicInfoForm?.thumbnail , 'image') : ""  
                       }
-                    alt="Product thumbnail"
+                    alt="Product thuc mbnail"
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-hover:blur-sm"
                   />
                   <button
-                    onClick={() => {
-                      setThumbnailPreview(null);
-                      validateField('thumbnail', null);
-                    }}
+                    type="button"
+                    onClick={() => handleThumnailRemove(String(thumbnailPreview.id))}
                     className="absolute top-2 right-2 p-1 rounded-full bg-white/70 hover:bg-white shadow-lg transition-all"
                   >
                     <X className="w-5 h-5 text-black" />
@@ -87,7 +80,7 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
                      style={{ backgroundColor: currentTheme.secondary, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}>
                 <Upload className="w-6 h-6" />
                 Upload Image
-                <input type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
+                <input ref={thumbnailInputRef} type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
               </label>
             </div>
             {frontEndErrors.thumbnail && <p className="text-red-500 text-sm mt-2">{frontEndErrors.thumbnail}</p>}

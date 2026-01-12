@@ -53,7 +53,22 @@ class MediaController extends Controller
     }
 
 
-    public function destroy(){
+    public function destroy(Request $request){
+        $draftId = $request->draft_id ;
+        $mediaId = $request->media_id ;
+        
+        $media = Media::where('id'  , $mediaId)
+                        ->where('model_id' , $draftId)
+                        ->where('is_temporary' , true)
+                        ->first();
          
+        if($media){
+            // delete file from storage
+            $filePath = str_replace('/storage/' , '' , $media->url) ;
+            Storage::disk('public')->delete($filePath) ;
+            // delete record from database
+            $media->delete() ;
+        }
+        return response()->json(['message' => 'Media deleted successfully.']);
     }
 }

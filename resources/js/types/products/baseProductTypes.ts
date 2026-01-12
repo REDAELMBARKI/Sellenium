@@ -18,9 +18,9 @@ export interface ProductBase {
   isFreeShipping : boolean ;
   releaseDate?: string;
   madeCountry : string
-  thumbnail: number | Cover | null ;
-  video : Cover | ImagePreviewItem | null ;
-  covers : (Cover | ImagePreviewItem )[] , 
+  thumbnail:  Cover | null ;
+  video : Cover |  null ;
+  covers : Cover[] , 
 
 
   inventory?: InventoryAttributes;

@@ -24,12 +24,6 @@ export interface MediaContextType {
 }
 
 
- export interface ImagePreviewItem {
-  id? : string | null ;
-  file: File | null;
-  url: string | null;
-}
-
 
 export type FlagMedia = 
   | 'thumbnail'       // main product image

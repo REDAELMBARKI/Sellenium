@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { ModeForm, ProductDataContext } from '@/context/sharedProductContext/ProductDataContext';
-import {  Category } from '@/types/inventoryTypes';
+import {  Category, Cover } from '@/types/inventoryTypes';
 import { getEditedData, getEmptyInitialProductData } from '@/data/initialProductData';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { FashionProduct, ProductBackendProps, ProductDataGlobal } from '@/types/productsTypes';
@@ -142,8 +142,9 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
 
     const [productData ,   setProductData] = useState<ProductDataGlobal | undefined>(() => productSource)
     const [basicInfoForm , setBasicInfoForm] = useState<ProductDataGlobal>(() => initialData);
-
-
+    const [thumbnailPreview, setThumbnailPreview] = useState<Cover | null>(null);
+    const [coversPreview , setCoversPreview] = useState<Cover[]>(basicInfoForm.covers as Cover[] || []);
+    
     const [options] = useState(backendOptions);
 
     const [variantToDelete ,  setVariantToDelete] = useState<number | null>()
@@ -152,6 +153,8 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
     return (
     <ProductDataContext.Provider value={{
         modeForm , 
+        thumbnailPreview, setThumbnailPreview ,
+        setCoversPreview , coversPreview ,
         variantToDelete ,  setVariantToDelete , 
         productData ,   setProductData , 
         basicInfoForm , setBasicInfoForm , 

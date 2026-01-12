@@ -55,6 +55,7 @@ Route::post('/products' , [ProductController::class, 'store'])->name('products.s
 Route::delete('/products/{id}' , [ProductController::class, 'destroy']) ;
 // store media route
 Route::post('/media' , [MediaController::class, 'store'])->name('media.store') ;
+Route::delete('/media' , [MediaController::class, 'destroy'])->name('media.destroy') ;
 
 // settings 
 Route::get("/store" , [StoreConfigController::class ,  'index'])->name("store") ; 

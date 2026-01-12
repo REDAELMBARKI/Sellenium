@@ -27,8 +27,8 @@ export interface Season extends BaseAttribute {}
 export interface Gender extends BaseAttribute {}
 
 export interface Cover {
-    id: string | null ;
-    url: string | null;
+    id: string  ;
+    url: string ;
 }
 
 
