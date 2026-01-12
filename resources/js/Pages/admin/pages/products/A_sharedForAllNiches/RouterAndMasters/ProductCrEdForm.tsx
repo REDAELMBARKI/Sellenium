@@ -75,9 +75,7 @@ const ProductCrEdForm = () => {
         isOpenShowVariantBuilder
     );
 
-    const isOpenShowAdvanced = basicInfoForm.tags.length > 0; // check if the meta data is set
-    const [showAdvanced, setShowAdvanced] =
-        useState<boolean>(isOpenShowAdvanced); // this has meta dat alike sku and tags
+    
     const [frontEndErrors, setFrontEndErrors] = useState<
         Record<string, string>
     >({});

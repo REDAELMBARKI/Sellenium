@@ -16,6 +16,7 @@ import { isFormWorthSavingAsDraft } from '@/functions/souldSaveDraft';
 import WarningModal from '@/components/ui/WarningModal';
 import axios from 'axios';
 import { useProductDraft } from '@/contextHooks/sharedhooks/useProductDraft';
+import { productFilesUploaderCleaner } from '@/functions/productFilesUploaderCleaner';
 
 const ProductFormMaster: React.FC = () => {
    
@@ -29,9 +30,10 @@ const ProductFormMaster: React.FC = () => {
   const [pendingDestination , setPendingDestination] = useState<any | null>(null) ; 
   const hasEverBeenDirty = useRef<boolean>(true) ;
   const allowNextVisit = useRef(false)
-  const draftId = useRef<string | null>(basicInfoForm.id ? String(basicInfoForm.id) : null) ;
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
-  const { saveDraft , unsaveDraftCleanup } = useProductDraft() ;
+  const { saveDraft , unsaveDraftCleanup , draftId } = useProductDraft() ;
+  const  {coversPreview , thumbnailPreview} = useProductDataCtx() ; 
+  const {cleanProductTempMedia} = productFilesUploaderCleaner() ;
   const {
     cleanAttributesForBackend , 
     cleanObjectToIids
@@ -86,25 +88,24 @@ const ProductFormMaster: React.FC = () => {
  }, [basicInfoForm]);
 
  
- // ProductFormMaster.tsx
 
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
-
     const payload = {
       ...form.data,
+      covers : cleanObjectToIids(coversPreview) ,
+      thumbnail : cleanObjectToIids(thumbnailPreview || {}),
       category : cleanObjectToIids(form.data.category) , 
       attributes: cleanAttributesForBackend(form.data.attributes),
       subCategory : cleanObjectToIids(form.data.subCategory)
     }
 
-      // 2️⃣ Send payload directly
-      Inertia.post(route('products.store'), payload as any, {
-        onError: (errors) => form.setError(errors),
-        onSuccess: () => console.log('Success'),
-      })
+    // 2️⃣ Send payload directly
+    Inertia.post(route('products.store'), payload as any, {
+      onError: (errors) => form.setError(errors),
+      onSuccess: () => console.log('Success'),
+    })
 
   }
   
@@ -114,18 +115,24 @@ const ProductFormMaster: React.FC = () => {
     router.visit(pendingDestination)
   }
   
-
-
- 
   const handleConfirmLeaveWithDraft = () => {
     saveDraft()
     proceedToPendingDestination()
   }
 
-  const handleDenyLeaveWithDraft = () => {
-    unsaveDraftCleanup()
-    setShowLeaveDraftModal(false)
-    proceedToPendingDestination()
+  const handleDenyLeaveWithDraft =  async (draftId : string) => {
+    if(!draftId) return ;
+    try{
+      await unsaveDraftCleanup() ;
+      await cleanProductTempMedia(draftId)
+    }catch(err : any){
+       throw err 
+    }
+    finally{
+      setShowLeaveDraftModal(false)
+      proceedToPendingDestination()
+    }
+
   }
 
   return ( 
@@ -140,7 +147,7 @@ const ProductFormMaster: React.FC = () => {
        denyText='Discard Changes'
 
         isOpen={showLeaveDraftModal} 
-       onDeny={() => handleDenyLeaveWithDraft()} 
+       onDeny={() => handleDenyLeaveWithDraft(draftId!)} 
        onClose={() => setShowLeaveDraftModal(false)}
        onConfirm={() => handleConfirmLeaveWithDraft()} />
     <ProductCrEdForm />

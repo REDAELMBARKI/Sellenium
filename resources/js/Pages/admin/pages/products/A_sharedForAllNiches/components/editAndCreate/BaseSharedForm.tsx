@@ -1,12 +1,13 @@
+import NotifyUser from "@/components/ui/NotifyUser";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { useProductDraft } from "@/contextHooks/sharedhooks/useProductDraft";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
 import { productFilesUploaderCleaner } from "@/functions/productFilesUploaderCleaner";
-import { th } from "framer-motion/client";
 import { Upload, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {  useEffect, useRef, useState } from "react";
+import { Oval } from "react-loader-spinner";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -18,32 +19,44 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
     const { basicInfoForm, setBasicInfoForm , thumbnailPreview, setThumbnailPreview } = useProductDataCtx();
     const {state :{currentTheme}} = useStoreConfigCtx()
     const  thumbnailInputRef = useRef<HTMLInputElement>(null);
+    const [uploadError , setUploadError] = useState<string | null>(null)
+    const [thumbnailUploading , setThumbnailUploading] = useState(false)
     const {draftId , saveDraft} = useProductDraft()
-    const {cleanProductTempMedia , uploadProductFiles} = productFilesUploaderCleaner()
+    const {cleanDeletedProductMedia , uploadProductFiles} = productFilesUploaderCleaner()
       
     
     
     const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      try{  
+      try{   
+           
             const file = e.target.files?.[0];
             if (!file) return;
-
+            setUploadError(null)
+            setThumbnailUploading(true)
             // validateField('thumbnail', url);
-
             const draftId = await saveDraft()
             const imageData =  await uploadProductFiles(file , 'thumbnail' , 'Product', draftId!);
             setThumbnailPreview({url : imageData.url , id : imageData.id});
-          }catch(err){
-             throw err ;
+          }catch(err : any){
+              setUploadError(err.message)
+           }
+          finally{
+            if(thumbnailInputRef.current) thumbnailInputRef.current.value = "";
+            setThumbnailUploading(false)
           }
     };
 
-
-
-    const handleThumnailRemove = (mediaId : string) => {
-        cleanProductTempMedia(draftId! , mediaId);
-        setThumbnailPreview(null);
-        if (thumbnailInputRef.current) thumbnailInputRef.current.value = '';
+   
+    const handleThumnailRemove = async (mediaId : string) => {
+      if(!draftId || !mediaId) return ;
+      try{ 
+          await  cleanDeletedProductMedia(draftId , mediaId);
+          setThumbnailPreview(null);
+        }catch(err : any){
+          setUploadError(err.message)
+        }finally {
+            if (thumbnailInputRef.current) thumbnailInputRef.current.value = '';
+        }
     }
 
     return (
@@ -55,6 +68,22 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
               Thumbnail <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-6">
+               {/* // image upload loding skelepton */}
+                        {thumbnailUploading && (
+                             <div 
+                              className="w-full h-full animate-pulse rounded-lg border-2 border-dashed transition-all" 
+                              style={{background : currentTheme.bgSecondary}}
+                             >
+                                <Oval
+                                        height={30}
+                                        width={30}
+                                        
+                                        color="#fff"
+                                        visible={thumbnailUploading}
+                                />
+
+                             </div>
+                        )}
               {!!thumbnailPreview && (
                 <div className="relative w-40 h-40 group overflow-hidden rounded-2xl shadow-lg border-2"
                      style={{ borderColor: frontEndErrors.thumbnail ? '#ef4444' : currentTheme.border }}>
@@ -76,6 +105,7 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
                   </button>
                 </div>
               )}
+              
               <label className="flex items-center gap-3 px-6 py-3 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-md font-semibold"
                      style={{ backgroundColor: currentTheme.secondary, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}>
                 <Upload className="w-6 h-6" />
@@ -83,6 +113,10 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
                 <input ref={thumbnailInputRef} type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
               </label>
             </div>
+             {/* // upload errors  */}
+                        {uploadError && (
+                              <NotifyUser message={uploadError} />
+                        )}
             {frontEndErrors.thumbnail && <p className="text-red-500 text-sm mt-2">{frontEndErrors.thumbnail}</p>}
           </div>
 

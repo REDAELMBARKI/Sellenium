@@ -53,9 +53,19 @@ Route::get('/products' , [ProductController::class, 'index'])->name('products') 
 Route::get('/products/show' , [ProductController::class, 'show']) ;
 Route::post('/products' , [ProductController::class, 'store'])->name('products.store');
 Route::delete('/products/{id}' , [ProductController::class, 'destroy']) ;
+
+
+// media section
 // store media route
 Route::post('/media' , [MediaController::class, 'store'])->name('media.store') ;
-Route::delete('/media' , [MediaController::class, 'destroy'])->name('media.destroy') ;
+// destroy deleted media
+Route::delete('/media' , [MediaController::class, 'destroyOne'])->name('media.destroyOne') ;
+// destroy temp media 
+Route::delete('/media' , [MediaController::class, 'destroyMany'])->name('media.destroyMany') ;
+// the end of the media section
+
+
+
 
 // settings 
 Route::get("/store" , [StoreConfigController::class ,  'index'])->name("store") ; 

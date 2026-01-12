@@ -25,9 +25,9 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
     const imageInputRef = useRef<HTMLInputElement>(null);
     const videoInputRef = useRef<HTMLInputElement>(null);
     const [imageUploading , setImageUploading] = useState(false);
-    const [uploadError , setUploadError] = useState<string | null>('jeweopwepw')
+    const [uploadError , setUploadError] = useState<string | null>(null)
     const { draftId, saveDraft } = useProductDraft();
-    const { cleanProductTempMedia, uploadProductFiles } =
+    const { cleanDeletedProductMedia, uploadProductFiles } =
     productFilesUploaderCleaner();
 
     const handleCoversUpload = async (
@@ -37,9 +37,9 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
         if (!file) return;
 
         try {
+            setUploadError(null);
             setImageUploading(true)
             // validateField('cover', url);
-
             const draftId = await saveDraft();
             const imageData = await uploadProductFiles(
                 file,
@@ -51,27 +51,26 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                 ...(prev || []),
                 { url: imageData.url, id: imageData.id },
             ]);
-        } catch (err) {
-            throw err;
+        } catch (err : any) {
+            setUploadError(err.message);
         }finally {
             if(imageInputRef.current) imageInputRef.current.value = "";
             setImageUploading(false);
+
          }
     };
 
-    const handleRemoveCover = (mediaId: string) => {
+    const handleRemoveCover = async (mediaId: string) => {
         if(!draftId || !mediaId) return;
-        setImageUploading(true) 
         try{
-        cleanProductTempMedia(draftId, mediaId);
+        await cleanDeletedProductMedia(draftId, mediaId);
         setCoversPreview((prev) =>
             (prev || []).filter((media) => media.id != mediaId)
         );
-        }catch(err){
-          throw err
+        }catch(err : any){
+          setUploadError(err.message);
         }finally {
             if (imageInputRef.current) imageInputRef.current.value = "";
-            setImageUploading(false);
          }
     };
 
@@ -223,12 +222,13 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                         style={{ background: theme.overlay }}
                                     />
 
-                                    <Button 
+                                    <button 
                                         type="button"
                                         onClick={() =>
                                             handleRemoveCover(String(media.id))
                                         }
-                                        className="absolute top-2 right-2 p-1.5 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                                        className="absolute top-2 right-2 p-1 rounded-full shadow-lg transition-all"
+                                        
                                         style={{ background: theme.card }}
                                         aria-label="Remove image"
                                     >
@@ -236,7 +236,8 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                             className="w-4 h-4"
                                             style={{ color: theme.error }}
                                         />
-                                    </Button>
+                                    </button>
+                                    
                                 </div>
                             )
                         )}

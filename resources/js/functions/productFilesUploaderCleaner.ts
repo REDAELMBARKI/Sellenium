@@ -7,36 +7,79 @@ export  const productFilesUploaderCleaner = () => {
 
 
 
-const uploadProductFiles = async (file: File, collection: FlagMedia  , model_type : ModelType , toDraftId : string) => {
+ const uploadProductFiles = async (file: File, collection: FlagMedia  , model_type : ModelType , toDraftId : string) => {
     
     const formData = new FormData();
     formData.append('file', file);
     formData.append('collection', collection);
     formData.append('model_type', model_type);
     formData.append('draft_id', toDraftId);
-    const response = await axios.post(route('media.store'), formData, {
+    
+    try 
+    {  const response = await axios.post(route('media.store'), formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
-        },
-    });
-    console.log(response.data)
-    if(response.status !== 200 ) throw new Error('faild to upload the file')
-    return response.data;
+        }, }
+       );
+       return response.data;
+
+    }catch (error : any) {
+        throw new Error(extractUploadError(error));
+    }
   };
 
 
- const cleanProductTempMedia = async (draftId : string  , mediaId : string) => {
-    const response =  await axios.delete(route('media.destroy') , {
-         data : {
-            draft_id : draftId , 
-            media_id : mediaId
-         }
-    } )
-    console.log(response.data)
-    if(response.status !== 200 ) throw new Error('faild to clean temporary media files')
-   
+ const cleanDeletedProductMedia = async (draftId : string  , mediaId : string) => {
+    
+    try {
+      await axios.delete(route('media.destroyOne') , {
+                data : {
+                    draft_id : draftId , 
+                    media_id : mediaId
+                }
+            } )
+        
+    }catch(error){
+        throw new Error("Failed to remove the image. Please try again.") ;
+    }
  }
 
 
-return { cleanProductTempMedia , uploadProductFiles}
+const cleanProductTempMedia = async (draftId : string ) => {
+   try {
+      await axios.delete(route('media.destroyMany') , {
+                data : {
+                    draft_id : draftId , 
+                }
+            } )
+        
+    }catch(error){
+        throw new Error("Failed to remove the temp files. Please try again.") ;
+    }
 }
+  
+function extractUploadError(err: any): string {
+  // Backend validation message
+  if (err?.response?.data?.errors?.file) {
+    return err.response.data.errors.file[0];
+  }
+
+  // Backend general message
+  if (err?.response?.data?.message) {
+    return err.response.data.message;
+  }
+
+  // File too large (HTTP 413)
+  if (err?.response?.status === 413) {
+    return "File is too large.";
+  }
+
+  // Network / unknown
+  return "Upload failed. Please try again.";
+}
+
+
+ return { cleanProductTempMedia , uploadProductFiles , cleanDeletedProductMedia}
+ 
+}
+

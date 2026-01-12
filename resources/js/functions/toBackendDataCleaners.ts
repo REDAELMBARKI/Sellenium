@@ -40,10 +40,21 @@ export function toBackendDataCleaners() {
     return cleaned
    }
   
-   function cleanObjectToIids(items : (BaseAttribute[])|BaseAttribute) {
+   function cleanObjectToIids(itemsWithId : any) {
+      if(!itemsWithId) return ;
+      try{
+        if (Array.isArray(itemsWithId)){
+             return itemsWithId.map(e =>  {
+               if("id" in e) return  e.id 
+               else throw new Error("(cleanObjectToIds) : Array>object has no id to clean ")
+             })
+        }
+        else if("id" in itemsWithId) return  itemsWithId.id  
+    
         
-        if (Array.isArray(items))  return items.map(e => e.id)
-        else  return items.id  
+      }catch(err : any){
+         throw new Error(err.message)
+      }
    }
   
   return {

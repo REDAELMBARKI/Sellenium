@@ -55,7 +55,6 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
 
-
         $product = Product::create([
             'name' => $request->name ?? null,
             'brand' => $request->brand ?? null,
