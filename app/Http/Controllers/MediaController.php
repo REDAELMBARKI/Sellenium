@@ -73,20 +73,24 @@ class MediaController extends Controller
     }
 
 
-     public function destroyMany(Request $request){
+    public function destroyMany(Request $request){
         $draftId = $request->draft_id ;
+        $confirmedMediaIds = $request->confirmedMediaIds ?? [] ;
         
-        $media = Media::where('model_id' , $draftId)
+        $media = Media::whereNotIn('id' , $confirmedMediaIds)
+                        ->where('model_id' , $draftId)
                         ->where('is_temporary' , true)
-                        ->first();
+                        ->get();
+        $media->delete() ;
+        
          
-        if($media){
-            // delete file from storage
-            $filePath = str_replace('/storage/' , '' , $media->url) ;
-            Storage::disk('public')->delete($filePath) ;
-            // delete record from database
-            $media->delete() ;
-        }
-        return response()->json(['message' => 'Media deleted successfully.']);
+        // if($media){
+        //     // delete file from storage
+        //     $filePath = str_replace('/storage/' , '' , $media->url) ;
+        //     Storage::disk('public')->delete($filePath) ;
+        //     // delete record from database
+        //     $media->delete() ;
+        // }
+        return response()->json(['message' => 'the request is here .']);
     }
 }

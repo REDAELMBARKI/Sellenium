@@ -84,7 +84,7 @@ const ProductCrEdForm = () => {
     const mediaRef = useRef<HTMLDivElement | null>(null);
     const attributesRef = useRef<HTMLDivElement | null>(null);
     const variantRef = useRef<HTMLDivElement | null>(null);
-    
+
     const thumbnailPreviewRef = useRef<any | null>(null);
 
     // useEffect(() => {
@@ -267,7 +267,7 @@ const ProductCrEdForm = () => {
                     <section
                         className="p-4 border border-1"
                         style={{
-                            background: currentTheme.bg,
+                            background: currentTheme.card,
                             borderColor: currentTheme.border,
                         }}
                     >
@@ -299,7 +299,7 @@ const ProductCrEdForm = () => {
                     <section
                         className="p-4 border border-1"
                         style={{
-                            background: currentTheme.bg,
+                            background: currentTheme.card,
                             borderColor: currentTheme.border,
                         }}
                     >

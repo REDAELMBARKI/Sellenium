@@ -32,12 +32,14 @@ export  const productFilesUploaderCleaner = () => {
  const cleanDeletedProductMedia = async (draftId : string  , mediaId : string) => {
     
     try {
-      await axios.delete(route('media.destroyOne') , {
+      const r =  await axios.delete(route('media.mediaCleanOne') , {
                 data : {
                     draft_id : draftId , 
                     media_id : mediaId
                 }
             } )
+
+      console.log(r.data)
         
     }catch(error){
         throw new Error("Failed to remove the image. Please try again.") ;
@@ -45,14 +47,14 @@ export  const productFilesUploaderCleaner = () => {
  }
 
 
-const cleanProductTempMedia = async (draftId : string ) => {
-   try {
-      await axios.delete(route('media.destroyMany') , {
+const cleanProductTempMedia = async (draftId : string , confirmedMediaIids : (number|string)[] = [] ) => {
+   try { 
+     await axios.delete(route('media.mediaCleanTemp') , {
                 data : {
                     draft_id : draftId , 
+                    confirmedMediaIids 
                 }
             } )
-        
     }catch(error){
         throw new Error("Failed to remove the temp files. Please try again.") ;
     }

@@ -35,12 +35,12 @@ const CollapsibleSection = ({
         <Icon className="w-6 h-6 transition-transform" style={{ color: currentTheme.text }} />
         <span style={{ color: currentTheme.text }}>{title}</span>
       </div>
-      ( <SwitchToggler
+      <SwitchToggler
         checked={isOpen} 
         onChange={onToggle}
         id={`switch-${title.toLowerCase().replace(/\s+/g, '-')}`}
       />
-      )
+      
      
     </div>
     {isOpen && (

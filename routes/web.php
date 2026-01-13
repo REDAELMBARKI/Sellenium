@@ -59,9 +59,9 @@ Route::delete('/products/{id}' , [ProductController::class, 'destroy']) ;
 // store media route
 Route::post('/media' , [MediaController::class, 'store'])->name('media.store') ;
 // destroy deleted media
-Route::delete('/media' , [MediaController::class, 'destroyOne'])->name('media.destroyOne') ;
-// destroy temp media 
-Route::delete('/media' , [MediaController::class, 'destroyMany'])->name('media.destroyMany') ;
+Route::delete('/mediaCleanOne' , [MediaController::class, 'destroyOne'])->name('media.mediaCleanOne') ;
+// destroy temp media
+Route::delete('/mediaCleanTemp' , [MediaController::class, 'destroyMany'])->name('media.mediaCleanTemp') ;
 // the end of the media section
 
 
@@ -90,7 +90,7 @@ Route::get('/orders' , [AdminOrderController::class, 'index']) ;
 
 
 
-// customer 
+// customer
 Route::get('/customers' , [CurstomerController::class, 'index']) ;
 
 
@@ -100,7 +100,7 @@ Route::get('/customers' , [CurstomerController::class, 'index']) ;
 Route::get('/messages' , [MessageController::class, 'index']) ;
 
 
-// dashboard/sales_analytics  
+// dashboard/sales_analytics
 Route::get('dashboard/sales_analytics' , [DashboardController::class, 'salesIndex']) ;
 Route::get('dashboard/customers_analytics' , [DashboardController::class, 'customerIndex']) ;
 Route::get('dashboard/inventory_analytics' , [DashboardController::class, 'inventoryIndex']) ;

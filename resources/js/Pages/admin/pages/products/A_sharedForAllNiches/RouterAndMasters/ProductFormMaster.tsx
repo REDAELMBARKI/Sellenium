@@ -28,6 +28,10 @@ const ProductFormMaster: React.FC = () => {
   const [isDirty , setIsDirty] = useState<boolean>(isFormWorthSavingAsDraft(basicInfoForm)) ; 
   const [showLeaveDraftModal , setShowLeaveDraftModal] = useState(false) ; 
   const [pendingDestination , setPendingDestination] = useState<any | null>(null) ; 
+  const isSubmit = useRef(false)
+
+
+
   const hasEverBeenDirty = useRef<boolean>(true) ;
   const allowNextVisit = useRef(false)
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
@@ -43,7 +47,8 @@ const ProductFormMaster: React.FC = () => {
 
   //form is dirty checkers
   useEffect(() => {
-     const remove =  router.on('before' , (event)=> { 
+    if(isSubmit.current) return ; // preven warning model checking this if i submit save product 
+    const remove =  router.on('before' , (event)=> { 
         if(allowNextVisit.current) {
           allowNextVisit.current = false ;
           return ;
@@ -55,7 +60,6 @@ const ProductFormMaster: React.FC = () => {
         setPendingDestination(event.detail.visit.url)
         setShowLeaveDraftModal(true)
      })
-
 
      return () => remove()
   }, []);
@@ -87,7 +91,6 @@ const ProductFormMaster: React.FC = () => {
    form.setData(basicInfoForm)
  }, [basicInfoForm]);
 
- 
 
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -115,8 +118,8 @@ const ProductFormMaster: React.FC = () => {
     router.visit(pendingDestination)
   }
   
-  const handleConfirmLeaveWithDraft = () => {
-    saveDraft()
+  const handleConfirmLeaveWithDraft =  async () => {
+    await saveDraft()
     proceedToPendingDestination()
   }
 
@@ -126,7 +129,7 @@ const ProductFormMaster: React.FC = () => {
       await unsaveDraftCleanup() ;
       await cleanProductTempMedia(draftId)
     }catch(err : any){
-       throw err 
+       throw err.message
     }
     finally{
       setShowLeaveDraftModal(false)
@@ -136,11 +139,15 @@ const ProductFormMaster: React.FC = () => {
   }
 
   return ( 
-  <form  onSubmit={handleSubmit}> 
+  <form onSubmit={(e : React.FormEvent<HTMLFormElement>) => {
+              isSubmit.current = true;
+              handleSubmit(e)
+              }}> 
    
    {/* edit and create form  */}
    <div className='flex'>
-     <WarningModal
+    {
+      showLeaveDraftModal && <WarningModal
       title='Unsaved changes' 
       description='You have unsaved changes. If you leave this page, your draft will be lost.' 
       confirmText='Save draft & leave'
@@ -150,6 +157,7 @@ const ProductFormMaster: React.FC = () => {
        onDeny={() => handleDenyLeaveWithDraft(draftId!)} 
        onClose={() => setShowLeaveDraftModal(false)}
        onConfirm={() => handleConfirmLeaveWithDraft()} />
+    }
     <ProductCrEdForm />
     <RightSectionComponent />
 
@@ -183,6 +191,7 @@ const ProductFormMaster: React.FC = () => {
       background: currentTheme.primary,
       color: currentTheme.textInverse,
     }}
+    
   >
     <Save />
     {modeForm === "create" ? "Create Product" : "Update Product"}

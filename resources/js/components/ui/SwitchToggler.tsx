@@ -54,7 +54,7 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
           align-items: center;
           justify-content: center;
           outline: none;
-          background-color: white;
+          background-color: ${currentTheme.accent};
           border-radius: 9999px;
           border: 2px solid ${currentTheme.border};
           transition: all linear 300ms;
@@ -67,7 +67,7 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
           height: var(--round);
           left: var(--p);
           border-radius: 9999px;
-          background-color: ${currentTheme.buttonPrimaryHover};
+          background-color: ${currentTheme.primaryHover};
           will-change: left, width, margin, padding;
           transition: left 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275),
             width 300ms ease, padding 300ms ease, margin 300ms ease,
@@ -77,7 +77,7 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
           width: var(--scale-x);
         }
         .switch-input:checked + .switch-label {
-          background-color: ${currentTheme.buttonPrimary};
+          background-color: ${currentTheme.accent};
         }
         .switch-input:checked + .switch-label::after {
           background-color: ${currentTheme.bg};
@@ -104,7 +104,7 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
           position: absolute;
           border-radius: 9999px;
           z-index: -1;
-          background: ${currentTheme.buttonPrimary};
+          background: ${currentTheme.primary};
           filter: blur(20px);
           opacity: 0;
           transition: opacity 300ms ease;

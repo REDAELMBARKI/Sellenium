@@ -24,7 +24,7 @@ const WarningModal: React.FC<WarningModalProps> = ({
   denyText = "Cancel",
 }) => {
   if (!isOpen) return null;
-
+  
   return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"

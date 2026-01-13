@@ -16,7 +16,6 @@ export const ProductDraftProvider: React.FC<ProductDraftProviderProps> = ({
   const saveDraft = async () => {
         if(draftId.current) return draftId.current ;
         const response = await axios.post('/products', {...basicInfoForm , is_draft: true } );
-        if(!response.data.id)  throw new Error("no draft id ")
         draftId.current = response.data.id
         return draftId.current;
   }
@@ -24,7 +23,6 @@ export const ProductDraftProvider: React.FC<ProductDraftProviderProps> = ({
   const unsaveDraftCleanup = async () => {
     if(!draftId.current) return ;
     const response = await axios.delete(`/products/${draftId.current}`)
-    if(!response.data.status) throw new Error('failed to delete the draft ')
     draftId.current = null ;
   }
 
