@@ -22,10 +22,10 @@ import { CATEGORIES } from "@/data/listOfCategories";
 import NotifyUser from "@/components/ui/NotifyUser";
 import PricingSection from "../components/editAndCreate/PricingSection";
 import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
-import adapters from "@/functions/adapters";
+import adapters from "@/functions/product/adapters";
 import CustomSelectForObjectNative from "@/components/ui/CustomSelectForObjectNative";
 import { Button } from "@/components/ui/button";
-import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
+import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
 
 
 const ProductCrEdForm = () => {

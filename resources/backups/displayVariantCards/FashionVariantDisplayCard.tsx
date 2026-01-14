@@ -4,7 +4,7 @@ import { FashionVariantEditForm } from "../variantsForms/FashionVariantEditForm"
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import {  VariantDisplayProps } from "@/types/productsTypes";
-import { useVariantsDisplayActions } from "@/functions/useVariantsDisplayActions";
+import { useVariantsDisplayActions } from "@/functions/product/useVariantsDisplayActions";
 import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
 import { useColorsCtx } from "@/contextHooks/useColorsCtx";
 

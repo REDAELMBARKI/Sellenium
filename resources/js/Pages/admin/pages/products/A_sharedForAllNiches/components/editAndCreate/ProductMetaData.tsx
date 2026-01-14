@@ -2,7 +2,7 @@ import TagSection from "@/components/TagSection"
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx"
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
-import { generateSKU } from "@/functions/generateSku";
+import { generateSKU } from "@/functions/product/generateSku";
 
 import { v4 } from "uuid";
 

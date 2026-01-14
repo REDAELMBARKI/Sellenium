@@ -3,7 +3,7 @@ import { LayoutStyle } from "@/types/StoreConfigTypes";
 import { ThemeMode, ThemePalette, ThemeStyle } from "@/types/ThemeTypes";
 import { useEffect, useState } from "react";
 import { Package, Search, Grid3x3, ShoppingCart } from "lucide-react";
-import { getSkeletonColors } from "@/functions/getSkeletonColors";
+import { getSkeletonColors } from "@/functions/product/getSkeletonColors";
 
 const SkeletonLayout = ({
   previewLayoutStyle,

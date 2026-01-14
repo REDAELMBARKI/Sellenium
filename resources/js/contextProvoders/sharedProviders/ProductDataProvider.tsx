@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ModeForm, ProductDataContext } from '@/context/sharedProductContext/ProductDataContext';
 import {  Category, Cover } from '@/types/inventoryTypes';
 import { getEditedData, getEmptyInitialProductData } from '@/data/initialProductData';
@@ -144,21 +144,20 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
     const [basicInfoForm , setBasicInfoForm] = useState<ProductDataGlobal>(() => initialData);
     const [thumbnailPreview, setThumbnailPreview] = useState<Cover | null>(null);
     const [coversPreview , setCoversPreview] = useState<Cover[]>(basicInfoForm.covers as Cover[] || []);
+    const draftId = useRef<string | null>(basicInfoForm.id ?? null);
     
     const [options] = useState(backendOptions);
 
-    const [variantToDelete ,  setVariantToDelete] = useState<number | null>()
-    
   
     return (
     <ProductDataContext.Provider value={{
         modeForm , 
         thumbnailPreview, setThumbnailPreview ,
         setCoversPreview , coversPreview ,
-        variantToDelete ,  setVariantToDelete , 
         productData ,   setProductData , 
         basicInfoForm , setBasicInfoForm , 
-        options
+        options , 
+        draftId
     }}>
         {children}
     </ProductDataContext.Provider>

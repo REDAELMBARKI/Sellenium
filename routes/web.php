@@ -44,24 +44,31 @@ Route::get('/blog', function () {
 //     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 // });
 
-// products 
+// products
 // Route::resource('/products', ProductController::class );
 Route::get('/products/create' , [ProductController::class, 'create']) ;
 Route::get('/products/drafts' , [ProductController::class, 'draft']) ;
 Route::get('/products/edit' , [ProductController::class, 'edit']) ;
 Route::get('/products' , [ProductController::class, 'index'])->name('products') ;
 Route::get('/products/show' , [ProductController::class, 'show']) ;
-Route::post('/products' , [ProductController::class, 'store'])->name('products.store');
-Route::delete('/products/{id}' , [ProductController::class, 'destroy']) ;
+Route::post('/products' , [ProductController::class, 'createDraft'])->name('products.createDraft');
+Route::put('/products/{draft}' , [ProductController::class, 'updateDraftOnSave'])->name('products.updateDraftOnSave');
+Route::patch('/products/{draft}/publish' , [ProductController::class, 'publish'])->name('products.publish');
+Route::delete('/products/{product}' , [ProductController::class, 'destroy']) ;
+
+
+
 
 
 // media section
 // store media route
 Route::post('/media' , [MediaController::class, 'store'])->name('media.store') ;
 // destroy deleted media
-Route::delete('/mediaCleanOne' , [MediaController::class, 'destroyOne'])->name('media.mediaCleanOne') ;
-// destroy temp media
-Route::delete('/mediaCleanTemp' , [MediaController::class, 'destroyMany'])->name('media.mediaCleanTemp') ;
+Route::delete('/media/{media}', [MediaController::class, 'destroy'])
+    ->name('media.destroy');
+
+Route::delete('/media', [MediaController::class, 'destroyBulk'])
+    ->name('media.destroy.bulk');
 // the end of the media section
 
 

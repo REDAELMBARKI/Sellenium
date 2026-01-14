@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import StorePreview from "../layoutConfig/StorePreview";
-import { useNicheWarning } from "@/functions/useNicheWarning";
+import { useNicheWarning } from "@/functions/product/useNicheWarning";
 import NicheWarning from "./components/NicheWarning";
 import TogglableCard, { TogglableOption } from "@/components/partials/TooglableCard";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";

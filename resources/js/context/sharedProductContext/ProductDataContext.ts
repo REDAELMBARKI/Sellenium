@@ -2,7 +2,7 @@
 import { Cover } from "@/types/inventoryTypes"
 import { CategoryCode } from "@/types/products/categories"
 import { ProductDataGlobal } from "@/types/productsTypes"
-import { createContext } from "react"
+import { createContext, RefObject } from "react"
 
 
 
@@ -11,8 +11,6 @@ interface ProductDataContextProps {
     modeForm : ModeForm
     productData?: ProductDataGlobal | undefined
     setProductData: React.Dispatch<React.SetStateAction<ProductDataGlobal | undefined>>
-    variantToDelete?: number | undefined | null
-    setVariantToDelete: React.Dispatch<React.SetStateAction<number | undefined | null>> 
     options: any
     
     setThumbnailPreview: React.Dispatch<React.SetStateAction<Cover| null>>
@@ -22,7 +20,7 @@ interface ProductDataContextProps {
 
     basicInfoForm: ProductDataGlobal
     setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductDataGlobal>>
-     
+    draftId: RefObject<string | null>
    
     }
 

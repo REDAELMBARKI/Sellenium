@@ -1,5 +1,5 @@
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
-import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
+import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
 import { Eye, Heart, ShoppingCart, Star } from "lucide-react";
 
 // Card 2: Horizontal Card

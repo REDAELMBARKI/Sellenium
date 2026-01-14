@@ -6,7 +6,7 @@ import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
 import { currentTheme } from "@/data/currentTheme";
 import { useDataLoadingListener } from "@/functions/createFunctions/useDataLoadingListener";
 import {  useImagesPreviewRevoker } from "@/functions/createFunctions/useImagesPreviewer";
-import { useVariantsFormsActions } from "@/functions/useVariantsFormsActions";
+import { useVariantsFormsActions } from "@/functions/product/useVariantsFormsActions";
 import { Color, FashionOptions, Fit, Material, Size } from "@/types/inventoryTypes";
 import { FashionAttributes } from "@/types/productsTypes";
 import { Check, X, Upload, Trash2 } from "lucide-react";

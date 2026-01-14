@@ -2,7 +2,7 @@
 
 import EmptyListSection from "@/admin/components/partials/EmptyListSection";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
+import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
 import { Color, Cover, Size } from "@/types/inventoryTypes";
 import { ImagePreviewItem } from "@/types/mediaTypes";
 import { FashionOptions, ProductVariant } from "@/types/products/productVariantType";

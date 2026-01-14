@@ -5,7 +5,7 @@ import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx'
 import SkuDisplayBoard from '@/components/SkuDisplayBoard';
 import { FashionProduct, ProductDataGlobal } from '@/types/productsTypes';
 
-import { getMediaSrcOrDefault } from '@/functions/getMediaSrcOrDefault';
+import { getMediaSrcOrDefault } from '@/functions/product/getMediaSrcOrDefault';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 
 const FashionReadonlyDisplay: React.FC = () => {

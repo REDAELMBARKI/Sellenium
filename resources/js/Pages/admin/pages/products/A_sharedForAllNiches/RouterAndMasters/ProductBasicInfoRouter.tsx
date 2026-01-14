@@ -8,7 +8,7 @@ import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx'
 import {  ProductDataGlobal } from '@/types/productsTypes';
 import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
 import BasicInfoFormMaster from './ProductFormMaster';
-import { useBasicinfoActions } from '@/functions/useBasicinfoActions';
+import { useBasicinfoActions } from '@/functions/product/useBasicinfoActions';
 import { getEditedData } from '@/data/initialProductData';
 import ProductInfoDisplayMaster from './ProductInfoDisplayMaster';
 import GoCreateProduct from '@/components/partials/GoCreateProduct';

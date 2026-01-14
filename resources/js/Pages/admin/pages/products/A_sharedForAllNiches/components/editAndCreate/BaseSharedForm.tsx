@@ -3,8 +3,8 @@ import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx"
 import { useProductDraft } from "@/contextHooks/sharedhooks/useProductDraft";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
-import { getMediaSrcOrDefault } from "@/functions/getMediaSrcOrDefault";
-import { productFilesUploaderCleaner } from "@/functions/productFilesUploaderCleaner";
+import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
+import { productFilesUploaderCleaner } from "@/functions/product/productFilesUploaderCleaner";
 import { Upload, X } from "lucide-react";
 import {  useEffect, useRef, useState } from "react";
 import { Oval } from "react-loader-spinner";
@@ -71,7 +71,7 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
                {/* // image upload loding skelepton */}
                         {thumbnailUploading && (
                              <div 
-                              className="w-full h-full animate-pulse rounded-lg border-2 border-dashed transition-all" 
+                              className="w-40 h-40 animate-pulse rounded-lg border-2 border-dashed transition-all" 
                               style={{background : currentTheme.bgSecondary}}
                              >
                                 <Oval
@@ -105,13 +105,17 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
                   </button>
                 </div>
               )}
-              
-              <label className="flex items-center gap-3 px-6 py-3 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-md font-semibold"
+              {/* // uploader  */}
+              {
+                !thumbnailPreview && !thumbnailUploading && (
+                  <label className="flex items-center gap-3 px-6 py-3 rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 shadow-md font-semibold"
                      style={{ backgroundColor: currentTheme.secondary, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}>
                 <Upload className="w-6 h-6" />
                 Upload Image
                 <input ref={thumbnailInputRef} type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
               </label>
+                )
+              }
             </div>
              {/* // upload errors  */}
                         {uploadError && (

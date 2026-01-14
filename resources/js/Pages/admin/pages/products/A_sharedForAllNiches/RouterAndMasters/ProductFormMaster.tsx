@@ -10,50 +10,53 @@ import { Save } from 'lucide-react';
 import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
 import { ProductDataGlobal } from '@/types/productsTypes';
 import { Inertia } from '@inertiajs/inertia'
-import { toBackendDataCleaners } from '@/functions/toBackendDataCleaners';
-import { isFormWorthSavingAsDraft } from '@/functions/souldSaveDraft';
+import { toBackendDataCleaners } from '@/functions/product/toBackendDataCleaners';
+import { isFormWorthSavingAsDraft } from '@/functions/product/souldSaveDraft';
 
 import WarningModal from '@/components/ui/WarningModal';
 import axios from 'axios';
 import { useProductDraft } from '@/contextHooks/sharedhooks/useProductDraft';
-import { productFilesUploaderCleaner } from '@/functions/productFilesUploaderCleaner';
+import { productFilesUploaderCleaner } from '@/functions/product/productFilesUploaderCleaner';
+import { useBackendInteraction } from '@/functions/product/useBackendInteractions';
 
 const ProductFormMaster: React.FC = () => {
    
   
   
   const {state :{currentCategory , currentTheme}} = useStoreConfigCtx()
-  const  { productData = {} , modeForm , basicInfoForm , setBasicInfoForm } = useProductDataCtx()
+  const  {draftId , modeForm , basicInfoForm  } = useProductDataCtx()
   const form = useForm<ProductDataGlobal>(basicInfoForm) // setData 
   const [isDirty , setIsDirty] = useState<boolean>(isFormWorthSavingAsDraft(basicInfoForm)) ; 
   const [showLeaveDraftModal , setShowLeaveDraftModal] = useState(false) ; 
   const [pendingDestination , setPendingDestination] = useState<any | null>(null) ; 
-  const isSubmit = useRef(false)
 
 
 
-  const hasEverBeenDirty = useRef<boolean>(true) ;
+  const hasEverBeenDirty = useRef<boolean>(false) ;
   const allowNextVisit = useRef(false)
-  const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
-  const { saveDraft , unsaveDraftCleanup , draftId } = useProductDraft() ;
-  const  {coversPreview , thumbnailPreview} = useProductDataCtx() ; 
-  const {cleanProductTempMedia} = productFilesUploaderCleaner() ;
+  const {cleanProductTempMediaOnDistroy} = productFilesUploaderCleaner() ;
   const {
     cleanAttributesForBackend , 
     cleanObjectToIids
   } = toBackendDataCleaners()
-
+  const {createDraft , destroyDraftProduct , saveDraftProduct } = useBackendInteraction()
 
 
   //form is dirty checkers
   useEffect(() => {
-    if(isSubmit.current) return ; // preven warning model checking this if i submit save product 
     const remove =  router.on('before' , (event)=> { 
+      //  Ignore form submits
+        if (event.detail.visit.method !== 'get') {
+          return;
+        }
+
+
         if(allowNextVisit.current) {
           allowNextVisit.current = false ;
           return ;
-        } ;
+        };
 
+        
         if(!hasEverBeenDirty.current) return ;
         event.preventDefault()
 
@@ -73,16 +76,16 @@ const ProductFormMaster: React.FC = () => {
    if(hasEverBeenDirty.current) return;
    if(!isDirty) return ;
 
-  const save = async () => {
+  const create = async () => {
     try {
-      await saveDraft();
+      await createDraft();
       hasEverBeenDirty.current = true;
     } catch (err) {
       console.error('Draft save failed in effect:', err);
     }
   };
 
-  save();
+  create();
  }, [isDirty]);
  // end is dirty form checkers 
 
@@ -92,24 +95,24 @@ const ProductFormMaster: React.FC = () => {
  }, [basicInfoForm]);
 
 
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const payload = {
-      ...form.data,
-      covers : cleanObjectToIids(coversPreview) ,
-      thumbnail : cleanObjectToIids(thumbnailPreview || {}),
+  const prepareProductSubmitPayload = () => {
+     const {thumbnail , covers , video , ...data} = form.data 
+      return {
+      ...data,
       category : cleanObjectToIids(form.data.category) , 
       attributes: cleanAttributesForBackend(form.data.attributes),
       subCategory : cleanObjectToIids(form.data.subCategory)
     }
-
-    // 2️⃣ Send payload directly
-    Inertia.post(route('products.store'), payload as any, {
-      onError: (errors) => form.setError(errors),
-      onSuccess: () => console.log('Success'),
-    })
-
+  }
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    const payload = prepareProductSubmitPayload()
+    try{
+        await saveDraftProduct( draftId.current! , payload , (errors) => form.setError(errors) ); 
+        // show success taost 
+    }catch(err){
+       throw err ; // show taost 
+    }
   }
   
   const proceedToPendingDestination = () => {
@@ -119,15 +122,16 @@ const ProductFormMaster: React.FC = () => {
   }
   
   const handleConfirmLeaveWithDraft =  async () => {
-    await saveDraft()
+    const payload =  prepareProductSubmitPayload();
+    await saveDraftProduct(draftId.current! , payload , (errors) => form.setError(errors) );
     proceedToPendingDestination()
   }
 
   const handleDenyLeaveWithDraft =  async (draftId : string) => {
     if(!draftId) return ;
     try{
-      await unsaveDraftCleanup() ;
-      await cleanProductTempMedia(draftId)
+      await destroyDraftProduct(draftId) ;
+      await cleanProductTempMediaOnDistroy(draftId)
     }catch(err : any){
        throw err.message
     }
@@ -139,25 +143,20 @@ const ProductFormMaster: React.FC = () => {
   }
 
   return ( 
-  <form onSubmit={(e : React.FormEvent<HTMLFormElement>) => {
-              isSubmit.current = true;
-              handleSubmit(e)
-              }}> 
+  <> 
    
    {/* edit and create form  */}
    <div className='flex'>
-    {
-      showLeaveDraftModal && <WarningModal
+      <WarningModal
       title='Unsaved changes' 
       description='You have unsaved changes. If you leave this page, your draft will be lost.' 
       confirmText='Save draft & leave'
        denyText='Discard Changes'
 
         isOpen={showLeaveDraftModal} 
-       onDeny={() => handleDenyLeaveWithDraft(draftId!)} 
+       onDeny={() => handleDenyLeaveWithDraft(draftId.current!)} 
        onClose={() => setShowLeaveDraftModal(false)}
        onConfirm={() => handleConfirmLeaveWithDraft()} />
-    }
     <ProductCrEdForm />
     <RightSectionComponent />
 
@@ -177,7 +176,7 @@ const ProductFormMaster: React.FC = () => {
       }}
     >
   <Button
-    type="submit"
+    type="button"
     className="
       min-w-[220px]
       text-sm font-semibold
@@ -191,7 +190,7 @@ const ProductFormMaster: React.FC = () => {
       background: currentTheme.primary,
       color: currentTheme.textInverse,
     }}
-    
+    onClick={handleSubmit}
   >
     <Save />
     {modeForm === "create" ? "Create Product" : "Update Product"}
@@ -199,7 +198,7 @@ const ProductFormMaster: React.FC = () => {
    </div>
 
 
-  </form>
+  </>
   
  );  
 };

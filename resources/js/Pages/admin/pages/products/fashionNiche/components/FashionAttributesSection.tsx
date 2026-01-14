@@ -2,8 +2,8 @@ import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
 import MultiSelectDropdownForObject, { AllowedObjectsType } from "@/components/ui/MultiSelectDropdownForObject";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
-import adapters from "@/functions/adapters";
-import selectAdapters from "@/functions/adapters";
+import adapters from "@/functions/product/adapters";
+import selectAdapters from "@/functions/product/adapters";
 
 import {  Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
 import { FashionAttributes } from "@/types/products/fashionTypes";

@@ -22,7 +22,7 @@ import TagSection from '@/components/TagSection';
 import { v4 } from 'uuid';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import CustomSelectNative from '@/components/ui/CustomSelectNative';
-import adapters from '@/functions/adapters';
+import adapters from '@/functions/product/adapters';
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
   code,
