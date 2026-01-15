@@ -37,6 +37,18 @@ export  interface Country {
     name: string;
 }
 
+export type CategoryCode =
+  | "fashion"
+  | "electronics"
+  | "beauty"
+  | "perfumes"
+  | "home"
+  | "sports"
+  | "toys"
+  | "jewelry"
+  | "baby";
+
+
 
 // For Inertia useForm (needs index signature)
 

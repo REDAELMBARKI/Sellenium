@@ -13,14 +13,9 @@ interface ProductDataContextProps {
     setProductData: React.Dispatch<React.SetStateAction<ProductDataGlobal | undefined>>
     options: any
     
-    setThumbnailPreview: React.Dispatch<React.SetStateAction<Cover| null>>
-    thumbnailPreview: Cover | null
-    setCoversPreview: React.Dispatch<React.SetStateAction<Cover[]>>
-    coversPreview: Cover[]
-
     basicInfoForm: ProductDataGlobal
     setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductDataGlobal>>
-    draftId: RefObject<string | null>
+    draftId: RefObject<string | undefined>
    
     }
 

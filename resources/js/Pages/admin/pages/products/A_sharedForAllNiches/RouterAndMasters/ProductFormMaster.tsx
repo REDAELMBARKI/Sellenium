@@ -1,21 +1,16 @@
 import React, {  useEffect, useRef, useState } from 'react';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
 import { Button } from '@/components/ui/button';
-import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
 import { useForm , router } from '@inertiajs/react' 
-import { route } from 'ziggy-js';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import ProductCrEdForm from './ProductCrEdForm';
 import { Save } from 'lucide-react';
 import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
 import { ProductDataGlobal } from '@/types/productsTypes';
-import { Inertia } from '@inertiajs/inertia'
 import { toBackendDataCleaners } from '@/functions/product/toBackendDataCleaners';
 import { isFormWorthSavingAsDraft } from '@/functions/product/souldSaveDraft';
 
 import WarningModal from '@/components/ui/WarningModal';
-import axios from 'axios';
-import { useProductDraft } from '@/contextHooks/sharedhooks/useProductDraft';
 import { productFilesUploaderCleaner } from '@/functions/product/productFilesUploaderCleaner';
 import { useBackendInteraction } from '@/functions/product/useBackendInteractions';
 
@@ -107,10 +102,13 @@ const ProductFormMaster: React.FC = () => {
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     const payload = prepareProductSubmitPayload()
+    console.log(payload)
+
     try{
-        await saveDraftProduct( draftId.current! , payload , (errors) => form.setError(errors) ); 
+        // here draft id might be null if i click save if no draft created yet here i know i should make the button disabled but who can i even make this safer so if not exist should i create a draft fist then save the id or i make the id optional so if not draft id create a draft 
+        await saveDraftProduct(payload , (errors) => form.setError(errors) , draftId.current ); 
         // show success taost 
-    }catch(err){
+    }catch(err : any){
        throw err ; // show taost 
     }
   }
@@ -123,7 +121,11 @@ const ProductFormMaster: React.FC = () => {
   
   const handleConfirmLeaveWithDraft =  async () => {
     const payload =  prepareProductSubmitPayload();
-    await saveDraftProduct(draftId.current! , payload , (errors) => form.setError(errors) );
+    try{
+       await saveDraftProduct(payload , (errors) => form.setError(errors) , draftId.current );
+    }catch(err : any){
+        throw err.message
+    }
     proceedToPendingDestination()
   }
 

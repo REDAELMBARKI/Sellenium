@@ -29,13 +29,13 @@ import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
 
 
 const ProductCrEdForm = () => {
-    const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
+    const { basicInfoForm, setBasicInfoForm  } = useProductDataCtx();
 
     const {
         state: { currentTheme, currentCategory },
         dispatch,
     } = useStoreConfigCtx();
-    const { options } = useProductDataCtx();
+   
 
     const [videoPreview, setVideoPreview] = useState<string | null>(
         getMediaSrcOrDefault(basicInfoForm.video , 'video')

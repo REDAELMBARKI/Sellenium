@@ -142,18 +142,14 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
 
     const [productData ,   setProductData] = useState<ProductDataGlobal | undefined>(() => productSource)
     const [basicInfoForm , setBasicInfoForm] = useState<ProductDataGlobal>(() => initialData);
-    const [thumbnailPreview, setThumbnailPreview] = useState<Cover | null>(null);
-    const [coversPreview , setCoversPreview] = useState<Cover[]>(basicInfoForm.covers as Cover[] || []);
-    const draftId = useRef<string | null>(basicInfoForm.id ?? null);
+    
+    const draftId = useRef<string | undefined>(basicInfoForm.id ?? undefined);
     
     const [options] = useState(backendOptions);
 
-  
     return (
     <ProductDataContext.Provider value={{
         modeForm , 
-        thumbnailPreview, setThumbnailPreview ,
-        setCoversPreview , coversPreview ,
         productData ,   setProductData , 
         basicInfoForm , setBasicInfoForm , 
         options , 

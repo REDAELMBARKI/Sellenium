@@ -7,8 +7,8 @@ class DraftsValidation
     { 
         return array_merge(
            (new self)->draft_base_rules(),
-                    (new self)->draft_attributes_rules(),
-                    (new self)->draft_variants_rules(),
+            (new self)->draft_attributes_rules(),
+            (new self)->draft_variants_rules(),
         );
        
     }
@@ -18,6 +18,7 @@ class DraftsValidation
      private function draft_base_rules()
     {
         return [
+        'draft_id' => ['nullable', 'numeric'] ,
         "name" => [
             'nullable',
             'min:3',
@@ -33,7 +34,6 @@ class DraftsValidation
         'video' => ['nullable', 'numeric'],
         'covers' => ['nullable', 'array'],
         'covers.*' => ['nullable','numeric'],
-
         "price" => ['nullable', 'numeric', 'min:0'],
         "oldPrice" => ['nullable', 'numeric', 'min:0'],
 

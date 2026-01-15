@@ -52,7 +52,7 @@ Route::get('/products/edit' , [ProductController::class, 'edit']) ;
 Route::get('/products' , [ProductController::class, 'index'])->name('products') ;
 Route::get('/products/show' , [ProductController::class, 'show']) ;
 Route::post('/products' , [ProductController::class, 'createDraft'])->name('products.createDraft');
-Route::put('/products/{draft}' , [ProductController::class, 'updateDraftOnSave'])->name('products.updateDraftOnSave');
+Route::put('/products/drafts' , [ProductController::class, 'updateDraftOnSave'])->name('products.updateDraftOnSave');
 Route::patch('/products/{draft}/publish' , [ProductController::class, 'publish'])->name('products.publish');
 Route::delete('/products/{product}' , [ProductController::class, 'destroy']) ;
 

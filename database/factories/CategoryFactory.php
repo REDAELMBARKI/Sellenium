@@ -14,12 +14,23 @@ class CategoryFactory extends Factory
      *
      * @return array<string, mixed>
      */
+     private $catgeries = [
+       "Fashion & Apparel"  , 
+        "Electronics & Gadgets" ,
+         "Beauty & Personal Care" ,
+        "Perfumes" ,
+        "Home & Living" ,
+         "Sports & Outdoors" ,
+        "Toys & Games" ,
+        "Jewelry & Accessories" ,
+        "Baby & Kids" 
+     ];
+
     public function definition(): array
     {
         return [
             "name"=> $this->faker->name,
-            "slug"=> $this->faker->slug,        
-            
+            "slug"=> $this->faker->slug,
         ];
     }
 }

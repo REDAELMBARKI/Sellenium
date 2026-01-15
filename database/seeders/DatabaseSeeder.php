@@ -17,12 +17,12 @@ class DatabaseSeeder extends Seeder
 
        $this->call([
            CategorySeeder::class,
-           TagSeeder::class,
-           SizeSeeder::class,
-           ColorSeeder::class,
-           MaterialSeeder::class,
-           FitSeeder::class,
-           UserSeeder::class,
+          //  TagSeeder::class,
+          //  SizeSeeder::class,
+          //  ColorSeeder::class,
+          //  MaterialSeeder::class,
+          //  FitSeeder::class,
+          //  UserSeeder::class,
           //  OrderSeeder::class,
           //  PromotionSeeder::class,
           //  ReviewSeeder::class,

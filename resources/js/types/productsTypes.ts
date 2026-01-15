@@ -1,6 +1,4 @@
-import { Tag } from "./tagsTypes";
 import { ProductVariant } from "./products/productVariantType";
-import { CategoryCode } from "./products/categories";
 import { ProductBase } from "./products/baseProductTypes";
 import { FashionAttributes } from "./products/fashionTypes";
 import { PerfumesAttributes } from "./products/perfumesTypes";

@@ -1,10 +1,11 @@
 import NotifyUser from "@/components/ui/NotifyUser";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { useProductDraft } from "@/contextHooks/sharedhooks/useProductDraft";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
 import { productFilesUploaderCleaner } from "@/functions/product/productFilesUploaderCleaner";
+import { useBackendInteraction } from "@/functions/product/useBackendInteractions";
+import { Cover } from "@/types/inventoryTypes";
 import { Upload, X } from "lucide-react";
 import {  useEffect, useRef, useState } from "react";
 import { Oval } from "react-loader-spinner";
@@ -16,14 +17,15 @@ import "react-quill/dist/quill.snow.css";
 
 const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} : {getThumbnailPreview : (thumbnail:string) => void , validateField : (field: string, value: any) => void , frontEndErrors : Record<string , string>}) => {
     
-    const { basicInfoForm, setBasicInfoForm , thumbnailPreview, setThumbnailPreview } = useProductDataCtx();
+    const { basicInfoForm, setBasicInfoForm , draftId } = useProductDataCtx();
     const {state :{currentTheme}} = useStoreConfigCtx()
     const  thumbnailInputRef = useRef<HTMLInputElement>(null);
     const [uploadError , setUploadError] = useState<string | null>(null)
     const [thumbnailUploading , setThumbnailUploading] = useState(false)
-    const {draftId , saveDraft} = useProductDraft()
+    const [thumbnailPreview, setThumbnailPreview] = useState<Cover | null>(null);
     const {cleanDeletedProductMedia , uploadProductFiles} = productFilesUploaderCleaner()
-      
+    const {createDraft} = useBackendInteraction()
+
     
     
     const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +36,7 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
             setUploadError(null)
             setThumbnailUploading(true)
             // validateField('thumbnail', url);
-            const draftId = await saveDraft()
+            const draftId = await createDraft()
             const imageData =  await uploadProductFiles(file , 'thumbnail' , 'Product', draftId!);
             setThumbnailPreview({url : imageData.url , id : imageData.id});
           }catch(err : any){
@@ -48,9 +50,9 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
 
    
     const handleThumnailRemove = async (mediaId : string) => {
-      if(!draftId || !mediaId) return ;
+      if(!draftId.current || !mediaId) return ;
       try{ 
-          await  cleanDeletedProductMedia(draftId , mediaId);
+          await  cleanDeletedProductMedia(draftId.current , mediaId);
           setThumbnailPreview(null);
         }catch(err : any){
           setUploadError(err.message)

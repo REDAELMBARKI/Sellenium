@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { useProductDraft } from "@/contextHooks/sharedhooks/useProductDraft";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
 import { productFilesUploaderCleaner } from "@/functions/product/productFilesUploaderCleaner";
@@ -9,6 +8,8 @@ import { useState, useRef } from "react";
 import { v4 } from "uuid";
 import { Oval } from "react-loader-spinner";
 import NotifyUser from "@/components/ui/NotifyUser";
+import { useBackendInteraction } from "@/functions/product/useBackendInteractions";
+import { Cover } from "@/types/inventoryTypes";
 
 interface MediaSectionProps {
     setVideoPreview: React.Dispatch<React.SetStateAction<string | null>>;
@@ -19,17 +20,20 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
     const {
         state: { currentTheme : theme },
     } = useStoreConfigCtx();
-    const { basicInfoForm, setBasicInfoForm, setCoversPreview, coversPreview } =
+    const { basicInfoForm, setBasicInfoForm ,draftId} =
         useProductDataCtx();
+    const [coversPreview , setCoversPreview] = useState<Cover[]>(basicInfoForm.covers as Cover[] || []);
     const [isDragging, setIsDragging] = useState(false);
     const imageInputRef = useRef<HTMLInputElement>(null);
     const videoInputRef = useRef<HTMLInputElement>(null);
     const [imageUploading , setImageUploading] = useState(false);
     const [uploadError , setUploadError] = useState<string | null>(null)
-    const { draftId, saveDraft } = useProductDraft();
     const { cleanDeletedProductMedia, uploadProductFiles } =
     productFilesUploaderCleaner();
+    const {createDraft} = useBackendInteraction()
 
+
+    
     const handleCoversUpload = async (
         e: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -40,7 +44,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
             setUploadError(null);
             setImageUploading(true)
             // validateField('cover', url);
-            const draftId = await saveDraft();
+            const draftId = await createDraft();
             const imageData = await uploadProductFiles(
                 file,
                 "cover",
@@ -61,9 +65,9 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
     };
 
     const handleRemoveCover = async (mediaId: string) => {
-        if(!draftId || !mediaId) return;
+        if(!draftId.current || !mediaId) return;
         try{
-        await cleanDeletedProductMedia(draftId, mediaId);
+        await cleanDeletedProductMedia(draftId.current, mediaId);
         setCoversPreview((prev) =>
             (prev || []).filter((media) => media.id != mediaId)
         );

@@ -18,9 +18,9 @@ export const useBackendInteraction = () => {
         const response = await axios.delete(route(`products.destroy` , id))
     }
 
-    const saveDraftProduct = async (id : string , payload : any , onError : (errors : any) => void) => {
+    const saveDraftProduct = async (payload : any , onError : (errors : any) => void , id? : string) => {
         try{
-            router.put(route('products.updateDraftOnSave' , id), payload as any, {      
+            router.put(route('products.updateDraftOnSave'), {...payload , draft_id : id}, {      
                 onError: (errors) => onError(errors),
                 onSuccess: () => console.log('Success'),
             })

@@ -31,6 +31,7 @@ return new class extends Migration
             $table->json('meta')->nullable();
             $table->json('vendor')->nullable();
             $table->string('made_country')->nullable() ;
+            $table->string('release_date')->nullable() ;
             // Relational / foreign keys
             $table->foreignId('category_nich_id')
             ->nullable()

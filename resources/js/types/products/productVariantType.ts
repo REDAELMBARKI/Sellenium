@@ -1,5 +1,5 @@
 import { Color, Cover, Size } from "../inventoryTypes";
-import { ImagePreviewItem } from "../mediaTypes";
+
 
 export interface ProductVariant<C extends CategoryCode = CategoryCode> {
   category : C
@@ -23,7 +23,7 @@ type VariantOptionsByCategory = {
 export interface FashionVariant {
    size : Size
    color : Color
-   covers : (Cover | ImagePreviewItem)[]
+   covers : (Cover)[]
 }
 
 

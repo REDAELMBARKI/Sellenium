@@ -1,7 +1,6 @@
 import { Category, Country, Cover } from "../inventoryTypes";
-import { ImagePreviewItem } from "../mediaTypes";
 import { Tag } from "../tagsTypes";
-import { CategoryCode } from "./categories";
+
 
 export interface ProductBase { 
   category: Category;
@@ -21,8 +20,6 @@ export interface ProductBase {
   thumbnail:  Cover | null ;
   video : Cover |  null ;
   covers : Cover[] , 
-
-
   inventory?: InventoryAttributes;
   shipping?: ShippingAttributes;
   meta?: MetaAttributes;

@@ -4,17 +4,14 @@ import ProductDataProvider from "@/contextProvoders/sharedProviders/ProductDataP
 import ProductUIProvider from "@/contextProvoders/sharedProviders/ProductUIProvider";
 import { ProductBackendProps } from "@/types/productsTypes";
 import BasicInfoFormMaster from "./A_sharedForAllNiches/RouterAndMasters/ProductFormMaster";
-import { ProductDraftProvider } from "@/contextProvoders/sharedProviders/ProductDraftProvider";
 
 
-export default function Create({options }: ProductBackendProps) { 
+export default function Create({options}: ProductBackendProps) { 
    
     return (      
                 <ProductDataProvider  options={options}>
                         <ProductUIProvider>
-                            <ProductDraftProvider>
                                     <CreateContent  />
-                            </ProductDraftProvider>
                         </ProductUIProvider>
             
                 </ProductDataProvider>

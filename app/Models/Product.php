@@ -11,9 +11,14 @@ class Product extends Model
 {
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
-     protected $fillable = ['name' , 'brand' , 'price' , 'slug' , 'thumbnail' ,'free_shipping' , 'description'];
-     protected $hidden = ['created_at','updated_at'];   
-
+    protected $guarded = [];
+    protected $hidden = ['created_at','updated_at'];
+    protected $casts = [
+        'vendor' => 'array',
+        'inventory' => 'array',
+        'shipping' => 'array',
+        'meta' => 'array',
+    ];
     public static function getColumsToselect(){
         return array_merge(
             ['id'],
@@ -40,15 +45,10 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
  
-    public function inventories(){
-         return $this->hasMany(Inventory::class);
-    }
-
-
+ 
     public function covers()
     {
-        return $this->hasManyThrough(Cover::class, Inventory::class, 'product_id', 'inventory_id', 'id', 'id')
-              ;
+        return $this->hasManyThrough(Cover::class, Inventory::class, 'product_id', 'inventory_id', 'id', 'id') ;
               
     }
 
@@ -56,29 +56,10 @@ class Product extends Model
     {
         return $this->belongsTo(Promotion::class);
     }
-    public function colors()
-    {
-        return $this->hasManyThrough(Color::class, Inventory::class ,'product_id' , 'id' , 'id' , 'id' )
-                    ->select('colors.id as color_id' , 'colors.hex');
-    }
+   
 
 
-    public function sizes()
-    {
-        return $this->hasManyThrough(Size::class , Inventory::class , 'product_id' , 'id' , 'id' , 'id');
-    }
-
-    public function materials()
-    {
-        return $this->hasManyThrough(Material::class, Inventory::class, 'product_id', 'id', 'id', 'id')
-        ->select('materials.id as material_iid' , 'name');
-    }
-
-    public function fits()
-    {
-        return $this->hasManyThrough(Fit::class, Inventory::class, 'product_id', 'id', 'id', 'id');
-    }
-
+   
 
     // protected function casts(){
     //     return [

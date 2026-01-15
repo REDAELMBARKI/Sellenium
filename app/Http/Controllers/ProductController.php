@@ -47,7 +47,7 @@ class ProductController extends Controller
 
     public function create()
     {
-        return inertia::render("admin/pages/products/Create" ,[
+       return inertia::render("admin/pages/products/Create" ,[
                 'options' => [
                 
                     'fits' => collect([
@@ -90,7 +90,7 @@ class ProductController extends Controller
 
 
     public function createDraft(StoreDraftProductRequest $request)
-    {   
+    {
         $product = Product::create([
             'name' => $request->name ?? null,
             'brand' => $request->brand ?? null,
@@ -109,25 +109,40 @@ class ProductController extends Controller
 
 
     public function updateDraftOnSave(StoreDraftProductRequest $request)
-    {    
-        // $baseInfo
+    {
+        //$baseInfo
         //tags
-        $tags = $request->validated('tags');
-        
-        $product = Product::create([
-            'name' => $request->name ?? null,
-            'brand' => $request->brand ?? null,
-            'description' => $request->description ?? null,
-            'price' => $request->price ?? null,
-        ]);
-
-        // store product data 
-        return response()->json(
-               [
-                "id" => $product->id ,
-               ]
+        $validated = $request->validated() ;
+        $baseProduct = Arr::except($request->all() , ['tags' , 'variants' , 'attributes' , 'draft_id']) ;
+        $product = Product::updateOrCreate(
+            [
+                'id' => $validated['draft_id'] ?? null
+            ] ,
+            [
+            'name' => $baseProduct['name'] ?? null,
+            'brand' => $baseProduct['brand'] ?? null,
+            'description' => $baseProduct['description'] ?? null,
+            'price' => $baseProduct['price'] ?? null,
+            'old_price' => $baseProduct['oldPrice'] ?? null,
+            'is_featured' => $baseProduct['isFeatured'] ?? false,
+            'is_free_shipping' => $baseProduct['isFreeShipping'] ?? false,
+            'status' => 'draft',
+            'rating_average' => $baseProduct['rating_average'] ?? null,
+            'rating_count' => 0,
+            'shipping' => $baseProduct['shipping'] ?? null,               // JSON
+            'aggregated_attributes' => null,                             // optional, calculated later
+            'inventory' => $baseProduct['inventory'] ?? null,             // JSON
+            'meta' => $baseProduct['meta'] ?? null,                       // JSON
+            'vendor' => $baseProduct['vendor'] ?? null,                   // JSON
+            'made_country' => $baseProduct['madeCountry'] ?? null,
+            'release_date' => $baseProduct['releaseDate'] ?? null,
+        ]
         ) ;
+        
+      
 
+
+        $product->save() ;
     }
     
     public function publish(PublishProductRequest $request , Product $product)

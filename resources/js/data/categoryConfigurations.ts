@@ -9,7 +9,6 @@ export const CATEGORY_CONFIG : Record<CategoryCode , any> = {
       fits: [] as Fit[],
       materials: [] as Material[],
       gender: [] as Gender[],
-      madeCountry: null as Country | null,
     },
   },
 
