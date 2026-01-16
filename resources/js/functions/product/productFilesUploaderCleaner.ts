@@ -5,13 +5,13 @@ import { route } from "ziggy-js";
 
 export  const productFilesUploaderCleaner = () => {
 
-      const uploadProductFiles = async (file: File, collection: FlagMedia  , model_type : ModelType , toDraftId : string) => {
+      const uploadProductFiles = async (file: File, collection: FlagMedia  , model_type : ModelType , toDraftId? : string) => {
           
           const formData = new FormData();
           formData.append('file', file);
           formData.append('collection', collection);
           formData.append('model_type', model_type);
-          formData.append('draft_id', toDraftId);
+          formData.append('model_id', toDraftId ?? '');
           
           try 
           {  const response = await axios.post(route('media.store'), formData, {

@@ -68,6 +68,7 @@ const ProductFormMaster: React.FC = () => {
  }, [basicInfoForm]);
 
  useEffect(() => {
+   if(draftId.current) return ;
    if(hasEverBeenDirty.current) return;
    if(!isDirty) return ;
 

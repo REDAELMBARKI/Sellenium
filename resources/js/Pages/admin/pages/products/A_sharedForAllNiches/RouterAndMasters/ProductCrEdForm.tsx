@@ -8,6 +8,7 @@ import {
 import { useState, useRef } from "react";
 import MediaSection from "../components/editAndCreate/MediaSection";
 import {
+    CategoryCode,
     Cover,
 } from "@/types/inventoryTypes";
 import BaseSharedForm from "../components/editAndCreate/BaseSharedForm";
@@ -17,7 +18,6 @@ import {
     ATTRIBUTES_FORM_SECTIONS,
     VARIANTS_FORM_SECTIONS,
 } from "@/data/formSectionConfigurations";
-import { CategoryCode } from "@/types/products/categories";
 import { CATEGORIES } from "@/data/listOfCategories";
 import NotifyUser from "@/components/ui/NotifyUser";
 import PricingSection from "../components/editAndCreate/PricingSection";

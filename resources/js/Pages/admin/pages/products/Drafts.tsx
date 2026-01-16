@@ -10,7 +10,7 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 
 
 interface DraftRowProps {
-  product: Product;
+  draft: Product;
   onPreview: () => void;
   onEdit: () => void;
   onPublish: () => void;
@@ -22,14 +22,15 @@ interface DraftRowProps {
 // Fake product interface
 interface Product {
   id: string;
-  title: string;
+  name: string;
+  brand : string  ,
   category: string;
   price?: number;
-  covers: Cover[];
-  thumbnail : Cover
-  description?: string;
-  variants?: Record<string, any>;
+  media : any
   updated_at: string;
+  quality_score : number
+  ready_to_publish : boolean
+
 }
 
 // Example dummy data
@@ -61,7 +62,7 @@ export default function Drafts({drafts : backendDrafts} : any) {
   const [drafts, setDrafts] = useState<Product[]>(backendDrafts ?? DUMMY_DRAFTS);
   const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
   const {state : {currentTheme}} = useStoreConfigCtx()
- 
+  console.log(drafts)
   const handlePublish = (id: string) => {
     setDrafts((prev) => prev.filter((p) => p.id !== id));
   };
@@ -74,7 +75,7 @@ export default function Drafts({drafts : backendDrafts} : any) {
     const newCopy = {
       ...product,
       id: String(Date.now()),
-      title: product.title + " (Copy)",
+      title: product.name + " (Copy)",
       updated_at: new Date().toISOString(),
     };
 
@@ -114,7 +115,7 @@ export default function Drafts({drafts : backendDrafts} : any) {
             {drafts.map((draft) => (
               <DraftRow
                 key={draft.id}
-                product={draft}
+                draft={draft}
                 onPreview={() => setPreviewProduct(draft)}
                 onEdit={() => console.log("Edit", draft.id)}
                 onPublish={() => handlePublish(draft.id)}
@@ -138,7 +139,7 @@ export default function Drafts({drafts : backendDrafts} : any) {
 Drafts.layout = (page : any) => <AdminLayout children={page} />
 
 
-export function DraftRow({ product, onPreview, onEdit, onPublish, onDelete, onDuplicate }: DraftRowProps) {
+export function DraftRow({ draft, onPreview, onEdit, onPublish, onDelete, onDuplicate }: DraftRowProps) {
   const [showMenu, setShowMenu] = useState(false);
   const {state : {currentTheme}} = useStoreConfigCtx()
   const getTimeAgo = (date: string) => {
@@ -157,17 +158,15 @@ export function DraftRow({ product, onPreview, onEdit, onPublish, onDelete, onDu
 
   const getWarnings = () => {
     const warnings: string[] = [];
-    if (!product.price) warnings.push('Missing price');
-    if (!product.covers || product.covers.length === 0) warnings.push('No cover images added yet');
-    if (!product.title || product.title.trim() === '') warnings.push('Missing title');
-    if (!product.category || product.category.trim() === '') warnings.push('Missing category');
+    if (!draft.price) warnings.push('Missing price');
+    if (!draft.name || draft.name.trim() === '') warnings.push('Missing title');
+    if (!draft.category || draft.category.trim() === '') warnings.push('Missing category');
     return warnings;
   };
 
   const warnings = getWarnings();
   const isIncomplete = warnings.length > 0;
-  const hasImages = product.covers && product.covers.length > 0;
-  const coverImage = product.thumbnail || null ;
+  const coverImage = draft.media.url || null ;
 
   return (
     <div className="rounded-lg border hover:shadow-md transition-shadow"
@@ -181,7 +180,7 @@ export function DraftRow({ product, onPreview, onEdit, onPublish, onDelete, onDu
           {coverImage ? (
             <img
               src={coverImage.url}
-              alt={product.title}
+              alt={draft.name}
               className="w-20 h-20 object-cover rounded-lg"
             />
           ) : (
@@ -195,10 +194,10 @@ export function DraftRow({ product, onPreview, onEdit, onPublish, onDelete, onDu
           <div className="flex items-start gap-3 mb-2">
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-gray-900 truncate">
-                {product.title || 'Untitled Product'}
+                {draft.name || 'Untitled Product'}
               </h3>
               <p className="text-sm text-gray-600">
-                {product.category || 'No category'}
+                {draft.category || 'No category'}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -210,18 +209,14 @@ export function DraftRow({ product, onPreview, onEdit, onPublish, onDelete, onDu
                   Incomplete
                 </span>
               )}
-              {!hasImages && (
-                <span className="px-3 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full">
-                  Missing images
-                </span>
-              )}
+            
             </div>
           </div>
 
           <div className="flex items-center gap-4 text-sm text-gray-500">
-            <span>Last edited: {getTimeAgo(product.updated_at)}</span>
-            {product.price && (
-              <span className="font-medium text-gray-700">${product.price}</span>
+            <span>Last edited: {getTimeAgo(draft.updated_at)}</span>
+            {draft.price && (
+              <span className="font-medium text-gray-700">${draft.price}</span>
             )}
           </div>
 

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Media extends Model
 {
      protected $fillable = [
-         'url'  ,
+            'url'  ,
             'collection',
             'mime_type' ,
             'size' ,
@@ -18,4 +18,8 @@ class Media extends Model
             'order'
 
     ];
+
+    public function mediaable(){
+        return $this->morphTo();
+    }
 }

@@ -30,9 +30,6 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
     const [uploadError , setUploadError] = useState<string | null>(null)
     const { cleanDeletedProductMedia, uploadProductFiles } =
     productFilesUploaderCleaner();
-    const {createDraft} = useBackendInteraction()
-
-
     
     const handleCoversUpload = async (
         e: React.ChangeEvent<HTMLInputElement>
@@ -43,17 +40,16 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
         try {
             setUploadError(null);
             setImageUploading(true)
-            // validateField('cover', url);
-            const draftId = await createDraft();
-            const imageData = await uploadProductFiles(
+            const data = await uploadProductFiles(
                 file,
                 "cover",
                 "Product",
-                draftId!
+                draftId.current
             );
+            if(!draftId.current) draftId.current = data.draft_id ;
             setCoversPreview((prev) => [
                 ...(prev || []),
-                { url: imageData.url, id: imageData.id },
+                { url: data.media.url, id: data.media.id },
             ]);
         } catch (err : any) {
             setUploadError(err.message);
@@ -63,7 +59,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
 
          }
     };
-
+    
     const handleRemoveCover = async (mediaId: string) => {
         if(!draftId.current || !mediaId) return;
         try{

@@ -20,35 +20,35 @@ class MediaController extends Controller
                 'general'   => 'general',
         ] ;
     
-    private $models = [
-        'Product' => Product::class,
-        'User'    => 'App\Models\User',
-        'Admin'   => 'App\Models\Admin',
-        'Brand'   => 'App\Models\Brand',
-    ] ;
-
+   
     public function store(MediaRequest $request){
+        $draft = $request->model_id ? Product::find($request->model_id) : Product::create([
+            'name' => null ,
+        ]) ;
+
         $file = $request->file('file');
         $collection = $request->collection;
-        $model_type = $request->model_type ;
-        $modelId    = $request->draft_id ?? null ;
-        $model = $this->models[$model_type] ?? null ;
         // storage
         $storagePath  = $this->folders[$collection] ?? 'general' ;
         $path = $file->store($storagePath , 'public');
         $url = Storage::url($path) ;
-       
-        $media = Media::create([
+        
+
+        $media = $draft->media()->create([
             'url'  => $url,
             'collection' => $collection,
             'mime_type' => $file->getClientMimeType(),
             'size' => $file->getSize(),
-            'model_type' => $model,
-            'model_id'   => $modelId,
             'is_temporary' => true,
-        ]);
+        ]) ;
+
         // Debug in console (as JSON response)
-        return response()->json($media);
+        return response()->json(
+        [
+            'draft_id' => $draft->id ,
+            'media' => $media
+                
+        ]);
        
     }
 
@@ -56,7 +56,7 @@ class MediaController extends Controller
         $draftId = $request->draft_id ;
         
         $media = Media::where('id'  , $mediaId)
-                        ->where('model_id' , $draftId)
+                        ->where('mediaable_id' , $draftId)
                         ->where('is_temporary' , true)
                         ->firstOrFail();
          
@@ -72,7 +72,7 @@ class MediaController extends Controller
 
     public function destroyBulk(Request $request){
         $draftId = $request->draft_id ;
-        Media::where('model_id' , $draftId)
+        Media::where('mediaable_id' , $draftId)
                         ->where('is_temporary' , true)
                         ->each(function($media){
                             // delete file from storage

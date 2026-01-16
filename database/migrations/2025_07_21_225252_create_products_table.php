@@ -20,7 +20,11 @@ return new class extends Migration
             $table->decimal('old_price', 10, 2)->nullable();
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_free_shipping')->default(false);
+            
+            // status and tracking progress
             $table->enum('status', ['draft','published'])->default('draft');
+            $table->boolean('ready_to_publish')->default(false);
+            $table->unsignedBigInteger('quality_score')->default(0);
             // Ratings
             $table->float('rating_average', 3, 2)->nullable()->default(null); // average rating
             $table->unsignedInteger('rating_count')->default(0);

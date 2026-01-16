@@ -25,7 +25,7 @@ return new class extends Migration
         
         $table->string('mime_type')->nullable(); // image, video, document
         
-        $table->nullableMorphs('model'); // model_type + model_id
+        $table->morphs('mediaable');
         $table->unsignedBigInteger('size')->nullable();
         $table->unsignedInteger('width')->nullable();
         $table->unsignedInteger('height')->nullable();

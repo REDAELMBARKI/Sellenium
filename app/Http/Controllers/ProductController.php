@@ -40,7 +40,10 @@ class ProductController extends Controller
 
 
     public function draft() {
-        $drafts = Product::where('status' , 'draft')->get() ;
+        $drafts = Product::with(['media' => function($media){
+         $media->where('collection' , 'thumbnail')
+         ; // how to get only thumnail url here
+        }])->where('status' , 'draft')->select(['id' , 'name' , 'brand' , 'price' , 'quality_score' , 'ready_to_publish'])->get() ;
         return Inertia::render("admin/pages/products/Drafts" , ['drafts' => $drafts] ) ;
     }
 
@@ -88,61 +91,34 @@ class ProductController extends Controller
             ]);
     }
 
-
+    private function saveDraft($payload , ?Product $draft) {
+        $draft = $draft ?? new Product();
+        return DB::transaction(function() use ($draft , $payload){
+            $draft->fill($payload) ;
+            $draft->save();
+            return $draft->fresh();
+        });
+    }
     public function createDraft(StoreDraftProductRequest $request)
     {
-        $product = Product::create([
-            'name' => $request->name ?? null,
-            'brand' => $request->brand ?? null,
-            'description' => $request->description ?? null,
-            'price' => $request->price ?? null,
-        ]);
-
-        // store product data 
+        
+        $validated = $request->validated() ;
+        $draft = $this->saveDraft($validated  , null);
+        // store product data
         return response()->json(
                [
-                "id" => $product->id ,
+                "id" => $draft->id ,
                ]
         ) ;
 
     }
-
-
     public function updateDraftOnSave(StoreDraftProductRequest $request)
     {
-        //$baseInfo
-        //tags
+        $draft_id = $request->validated('draft_id') ;
+        $draft = Product::find($draft_id) ;
         $validated = $request->validated() ;
-        $baseProduct = Arr::except($request->all() , ['tags' , 'variants' , 'attributes' , 'draft_id']) ;
-        $product = Product::updateOrCreate(
-            [
-                'id' => $validated['draft_id'] ?? null
-            ] ,
-            [
-            'name' => $baseProduct['name'] ?? null,
-            'brand' => $baseProduct['brand'] ?? null,
-            'description' => $baseProduct['description'] ?? null,
-            'price' => $baseProduct['price'] ?? null,
-            'old_price' => $baseProduct['oldPrice'] ?? null,
-            'is_featured' => $baseProduct['isFeatured'] ?? false,
-            'is_free_shipping' => $baseProduct['isFreeShipping'] ?? false,
-            'status' => 'draft',
-            'rating_average' => $baseProduct['rating_average'] ?? null,
-            'rating_count' => 0,
-            'shipping' => $baseProduct['shipping'] ?? null,               // JSON
-            'aggregated_attributes' => null,                             // optional, calculated later
-            'inventory' => $baseProduct['inventory'] ?? null,             // JSON
-            'meta' => $baseProduct['meta'] ?? null,                       // JSON
-            'vendor' => $baseProduct['vendor'] ?? null,                   // JSON
-            'made_country' => $baseProduct['madeCountry'] ?? null,
-            'release_date' => $baseProduct['releaseDate'] ?? null,
-        ]
-        ) ;
-        
-      
-
-
-        $product->save() ;
+        $this->saveDraft($validated , $draft );
+        return redirect()->route('drafts.index');
     }
     
     public function publish(PublishProductRequest $request , Product $product)
@@ -168,6 +144,7 @@ class ProductController extends Controller
 
     }
 
+   
     public function edit(){ 
     }
 

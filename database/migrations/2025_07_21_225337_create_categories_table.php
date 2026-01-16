@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');           // Category name
             $table->string('slug')->unique(); // URL-friendly identifier
-            $table->foreignId('parent_id')->constrained('categories')->cascadeOnDelete(); // parentcategory / subcategory
+            $table->foreignId('parent_id')->nullable()->constrained('categories')->cascadeOnDelete(); // parentcategory / subcategory
             $table->timestamps();
         });
     }

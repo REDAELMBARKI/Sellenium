@@ -36,9 +36,9 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
             setUploadError(null)
             setThumbnailUploading(true)
             // validateField('thumbnail', url);
-            const draftId = await createDraft()
-            const imageData =  await uploadProductFiles(file , 'thumbnail' , 'Product', draftId!);
-            setThumbnailPreview({url : imageData.url , id : imageData.id});
+            const data =  await uploadProductFiles(file , 'thumbnail' , 'Product', draftId.current);
+            setThumbnailPreview({url : data.media.url , id : data.media.id});
+            if(!draftId.current) draftId.current = data.draft_id
           }catch(err : any){
               setUploadError(err.message)
            }
