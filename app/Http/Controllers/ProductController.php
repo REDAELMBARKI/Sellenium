@@ -4,29 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PublishProductRequest;
 use App\Http\Requests\StoreDraftProductRequest;
-use App\Http\Requests\StoreProductRequest;
-
 use App\Http\Requests\UpdateProductRequest;
-use App\Http\Services\InventoryServices;
-use App\Http\Services\MaterialServices;
-use App\Models\Color;
-use App\Models\Cover;
-use App\Models\Fit;
-use App\Models\Inventory;
-use App\Models\Material;
+use App\Http\Services\ProductService;
 use App\Models\Media;
 use App\Models\Product;
-use App\Models\Size;
-use App\Models\Tag;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
-use PHPUnit\Framework\MockObject\Stub\ReturnReference;
-use PHPUnit\TextUI\Configuration\Merger;
 
 class ProductController extends Controller
 { 
@@ -90,20 +72,12 @@ class ProductController extends Controller
                 ],
             ]);
     }
-
-    private function saveDraft($payload , ?Product $draft) {
-        $draft = $draft ?? new Product();
-        return DB::transaction(function() use ($draft , $payload){
-            $draft->fill($payload) ;
-            $draft->save();
-            return $draft->fresh();
-        });
-    }
-    public function createDraft(StoreDraftProductRequest $request)
+   
+    public function createDraft(StoreDraftProductRequest $request , ProductService $service)
     {
         
         $validated = $request->validated() ;
-        $draft = $this->saveDraft($validated  , null);
+        $draft = $service->saveDraft($validated  , null);
         // store product data
         return response()->json(
                [
@@ -112,28 +86,31 @@ class ProductController extends Controller
         ) ;
 
     }
-    public function updateDraftOnSave(StoreDraftProductRequest $request)
+    public function updateDraftOnSave(StoreDraftProductRequest $request , ProductService $service)
     {
         $draft_id = $request->validated('draft_id') ;
         $draft = Product::find($draft_id) ;
         $validated = $request->validated() ;
-        $this->saveDraft($validated , $draft );
+        $service->saveDraft($validated , $draft );
         return redirect()->route('drafts.index');
     }
     
-    public function publish(PublishProductRequest $request , Product $product)
+    public function publish(ProductService $service , Product $product)
     {
-        // ...$request->validated(), // should b splited
+        
+        
+        $service->isPublishable($product);
+
         $product->update([
             'status' => 'published'
         ]);
 
-        Media::where('model_id' , $product->id)
+        Media::where('mediaable_id' , $product->id)
                          ->each(function($media){
                              $media->update([
                                  'is_temporary' => false
                              ]) ;
-                         });
+        });
         
         // store product data
         return response()->json(
