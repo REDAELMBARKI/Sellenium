@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\PublishProductRequest;
 use App\Http\Requests\StoreDraftProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use App\Http\Services\ProductService;
+use App\Http\Services\product\ProductService;
 use App\Models\Media;
 use App\Models\Product;
 use Inertia\Inertia;
@@ -22,10 +21,7 @@ class ProductController extends Controller
 
 
     public function draft() {
-        $drafts = Product::with(['media' => function($media){
-         $media->where('collection' , 'thumbnail')
-         ; // how to get only thumnail url here
-        }])->where('status' , 'draft')->select(['id' , 'name' , 'brand' , 'price' , 'quality_score' , 'ready_to_publish'])->get() ;
+        $drafts = Product::with('thumbnail')->where('status' , 'draft')->select(['id' , 'name' , 'brand' , 'price' , 'quality_score' , 'ready_to_publish' , 'updated_at'])->get() ;
         return Inertia::render("admin/pages/products/Drafts" , ['drafts' => $drafts] ) ;
     }
 
@@ -98,8 +94,9 @@ class ProductController extends Controller
     public function publish(ProductService $service , Product $product)
     {
         
-        
-        $service->isPublishable($product);
+        if(!$service->isPublishable($product)){
+            return response()->json(['message' =>  'some fileds are missing ']) ;
+        }
 
         $product->update([
             'status' => 'published'
@@ -122,7 +119,49 @@ class ProductController extends Controller
     }
 
    
-    public function edit(){ 
+    public function edit(Product $product){
+    //   dd($product) ;
+       return inertia::render("admin/pages/products/Create" ,[
+                'options' => [
+                
+                    'fits' => collect([
+                        ['id' => 1, 'name' => 'Slim'],
+                        ['id' => 2, 'name' => 'Regular'],
+                        ['id' => 3, 'name' => 'Oversized'],
+                    ]),
+
+                    'materials' => collect([
+                        ['id' => 1, 'name' => 'Cotton'],
+                        ['id' => 2, 'name' => 'Polyester'],
+                        ['id' => 3, 'name' => 'Wool'],
+                        ['id' => 4, 'name' => 'Denim'],
+                    ]),
+                    // Static (enum-like)
+                    'styles' => collect([
+                        ['id' => 1, 'name' => 'Casual'],
+                        ['id' => 2, 'name' => 'Formal'],
+                        ['id' => 3, 'name' => 'Streetwear'],
+                        ['id' => 4, 'name' => 'Sport'],
+                        ['id' => 5, 'name' => 'Luxury'],
+                    ]),
+
+                    'genders' => collect([
+                        ['id' => 1, 'name' => 'Men'],
+                        ['id' => 2, 'name' => 'Women'],
+                        ['id' => 3, 'name' => 'Unisex'],
+                    ]),
+
+                    'seasons' => collect([
+                        ['id' => 1, 'name' => 'Spring'],
+                        ['id' => 2, 'name' => 'Summer'],
+                        ['id' => 3, 'name' => 'Autumn'],
+                        ['id' => 4, 'name' => 'Winter'],
+                        ['id' => 5, 'name' => 'All Seasons'],
+                    ]),
+                ],
+                'product' => $product
+            ]);
+        
     }
 
     public function update(UpdateProductRequest $request, $id)

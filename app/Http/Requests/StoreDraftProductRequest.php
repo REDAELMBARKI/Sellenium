@@ -3,7 +3,7 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Services\productValidation\DraftsValidation;
+use App\Http\Services\product\validation\DraftsValidation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 

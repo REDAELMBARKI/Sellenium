@@ -26,7 +26,7 @@ const ProductFormMaster: React.FC = () => {
   const [pendingDestination , setPendingDestination] = useState<any | null>(null) ; 
 
 
-
+  console.log(basicInfoForm)
   const hasEverBeenDirty = useRef<boolean>(false) ;
   const allowNextVisit = useRef(false)
   const {cleanProductTempMediaOnDistroy} = productFilesUploaderCleaner() ;

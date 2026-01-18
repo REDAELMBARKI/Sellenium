@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Services\productValidation;
+namespace App\Http\Services\product\validation;
 
 
 class SubmitedProductValidation

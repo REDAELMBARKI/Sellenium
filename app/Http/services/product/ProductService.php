@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Http\Services;
+namespace App\Http\Services\product;
 
 use App\Http\Requests\PublishProductRequest;
 use App\Models\Product;
@@ -62,4 +62,6 @@ class ProductService {
         return $product->quality_score >= 50   &&
               $product->ready_to_publish ;
     }
+
+    public function checkReadiness() : void {}
 }

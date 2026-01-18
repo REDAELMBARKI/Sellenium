@@ -187,7 +187,7 @@ const ProductCrEdForm = () => {
                     </h2>
                     <CustomSelectForObjectNative
                         options={CATEGORIES.map(toSelectOptionAdapter)}
-                        value={{ label : basicInfoForm?.category.name ?? '' , value : basicInfoForm?.category.id ?? '' }}
+                        value={{ label : basicInfoForm?.category?.name ?? '' , value : basicInfoForm?.category?.id ?? '' }}
                         onChange={(value) => {
                             dispatch({
                                 type: "SET_CATEGORY",

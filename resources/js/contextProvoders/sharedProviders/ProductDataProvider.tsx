@@ -13,7 +13,7 @@ import { FashionProduct, ProductBackendProps, ProductDataGlobal } from '@/types/
 
 
 
-const ProductDataProvider = ({children , product , options : backendOptions }:ProductBackendProps) => {
+const ProductDataProvider = ({children , product : productSource , options : backendOptions }:ProductBackendProps) => {
 
   // const productSource : FashionProduct  = {
   // category: {id:"3" , name : "fashion"},
@@ -124,7 +124,6 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
   // ],
   // };
    
-  const productSource = undefined 
 
 
   const {state : {currentCategory : category} } = useStoreConfigCtx() 
@@ -136,6 +135,8 @@ const ProductDataProvider = ({children , product , options : backendOptions }:Pr
       throw new Error("Invalid state");
       };
       
+
+      console.log(productSource)
       const modeForm : ModeForm = productSource ? "edit" : "create" ; 
 
      const initialData = getInitialData(category, modeForm, productSource) ;

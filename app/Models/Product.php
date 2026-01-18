@@ -12,24 +12,24 @@ class Product extends Model
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
     protected $fillable = [
-    'name',
-    'brand',
-    'description',
-    'price',
-    'old_price',
-    'is_featured',
-    'is_free_shipping',
-    'status',
-    'rating_average',      // optional; include if users can set/update rating manually
-    'rating_count',        // optional; include if users can set/update count
-    'shipping',
-    'aggregated_attributes',
-    'inventory',
-    'meta',
-    'vendor',
-    'made_country',
-    'release_date',
-    'category_nich_id',    // foreign key
+        'name',
+        'brand',
+        'description',
+        'price',
+        'old_price',
+        'is_featured',
+        'is_free_shipping',
+        'status',
+        'rating_average',      // optional; include if users can set/update rating manually
+        'rating_count',        // optional; include if users can set/update count
+        'shipping',
+        'aggregated_attributes',
+        'inventory',
+        'meta',
+        'vendor',
+        'made_country',
+        'release_date',
+        'category_nich_id',    // foreign key
      ];
 
     protected $hidden = ['created_at','updated_at'];
@@ -39,11 +39,16 @@ class Product extends Model
         'shipping' => 'array',
         'meta' => 'array',
     ];
+
     public static function getColumsToselect(){
         return array_merge(
             ['id'],
             (new Static)->getFillable()
         );
+    }
+
+    public function thumbnail(){
+       return $this->morphOne(Media::class , 'mediaable')->where('collection' , 'thumbnail');
     }
     public function categories(){
           return $this->belongsToMany(Category::class);

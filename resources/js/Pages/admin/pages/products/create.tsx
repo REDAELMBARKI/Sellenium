@@ -6,10 +6,10 @@ import { ProductBackendProps } from "@/types/productsTypes";
 import BasicInfoFormMaster from "./A_sharedForAllNiches/RouterAndMasters/ProductFormMaster";
 
 
-export default function Create({options}: ProductBackendProps) { 
+export default function Create({options , product}: ProductBackendProps) { 
    
     return (      
-                <ProductDataProvider  options={options}>
+                <ProductDataProvider  options={options} product={product}>
                         <ProductUIProvider>
                                     <CreateContent  />
                         </ProductUIProvider>

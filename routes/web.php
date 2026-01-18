@@ -48,7 +48,7 @@ Route::get('/blog', function () {
 // Route::resource('/products', ProductController::class );
 Route::get('/products/create' , [ProductController::class, 'create']) ;
 Route::get('/products/drafts' , [ProductController::class, 'draft'])->name('drafts.index') ;
-Route::get('/products/edit' , [ProductController::class, 'edit']) ;
+Route::get('/products/{product}/edit' , [ProductController::class, 'edit'])->name('product.edit') ;
 Route::get('/products' , [ProductController::class, 'index'])->name('products') ;
 Route::get('/products/show' , [ProductController::class, 'show']) ;
 Route::post('/products' , [ProductController::class, 'createDraft'])->name('products.createDraft');

@@ -3,8 +3,9 @@ import { Eye, Edit2, Upload, MoreVertical, Copy, Trash2, Image as ImageIcon, Sho
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
-import { Cover } from '@/types/inventoryTypes';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
+import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 
 
 
@@ -26,11 +27,10 @@ interface Product {
   brand : string  ,
   category: string;
   price?: number;
-  media : any
+  thumbnail : any
   updated_at: string;
   quality_score : number
   ready_to_publish : boolean
-
 }
 
 // Example dummy data
@@ -62,7 +62,6 @@ export default function Drafts({drafts : backendDrafts} : any) {
   const [drafts, setDrafts] = useState<Product[]>(backendDrafts ?? DUMMY_DRAFTS);
   const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
   const {state : {currentTheme}} = useStoreConfigCtx()
-  console.log(drafts)
   const handlePublish = (id: string) => {
     setDrafts((prev) => prev.filter((p) => p.id !== id));
   };
@@ -117,7 +116,7 @@ export default function Drafts({drafts : backendDrafts} : any) {
                 key={draft.id}
                 draft={draft}
                 onPreview={() => setPreviewProduct(draft)}
-                onEdit={() => console.log("Edit", draft.id)}
+                onEdit={() => router.visit(route("product.edit", draft.id))}
                 onPublish={() => handlePublish(draft.id)}
                 onDelete={() => handleDelete(draft.id)}
                 onDuplicate={() => handleDuplicate(draft)}
@@ -143,17 +142,7 @@ export function DraftRow({ draft, onPreview, onEdit, onPublish, onDelete, onDupl
   const [showMenu, setShowMenu] = useState(false);
   const {state : {currentTheme}} = useStoreConfigCtx()
   const getTimeAgo = (date: string) => {
-    const now = new Date();
-    const updated = new Date(date);
-    const diffInHours = Math.floor((now.getTime() - updated.getTime()) / (1000 * 60 * 60));
-
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    const days = Math.floor(diffInHours / 24);
-    if (days === 1) return '1 day ago';
-    if (days < 30) return `${days} days ago`;
-    const months = Math.floor(days / 30);
-    return months === 1 ? '1 month ago' : `${months} months ago`;
+    return date;
   };
 
   const getWarnings = () => {
@@ -166,8 +155,7 @@ export function DraftRow({ draft, onPreview, onEdit, onPublish, onDelete, onDupl
 
   const warnings = getWarnings();
   const isIncomplete = warnings.length > 0;
-  const coverImage = draft.media.url || null ;
-
+  const coverImage = draft?.thumbnail?.url || null ;
   return (
     <div className="rounded-lg border hover:shadow-md transition-shadow"
     style={{ 
@@ -177,9 +165,9 @@ export function DraftRow({ draft, onPreview, onEdit, onPublish, onDelete, onDupl
     >
       <div className="p-4 flex items-center gap-4">
         <div className="flex-shrink-0">
-          {coverImage ? (
+          {coverImage && coverImage != '' ? (
             <img
-              src={coverImage.url}
+              src={coverImage}
               alt={draft.name}
               className="w-20 h-20 object-cover rounded-lg"
             />
@@ -190,10 +178,14 @@ export function DraftRow({ draft, onPreview, onEdit, onPublish, onDelete, onDupl
           )}
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0"
+        style={{ color : currentTheme.text }}
+        >
           <div className="flex items-start gap-3 mb-2">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 truncate">
+              <h3 className="text-lg font-semibold  truncate"
+              
+              >
                 {draft.name || 'Untitled Product'}
               </h3>
               <p className="text-sm text-gray-600">
