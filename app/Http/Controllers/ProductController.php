@@ -91,11 +91,9 @@ class ProductController extends Controller
     }
     public function updateDraftOnSave(StoreDraftProductRequest $request , ProductService $service)
     {
-        dd($request->all()) ;
         $draft_id = $request->validated('draft_id') ;
         $draft = Product::find($draft_id) ;
         $validated = $request->validated() ;
-
         $service->saveDraft($validated , $draft );
         return redirect()->route('drafts.index');
     }

@@ -42,17 +42,32 @@ class ProductService {
 
         return Tag::whereIn('name' , $tags)->pluck('id') ;
     }
+    
+    private function syncSubCategories(Product $product , array $subCategories){
+        if(!$product || empty($subCategories)){
+            return ;
+        }
+        $product->sync($subCategories) ;
+    }
+
+    private function syncTags(Product $product , Collection $tagsIds){
+        if(!$product || $tagsIds->isEmpty()){
+            return ;
+        }
+        $product->sync($tagsIds) ;
+    }
+
 
     public function saveDraft($payload , ?Product $draft) {
         $draft = $draft ?? new Product();
+        // draft is created (not null anymore ) ;
         return DB::transaction(function() use ($draft , $payload){
             $draft->fill($payload) ;
             $draft->save();
             // save tags
             $ids = $this->storeTags($payload['tags']);
-            if($ids->isNotEmpty()){
-                $draft->tags()->sync($ids) ;
-            }
+            $this ->syncTags($draft , $ids); // sync tags to the product/draft
+            $this ->syncSubCategories($draft , $payload['subCategories']) ;
             return $draft->fresh();
         });
     }
