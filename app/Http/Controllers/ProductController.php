@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDraftProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Http\Resources\ProductResources;
 use App\Http\Services\product\ProductService;
 use App\Models\Category;
 use App\Models\Media;
@@ -22,7 +23,7 @@ class ProductController extends Controller
 
 
     public function draft() {
-        $drafts = Product::with('thumbnail')
+        $drafts = Product::with(['thumbnail'])
         ->where('status' , 'draft')
         ->select(['id' , 'name' , 'brand' , 'price'  , 'oldPrice', 'quality_score' , 'ready_to_publish' , 'updated_at'])->get() ;
         return Inertia::render("admin/pages/products/Drafts" , ['drafts' => $drafts] ) ;
@@ -89,6 +90,7 @@ class ProductController extends Controller
         ) ;
 
     }
+
     public function updateDraftOnSave(StoreDraftProductRequest $request , ProductService $service)
     {
         $draft_id = $request->validated('draft_id') ;
@@ -125,13 +127,12 @@ class ProductController extends Controller
 
     }
 
-   
     public function edit(Product $product){
-        $product  = $product->load('thumbnail') ;
+        $product  = $product->load(['thumbnail' , 'tags' , 'subCategories']) ;
         return inertia::render("admin/pages/products/Create" ,[
                 "data" => [
                     'categoryObject' => $product->nichCategory(),
-                    'product' => $product  ,
+                    'product' => $product ,
                     'options' => [
                         'categories' => Category::whereNull('parent_id')->select(['id' , 'name'])->get() ,
                         'fits' => collect([

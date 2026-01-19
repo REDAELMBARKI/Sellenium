@@ -43,18 +43,18 @@ class ProductService {
         return Tag::whereIn('name' , $tags)->pluck('id') ;
     }
     
-    private function syncSubCategories(Product $product , array $subCategories){
-        if(!$product || empty($subCategories)){
+    private function syncSubCategories(Product $product , Collection $subCategories){
+        if(!$product || $subCategories->isEmpty()){
             return ;
         }
-        $product->sync($subCategories) ;
+        $product->subCategories()->sync($subCategories) ;
     }
 
     private function syncTags(Product $product , Collection $tagsIds){
         if(!$product || $tagsIds->isEmpty()){
             return ;
         }
-        $product->sync($tagsIds) ;
+        $product->tags()->sync($tagsIds) ;
     }
 
 
@@ -67,7 +67,7 @@ class ProductService {
             // save tags
             $ids = $this->storeTags($payload['tags']);
             $this ->syncTags($draft , $ids); // sync tags to the product/draft
-            $this ->syncSubCategories($draft , $payload['subCategories']) ;
+            $this ->syncSubCategories($draft , collect($payload['subCategories'])) ;
             return $draft->fresh();
         });
     }

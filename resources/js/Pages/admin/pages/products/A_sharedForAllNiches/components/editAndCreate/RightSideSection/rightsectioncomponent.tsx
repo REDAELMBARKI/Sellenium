@@ -41,6 +41,7 @@ export function RightSectionComponent() {
   const { basicInfoForm, setBasicInfoForm , category} = useProductDataCtx();
   const {state : {currentTheme}} = useStoreConfigCtx() 
   const [subCategories , setSubCategories] = useState<Category[]>([])
+
   useEffect(() => {
      if(!category) return ;
      setBasicInfoForm(prev => ({...prev , subCategories : []})) ; 
@@ -58,7 +59,9 @@ export function RightSectionComponent() {
      }
     getSubCategories();
   }, [category]);
-  
+   useEffect(() => {
+     console.log(basicInfoForm)
+   }, [basicInfoForm.sub_categories]);
   const {toSelectOptionAdapter , toSetterAdapter} = adapters()
   return (
     <div className="w-full lg:w-[35%] space-y-6 py-8 pr-4">
@@ -72,8 +75,8 @@ export function RightSectionComponent() {
           <MultiSelectDropdownForObject
             label="Select categories"
             options={subCategories.map(c => ({label : c.name , value : c.id}))}
-            selectedValues={basicInfoForm?.subCategories.map(c => toSelectOptionAdapter(c)) ?? []}
-            onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, subCategories: selected.map( item =>toSetterAdapter(item)) as Category[] })}
+            selectedValues={(basicInfoForm?.sub_categories || []).map(c => toSelectOptionAdapter(c)) ?? []}
+            onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, sub_categories: selected.map( item =>toSetterAdapter(item)) as Category[] })}
           />
         </div>
       </SectionWrapper>

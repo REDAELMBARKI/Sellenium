@@ -34,8 +34,7 @@ const ProductFormMaster: React.FC = () => {
     cleanObjectToIids
   } = toBackendDataCleaners()
   const {createDraft , destroyDraftProduct , saveDraftProduct } = useBackendInteraction()
-
-
+   
   //form is dirty checkers
   useEffect(() => {
     const remove =  router.on('before' , (event)=> { 

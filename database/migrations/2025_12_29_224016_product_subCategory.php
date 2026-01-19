@@ -11,20 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('category_product', function (Blueprint $table) {
+       Schema::create('product_subCategory', function (Blueprint $table) {
         $table->id();
         
         $table->foreignId('product_id')
             ->constrained('products')
             ->cascadeOnDelete();
         
-        $table->foreignId('category_id')
+        $table->foreignId('sub_category_id')
             ->constrained('categories')
             ->cascadeOnDelete();
         
         $table->timestamps();
         
-        $table->unique(['product_id', 'category_id']); // prevent duplicates
+        $table->unique(['product_id', 'sub_category_id']); // prevent duplicates
     });
 
     }

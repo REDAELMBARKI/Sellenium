@@ -17,7 +17,6 @@ const FashionAttributesSection = () => {
 
   const attributes = basicInfoForm?.attributes as FashionAttributes ; 
   const {toSelectOptionAdapter  , toSetterAdapter} = adapters()
-  console.log(options)
   const materials = options?.materials ?? []
   const fits = options?.fits ?? []
   const styles = options?.styles ?? []

@@ -7,7 +7,7 @@ export interface ProductBase {
   id?: string | null;
   name: string;
   brand: string;
-  subCategories: Category[];
+  sub_categories: Category[];
   description: string;
   rating_average?: number;
   tags: string[] ;
