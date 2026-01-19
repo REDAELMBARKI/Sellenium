@@ -1,5 +1,4 @@
-import { Color, Country, Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
-import { CategoryCode } from "@/types/products/categories";
+import { CategoryCode, Color, Country, Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
 
 export const CATEGORY_CONFIG : Record<CategoryCode , any> = {
   fashion: {

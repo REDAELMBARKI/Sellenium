@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('brand')->nullable();       // optional in draft
             $table->text('description')->nullable();   // optional in draft
             $table->decimal('price', 10, 2)->nullable();
-            $table->decimal('old_price', 10, 2)->nullable();
-            $table->boolean('is_featured')->default(false);
-            $table->boolean('is_free_shipping')->default(false);
+            $table->decimal('oldPrice', 10, 2)->nullable();
+            $table->boolean('isFeatured')->default(false);
+            $table->boolean('isFreeShipping')->default(false);
             
             // status and tracking progress
             $table->enum('status', ['draft','published'])->default('draft');
@@ -34,13 +34,13 @@ return new class extends Migration
             $table->json('inventory')->nullable();
             $table->json('meta')->nullable();
             $table->json('vendor')->nullable();
-            $table->string('made_country')->nullable() ;
-            $table->string('release_date')->nullable() ;
+            $table->string('madeCountry')->nullable() ;
+            $table->string('releaseDate')->nullable() ;
             // Relational / foreign keys
-            $table->foreignId('category_nich_id')
+            $table->foreignId('category_niche_id')
             ->nullable()
             ->default(null)
-            ->constrained('category_niches')
+            ->constrained('categories')
             ->nullOnDelete();
             $table->timestamps();
         });

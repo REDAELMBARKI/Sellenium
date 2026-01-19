@@ -3,11 +3,11 @@ import { Tag } from "../tagsTypes";
 
 
 export interface ProductBase { 
-  category: Category;
+  category_niche_id?: number;
   id?: string | null;
   name: string;
   brand: string;
-  subCategory: {id: string , name : string}[];
+  subCategories: Category[];
   description: string;
   rating_average?: number;
   tags: string[] ;

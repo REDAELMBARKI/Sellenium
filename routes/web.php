@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\admin\AdminController;
-use App\Http\Controllers\admin\CategoryController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\admin\CurstomerController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\MessageController;
@@ -72,7 +72,10 @@ Route::delete('/media', [MediaController::class, 'destroyBulk'])
 // the end of the media section
 
 
-
+// catgeories secion
+// Route::get('/categories' , [CategoryController::class, 'index']) ;
+Route::get('/subcatgeories' , [CategoryController::class, 'subCategories'])->name('get.subCategories');
+//end categories section
 
 // settings 
 Route::get("/store" , [StoreConfigController::class ,  'index'])->name("store") ; 
@@ -80,7 +83,6 @@ Route::get("/store" , [StoreConfigController::class ,  'index'])->name("store") 
 Route::get('/admins' , [AdminController::class, 'index']) ;
 
 // categories
-Route::get('/categories' , [CategoryController::class, 'index']) ;
 
 
 

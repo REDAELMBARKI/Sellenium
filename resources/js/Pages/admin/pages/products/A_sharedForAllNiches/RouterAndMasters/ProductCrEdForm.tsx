@@ -9,7 +9,6 @@ import { useState, useRef } from "react";
 import MediaSection from "../components/editAndCreate/MediaSection";
 import {
     CategoryCode,
-    Cover,
 } from "@/types/inventoryTypes";
 import BaseSharedForm from "../components/editAndCreate/BaseSharedForm";
 
@@ -18,7 +17,6 @@ import {
     ATTRIBUTES_FORM_SECTIONS,
     VARIANTS_FORM_SECTIONS,
 } from "@/data/formSectionConfigurations";
-import { CATEGORIES } from "@/data/listOfCategories";
 import NotifyUser from "@/components/ui/NotifyUser";
 import PricingSection from "../components/editAndCreate/PricingSection";
 import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
@@ -29,24 +27,22 @@ import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
 
 
 const ProductCrEdForm = () => {
-    const { basicInfoForm, setBasicInfoForm  } = useProductDataCtx();
-
+    const { basicInfoForm, setBasicInfoForm , category , setCategory , options } = useProductDataCtx();
+    const {toSelectOptionAdapter } = adapters()
     const {
-        state: { currentTheme, currentCategory },
-        dispatch,
+        state: { currentTheme },
     } = useStoreConfigCtx();
    
 
-    const [videoPreview, setVideoPreview] = useState<string | null>(
-        getMediaSrcOrDefault(basicInfoForm.video , 'video')
-    );
-
+    
     const isOpenShowMedia =
         basicInfoForm.covers.length > 0 ||
         !!(basicInfoForm.video && Object.keys(basicInfoForm.video).length > 0); // check if media is set
+    const isOpenShowVariantBuilder = basicInfoForm.variants.length > 0; // check if the variants are set
+    const [showVariantBuilder, setShowVariantBuilder] = useState<boolean>(
+        isOpenShowVariantBuilder
+    );
 
-    const [showMedia, setShowMedia] = useState<boolean>(isOpenShowMedia);
-    const isMountedRef = useRef<boolean>(false);
 
     // check if at least one of  the attributes is set
     const isOpenShowAttributes = true;
@@ -66,26 +62,25 @@ const ProductCrEdForm = () => {
 
     //   return false;
     // });
-
+    //  states
     const [showAttributes, setShowAttributes] =
         useState<boolean>(isOpenShowAttributes);
-
-    const isOpenShowVariantBuilder = basicInfoForm.variants.length > 0; // check if the variants are set
-    const [showVariantBuilder, setShowVariantBuilder] = useState<boolean>(
-        isOpenShowVariantBuilder
+    const [videoPreview, setVideoPreview] = useState<string | null>(
+        getMediaSrcOrDefault(basicInfoForm.video , 'video')
     );
-
     
     const [frontEndErrors, setFrontEndErrors] = useState<
         Record<string, string>
     >({});
-    const {toSelectOptionAdapter , toSetterAdapter} = adapters()
+    const [showMedia, setShowMedia] = useState<boolean>(isOpenShowMedia);
 
+    //refs
+    const isMountedRef = useRef<boolean>(false);
     const mediaRef = useRef<HTMLDivElement | null>(null);
     const attributesRef = useRef<HTMLDivElement | null>(null);
     const variantRef = useRef<HTMLDivElement | null>(null);
-
     const thumbnailPreviewRef = useRef<any | null>(null);
+
 
     // useEffect(() => {
     //     if (!isMountedRef.current) {
@@ -162,8 +157,8 @@ const ProductCrEdForm = () => {
         setFrontEndErrors(newFrontEndErrors);
     };
 
-    const VariantBuilder = VARIANTS_FORM_SECTIONS[currentCategory.name as CategoryCode ];
-    const AttibutesBuilder = ATTRIBUTES_FORM_SECTIONS[currentCategory.name  as CategoryCode];
+    const VariantBuilder = category ? VARIANTS_FORM_SECTIONS[category.name as CategoryCode ] : null;
+    const AttibutesBuilder = category ? ATTRIBUTES_FORM_SECTIONS[category.name  as CategoryCode] : null;
     return (
         <div className="w-full h-full overflow-y-auto ">
             <div
@@ -186,16 +181,13 @@ const ProductCrEdForm = () => {
                         What You are going to sell ??
                     </h2>
                     <CustomSelectForObjectNative
-                        options={CATEGORIES.map(toSelectOptionAdapter)}
-                        value={{ label : basicInfoForm?.category?.name ?? '' , value : basicInfoForm?.category?.id ?? '' }}
+                        options={options?.categories?.map(toSelectOptionAdapter)}
+                        value={{value : category?.id ?? "" , label : category?.name ?? ''}}
                         onChange={(value) => {
-                            dispatch({
-                                type: "SET_CATEGORY",
-                                payload: {id :  value.value as string , name :value.label} ,
-                            });
+                            setCategory({id :  value.value as string , name :value.label})
                             setBasicInfoForm({
                                 ...basicInfoForm,
-                                category: {name : value.label  , id : value.value as string} ,
+                                category_niche_id: Number(value.value),
                             });
                         }}
                     />

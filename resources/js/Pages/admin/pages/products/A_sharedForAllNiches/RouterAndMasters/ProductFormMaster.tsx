@@ -18,7 +18,7 @@ const ProductFormMaster: React.FC = () => {
    
   
   
-  const {state :{currentCategory , currentTheme}} = useStoreConfigCtx()
+  const {state :{currentTheme}} = useStoreConfigCtx()
   const  {draftId , modeForm , basicInfoForm  } = useProductDataCtx()
   const form = useForm<ProductDataGlobal>(basicInfoForm) // setData 
   const [isDirty , setIsDirty] = useState<boolean>(isFormWorthSavingAsDraft(basicInfoForm)) ; 
@@ -26,7 +26,6 @@ const ProductFormMaster: React.FC = () => {
   const [pendingDestination , setPendingDestination] = useState<any | null>(null) ; 
 
 
-  console.log(basicInfoForm)
   const hasEverBeenDirty = useRef<boolean>(false) ;
   const allowNextVisit = useRef(false)
   const {cleanProductTempMediaOnDistroy} = productFilesUploaderCleaner() ;
@@ -90,14 +89,12 @@ const ProductFormMaster: React.FC = () => {
    form.setData(basicInfoForm)
  }, [basicInfoForm]);
 
-
   const prepareProductSubmitPayload = () => {
      const {thumbnail , covers , video , ...data} = form.data 
       return {
       ...data,
-      category : cleanObjectToIids(form.data.category) , 
       attributes: cleanAttributesForBackend(form.data.attributes),
-      subCategory : cleanObjectToIids(form.data.subCategory)
+      subCategories : cleanObjectToIids(form.data.subCategories)
     }
   }
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {

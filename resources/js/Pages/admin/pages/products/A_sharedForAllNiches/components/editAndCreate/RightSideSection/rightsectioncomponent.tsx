@@ -23,6 +23,9 @@ import { v4 } from 'uuid';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import CustomSelectNative from '@/components/ui/CustomSelectNative';
 import adapters from '@/functions/product/adapters';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { route } from 'ziggy-js';
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
   code,
@@ -35,9 +38,27 @@ const years = Array.from({ length: 50 }, (_, i) => currentYear - i); // last 50 
  
 
 export function RightSectionComponent() {
-  const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
+  const { basicInfoForm, setBasicInfoForm , category} = useProductDataCtx();
   const {state : {currentTheme}} = useStoreConfigCtx() 
-
+  const [subCategories , setSubCategories] = useState<Category[]>([])
+  useEffect(() => {
+     if(!category) return ;
+     setBasicInfoForm(prev => ({...prev , subCategories : []})) ; 
+     const getSubCategories = async () => {
+        try{
+          const res = await axios.get(route('get.subCategories') , {
+            params : {
+                'parent_id' : category.id
+            }
+          })
+          setSubCategories(res.data)
+        }catch(err:any){
+           throw err ;
+        }
+     }
+    getSubCategories();
+  }, [category]);
+  
   const {toSelectOptionAdapter , toSetterAdapter} = adapters()
   return (
     <div className="w-full lg:w-[35%] space-y-6 py-8 pr-4">
@@ -50,9 +71,9 @@ export function RightSectionComponent() {
           />
           <MultiSelectDropdownForObject
             label="Select categories"
-            options={SUBCATEGORIES.map(c => ({label : c.name , value : c.id}))}
-            selectedValues={basicInfoForm?.subCategory.map(c => toSelectOptionAdapter(c)) ?? []}
-            onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, subCategory: selected.map( item =>toSetterAdapter(item)) as Category[] })}
+            options={subCategories.map(c => ({label : c.name , value : c.id}))}
+            selectedValues={basicInfoForm?.subCategories.map(c => toSelectOptionAdapter(c)) ?? []}
+            onChange={(selected) => setBasicInfoForm({ ...basicInfoForm, subCategories: selected.map( item =>toSetterAdapter(item)) as Category[] })}
           />
         </div>
       </SectionWrapper>

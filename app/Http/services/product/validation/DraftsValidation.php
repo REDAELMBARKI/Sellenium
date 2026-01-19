@@ -19,6 +19,7 @@ class DraftsValidation
     {
         return [
         'draft_id' => ['nullable', 'numeric'] ,
+        'category_niche_id' => ['nullable', 'numeric'] ,
         "name" => [
             'nullable',
             'min:3',
@@ -36,7 +37,8 @@ class DraftsValidation
         'covers.*' => ['nullable','numeric'],
         "price" => ['nullable', 'numeric', 'min:0'],
         "oldPrice" => ['nullable', 'numeric', 'min:0'],
-
+        'subCategories' => ['array'] ,
+        'subCategories.*' => ['numeric'] ,
         "isFeatured" => ['boolean'],
         "isFreeShipping" => ['boolean'],
         "tags" => ['nullable', 'array'],
@@ -46,7 +48,7 @@ class DraftsValidation
             'nullable',
             'string',
             'min:10',
-            'regex:/^[\pL0-9\s\-+_.,:;()\'"@!#%&*\/\\\[\]]+$/u'
+            // 'regex:/^[\pL0-9\s\-+_.,:;()\'"@!#%&*\/\\\[\]]+$/u'
         ],
     ];
     }

@@ -22,7 +22,7 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
     const  thumbnailInputRef = useRef<HTMLInputElement>(null);
     const [uploadError , setUploadError] = useState<string | null>(null)
     const [thumbnailUploading , setThumbnailUploading] = useState(false)
-    const [thumbnailPreview, setThumbnailPreview] = useState<Cover | null>(null);
+    const [thumbnailPreview, setThumbnailPreview] = useState<Cover | null>(basicInfoForm.thumbnail);
     const {cleanDeletedProductMedia , uploadProductFiles} = productFilesUploaderCleaner()
     const {createDraft} = useBackendInteraction()
 

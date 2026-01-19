@@ -1,5 +1,4 @@
 import { Category } from "./inventoryTypes";
-import { CategoryCode } from "./products/categories";
 import {  ThemeMode, ThemePalette, ThemeStyle } from "./ThemeTypes";
 
 export type LayoutStyle = "grid" | "list" | "mansonry" | "premium" ;
@@ -25,7 +24,6 @@ export type ThemeCardsDataType = {
 
 
 export interface StoreConfigType {  
-    currentCategory : Category
     currentThemeStyle : ThemeStyle // is the theme name
     currentThemeMode : ThemeMode 
     currentTheme  : ThemePalette // this is real theme has colors 
@@ -38,7 +36,6 @@ export type StoreConfigAction =
   | { type: "SET_LAYOUT"; payload: LayoutStyle }
   | { type: "SET_THEME_MODE"; payload: ThemeMode }
   | { type: "SET_THEME_STYLE"; payload: ThemeStyle }
-  | { type: "SET_CATEGORY"; payload: Category }
   | { type: "SET_CARD"; payload:  CardConfig};
 
 

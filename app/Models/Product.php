@@ -16,20 +16,18 @@ class Product extends Model
         'brand',
         'description',
         'price',
-        'old_price',
-        'is_featured',
-        'is_free_shipping',
+        'oldPrice',
+        'isFeatured',
+        'isFreeShipping',
         'status',
         'rating_average',      // optional; include if users can set/update rating manually
-        'rating_count',        // optional; include if users can set/update count
         'shipping',
-        'aggregated_attributes',
         'inventory',
         'meta',
         'vendor',
-        'made_country',
-        'release_date',
-        'category_nich_id',    // foreign key
+        'madeCountry',
+        'releaseDate',
+        'category_niche_id',    // foreign key
      ];
 
     protected $hidden = ['created_at','updated_at'];
@@ -38,6 +36,8 @@ class Product extends Model
         'inventory' => 'array',
         'shipping' => 'array',
         'meta' => 'array',
+        'price' => 'float' ,
+        'oldPrice' => 'float'
     ];
 
     public static function getColumsToselect(){
@@ -47,11 +47,16 @@ class Product extends Model
         );
     }
 
+
+    
     public function thumbnail(){
        return $this->morphOne(Media::class , 'mediaable')->where('collection' , 'thumbnail');
     }
     public function categories(){
           return $this->belongsToMany(Category::class);
+    }
+    public function nichCategory(){
+        return  Category::find($this->category_niche_id);
     }
 
     public function tags(){

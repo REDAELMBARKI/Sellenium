@@ -3,9 +3,10 @@ import { ProductBase } from "./products/baseProductTypes";
 import { FashionAttributes } from "./products/fashionTypes";
 import { PerfumesAttributes } from "./products/perfumesTypes";
 import { ElectronicsAttributes } from "./products/electronicsTypes";
+import { Category } from "./inventoryTypes";
 export interface ProductBackendProps {
     children : React.ReactNode ;
-    product?: ProductDataGlobal;
+    data : {product?: ProductDataGlobal , categoryObject? : Category  , options : any}
     options : any
     [key: string]: any; 
 }

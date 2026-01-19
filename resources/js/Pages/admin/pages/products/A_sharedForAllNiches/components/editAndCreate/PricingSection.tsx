@@ -18,7 +18,6 @@ function PricingSection({
   const hasOldPrice =
     basicInfoForm.oldPrice &&
     basicInfoForm.oldPrice > basicInfoForm.price;
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Price */}

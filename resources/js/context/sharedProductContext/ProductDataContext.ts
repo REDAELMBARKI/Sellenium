@@ -1,8 +1,7 @@
 
-import { Cover } from "@/types/inventoryTypes"
-import { CategoryCode } from "@/types/products/categories"
+import { Category } from "@/types/inventoryTypes"
 import { ProductDataGlobal } from "@/types/productsTypes"
-import { createContext, RefObject } from "react"
+import { createContext, Dispatch, RefObject, SetStateAction } from "react"
 
 
 
@@ -10,11 +9,14 @@ export type ModeForm = "edit" | "create"
 interface ProductDataContextProps {
     modeForm : ModeForm
     productData?: ProductDataGlobal | undefined
-    setProductData: React.Dispatch<React.SetStateAction<ProductDataGlobal | undefined>>
+    setProductData:Dispatch<SetStateAction<ProductDataGlobal | undefined>>
     options: any
-    
+    category? : Category
+    setCategory: Dispatch<Category>
+    categoryList : Category[] ;
+    setCategoryList :Dispatch<Category[]>
     basicInfoForm: ProductDataGlobal
-    setBasicInfoForm: React.Dispatch<React.SetStateAction<ProductDataGlobal>>
+    setBasicInfoForm: Dispatch<SetStateAction<ProductDataGlobal>>
     draftId: RefObject<string | undefined>
    
     }

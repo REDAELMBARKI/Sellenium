@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');           // Category name
-            $table->string('slug')->unique(); // URL-friendly identifier
+            $table->string('slug');
             $table->foreignId('parent_id')->nullable()->constrained('categories')->cascadeOnDelete(); // parentcategory / subcategory
+            $table->unique(['parent_id', 'slug']);
             $table->timestamps();
         });
     }

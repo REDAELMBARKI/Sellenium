@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDraftProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Services\product\ProductService;
+use App\Models\Category;
 use App\Models\Media;
 use App\Models\Product;
 use Inertia\Inertia;
 
 class ProductController extends Controller
-{ 
+{
   
 
     public function index(){
@@ -21,16 +22,20 @@ class ProductController extends Controller
 
 
     public function draft() {
-        $drafts = Product::with('thumbnail')->where('status' , 'draft')->select(['id' , 'name' , 'brand' , 'price' , 'quality_score' , 'ready_to_publish' , 'updated_at'])->get() ;
+        $drafts = Product::with('thumbnail')
+        ->where('status' , 'draft')
+        ->select(['id' , 'name' , 'brand' , 'price'  , 'oldPrice', 'quality_score' , 'ready_to_publish' , 'updated_at'])->get() ;
         return Inertia::render("admin/pages/products/Drafts" , ['drafts' => $drafts] ) ;
     }
 
 
     public function create()
     {
-       return inertia::render("admin/pages/products/Create" ,[
-                'options' => [
-                
+        
+        return inertia::render("admin/pages/products/Create" ,[
+                "data" => [
+                    'options' => [
+                    'categories' => Category::whereNull('parent_id')->select(['id' , 'name'])->get() ,
                     'fits' => collect([
                         ['id' => 1, 'name' => 'Slim'],
                         ['id' => 2, 'name' => 'Regular'],
@@ -66,6 +71,8 @@ class ProductController extends Controller
                         ['id' => 5, 'name' => 'All Seasons'],
                     ]),
                 ],
+                ]
+               
             ]);
     }
    
@@ -84,9 +91,11 @@ class ProductController extends Controller
     }
     public function updateDraftOnSave(StoreDraftProductRequest $request , ProductService $service)
     {
+        dd($request->all()) ;
         $draft_id = $request->validated('draft_id') ;
         $draft = Product::find($draft_id) ;
         $validated = $request->validated() ;
+
         $service->saveDraft($validated , $draft );
         return redirect()->route('drafts.index');
     }
@@ -120,46 +129,49 @@ class ProductController extends Controller
 
    
     public function edit(Product $product){
-    //   dd($product) ;
-       return inertia::render("admin/pages/products/Create" ,[
-                'options' => [
-                
-                    'fits' => collect([
+        $product  = $product->load('thumbnail') ;
+        return inertia::render("admin/pages/products/Create" ,[
+                "data" => [
+                    'categoryObject' => $product->nichCategory(),
+                    'product' => $product  ,
+                    'options' => [
+                        'categories' => Category::whereNull('parent_id')->select(['id' , 'name'])->get() ,
+                        'fits' => collect([
                         ['id' => 1, 'name' => 'Slim'],
                         ['id' => 2, 'name' => 'Regular'],
                         ['id' => 3, 'name' => 'Oversized'],
-                    ]),
+                          ]),
 
-                    'materials' => collect([
-                        ['id' => 1, 'name' => 'Cotton'],
-                        ['id' => 2, 'name' => 'Polyester'],
-                        ['id' => 3, 'name' => 'Wool'],
-                        ['id' => 4, 'name' => 'Denim'],
-                    ]),
-                    // Static (enum-like)
-                    'styles' => collect([
-                        ['id' => 1, 'name' => 'Casual'],
-                        ['id' => 2, 'name' => 'Formal'],
-                        ['id' => 3, 'name' => 'Streetwear'],
-                        ['id' => 4, 'name' => 'Sport'],
-                        ['id' => 5, 'name' => 'Luxury'],
-                    ]),
+                        'materials' => collect([
+                            ['id' => 1, 'name' => 'Cotton'],
+                            ['id' => 2, 'name' => 'Polyester'],
+                            ['id' => 3, 'name' => 'Wool'],
+                            ['id' => 4, 'name' => 'Denim'],
+                        ]),
+                        // Static (enum-like)
+                        'styles' => collect([
+                            ['id' => 1, 'name' => 'Casual'],
+                            ['id' => 2, 'name' => 'Formal'],
+                            ['id' => 3, 'name' => 'Streetwear'],
+                            ['id' => 4, 'name' => 'Sport'],
+                            ['id' => 5, 'name' => 'Luxury'],
+                        ]),
 
-                    'genders' => collect([
-                        ['id' => 1, 'name' => 'Men'],
-                        ['id' => 2, 'name' => 'Women'],
-                        ['id' => 3, 'name' => 'Unisex'],
-                    ]),
+                        'genders' => collect([
+                            ['id' => 1, 'name' => 'Men'],
+                            ['id' => 2, 'name' => 'Women'],
+                            ['id' => 3, 'name' => 'Unisex'],
+                        ]),
 
-                    'seasons' => collect([
-                        ['id' => 1, 'name' => 'Spring'],
-                        ['id' => 2, 'name' => 'Summer'],
-                        ['id' => 3, 'name' => 'Autumn'],
-                        ['id' => 4, 'name' => 'Winter'],
-                        ['id' => 5, 'name' => 'All Seasons'],
-                    ]),
-                ],
-                'product' => $product
+                        'seasons' => collect([
+                            ['id' => 1, 'name' => 'Spring'],
+                            ['id' => 2, 'name' => 'Summer'],
+                            ['id' => 3, 'name' => 'Autumn'],
+                            ['id' => 4, 'name' => 'Winter'],
+                            ['id' => 5, 'name' => 'All Seasons'],
+                        ]),
+                    ],
+                ]
             ]);
         
     }
