@@ -6,6 +6,7 @@ namespace App\Http\Services\product;
 use App\Http\Requests\PublishProductRequest;
 use App\Models\Product;
 use App\Models\Tag;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -62,7 +63,10 @@ class ProductService {
         $draft = $draft ?? new Product();
         // draft is created (not null anymore ) ;
         return DB::transaction(function() use ($draft , $payload){
-            $draft->fill($payload) ;
+            $draft->fill(Arr::except($payload, [
+                'tags',
+                'subCategories',
+            ])) ;
             $draft->save();
             // save tags
             $ids = $this->storeTags($payload['tags']);
@@ -70,6 +74,10 @@ class ProductService {
             $this ->syncSubCategories($draft , collect($payload['subCategories'])) ;
             return $draft->fresh();
         });
+    }
+
+    public function updateDraft($payload , Product $product){
+       return   $this->saveDraft($payload , $product) ;
     }
 
     public function isPublishable(Product $product) : bool

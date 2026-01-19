@@ -55,9 +55,7 @@ Route::post('/products' , [ProductController::class, 'createDraft'])->name('prod
 Route::put('/products/drafts' , [ProductController::class, 'updateDraftOnSave'])->name('products.updateDraftOnSave');
 Route::patch('/products/{draft}/publish' , [ProductController::class, 'publish'])->name('products.publish');
 Route::delete('/products/{product}' , [ProductController::class, 'destroy']) ;
-
-
-
+Route::put('/products/{product}' , [ProductController::class, 'update'])->name('product.update');
 
 
 // media section

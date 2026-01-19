@@ -50,6 +50,8 @@ class DraftsValidation
             'min:10',
             // 'regex:/^[\pL0-9\s\-+_.,:;()\'"@!#%&*\/\\\[\]]+$/u'
         ],
+        "releaseDate" => ['nullable' , 'string'],
+        "madeCountry" => ['nullable' , 'string']
     ];
     }
 

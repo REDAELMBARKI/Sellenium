@@ -33,7 +33,7 @@ const ProductFormMaster: React.FC = () => {
     cleanAttributesForBackend , 
     cleanObjectToIids
   } = toBackendDataCleaners()
-  const {createDraft , destroyDraftProduct , saveDraftProduct } = useBackendInteraction()
+  const {createDraft , destroyDraftProduct , saveDraftProduct , updateDraftProduct } = useBackendInteraction()
    
   //form is dirty checkers
   useEffect(() => {
@@ -93,17 +93,23 @@ const ProductFormMaster: React.FC = () => {
       return {
       ...data,
       attributes: cleanAttributesForBackend(form.data.attributes),
-      subCategories : cleanObjectToIids(form.data.subCategories)
+      subCategories : cleanObjectToIids(form.data.sub_categories)
     }
   }
-  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     const payload = prepareProductSubmitPayload()
-    console.log(payload)
-
     try{
         // here draft id might be null if i click save if no draft created yet here i know i should make the button disabled but who can i even make this safer so if not exist should i create a draft fist then save the id or i make the id optional so if not draft id create a draft 
-        await saveDraftProduct(payload , (errors) => form.setError(errors) , draftId.current ); 
+        switch(modeForm){
+          case 'create' : 
+               saveDraftProduct(payload , (errors) => form.setError(errors) , draftId.current ); 
+              break ;
+          case "edit" : 
+               updateDraftProduct(payload , (errors) => form.setError(errors) , draftId.current! ?? basicInfoForm.id ); 
+              break;
+        }
+        
         // show success taost 
     }catch(err : any){
        throw err ; // show taost 

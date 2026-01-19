@@ -128,7 +128,7 @@ class ProductController extends Controller
     }
 
     public function edit(Product $product){
-        $product  = $product->load(['thumbnail' , 'tags' , 'subCategories']) ;
+        $product  = $product->load(['thumbnail' , 'subCategories']) ;
         return inertia::render("admin/pages/products/Create" ,[
                 "data" => [
                     'categoryObject' => $product->nichCategory(),
@@ -175,8 +175,11 @@ class ProductController extends Controller
         
     }
 
-    public function update(UpdateProductRequest $request, $id)
+    public function update(StoreDraftProductRequest $request , ProductService $service, Product $product)
     {
+        $validated = $request->validated() ;
+        $service->updateDraft($validated , $product );
+        return redirect()->route('drafts.index');
     }
 
     public function destroy($id){

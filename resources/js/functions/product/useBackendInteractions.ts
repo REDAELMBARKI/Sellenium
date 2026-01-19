@@ -18,7 +18,7 @@ export const useBackendInteraction = () => {
         const response = await axios.delete(route(`products.destroy` , id))
     }
 
-    const saveDraftProduct = async (payload : any , onError : (errors : any) => void , id? : string) => {
+    const saveDraftProduct = (payload : any , onError : (errors : any) => void , id? : string) => {
         try{
             router.put(route('products.updateDraftOnSave'), {...payload , draft_id : id}, {      
                 onError: (errors) => onError(errors),
@@ -43,11 +43,24 @@ export const useBackendInteraction = () => {
            }
     }
     
+    const updateDraftProduct = (payload : any , onError : (errors : any) => void , id : string) => {
+          try {
+            router.put(route('product.update' , id ) , payload , {
+                 preserveScroll: true, 
+                onError : (errors) =>  onError(errors) ,
+                onSuccess: () => console.log('Success'),
+
+            }) ;
+          }catch(err : any){
+             throw new Error(err)
+          }
+    }
 
     return {
     createDraft , 
     publishDraftProduct ,
     destroyDraftProduct , 
-    saveDraftProduct
+    saveDraftProduct  , 
+    updateDraftProduct
     }
 }
