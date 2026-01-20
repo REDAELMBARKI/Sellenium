@@ -32,6 +32,7 @@ const countryList = Object.entries(countries.getNames("en")).map(([code, name]) 
   name,
 }));
 
+
 // year
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 50 }, (_, i) => currentYear - i); // last 50 years
@@ -61,7 +62,8 @@ export function RightSectionComponent() {
   }, [category]);
    useEffect(() => {
      console.log(basicInfoForm)
-   }, [basicInfoForm.sub_categories]);
+   }, [basicInfoForm]);
+  
   const {toSelectOptionAdapter , toSetterAdapter} = adapters()
   return (
     <div className="w-full lg:w-[35%] space-y-6 py-8 pr-4">
@@ -210,7 +212,14 @@ export function RightSectionComponent() {
                 value={basicInfoForm.shipping?.dimensions?.height || ''}
                 onChange={(e) => setBasicInfoForm(prev => ({
                   ...prev,
-                  shipping: {...prev.shipping, height: Number(e.target.value)}
+                  shipping: {...prev.shipping, 
+                      dimensions : {
+                           ...prev.shipping?.dimensions , 
+                           height: e.target.value === '' 
+                                  ? undefined                   
+                                  : Number(e.target.value), 
+                      }
+                  }
                 }))}
                 placeholder="0"
                 step="0.01"
@@ -224,7 +233,14 @@ export function RightSectionComponent() {
                 value={basicInfoForm.shipping?.dimensions?.width || ''}
                 onChange={(e) => setBasicInfoForm(prev => ({
                   ...prev,
-                  shipping: {...prev.shipping, width: Number(e.target.value)}
+                  shipping: {...prev.shipping, 
+                      dimensions : {
+                           ...prev.shipping?.dimensions , 
+                           width: e.target.value === '' 
+                                  ? undefined                   
+                                  : Number(e.target.value), 
+                      }
+                  }
                 }))}
                 placeholder="0"
                 step="0.01"
@@ -238,7 +254,14 @@ export function RightSectionComponent() {
                 value={basicInfoForm.shipping?.dimensions?.length || ''}
                 onChange={(e) => setBasicInfoForm(prev => ({
                   ...prev,
-                  shipping: {...prev.shipping, length: e.target.value}
+                  shipping: {...prev.shipping, 
+                      dimensions : {
+                           ...prev.shipping?.dimensions , 
+                           length: e.target.value === '' 
+                                  ? undefined                   
+                                  : Number(e.target.value), 
+                      }
+                  }
                 }))}
                 placeholder="0"
                 step="0.01"

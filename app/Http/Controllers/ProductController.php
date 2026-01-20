@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDraftProductRequest;
-use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResources;
 use App\Http\Services\product\ProductService;
 use App\Models\Category;
@@ -128,11 +127,11 @@ class ProductController extends Controller
     }
 
     public function edit(Product $product){
-        $product  = $product->load(['thumbnail' , 'subCategories']) ;
+        $product  = $product->load(['thumbnail' , 'covers' , 'tags' ,  'subCategories']) ;
         return inertia::render("admin/pages/products/Create" ,[
                 "data" => [
                     'categoryObject' => $product->nichCategory(),
-                    'product' => $product ,
+                    'product' => (new ProductResources($product)),
                     'options' => [
                         'categories' => Category::whereNull('parent_id')->select(['id' , 'name'])->get() ,
                         'fits' => collect([

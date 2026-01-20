@@ -10,8 +10,14 @@ class ProductResources extends JsonResource
     /**
      * Create a new class instance.
      */
-    public function toArray(Request $request)
+    public static $wrap = null;
+    public function toArray(Request $request) 
     {
-      return $request ;
+      // this calles resolve() and retuns the array or this->ressource == (the instance)
+      $productArray = parent::toArray($request) ;
+
+      return array_merge($productArray, [
+            'tags' => $this->tags->pluck('name'),
+        ]);
     }
 }

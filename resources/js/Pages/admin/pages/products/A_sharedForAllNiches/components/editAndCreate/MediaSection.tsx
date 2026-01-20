@@ -288,78 +288,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                         )}
                 </div>
 
-                {/* VIDEO */}
-                <div>
-                    <h4
-                        className="text-sm font-semibold mb-3"
-                        style={{ color: theme.textSecondary }}
-                    >
-                        Video
-                    </h4>
-
-                    <div className="space-y-4">
-                        {hasVideo && (
-                            <div className="relative group">
-                                <video
-                                    src={
-                                        videoPreview ??
-                                        getMediaSrcOrDefault(
-                                            basicInfoForm.video!,
-                                            "video"
-                                        )
-                                    }
-                                    controls
-                                    className="w-full max-w-2xl rounded-lg"
-                                    style={{ boxShadow: theme.shadowMd }}
-                                />
-
-                                <div
-                                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none"
-                                    style={{ background: theme.overlay }}
-                                />
-
-                                <button 
-                                    type="button"
-                                    onClick={handleRemoveVideo}
-                                    className="absolute top-3 right-3 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
-                                    style={{ background: theme.card }}
-                                    aria-label="Remove video"
-                                >
-                                    <X
-                                        className="w-5 h-5"
-                                        style={{ color: theme.error }}
-                                    />
-                                </button>
-                            </div>
-                        )}
-
-                        <button
-                            onClick={() => videoInputRef.current?.click()}
-                            className="w-full flex flex-col items-center justify-center p-12 rounded-lg border-2 border-dashed transition-all"
-                            style={{
-                                borderColor: theme.border,
-                                background: theme.bgSecondary,
-                            }}
-                        >
-                            <Upload
-                                className="w-12 h-12 mb-3"
-                                style={{ color: theme.textMuted }}
-                            />
-                            <p
-                                className="text-sm font-medium mb-1"
-                                style={{ color: theme.text }}
-                            >
-                                {hasVideo ? "Replace Video" : "Upload Video"}
-                            </p>
-                            <p
-                                className="text-xs"
-                                style={{ color: theme.textMuted }}
-                            >
-                                Click to {hasVideo ? "change" : "upload"} video
-                            </p>
-                        </button>
-                    </div>
-                </div>
+                
             </div>
         </>
     );

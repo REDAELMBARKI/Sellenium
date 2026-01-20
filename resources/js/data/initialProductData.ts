@@ -27,6 +27,11 @@ const baseProductData : ProductBase = {
   covers: [] as Cover[],
   isFreeShipping : false ,
   isFeatured: false,
+  inventory: null,
+  shipping: null,
+  meta: null,
+  vendor: null,
+
 };
  
   const variants = []  as ProductVariant[]
@@ -63,6 +68,10 @@ export const getEditedData = (
     isFreeShipping : product.isFreeShipping , 
     isFeatured: product.isFeatured ?? false,
     category_niche_id : product.category_niche_id,
+    inventory: product.inventory,
+    shipping: product.shipping,
+    meta: product.meta,
+    vendor: product.vendor,
   };
 
   const variants = product.variants ?? [] as ProductVariant[]

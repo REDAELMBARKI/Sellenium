@@ -39,6 +39,8 @@ class Product extends Model
         'price' => 'float' ,
         'oldPrice' => 'float'
     ];
+  
+
     public static function getColumsToselect(){
         return array_merge(
             ['id'],
@@ -49,6 +51,15 @@ class Product extends Model
     public function thumbnail(){
         return $this->morphOne(Media::class , 'mediaable')->where('collection' , 'thumbnail');
     }
+    public function covers(){
+        return $this->morphMany(Media::class , 'mediaable')->where('collection' , 'cover');
+    }
+ 
+
+    public function media(){
+        return $this->morphMany(Media::class , 'mediaable');
+    }
+ 
 
     public function subCategories(){
         return $this->belongsToMany(Category::class , 'product_subCategory' , 'product_id' , 'sub_category_id' )
@@ -77,10 +88,7 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
  
-    public function media(){
-        return $this->morphMany(Media::class , 'mediaable');
-    }
- 
+   
     // public function covers() // for example only 
     // {
     //     return $this->hasManyThrough(Cover::class, Inventory::class, 'product_id', 'inventory_id', 'id', 'id') ;

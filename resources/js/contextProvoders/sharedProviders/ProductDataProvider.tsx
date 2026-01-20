@@ -20,7 +20,7 @@ const ProductDataProvider = ({children , data : {product , categoryObject , opti
      useEffect(() => {
         setCategory(categoryObject)
     }, [categoryObject]); 
-    console.log(product)
+  
     const getInitialData = (mode: ModeForm, product?: ProductDataGlobal ,category?: Category ) => {
       if (mode === "create") return getEmptyInitialProductData(category);
       if (mode === "edit" && product) return getEditedData(product, category);
@@ -28,7 +28,7 @@ const ProductDataProvider = ({children , data : {product , categoryObject , opti
       };
       
     const modeForm : ModeForm = product ? "edit" : "create" ; 
- 
+   
     const initialData = getInitialData(modeForm, product , categoryObject);
     const [productData ,   setProductData] = useState<ProductDataGlobal | undefined>(() => product)
     const [basicInfoForm , setBasicInfoForm] = useState<ProductDataGlobal>(() => initialData);

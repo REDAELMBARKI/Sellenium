@@ -20,16 +20,16 @@ export interface ProductBase {
   thumbnail:  Cover | null ;
   video : Cover |  null ;
   covers : Cover[] , 
-  inventory?: InventoryAttributes;
-  shipping?: ShippingAttributes;
-  meta?: MetaAttributes;
-  vendor?: VendorAttributes;
+  inventory: InventoryAttributes | null;
+  shipping: ShippingAttributes | null;
+  meta: MetaAttributes | null;
+  vendor: VendorAttributes | null;
 }
 
 interface DimensionType {
-  height : number 
-  width : number 
-  length : number
+  height?: number 
+  width?: number 
+  length?: number
 }
 interface InventoryAttributes {
   quantity?: number;

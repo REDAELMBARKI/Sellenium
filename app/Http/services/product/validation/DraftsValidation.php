@@ -51,7 +51,37 @@ class DraftsValidation
             // 'regex:/^[\pL0-9\s\-+_.,:;()\'"@!#%&*\/\\\[\]]+$/u'
         ],
         "releaseDate" => ['nullable' , 'string'],
-        "madeCountry" => ['nullable' , 'string']
+        "madeCountry" => ['nullable' , 'string'] ,
+
+         // inventory json column
+        'inventory' => ['nullable', 'array'],
+        'inventory.quantity' => ['required_with:inventory', 'integer'],
+        'inventory.sku' => ['required_with:inventory', 'string'],
+        'inventory.backorderOptions' => ['required_with:inventory', 'in:notify,deny,allow'],
+    
+        // shipping json column 
+        'shipping' => ['nullable', 'array'],
+        'shipping.weight' => ['nullable', 'numeric'],
+        'shipping.shippingClass' => ['nullable', 'string'],
+        'shipping.dimensions' => ['nullable', 'array'],
+        'shipping.dimensions.height' => ['nullable', 'numeric'],
+        'shipping.dimensions.width' => ['nullable', 'numeric'],
+        'shipping.dimensions.length' => ['nullable', 'numeric'],
+
+        // validate meta
+        'meta' => ['nullable', 'array'],
+        'meta.metaTitle' => ['nullable', 'string', 'max:255'],
+        'meta.metaDescription' => ['nullable', 'string', 'max:1000'],
+
+        // ---------------------
+        //  validate Vendor
+        // ---------------------
+        'vendor' => ['nullable', 'array'],
+        'vendor.vendorName' => ['nullable', 'string', 'max:255'],
+        'vendor.vendorSku' => ['nullable', 'string', 'max:255'],
+        'vendor.vendorNotes' => ['nullable', 'string', 'max:1000'],
+
+
     ];
     }
 
