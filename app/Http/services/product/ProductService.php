@@ -3,7 +3,6 @@
 
 namespace App\Http\Services\product;
 
-use App\Http\Requests\PublishProductRequest;
 use App\Models\Product;
 use App\Models\Tag;
 use Illuminate\Support\Arr;
@@ -13,14 +12,14 @@ use Illuminate\Support\Str;
 
 class ProductService {
    
-    public function storeTags(array $tags) : Collection
+    public function storeTags(Collection $tags) : Collection
     {
         
-        if (empty($tags)) {
+        if ($tags->isEmpty()) {
             return collect();
         }
 
-        $tags = collect($tags)
+        $tags = $tags
             ->map(fn ($tag) => trim(strtolower($tag)))
             ->filter()
             ->unique()
@@ -58,6 +57,22 @@ class ProductService {
         $product->tags()->sync($tagsIds) ;
     }
 
+    private function storeIframeVideo(Product $product , Collection $video){
+        if(empty($video->get('iframe'))){
+            return ;
+        }
+        
+       $product->media()->updateOrCreate(
+          [
+               'media_type' => 'youtube',
+               'collection' => 'gallery',
+            ],
+     [
+              'url' => $video['iframe'],
+            ]
+            );
+
+    }
 
     public function saveDraft($payload , ?Product $draft) {
         $draft = $draft ?? new Product();
@@ -69,9 +84,11 @@ class ProductService {
             ])) ;
             $draft->save();
             // save tags
-            $ids = $this->storeTags($payload['tags']);
+            $ids = $this->storeTags(collect($payload['tags']));
             $this ->syncTags($draft , $ids); // sync tags to the product/draft
             $this ->syncSubCategories($draft , collect($payload['subCategories'])) ;
+            //store vedio iframe url if exists
+            $this->storeIframeVideo($draft , collect($payload['video']));
             return $draft->fresh();
         });
     }

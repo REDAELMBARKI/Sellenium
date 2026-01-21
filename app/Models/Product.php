@@ -54,7 +54,11 @@ class Product extends Model
     public function covers(){
         return $this->morphMany(Media::class , 'mediaable')->where('collection' , 'cover');
     }
- 
+
+    public function video(){
+        return $this->morphMany(Media::class , 'mediaable')->whereIn('media_type' , ['video' , 'youtube']);
+    }
+    
 
     public function media(){
         return $this->morphMany(Media::class , 'mediaable');

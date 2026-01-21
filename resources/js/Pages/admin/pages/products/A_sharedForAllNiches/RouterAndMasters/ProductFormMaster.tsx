@@ -89,7 +89,7 @@ const ProductFormMaster: React.FC = () => {
  }, [basicInfoForm]);
 
   const prepareProductSubmitPayload = () => {
-     const {thumbnail , covers , video , ...data} = form.data 
+     const {thumbnail , covers  , ...data} = form.data 
       return {
       ...data,
       attributes: cleanAttributesForBackend(form.data.attributes),

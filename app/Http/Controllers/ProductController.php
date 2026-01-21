@@ -91,7 +91,7 @@ class ProductController extends Controller
     }
 
     public function updateDraftOnSave(StoreDraftProductRequest $request , ProductService $service)
-    {
+    {   
         $draft_id = $request->validated('draft_id') ;
         $draft = Product::find($draft_id) ;
         $validated = $request->validated() ;
@@ -127,7 +127,7 @@ class ProductController extends Controller
     }
 
     public function edit(Product $product){
-        $product  = $product->load(['thumbnail' , 'covers' , 'tags' ,  'subCategories']) ;
+        $product  = $product->load(['thumbnail' , 'covers'  , 'video' , 'tags' ,  'subCategories']) ;
         return inertia::render("admin/pages/products/Create" ,[
                 "data" => [
                     'categoryObject' => $product->nichCategory(),

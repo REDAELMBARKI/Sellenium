@@ -17,13 +17,13 @@ return new class extends Migration
     Schema::create('media', function (Blueprint $table) {
         $table->id();
 
-        $table->string('collection')->nullable();
+        $table->enum('collection' , ['gallery' , 'thumbnail', 'avatar', 'variant_cover', 'banner'])->nullable();
         // thumbnail, gallery, avatar, variant_cover, banner
         $table->string('url');
         
         $table->string('disk')->nullable()->default('public');
         
-        $table->string('mime_type')->nullable(); // image, video, document
+        $table->enum('media_type' , ['youtube' , 'image' , 'video'])->nullable(); // image, video, document
         
         $table->morphs('mediaable');
         $table->unsignedBigInteger('size')->nullable();

@@ -1,5 +1,4 @@
-import { Category, Country, Cover } from "../inventoryTypes";
-import { Tag } from "../tagsTypes";
+import { Category , Cover , Video } from "../inventoryTypes";
 
 
 export interface ProductBase { 
@@ -18,7 +17,8 @@ export interface ProductBase {
   releaseDate?: string;
   madeCountry : string
   thumbnail:  Cover | null ;
-  video : Cover |  null ;
+  video: Video ,
+
   covers : Cover[] , 
   inventory: InventoryAttributes | null;
   shipping: ShippingAttributes | null;

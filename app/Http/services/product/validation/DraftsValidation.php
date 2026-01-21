@@ -1,10 +1,14 @@
 <?php
 namespace App\Http\Services\product\validation;
 
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Request;
+
 class DraftsValidation
 {
     public static function rules()
-    { 
+    {
+
         return array_merge(
            (new self)->draft_base_rules(),
             (new self)->draft_attributes_rules(),
@@ -32,7 +36,8 @@ class DraftsValidation
         ],
 
         'thumbnail' => ['nullable', 'numeric'],  // can be empty in draft
-        'video' => ['nullable', 'numeric'],
+        'video' => ['nullable', 'array'],
+        'video.iframe' => ['nullable', 'string'],
         'covers' => ['nullable', 'array'],
         'covers.*' => ['nullable','numeric'],
         "price" => ['nullable', 'numeric', 'min:0'],

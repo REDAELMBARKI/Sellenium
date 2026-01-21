@@ -9,12 +9,10 @@ class Media extends Model
      protected $fillable = [
             'url'  ,
             'collection',
-            'mime_type' ,
+            'media_type' ,
             'size' ,
-            'model_type' ,
-            'model_id' ,
-            'width' , 
-            'height' , 
+            'width' ,
+            'height' ,
             'order'
 
     ];

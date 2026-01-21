@@ -31,6 +31,14 @@ export interface Cover {
     url: string ;
 }
 
+export interface Video {
+    id: string | null  ;
+    url: string | null  ;
+    iframe: string | null ;
+    primary:  "file" | 'iframe' | null;
+}
+
+
 
 export  interface Country {
     code: string;

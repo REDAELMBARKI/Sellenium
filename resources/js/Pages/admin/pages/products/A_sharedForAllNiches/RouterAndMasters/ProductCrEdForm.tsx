@@ -1,7 +1,7 @@
 import CollapsibleSection from "@/components/CollapsibleSection";
 import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
 import {
-    Video,
+    Video as VideoIcon,
     Droplet,
     Settings,
 } from "lucide-react";
@@ -9,6 +9,7 @@ import { useState, useRef } from "react";
 import MediaSection from "../components/editAndCreate/MediaSection";
 import {
     CategoryCode,
+    Video,
 } from "@/types/inventoryTypes";
 import BaseSharedForm from "../components/editAndCreate/BaseSharedForm";
 
@@ -23,7 +24,6 @@ import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
 import adapters from "@/functions/product/adapters";
 import CustomSelectForObjectNative from "@/components/ui/CustomSelectForObjectNative";
 import { Button } from "@/components/ui/button";
-import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
 
 
 const ProductCrEdForm = () => {
@@ -65,9 +65,7 @@ const ProductCrEdForm = () => {
     //  states
     const [showAttributes, setShowAttributes] =
         useState<boolean>(isOpenShowAttributes);
-    const [videoPreview, setVideoPreview] = useState<string | null>(
-        getMediaSrcOrDefault(basicInfoForm.video , 'video')
-    );
+    const [videoPreview, setVideoPreview] = useState<Video | null>(basicInfoForm.video);
     
     const [frontEndErrors, setFrontEndErrors] = useState<
         Record<string, string>
@@ -233,7 +231,7 @@ const ProductCrEdForm = () => {
                     <div ref={mediaRef}>
                         <CollapsibleFrendlySection
                             title="Add Media"
-                            icon={Video}
+                            icon={VideoIcon}
                             isOpen={showMedia} 
                             onToggle={() => setShowMedia((prev) => !prev)}
                             headerActions={

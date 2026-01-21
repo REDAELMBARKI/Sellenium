@@ -4,16 +4,16 @@ import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
 import { productFilesUploaderCleaner } from "@/functions/product/productFilesUploaderCleaner";
 import { Film, Image as ImageIcon, X, Upload } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { v4 } from "uuid";
 import { Oval } from "react-loader-spinner";
 import NotifyUser from "@/components/ui/NotifyUser";
 import { useBackendInteraction } from "@/functions/product/useBackendInteractions";
-import { Cover } from "@/types/inventoryTypes";
-
+import { Cover, Video } from "@/types/inventoryTypes";
+import { convertYoutubeToEmbed } from "@/functions/product/convertYoutubeToEmbed";
 interface MediaSectionProps {
-    setVideoPreview: React.Dispatch<React.SetStateAction<string | null>>;
-    videoPreview: string | null;
+    setVideoPreview: React.Dispatch<React.SetStateAction<Video | null>>;
+    videoPreview: Video | null;
 }
 
 const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
@@ -75,16 +75,12 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
     };
 
     const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        const id = v4();
-        if (!file) return;
-        const url = URL.createObjectURL(file);
-        setVideoPreview(url);
+          
     };
-
+   
     const handleRemoveVideo = () => {
-        setVideoPreview(null);
-        setBasicInfoForm({ ...basicInfoForm, video: null });
+        setBasicInfoForm({ ...basicInfoForm, video: {id : null , iframe: null , url: null , primary: null } });
+        
         if (videoInputRef.current) {
             videoInputRef.current.value = "";
         }
@@ -106,11 +102,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
         // drag logic
     };
 
-    const hasImages = basicInfoForm.covers && basicInfoForm.covers.length > 0;
-    const hasVideo =
-        basicInfoForm.video &&
-        Object.keys(basicInfoForm.video).length > 0 &&
-        videoPreview !== null;
+    const hasVideo =  basicInfoForm.video.url  || basicInfoForm.video.iframe 
 
     const headerActions = (
         <>
@@ -232,7 +224,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                         style={{ background: theme.card }}
                                         aria-label="Remove image"
                                     >
-                                        <X
+                                      <X
                                             className="w-4 h-4"
                                             style={{ color: theme.error }}
                                         />
@@ -288,7 +280,107 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                         )}
                 </div>
 
-                
+                 {/* VIDEO */}
+                <div>
+                <h4
+                    className="text-sm font-semibold mb-3"
+                    style={{ color: theme.textSecondary }}
+                >
+                    Video
+                </h4>
+
+                <div className="space-y-4">
+                    {/* 1️⃣ YouTube URL Input on top */}
+                    <input
+                        type="url"
+                        placeholder="Paste YouTube URL here"
+                        value={(basicInfoForm.video?.iframe ?? '')}
+                        onChange={(e) => setBasicInfoForm(prev => ({
+                            ...prev,
+                            video: {
+                                ...(prev.video || {id  : null  , url : null , iframe  : null , primary : null}) , 
+                                iframe : convertYoutubeToEmbed(e.target.value) , 
+                                primary : 'iframe'
+                            }  })) 
+                        }
+                        className="w-full rounded-lg p-3 border"
+                        style={{
+                            borderColor: theme.border,
+                            background: theme.bgSecondary,
+                            color: theme.text,
+                        }}
+                        disabled={!!basicInfoForm.video?.iframe} // disable input if a file is selected
+                    />
+
+                    {/* 2️⃣ Preview Section */}
+                    {hasVideo && (
+                    <div className="relative group ">
+                        {basicInfoForm.video?.primary === "file" ? (
+                        <video
+                            src={
+                              getMediaSrcOrDefault(basicInfoForm.video , "video")
+                            }
+                            controls
+                            className="w-full max-w-2xl rounded-lg"
+                            style={{ boxShadow: theme.shadowMd }}
+                        />
+                        ) : (
+                        // YouTube Embed
+                        <iframe
+                            title={basicInfoForm.name}
+                            src={(basicInfoForm.video?.iframe ?? '')}
+                            className="w-full max-w-2xl rounded-lg aspect-video"
+                            allowFullScreen
+                        />
+                        )}
+
+                        <div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none"
+                        style={{ background: theme.overlay }}
+                        />
+
+                        <button
+                        type="button"
+                        onClick={handleRemoveVideo}
+                        className="absolute top-3 right-3 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                        style={{ background: theme.card }}
+                        aria-label="Remove video"
+                        >
+                        <X className="w-5 h-5" style={{ color: theme.error }} />
+                        </button>
+                    </div>
+                    )}
+
+                    {/* 3️⃣ Upload Video Button */}
+                    <button
+                    onClick={() => videoInputRef.current?.click()}
+                    className="w-full flex flex-col items-center justify-center p-12 rounded-lg border-2 border-dashed transition-all"
+                    style={{
+                        borderColor: theme.border,
+                        background: theme.bgSecondary,
+                    }}
+                    disabled={!!basicInfoForm.video?.primary && basicInfoForm.video?.primary === "iframe"}
+                    >
+                    <Upload
+                        className="w-12 h-12 mb-3"
+                        style={{ color: theme.textMuted }}
+                    />
+                    <p
+                        className="text-sm font-medium mb-1"
+                        style={{ color: theme.text }}
+                    >
+                        {hasVideo && basicInfoForm.video?.primary  === "file" ? "Replace Video" : "Upload Video"}
+                    </p>
+                    <p
+                        className="text-xs"
+                        style={{ color: theme.textMuted }}
+                    >
+                        Click to {hasVideo && basicInfoForm.video?.primary  === "file" ? "change" : "upload"} video
+                    </p>
+                    </button>
+                </div>
+                </div>
+
             </div>
         </>
     );
