@@ -4,7 +4,7 @@ import React, { useState } from "react";
 
 interface Tab {
   id: string;
-  label: string;
+  label: string | React.ReactNode;
   Icon: React.ElementType;
   content: React.ReactNode;
 }

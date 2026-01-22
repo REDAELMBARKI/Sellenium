@@ -17,7 +17,7 @@ export interface ProductBase {
   releaseDate?: string;
   madeCountry : string
   thumbnail:  Cover | null ;
-  video: Video ,
+  video: Video[] ,
 
   covers : Cover[] , 
   inventory: InventoryAttributes | null;

@@ -12,7 +12,6 @@ class StoreDraftProductRequest extends FormRequest{
     public function authorize(Request $request)
     {
         return true;
-        
     }
     public function rules(Request $request){
      return DraftsValidation::rules() ;

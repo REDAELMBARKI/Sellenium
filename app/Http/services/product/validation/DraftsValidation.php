@@ -8,6 +8,7 @@ class DraftsValidation
 {
     public static function rules()
     {
+        // hey how can i only let one object to be sent to backedn like iseendn two types and only validate the type iframe oony to pass validation and other objects fiail 
 
         return array_merge(
            (new self)->draft_base_rules(),
@@ -16,7 +17,6 @@ class DraftsValidation
         );
        
     }
-
 
     
      private function draft_base_rules()
@@ -37,7 +37,7 @@ class DraftsValidation
 
         'thumbnail' => ['nullable', 'numeric'],  // can be empty in draft
         'video' => ['nullable', 'array'],
-        'video.iframe' => ['nullable', 'string'],
+        'video.*.url' => ['nullable', 'string'],
         'covers' => ['nullable', 'array'],
         'covers.*' => ['nullable','numeric'],
         "price" => ['nullable', 'numeric', 'min:0'],

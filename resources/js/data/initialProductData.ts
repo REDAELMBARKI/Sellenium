@@ -22,7 +22,7 @@ const baseProductData : ProductBase = {
   madeCountry :  '' , 
   releaseDate : '' ,
   thumbnail: null as Cover  | null,
-  video: {id : null  , url : null , iframe : null , primary : null},
+  video: [],
   tags: [] as string[],
   covers: [] as Cover[],
   isFreeShipping : false ,

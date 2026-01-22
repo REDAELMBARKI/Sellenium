@@ -37,7 +37,8 @@ class Product extends Model
         'shipping' => 'array',
         'meta' => 'array',
         'price' => 'float' ,
-        'oldPrice' => 'float'
+        'oldPrice' => 'float' , 
+        'video' => 'array'
     ];
   
 

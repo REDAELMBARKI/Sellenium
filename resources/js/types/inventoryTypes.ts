@@ -31,15 +31,23 @@ export interface Cover {
     url: string ;
 }
 
-export interface Video {
-    id: string | null  ;
-    url: string | null  ;
-    iframe: string | null ;
-    primary:  "file" | 'iframe' | null;
+export type Video = VideoFile | Iframe | null ;
+
+
+export interface Iframe {
+    type:  "iframe" ;
+    id?: string | null  ;
+    url: string | null  ; // this for uploaded file 
 }
-
-
-
+export interface VideoFile {
+    type:  "video_file" ;
+    id?: string | null  ;
+    url: string | null  ; // this for uploaded file 
+    height : number | null ;
+    order :  number  ;
+    size :  number | null ;
+    width : number | null ;
+}
 export  interface Country {
     code: string;
     name: string;
