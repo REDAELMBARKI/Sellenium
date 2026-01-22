@@ -58,20 +58,21 @@ class ProductService {
     }
 
     private function storeIframeVideo(Product $product , Collection $video){
-        if(empty($video->get('iframe'))){
+        
+        if($video->isEmpty()){
             return ;
         }
         
-       $product->media()->updateOrCreate(
+        $filteredIframes = $video->filter(fn($v)=> $v['media_type']  === 'iframe') ;
+        $filteredIframes->map(fn($v) =>  $product->media()->updateOrCreate(
           [
-               'media_type' => 'youtube',
+               'media_type' => 'iframe',
                'collection' => 'gallery',
             ],
      [
-              'url' => $video['iframe'],
+              'url' => $v['url'],
             ]
-            );
-
+        )) ;
     }
 
     public function saveDraft($payload , ?Product $draft) {

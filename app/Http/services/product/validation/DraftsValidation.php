@@ -38,6 +38,7 @@ class DraftsValidation
         'thumbnail' => ['nullable', 'numeric'],  // can be empty in draft
         'video' => ['nullable', 'array'],
         'video.*.url' => ['nullable', 'string'],
+        'video.*.media_type' => ['required' , 'string'] ,
         'covers' => ['nullable', 'array'],
         'covers.*' => ['nullable','numeric'],
         "price" => ['nullable', 'numeric', 'min:0'],

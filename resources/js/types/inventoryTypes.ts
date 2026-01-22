@@ -35,12 +35,12 @@ export type Video = VideoFile | Iframe | null ;
 
 
 export interface Iframe {
-    type:  "iframe" ;
+    media_type:  "iframe" ;
     id?: string | null  ;
     url: string | null  ; // this for uploaded file 
 }
 export interface VideoFile {
-    type:  "video_file" ;
+    media_type:  "video" ;
     id?: string | null  ;
     url: string | null  ; // this for uploaded file 
     height : number | null ;

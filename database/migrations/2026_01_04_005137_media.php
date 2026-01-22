@@ -23,7 +23,7 @@ return new class extends Migration
         
         $table->string('disk')->nullable()->default('public');
         
-        $table->enum('media_type' , ['youtube' , 'image' , 'video'])->nullable(); // image, video, document
+        $table->enum('media_type' , ['iframe' , 'image' , 'video'])->nullable(); // image, video, document
         
         $table->morphs('mediaable');
         $table->unsignedBigInteger('size')->nullable();

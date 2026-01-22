@@ -22,7 +22,6 @@ class Media extends Model
     'created_at' ,
     'disk' ,
     'is_temporary' ,
-    'media_type' ,
     'mediaable_id' ,
     'mediaable_type' ,
     'updated_at' ,

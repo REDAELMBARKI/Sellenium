@@ -31,6 +31,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
     const { basicInfoForm, setBasicInfoForm, draftId } = useProductDataCtx();
+
     const [coversPreview, setCoversPreview] = useState<Cover[]>(
         (basicInfoForm.covers as Cover[]) || [],
     );
@@ -151,7 +152,6 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
         </>
     );
 
-    console.log(basicInfoForm);
 
     return (
         <>
@@ -292,7 +292,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                         <span
                                             className={`w-3 h-3 rounded-full ${
                                                 basicInfoForm.video.some(
-                                                    (v) => v?.type === "iframe",
+                                                    (v) => v?.media_type === "iframe",
                                                 )
                                                     ? "bg-green-500"
                                                     : "bg-gray-400"
@@ -316,7 +316,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                         {/* List of iFrames */}
                                         <div className="flex flex-col md:flex-row md:flex-wrap md:gap-4 gap-4">
                                         {basicInfoForm.video
-                                            .filter((v) => v?.type === "iframe")
+                                            .filter((v) => v?.media_type === "iframe")
                                             .map((v, idx) => (
                                             <div key={idx} className="relative group flex-1 min-w-[250px]">
                                                 <iframe
@@ -335,9 +335,14 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                                     ),
                                                     }))
                                                 }
-                                                className="absolute top-2 right-2 p-2 rounded-full shadow-lg bg-white opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                                                className="absolute top-2 right-2 p-2 rounded-full shadow-lg  opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                                                style={{color :theme.text  , background :theme.error}}
+                                                
                                                 >
-                                                <X className="w-5 h-5 text-red-500" />
+                                                <X className="w-5 h-5 "
+                                                style={{color :theme.text }}
+                                                
+                                                />
                                                 </button>
                                             </div>
                                             ))}
@@ -353,7 +358,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                                 onValidateUrl={() => {
                                                     if (newIframeUrl.trim()) {
                                                         const exists = basicInfoForm.video
-                                                            .filter(v => v?.type !== 'video_file')
+                                                            .filter(v => v?.media_type !== 'video')
                                                             .find(v => v?.url == convertToYoutubeId(newIframeUrl.trim()))
                                                         if(exists) {
                                                             alert('iframe is already in your list')
@@ -369,7 +374,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                                                 video: [
                                                                     ...prev.video,
                                                                     {
-                                                                        type: "iframe",
+                                                                        media_type: "iframe",
                                                                         url: convertToYoutubeId(
                                                                             newIframeUrl,
                                                                         ),
@@ -402,8 +407,8 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                             className={`w-3 h-3 rounded-full ${
                                                 basicInfoForm.video.some(
                                                     (v) =>
-                                                        v?.type ===
-                                                        "video_file",
+                                                        v?.media_type ===
+                                                        "video",
                                                 )
                                                     ? "bg-green-500"
                                                     : "bg-gray-400"
@@ -415,15 +420,15 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                 content: (
                                     <div className="space-y-4">
                                         {basicInfoForm.video.some(
-                                            (v) => v?.type === "video_file",
+                                            (v) => v?.media_type === "video",
                                         ) && (
                                             <div className="relative group">
                                                 <video
                                                     src={getMediaSrcOrDefault(
                                                         basicInfoForm.video.find(
                                                             (v) =>
-                                                                v?.type ===
-                                                                "video_file",
+                                                                v?.media_type ===
+                                                                "video",
                                                         ) ?? null,
                                                         "video",
                                                     )}
@@ -433,9 +438,10 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                                 <button
                                                     type="button"
                                                     onClick={handleRemoveVideo}
-                                                    className="absolute top-2 right-2 p-2 rounded-full shadow-lg bg-white opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                                                    style={{color :theme.text  , background :theme.error}}
+                                                    className="absolute top-2 right-2 p-2 rounded-full shadow-lg  opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
                                                 >
-                                                    <X className="w-5 h-5 text-red-500" />
+                                                    <X className="w-5 h-5" />
                                                 </button>
                                             </div>
                                         )}
@@ -444,10 +450,10 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                             onClick={() =>
                                                 videoInputRef.current?.click()
                                             }
-                                            className="w-full flex flex-col items-center justify-center p-12 rounded-lg border-2 border-dashed transition-all"
+                                            className="w-full flex flex-col items-center justify-center p-12 transition-all"
                                             disabled={basicInfoForm.video.some(
                                                 (el) =>
-                                                    el?.type === "video_file",
+                                                    el?.media_type === "video",
                                             )}
                                         >
                                             <Upload className="w-12 h-12 mb-3" />
