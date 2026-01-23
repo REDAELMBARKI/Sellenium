@@ -5,16 +5,21 @@ use Illuminate\Foundation\Http\FormRequest;
 class MediaRequest extends FormRequest {
     public function authorize()
     {
+
         return true;
     }
 
 
     public function rules()
     {
+     
        // Define your validation rules for media upload here
        return [
-           'file' => 'required|file|mimes:jpg,jpeg,png,gif,mp4,avi|max:10240', // max 10MB
+            'file' => [],
+            'collection' => 'required|in:cover,thumbnail,video,avatar,variant_cover,banner',
+            'model_type' => 'required|in:Product,Variant,User,Admin,Brand,Category,General',
        ];
+       
     }
 
 }

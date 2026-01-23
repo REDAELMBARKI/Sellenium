@@ -43,10 +43,10 @@ export interface VideoFile {
     media_type:  "video" ;
     id?: string | null  ;
     url: string | null  ; // this for uploaded file 
-    height : number | null ;
-    order :  number  ;
-    size :  number | null ;
-    width : number | null ;
+    height? : number | null ;
+    order? :  number  ;
+    size? :  number | null ;
+    width? : number | null ;
 }
 export  interface Country {
     code: string;

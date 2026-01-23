@@ -57,7 +57,7 @@ class Product extends Model
     }
 
     public function video(){
-        return $this->morphMany(Media::class , 'mediaable')->whereIn('media_type' , ['video' , 'youtube']);
+        return $this->morphMany(Media::class , 'mediaable')->whereIn('media_type' , ['video' , 'iframe']);
     }
     
 

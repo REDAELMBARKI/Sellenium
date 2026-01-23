@@ -22,6 +22,9 @@ class MediaController extends Controller
     
    
     public function store(MediaRequest $request){
+        return response()->json([
+            'message' => $request->all()
+        ]) ;
         $draft = $request->model_id ? Product::find($request->model_id) : Product::create([
             'name' => null ,
         ]) ;

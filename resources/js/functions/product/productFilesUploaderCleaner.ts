@@ -19,6 +19,7 @@ export  const productFilesUploaderCleaner = () => {
                   'Content-Type': 'multipart/form-data',
               }, }
             );
+            console.log(response.data.message)
             return response.data;
 
           }catch (error : any) {

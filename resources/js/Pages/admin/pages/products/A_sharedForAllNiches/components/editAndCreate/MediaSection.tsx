@@ -39,7 +39,8 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
     const imageInputRef = useRef<HTMLInputElement>(null);
     const videoInputRef = useRef<HTMLInputElement>(null);
     const [imageUploading, setImageUploading] = useState(false);
-    const [uploadError, setUploadError] = useState<string | null>(null);
+    const [videoUploading, setVideoUploading] = useState(false);
+    const [uploadError, setUploadError] = useState<{coverErr?: string  , videoErr?: string } | null>(null);
     const [showIframeModal, setShowIframeModal] = useState(false);
     const [newIframeUrl, setNewIframeUrl] = useState("");
     const { cleanDeletedProductMedia, uploadProductFiles } =
@@ -66,7 +67,8 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                 { url: data.media.url, id: data.media.id },
             ]);
         } catch (err: any) {
-            setUploadError(err.message);
+            setUploadError({...uploadError , coverErr :  err instanceof Error ? err.message : ''});
+
         } finally {
             if (imageInputRef.current) imageInputRef.current.value = "";
             setImageUploading(false);
@@ -81,20 +83,61 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                 (prev || []).filter((media) => media.id != mediaId),
             );
         } catch (err: any) {
-            setUploadError(err.message);
+             setUploadError({...uploadError , coverErr :  err instanceof Error ? err.message : ''});
         } finally {
             if (imageInputRef.current) imageInputRef.current.value = "";
         }
     };
 
-    const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {};
+    const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    const handleRemoveVideo = () => {
-        setBasicInfoForm({ ...basicInfoForm, video: [] });
-
-        if (videoInputRef.current) {
-            videoInputRef.current.value = "";
+        try {
+            setUploadError(null);
+            setVideoUploading(true);
+            const data = await uploadProductFiles(
+                file,
+                "video",
+                "Product",
+                draftId.current,
+            );
+            if (!draftId.current) draftId.current = data.draft_id;
+            setBasicInfoForm((prev) => ({
+                ...(prev || []),
+                video : [...prev.video , { url: data.media.url, id: data.media.id  , media_type : 'video'}],
+            }));
+        } catch (err: any) {
+            setUploadError({...uploadError , videoErr :  err instanceof Error ? err.message : ''});
+        } finally {
+            if (imageInputRef.current) imageInputRef.current.value = "";
+            setVideoUploading(false);
         }
+    };
+
+    const handleRemoveVideo = async (mediaId: string | null) => {
+
+        if (!draftId.current || !mediaId) return;
+
+        
+        try{
+            await cleanDeletedProductMedia(draftId.current, mediaId);
+            setBasicInfoForm((prev) =>
+                 (
+                    {
+                        ...prev, 
+                        video :  (prev.video || []).filter((media) => media?.id != mediaId),
+                    }
+                 )
+            );
+
+        }catch(err : any){
+            setUploadError({...uploadError ,videoErr:  err instanceof Error ? err.message : ''});
+        } 
+        finally{
+            if (videoInputRef.current)  videoInputRef.current.value = "";
+        }    
+        
     };
 
     const handleDragOver = (e: React.DragEvent) => {
@@ -270,7 +313,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                     </div>
 
                     {/* // upload errors  */}
-                    {uploadError && <NotifyUser message={uploadError} />}
+                    {uploadError?.coverErr && <NotifyUser message={uploadError.coverErr} />}
                 </div>
                 {/* VIDEO SECTION */}
                 <div>
@@ -437,7 +480,12 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                                 />
                                                 <button
                                                     type="button"
-                                                    onClick={handleRemoveVideo}
+                                                    onClick={() => handleRemoveVideo(basicInfoForm.video.find(
+                                                            (v) =>
+                                                                v?.media_type ===
+                                                                "video",
+                                                        )?.id ?? null
+                                                    )}
                                                     style={{color :theme.text  , background :theme.error}}
                                                     className="absolute top-2 right-2 p-2 rounded-full shadow-lg  opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
                                                 >
@@ -459,6 +507,10 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                             <Upload className="w-12 h-12 mb-3" />
                                             Upload Video
                                         </button>
+
+
+                                        {uploadError?.videoErr && <NotifyUser message={uploadError.videoErr} />}
+
                                     </div>
                                 ),
                             },
