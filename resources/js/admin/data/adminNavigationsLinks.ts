@@ -132,10 +132,7 @@ export const menuItems: MenuItem[] = [
     icon: Palette, 
     href: "/admin/variants",
     subLinks: [     
-      { title: "Color Manager", icon: Palette, href: "/variants/colors" }, 
-      { title: "Fit Manager", icon: Palette, href: "/variants/fits" }, 
-      { title: "Material Manager", icon: Palette, href: "/variants/materials" }, 
-      { title: "Size Manager", icon: Ruler, href: "/variants/sizes" },
+      { title: "manage attributes", icon: Ruler, href: "/attributes" },
     ]
   },
   { 

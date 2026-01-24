@@ -1,187 +1,115 @@
-import React, {  useEffect, useRef, useState } from 'react';
+import React, { FormEventHandler, useEffect } from 'react';
 import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
+import FashionBasicInfoForm from './ProductCrEdForm';
+import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
 import { Button } from '@/components/ui/button';
-import { useForm , router } from '@inertiajs/react' 
+import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
+import { useForm } from '@inertiajs/react' 
+import { route } from 'ziggy-js';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import ProductCrEdForm from './ProductCrEdForm';
 import { Save } from 'lucide-react';
 import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
 import { ProductDataGlobal } from '@/types/productsTypes';
-import { toBackendDataCleaners } from '@/functions/product/toBackendDataCleaners';
-import { isFormWorthSavingAsDraft } from '@/functions/product/souldSaveDraft';
+import { CATEGORY_CONFIG } from '@/data/categoryConfigurations';
+import { forEach } from 'lodash';
+import adapters from '@/functions/adapters';
+import { Inertia } from '@inertiajs/inertia'
 
-import WarningModal from '@/components/ui/WarningModal';
-import { productFilesUploaderCleaner } from '@/functions/product/productFilesUploaderCleaner';
-import { useBackendInteraction } from '@/functions/product/useBackendInteractions';
+
+
 
 const ProductFormMaster: React.FC = () => {
    
   
   
-  const {state :{currentTheme}} = useStoreConfigCtx()
-  const  {draftId , modeForm , basicInfoForm  } = useProductDataCtx()
+  const {state :{currentCategory , currentTheme}} = useStoreConfigCtx()
+  
+  const  { productData = {} , modeForm , basicInfoForm } = useProductDataCtx()
   const form = useForm<ProductDataGlobal>(basicInfoForm) // setData 
-  const [isDirty , setIsDirty] = useState<boolean>(isFormWorthSavingAsDraft(basicInfoForm)) ; 
-  const [showLeaveDraftModal , setShowLeaveDraftModal] = useState(false) ; 
-  const [pendingDestination , setPendingDestination] = useState<any | null>(null) ; 
+const {toBackendAttribute}  = adapters()
+
+  const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
 
 
-  const hasEverBeenDirty = useRef<boolean>(false) ;
-  const allowNextVisit = useRef(false)
-  const {cleanProductTempMediaOnDistroy} = productFilesUploaderCleaner() ;
-  const {
-    cleanAttributesForBackend , 
-    cleanObjectToIids
-  } = toBackendDataCleaners()
-  const {createDraft , destroyDraftProduct , saveDraftProduct , updateDraftProduct } = useBackendInteraction()
-   
-  //form is dirty checkers
-  useEffect(() => {
-    const remove =  router.on('before' , (event)=> { 
-      //  Ignore form submits
-        if (event.detail.visit.method !== 'get') {
-          return;
-        }
 
 
-        if(allowNextVisit.current) {
-          allowNextVisit.current = false ;
-          return ;
-        };
 
-        
-        if(!hasEverBeenDirty.current) return ;
-        event.preventDefault()
-
-        setPendingDestination(event.detail.visit.url)
-        setShowLeaveDraftModal(true)
-     })
-
-     return () => remove()
-  }, []);
-
- useEffect(() => { 
-    if(hasEverBeenDirty.current) return;
-    setIsDirty(isFormWorthSavingAsDraft(basicInfoForm))
- }, [basicInfoForm]);
-
- useEffect(() => {
-   if(draftId.current) return ;
-   if(hasEverBeenDirty.current) return;
-   if(!isDirty) return ;
-
-  const create = async () => {
-    try {
-      await createDraft();
-      hasEverBeenDirty.current = true;
-    } catch (err) {
-      console.error('Draft save failed in effect:', err);
-    }
+  const handleSaveAllChanges = () => {
+    alert("Changes saved successfully!");
+    setHasUnsavedChanges(false);
+    setShowToast(false);
   };
+  
+ function cleanAttributesForBackend(
+  attributes: Record<string, any>
+  ) {
+  const cleaned: Record<string, any> = {}
 
-  create();
- }, [isDirty]);
- // end is dirty form checkers 
+  Object.entries(attributes).forEach(([key, value]) => {
+    // multi-select case
+    if (
+      Array.isArray(value) &&
+      value.length &&
+      typeof value[0] === 'object' &&
+      'id' in value[0]
+    ) {
+      cleaned[key] = value.map((v: { id: number }) => v.id)
+    } else {
+      cleaned[key] = value
+    }
+  })
 
-
+  return cleaned
+ }
+ 
  useEffect(() => {
    form.setData(basicInfoForm)
  }, [basicInfoForm]);
-
-  const prepareProductSubmitPayload = () => {
-     const {thumbnail , covers  , ...data} = form.data 
-      return {
-      ...data,
-      attributes: cleanAttributesForBackend(form.data.attributes),
-      subCategories : cleanObjectToIids(form.data.sub_categories)
-    }
-  }
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    const payload = prepareProductSubmitPayload()
-    try{
-        // here draft id might be null if i click save if no draft created yet here i know i should make the button disabled but who can i even make this safer so if not exist should i create a draft fist then save the id or i make the id optional so if not draft id create a draft 
-        switch(modeForm){
-          case 'create' : 
-               saveDraftProduct(payload , (errors) => form.setError(errors) , draftId.current ); 
-              break ;
-          case "edit" : 
-               updateDraftProduct(payload , (errors) => form.setError(errors) , draftId.current! ?? basicInfoForm.id ); 
-              break;
-        }
-        
-        // show success taost 
-    }catch(err : any){
-       throw err ; // show taost 
-    }
-  }
   
-  const proceedToPendingDestination = () => {
-    if (!pendingDestination) return
-    allowNextVisit.current = true
-    router.visit(pendingDestination)
-  }
-  
-  const handleConfirmLeaveWithDraft =  async () => {
-    const payload =  prepareProductSubmitPayload();
-    try{
-       await saveDraftProduct(payload , (errors) => form.setError(errors) , draftId.current );
-    }catch(err : any){
-        throw err.message
-    }
-    proceedToPendingDestination()
+ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault()
+
+
+   const payload = {
+    ...form.data,
+    attributes: cleanAttributesForBackend(form.data.attributes),
   }
 
-  const handleDenyLeaveWithDraft =  async (draftId : string) => {
-    if(!draftId) return ;
-    try{
-      await destroyDraftProduct(draftId) ;
-      await cleanProductTempMediaOnDistroy(draftId)
-    }catch(err : any){
-       throw err.message
-    }
-    finally{
-      setShowLeaveDraftModal(false)
-      proceedToPendingDestination()
-    }
+    // 2️⃣ Send payload directly
+    Inertia.post(route('products.store'), payload as any, {
+      onError: (errors) => form.setError(errors),
+      onSuccess: () => console.log('Success'),
+    })
 
-  }
+}
 
+ 
   return ( 
-  <> 
-   
+  <form  onSubmit={handleSubmit}> 
    {/* edit and create form  */}
    <div className='flex'>
-      <WarningModal
-      title='Unsaved changes' 
-      description='You have unsaved changes. If you leave this page, your draft will be lost.' 
-      confirmText='Save draft & leave'
-       denyText='Discard Changes'
 
-        isOpen={showLeaveDraftModal} 
-       onDeny={() => handleDenyLeaveWithDraft(draftId.current!)} 
-       onClose={() => setShowLeaveDraftModal(false)}
-       onConfirm={() => handleConfirmLeaveWithDraft()} />
     <ProductCrEdForm />
     <RightSectionComponent />
 
    </div>
    {/* save product */}
    <div
-      className="
-        sticky bottom-0 z-30
-        flex justify-center
-        px-6 py-4
-        border-t
-        backdrop-blur
-      "
-      style={{
-        background: currentTheme.bgSecondary,
-        borderColor: currentTheme.border,
-      }}
-    >
+  className="
+    sticky bottom-0 z-30
+    flex justify-center
+    px-6 py-4
+    border-t
+    backdrop-blur
+  "
+  style={{
+    background: currentTheme.bgSecondary,
+    borderColor: currentTheme.border,
+  }}
+>
   <Button
-    type="button"
+    type="submit"
     className="
       min-w-[220px]
       text-sm font-semibold
@@ -195,15 +123,14 @@ const ProductFormMaster: React.FC = () => {
       background: currentTheme.primary,
       color: currentTheme.textInverse,
     }}
-    onClick={handleSubmit}
   >
     <Save />
     {modeForm === "create" ? "Create Product" : "Update Product"}
   </Button>
-   </div>
+</div>
 
 
-  </>
+  </form>
   
  );  
 };

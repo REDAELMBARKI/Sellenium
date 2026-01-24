@@ -18,6 +18,6 @@
       "@/*": ["resources/js/*"]
     }
   },
-  "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/backups/ParfumesBasicInfoForm.tsx", "resources/backups/createOld.tsx", "resources/backups/VariantsSection.tsx", "resources/views/welc.tsx" ],
+  "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/backups/ParfumesBasicInfoForm.tsx", "resources/backups/createOld.tsx", "resources/backups/VariantsSection.tsx", "resources/views/welc.tsx", "resources/backups/ManageColors.tsx" ],
   "exclude": ["node_modules"]
 }

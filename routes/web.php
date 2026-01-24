@@ -8,6 +8,7 @@ use App\Http\Controllers\admin\MessageController;
 use App\Http\Controllers\admin\OrderController as AdminOrderController;
 use App\Http\Controllers\admin\StoreConfigController;
 use App\Http\Controllers\admin\VariantsController;
+use App\Http\Controllers\AttributesController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -74,6 +75,14 @@ Route::delete('/media', [MediaController::class, 'destroyBulk'])
 // Route::get('/categories' , [CategoryController::class, 'index']) ;
 Route::get('/subcatgeories' , [CategoryController::class, 'subCategories'])->name('get.subCategories');
 //end categories section
+
+
+
+// attributes
+Route::get('/attributes' , [AttributesController::class, 'index'])->name('get.attributes');
+Route::post('/attributes' , [AttributesController::class, 'store'])->name('store.attributes');
+
+
 
 // settings 
 Route::get("/store" , [StoreConfigController::class ,  'index'])->name("store") ; 
