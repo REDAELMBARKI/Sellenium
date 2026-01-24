@@ -13,7 +13,7 @@ import { RightSectionComponent } from '../components/editAndCreate/RightSideSect
 import { ProductDataGlobal } from '@/types/productsTypes';
 import { CATEGORY_CONFIG } from '@/data/categoryConfigurations';
 import { forEach } from 'lodash';
-import adapters from '@/functions/adapters';
+import adapters from '@/functions/product/adapters';
 import { Inertia } from '@inertiajs/inertia'
 
 
@@ -23,7 +23,7 @@ const ProductFormMaster: React.FC = () => {
    
   
   
-  const {state :{currentCategory , currentTheme}} = useStoreConfigCtx()
+  const {state :{ currentTheme}} = useStoreConfigCtx()
   
   const  { productData = {} , modeForm , basicInfoForm } = useProductDataCtx()
   const form = useForm<ProductDataGlobal>(basicInfoForm) // setData 

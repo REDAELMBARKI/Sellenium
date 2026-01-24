@@ -1,6 +1,6 @@
 // Main page component for attribute management
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { AttributeSwitcher } from './AttributeSwitcher';
 import { AttributeWorkspace } from './AttributeWorkspace';
@@ -9,7 +9,9 @@ import { AddAttributeModal } from './AddAttributeModal';
 import { AddValueModal } from './AddValueModal';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-
+import {Provider, useDispatch, useSelector} from 'react-redux' ;
+import store from '@/store/store';
+import { attributesActions } from '@/store/actions/attributesActions';
 const MOCK_ATTRIBUTES: Attribute[] = [
   { id: '1', name: 'Color', displayType: 'color-swatches' },
   { id: '2', name: 'Size', displayType: 'radio' },
@@ -27,31 +29,62 @@ const MOCK_VALUES: AttributeValue[] = [
   { id: 'v7', attributeId: '2', name: 'XL' },
 ];
 
- function AttributePage() {
-  const [attributes, setAttributes] = useState<Attribute[]>(MOCK_ATTRIBUTES);
-  const [values, setValues] = useState<AttributeValue[]>(MOCK_VALUES);
-  const [activeAttributeId, setActiveAttributeId] = useState<string>(MOCK_ATTRIBUTES[0].id);
+function AttributePage({attributes = MOCK_ATTRIBUTES , values = MOCK_VALUES  }) {
+   
+    return (
+      <Provider store={store}>
+           <AttribueContent {...{attributes , values  }} />
+      </Provider>
+    )
+}
+export default AttributePage ;
+
+AttributePage.layout = (page : any) => <AdminLayout  children={page} />
+
+function AttribueContent({attributes = [] , values = []  } : {attributes : Attribute[] , values : AttributeValue[]} ) {
   const [isAddAttributeOpen, setIsAddAttributeOpen] = useState(false);
   const [isAddValueOpen, setIsAddValueOpen] = useState(false);
   const [editingAttribute, setEditingAttribute] = useState<Attribute | null>(null);
   const [editingValue, setEditingValue] = useState<AttributeValue | null>(null);
   const {state : {currentTheme}} = useStoreConfigCtx(); // color all the page using this theme
-  
-  const activeAttribute = attributes.find((a) => a.id === activeAttributeId);
+  const dispatch = useDispatch() ; 
+  const {
+    activeAttributeId , 
+    attributes : stateAttributes,
+    values : stateValues
+  } = useSelector((selector : any) => selector.attributes)
+  const { onAddAttribute,
+        onRemoveAttribute,
+        onAddValue,
+        onRemoveValue,
+        onReset,
+        OnRemoveBulk,
+        setActiveAttributeId,
+        onUpdateAttributes ,
+        resetActiveAttributeId , 
+        onUpdateValues ,
+        dataInitializer} = attributesActions() ;
+ 
+  useEffect(() => {
+      dispatch({type : dataInitializer() , payload : {data : {attributes , values , activeAttributeId : MOCK_ATTRIBUTES[0].id}}  })
+  }, [attributes , values , dispatch]);
 
+
+  const activeAttribute = attributes.find((a) => a.id === activeAttributeId);
   const handleAddAttribute = (attribute: Omit<Attribute, 'id'>) => {
     const newAttribute: Attribute = {
       ...attribute,
       id: Math.random().toString(36).substr(2, 9),
     };
-    setAttributes([...attributes, newAttribute]);
-    setActiveAttributeId(newAttribute.id);
+
+    dispatch({type : onAddAttribute() , payload : newAttribute})
+    dispatch({type : setActiveAttributeId() , paylaod : newAttribute.id})
     setIsAddAttributeOpen(false);
     setEditingAttribute(null);
   };
 
   const handleUpdateAttribute = (id: string, updates: Partial<Attribute>) => {
-    setAttributes(attributes.map((a) => (a.id === id ? { ...a, ...updates } : a)));
+    dispatch({type :onUpdateAttributes() , payload : attributes.map((a) => (a.id === id ? { ...a, ...updates } : a))})
     setIsAddAttributeOpen(false);
     setEditingAttribute(null);
   };
@@ -61,23 +94,24 @@ const MOCK_VALUES: AttributeValue[] = [
       ...value,
       id: Math.random().toString(36).substr(2, 9),
     };
-    setValues([...values, newValue]);
+    dispatch({type : onAddValue() , payload : newValue})
     setIsAddValueOpen(false);
     setEditingValue(null);
   };
 
   const handleUpdateValue = (id: string, updates: Partial<AttributeValue>) => {
-    setValues(values.map((v) => (v.id === id ? { ...v, ...updates } : v)));
+    
+    dispatch({type :onUpdateValues() , payload : values.map((v) => (v.id === id ? { ...v, ...updates } : v))})
     setIsAddValueOpen(false);
     setEditingValue(null);
   };
 
   const handleDeleteValue = (id: string) => {
-    setValues(values.filter((v) => v.id !== id));
+      dispatch({type : onRemoveValue() , payload : {id}})
   };
 
   const handleBulkDeleteValues = (ids: string[]) => {
-    setValues(values.filter((v) => !ids.includes(v.id)));
+      dispatch({type : OnRemoveBulk() , payload : ids})
   };
 
   const handleEditAttribute = (attribute: Attribute) => {
@@ -99,7 +133,7 @@ const MOCK_VALUES: AttributeValue[] = [
           attributes={attributes}
           values={values}
           activeAttributeId={activeAttributeId}
-          onAttributeSelect={setActiveAttributeId}
+          onAttributeSelect={(id) => dispatch({type : setActiveAttributeId() , payload : {id}})}
           onAddAttribute={() => setIsAddAttributeOpen(true)}
           onEditAttribute={handleEditAttribute}
         />
@@ -148,7 +182,3 @@ const MOCK_VALUES: AttributeValue[] = [
     </div>
   );
 }
-
-export default AttributePage ;
-
-AttributePage.layout = (page : any) => <AdminLayout  children={page} />
