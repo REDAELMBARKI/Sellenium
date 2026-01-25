@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
 
        $this->call([
            CategorySeeder::class,
+           AttributesTableSeeder::class ,
+           AttributeValuesSeeder::class
           //  TagSeeder::class,
           //  SizeSeeder::class,
           //  ColorSeeder::class,

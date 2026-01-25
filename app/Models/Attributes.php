@@ -6,11 +6,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class Attributes extends Model
 {
-      protected $fillable = [
+    
+
+    protected $fillable = [
         'name',
         'slug',
         'type',
         'is_core',
         'sort_order',
     ];
+
+    protected $hidden = [
+       "slug" ,
+        "type" ,
+        "is_core" ,
+        "created_at",
+        "updated_at"
+    ];
+    public function values(){
+        return $this->hasMany(AttributesValues::class , 'attribute_id' , 'id') ;
+    }
 }

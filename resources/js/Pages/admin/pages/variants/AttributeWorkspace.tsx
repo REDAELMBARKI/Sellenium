@@ -10,7 +10,6 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 
 interface AttributeWorkspaceProps {
   attribute: Attribute;
-  values: AttributeValue[];
   onAddValue: () => void;
   onEditValue: (value: AttributeValue) => void;
   onDeleteValue: (id: string) => void;
@@ -28,14 +27,13 @@ const DISPLAY_TYPE_LABELS: Record<string, string> = {
 
 export function AttributeWorkspace({
   attribute,
-  values,
   onAddValue,
   onEditValue,
   onDeleteValue,
   onBulkDeleteValues,
   onEditAttribute,
 }: AttributeWorkspaceProps) {
-  const isColorAttribute = attribute.displayType === 'color-swatches';
+  const isColorAttribute = attribute.name.trim().toLocaleLowerCase() === 'color';
   const {state : {currentTheme}} = useStoreConfigCtx(); // color all the page using this theme
   
   return (
@@ -61,7 +59,7 @@ export function AttributeWorkspace({
       </div>
 
       <AttributeValuesTable
-        values={values}
+        values={attribute.values}
         isColorAttribute={isColorAttribute}
         onEdit={onEditValue}
         onDelete={onDeleteValue}

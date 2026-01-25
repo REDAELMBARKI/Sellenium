@@ -71,23 +71,23 @@ export function AttributeValuesTable({ values, isColorAttribute, onEdit, onDelet
               <TableHead className="w-[50px]">
                 <Checkbox checked={isAllSelected} onCheckedChange={toggleSelectAll} />
               </TableHead>
-              <TableHead>Key</TableHead>
+              <TableHead>Name</TableHead>
               <TableHead>Value</TableHead>
               <TableHead className="w-[100px] text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {values.map((value) => (
-              <TableRow key={value.id} style={selectedIds.includes(value.id) ? { background: currentTheme.bgSecondary } : undefined}>
+              <TableRow key={value.id} style={selectedIds.includes(value.id) ? { background: currentTheme.bgSecondary , borderColor : currentTheme.border} : undefined}>
                 <TableCell>
                   <Checkbox checked={selectedIds.includes(value.id)} onCheckedChange={() => toggleSelect(value.id)} />
                 </TableCell>
                 <TableCell className="font-medium">{value.name}</TableCell>
                 <TableCell>
-                  {isColorAttribute && value.hexColor ? (
+                  {isColorAttribute && value.value ? (
                     <div className="flex items-center gap-2">
-                      <div className="h-6 w-6 rounded border" style={{ backgroundColor: value.hexColor }} />
-                      <span className="text-sm" style={{ color: currentTheme.textSecondary }}>{value.hexColor}</span>
+                      <div className="h-6 w-6 rounded border" style={{ backgroundColor: value.value , borderColor : currentTheme.border }} />
+                      <span className="text-sm" style={{ color: currentTheme.textSecondary }}>{value.value}</span>
                     </div>
                   ) : (
                     <span style={{ color: currentTheme.textSecondary }}>—</span>

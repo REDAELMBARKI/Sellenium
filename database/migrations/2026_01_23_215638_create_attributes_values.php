@@ -14,9 +14,9 @@ return new class extends Migration
        Schema::create('attribute_values', function (Blueprint $table) {
             $table->id();
             $table->foreignId('attribute_id')->constrained()->cascadeOnDelete();
-            $table->string('value');         // Red, XL, Cotton
+            $table->string('name')->nullable();
+            $table->string('value');         // #23923, XL, Cotton
             $table->json('meta')->nullable(); // hex, extra info
-            $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
     }

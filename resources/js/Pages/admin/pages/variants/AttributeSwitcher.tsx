@@ -9,7 +9,6 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 
 interface AttributeSwitcherProps {
   attributes: Attribute[];
-  values: AttributeValue[];
   activeAttributeId: string;
   onAttributeSelect: (id: string) => void;
   onAddAttribute: () => void;
@@ -18,7 +17,6 @@ interface AttributeSwitcherProps {
 
 export function AttributeSwitcher({
   attributes,
-  values,
   activeAttributeId,
   onAttributeSelect,
   onAddAttribute,
@@ -29,9 +27,9 @@ export function AttributeSwitcher({
   const {state : {currentTheme}} = useStoreConfigCtx(); // color all the page using this theme
 
   const getValueCount = (attributeId: string) => {
-    return values.filter((v) => v.attributeId === attributeId).length;
+    return attributes.find((v) => v.id === attributeId)?.values.length;
   };
-
+  
   return (
   <div className="flex items-center gap-2 border-b p-4" style={{ borderColor: currentTheme.border, background: currentTheme.bgSecondary }}>
       <div className="flex flex-1 flex-wrap gap-2">
