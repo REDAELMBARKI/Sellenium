@@ -7,7 +7,6 @@ import { useReducer } from "react"
 
 
 const initialState : StoreConfigType= {  
-  currentCategory: 1,
   currentThemeMode : "dark" ,
   currentThemeStyle : "luxuryNoir" , 
   currentTheme : currentThemeExample.luxuryNoir.dark,
@@ -40,11 +39,7 @@ const reducer = (state : StoreConfigType , action : StoreConfigAction) : StoreCo
                currentThemeMode : action.payload  , 
                currentTheme: currentThemeExample[state.currentThemeStyle][action.payload] 
             }
-      case "SET_CATEGORY" : 
-      return {
-         ...state , 
-         currentCategory : action.payload
-      }
+     
       case "SET_CARD" : 
        return {...state ,
               currentCardConf : action.payload // this payload is an intaire object isshowprice / isRounded etc

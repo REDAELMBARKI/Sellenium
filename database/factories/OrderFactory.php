@@ -2,35 +2,38 @@
 
 namespace Database\Factories;
 
+use App\Models\Address;
 use App\Models\Product;
+use App\Models\Order;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order>
- */
 class OrderFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-
-    public function definition(): array
+    protected $model = Order::class;
+     use HasFactory;
+    public function definition()
     {
-        $product = Product::inRandomOrder()->first() ?? Product::factory()->create();
-        return [
-           'order_number' => $this->faker->numberBetween(1,10),
-           'product_id' => $product->id,
-           'user_id' => User::inRandomOrder()->first()->id,
-           'address' => $this->faker->address(),
-           'status' => $this->faker->randomElement(['pending','delivered','canceled']),
-           'shipping_cost' => $shipping  =  $this->faker->randomFloat(2,1.0 , 10.0),
-           'discount_amount' => $discount = $this->faker->randomFloat(2,1.0 , 10.0),
-           'notes' => $this->faker->text(),
-           'total_amount' => $product->price + $shipping - $discount
+        $tax = $this->faker->randomFloat(2, 0, 50);
+        $shipping = $this->faker->randomFloat(2, 20, 80);
+        $discount = $this->faker->boolean(30)
+            ? $this->faker->randomFloat(2, 10, 100)
+            : 0;
 
+        return [
+
+            'order_number' => $this->faker->unique()->numberBetween(100000, 999999),
+            'user_id' => User::inRandomOrder()->first()->id,
+            'status' => $this->faker->randomElement(['pending', 'delivered', 'canceled']),
+            'tax' => $tax,
+            'currency' => 'MAD',
+            'shipping_cost' => $shipping,
+            'discount_amount' => $discount,
+            'total_amount' => 0, // calculated later
+            'notes' => $this->faker->boolean(40)
+                ? $this->faker->sentence()
+                : null,
         ];
     }
 }

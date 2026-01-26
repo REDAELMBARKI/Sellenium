@@ -17,7 +17,9 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->integer('quantity')->unsigned();
+            $table->integer('quantity')->default(1);
+            // Store price at the moment to avoid price changes affecting cart
+            $table->decimal('price', 12, 2);
             $table->unique(['user_id' , 'product_id']);
             $table->timestamps();
         });

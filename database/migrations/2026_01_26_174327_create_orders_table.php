@@ -1,7 +1,11 @@
 <?php
 
+use App\Models\Address;
 use App\Models\Product;
+
+
 use App\Models\User;
+use App\Models\OrderAddress;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,12 +21,13 @@ return new class extends Migration
             $table->id();
             $table->integer('order_number')->unsigned()->unique();
             $table->foreignIdFor(User::class);
-            $table->foreignIdFor(Address::class);
-            $table->enum('status',['pending','delivered','canceled'])->default('pending');
+            $table->enum('status',['pending','delivered','canceled'])->default('pending'); 
+            $table->decimal('tax', 10, 2)->default(0);
+            $table->string('currency', 3)->default('MAD'); // always store the currency
             $table->float('shipping_cost')->unsigned()->nullable();
             $table->float('discount_amount')->unsigned()->nullable();
-            $table->string('notes')->nullable();
             $table->float('total_amount')->unsigned();
+            $table->string('notes')->nullable();
             $table->timestamps();
         });
     }

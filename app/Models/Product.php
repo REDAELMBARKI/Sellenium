@@ -11,24 +11,25 @@ class Product extends Model
 {
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
-    protected $fillable = [
-        'name',
-        'brand',
-        'description',
-        'price',
-        'oldPrice',
-        'isFeatured',
-        'isFreeShipping',
-        'status',
-        'rating_average',      // optional; include if users can set/update rating manually
-        'shipping',
-        'inventory',
-        'meta',
-        'vendor',
-        'madeCountry',
-        'releaseDate',
-        'category_niche_id',    // foreign key
-     ];
+    // protected $fillable = [
+    //     'name',
+    //     'brand',
+    //     'description',
+    //     'price',
+    //     'oldPrice',
+    //     'isFeatured',
+    //     'isFreeShipping',
+    //     'status',
+    //     'rating_average',      // optional; include if users can set/update rating manually
+    //     'shipping',
+    //     'inventory',
+    //     'meta',
+    //     'vendor',
+    //     'madeCountry',
+    //     'releaseDate',
+    //     'category_niche_id',    // foreign key
+    //  ];
+    protected $guarded = [];
 
     protected $hidden = ['created_at','updated_at'];
     protected $casts = [
@@ -38,7 +39,17 @@ class Product extends Model
         'meta' => 'array',
         'price' => 'float' ,
         'oldPrice' => 'float' , 
-        'video' => 'array'
+        'video' => 'array',
+
+        'isFeatured' => 'boolean',
+        'isFreeShipping' => 'boolean',
+        'ready_to_publish' => 'boolean',
+
+        'shipping' => 'array',
+        'aggregated_attributes' => 'array',
+        'inventory' => 'array',
+        'meta' => 'array',
+        'vendor' => 'array',
     ];
   
 

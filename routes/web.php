@@ -31,7 +31,9 @@ Route::get('/blog', function () {
     return Inertia::render('BlogPage');
 })->name('blog');
 
-
+Route::get('/cart', function () {
+    return Inertia::render('ShoppingCartPage');
+})->name('cart');
 
 
 

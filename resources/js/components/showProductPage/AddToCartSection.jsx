@@ -18,7 +18,7 @@ const AddToCartSection = ({ stock, price, onAddToCart }) => {
   const isOutOfStock = stock === 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-red-500" >
       {/* Stock Status */}
       <div className="flex items-center space-x-2">
         <div
