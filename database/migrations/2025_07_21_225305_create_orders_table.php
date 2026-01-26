@@ -15,10 +15,9 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->integer('order_number')->unsigned();
-            $table->foreignIdFor(Product::class);
+            $table->integer('order_number')->unsigned()->unique();
             $table->foreignIdFor(User::class);
-            $table->string('address');
+            $table->foreignIdFor(Address::class);
             $table->enum('status',['pending','delivered','canceled'])->default('pending');
             $table->float('shipping_cost')->unsigned()->nullable();
             $table->float('discount_amount')->unsigned()->nullable();
