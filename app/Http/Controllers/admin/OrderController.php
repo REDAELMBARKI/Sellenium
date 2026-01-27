@@ -9,7 +9,10 @@ use Inertia\Inertia;
 class OrderController extends Controller
 {
     public function index() {
-        return Inertia::render('admin/pages/orders/OrderManager') ;
+        
+        return Inertia::render('admin/pages/orders/OrderManager' , compact()) ;
 
     }
+
+
 }
