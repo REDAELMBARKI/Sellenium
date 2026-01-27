@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
- export const PaginationTable = ({totalPages , currentPage , setCurrentPage}) => {
+interface PaginationTableProps {
+   onCurrentPageChange : (page : () => number) => void ;
+   totalPages : number ; 
+   currentPage : number
+
+}
+ export const PaginationTable = ({currentPage , onCurrentPageChange, totalPages }:PaginationTableProps) => {
     return (
     <>
   {totalPages > 1 && (
@@ -10,7 +16,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
               type="button"
               variant="outline"
               size="icon"
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              onClick={() => onCurrentPageChange((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
               className="rounded-lg"
             >
@@ -34,7 +40,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
                     type="button"
                     variant={pageNum === currentPage ? 'default' : 'outline'}
                     size="icon"
-                    onClick={() => setCurrentPage(pageNum)}
+                    onClick={() => onCurrentPageChange(pageNum)}
                     className="rounded-lg w-9 h-9"
                   >
                     {pageNum}
@@ -47,7 +53,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
               type="button"
               variant="outline"
               size="icon"
-              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              onClick={() => onCurrentPageChange((prev) => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
               className="rounded-lg"
             >

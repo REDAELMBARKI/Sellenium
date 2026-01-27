@@ -21,9 +21,13 @@ return new class extends Migration
             $table->id();
             $table->integer('order_number')->unsigned()->unique();
             $table->foreignIdFor(User::class);
-            $table->enum('status',['pending','delivered','canceled'])->default('pending'); 
+            $table->enum('status',['pending','out_for_delivery','delivery_failed' , 'delivered','canceled' , 'returned'])->default('pending');
+            $table->boolean('confirmed')->default(false)->comment('Confirmed by admin/confirmation team');
             $table->decimal('tax', 10, 2)->default(0);
-            $table->string('currency', 3)->default('MAD'); // always store the currency
+            $table->string('currency', 3)->default('MAD'); // always store the currency 
+            $table->enum('payment_method', ['cod', 'card', 'paypal'])->default('cod');
+            $table->boolean('paid')->default(false);
+            $table->dateTime('paid_at')->nullable();
             $table->float('shipping_cost')->unsigned()->nullable();
             $table->float('discount_amount')->unsigned()->nullable();
             $table->float('total_amount')->unsigned();

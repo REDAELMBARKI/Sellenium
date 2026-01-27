@@ -14,16 +14,17 @@ import { SectionHeader } from '@/admin/components/layout/SectionHeader';
 import { PaginationTable } from '@/admin/components/layout/Pagination';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { TableMeta } from '@/components/ui/TableMeta';
+import { OrdersResponse } from '@/types/orders/ordersTypes';
 
 
-function OrderManager() {
+function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersResponse) {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [perPage, setPerPage] = useState('10');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [amountPerPage ,setAmountPerPage] = useState(paginatedOrders.per_page) ;
+  const [currentPage , setCurrentPage] = useState(paginatedOrders.current_page) ; 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const {state : {currentTheme}} =  useStoreConfigCtx()
@@ -48,31 +49,24 @@ function OrderManager() {
     });
   }, [searchQuery, statusFilter, dateFrom, dateTo, allOrders]);
 
-  const stats: Stats = {
-    total: allOrders.length,
-    cancelled: allOrders.filter((o) => o.status === 'cancelled').length,
-    pending: allOrders.filter((o) => o.status === 'pending').length,
-    returned: allOrders.filter((o) => o.status === 'returned').length,
-  };
-
+ 
   const handleSelectOrder = (id: string) => {
     setSelectedOrders((prev) =>
       prev.includes(id) ? prev.filter((oid) => oid !== id) : [...prev, id]
     );
   };
 
-  const handleSelectAll = () => {
-    setSelectedOrders(
-      selectedOrders.length === paginatedOrders.length && paginatedOrders.length > 0 ? [] : paginatedOrders.map((o) => o.id)
-    );
-  };
+  // const handleSelectAll = () => {
+  //   setSelectedOrders(
+  //     selectedOrders.length === paginatedOrders.length && paginatedOrders.length > 0 ? [] : paginatedOrders.map((o) => o.id)
+  //   );
+  // };
 
   const clearFilters = () => {
     setDateFrom('');
     setDateTo('');
     setSearchQuery('');
     setStatusFilter('all');
-    setCurrentPage(1);
   };
 
   const handleViewDetails = (order: Order) => {
@@ -82,15 +76,10 @@ function OrderManager() {
 
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || dateFrom || dateTo;
 
-  const totalPages = Math.ceil(filteredOrders.length / parseInt(perPage));
-  const paginatedOrders = filteredOrders.slice(
-    (currentPage - 1) * parseInt(perPage),
-    currentPage * parseInt(perPage)
-  );
+
 
   const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
     setter(value);
-    setCurrentPage(1);
   };
 
   return (
@@ -119,22 +108,60 @@ function OrderManager() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard title="Total Orders" value={stats.total} change="12.5%" trend="up" />
-          <StatsCard title="Cancelled" value={stats.cancelled} change="8.2%" trend="down" />
-          <StatsCard title="Pending" value={stats.pending} change="5.1%" trend="up" />
-          <StatsCard title="Returned" value={stats.returned} change="2.3%" trend="down" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+          <StatsCard
+            title="Total Orders"
+            value={stats?.total?.count}
+            change={stats?.total?.change_percent}
+            trend={stats?.total?.change_percent >= 0 ? 'up' : 'down'}
+          />
+
+          <StatsCard
+            title="Cancelled"
+            value={stats?.canceled?.count}
+            change={stats?.canceled?.change_percent}
+            trend={stats?.canceled?.change_percent >= 0 ? 'up' : 'down'}
+          />
+
+          <StatsCard
+            title="Pending"
+            value={stats?.pending?.count}
+            change={stats?.pending?.change_percent}
+            trend={stats?.pending?.change_percent >= 0 ? 'up' : 'down'}
+          />
+
+          <StatsCard
+            title="Returned"
+            value={stats?.returned?.count}
+            change={stats?.returned?.change_percent}
+            trend={stats?.returned?.change_percent >= 0 ? 'up' : 'down'}
+          />
+
+          <StatsCard
+            title="Delivered"
+            value={stats?.delivered?.count}
+            change={stats?.delivered?.change_percent}
+            trend={stats?.delivered?.change_percent >= 0 ? 'up' : 'down'}
+          />
+
+          <StatsCard
+            title="Confirmed"
+            value={stats?.confirmed?.count}
+            change={stats?.confirmed?.change_percent}
+            trend={stats?.confirmed?.change_percent >= 0 ? 'up' : 'down'}
+          />
+
         </div>
 
       
         <OrdersTable
-          orders={paginatedOrders}
+          orders={paginatedOrders ?? []}
         />
 
          {/* pagination */}
 
-         <TableMeta perPage={perPage} currentPage={currentPage} totalItems={totalPages} setPerPage={setPerPage} >
-             <PaginationTable  totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+         <TableMeta onPerPageChange={(perPage) => setAmountPerPage(Number(perPage))} perPage={amountPerPage} currentPage={paginatedOrders.current_page} totalItems={paginatedOrders.total} >
+             <PaginationTable  totalPages={paginatedOrders.total} currentPage={currentPage} onCurrentPageChange={(page) => setCurrentPage(page) }  />
          </TableMeta>
       </div>
 

@@ -203,10 +203,10 @@ export function OrdersTable({ orders }: OrdersTableProps) {
                 "Order",
                 "Date",
                 "Customer",
-                "Delivery",
+                "Status",
                 "Items",
                 "Total",
-                "Payment",
+                "Payment Method",
                 "Actions",
               ].map((h) => (
                 <TableHead

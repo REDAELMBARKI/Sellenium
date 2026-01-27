@@ -3,13 +3,13 @@ import SelectByRadix from "./SelectByRadix";
 
 interface TableMetaProps {
   currentPage: number;
-  perPage: string;
+  perPage: number;
   totalItems: number;
   children : React.ReactNode
-  setPerPage: (value: string) => void;
+  onPerPageChange: (value: string) => void;
 }
 
-export function TableMeta({ currentPage, perPage, totalItems, setPerPage  , children}: TableMetaProps) {
+export function TableMeta({ currentPage, perPage, totalItems, onPerPageChange  , children}: TableMetaProps) {
 const {state : {currentTheme}} = useStoreConfigCtx()
   return (
     <div className="flex items-center justify-between flex-wrap gap-3">
@@ -21,7 +21,7 @@ const {state : {currentTheme}} = useStoreConfigCtx()
             {children}
       </div>
 
-      <SelectByRadix value={perPage} onChange={(value) => setPerPage(value)} elements={["5", "10", "20", "50"]} extraLabel="per page" />
+      <SelectByRadix value={String(perPage)} onChange={(value) => onPerPageChange(value)} elements={["5", "10", "20", "50"]} extraLabel="per page" />
     </div>
   );
 }
