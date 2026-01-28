@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Download, Plus, RefreshCw, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
-import { Order, Stats } from '@/admin/types/ordersTypes';
+import { Stats } from '@/admin/types/ordersTypes';
 import { StatsCard } from './ordersComponents/StatsCard';
 import { OrderFilters } from './ordersComponents/OrderFilters';
 import { Card } from '../../../../components/ui/card';
@@ -14,7 +14,7 @@ import { SectionHeader } from '@/admin/components/layout/SectionHeader';
 import { PaginationTable } from '@/admin/components/layout/Pagination';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { TableMeta } from '@/components/ui/TableMeta';
-import { OrdersResponse } from '@/types/orders/ordersTypes';
+import { Order, OrdersResponse } from '@/types/orders/ordersTypes';
 
 
 function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersResponse) {
@@ -81,6 +81,17 @@ function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersRe
   const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
     setter(value);
   };
+
+  const handlePageChange = (action  : 'prev' | 'next' | number) => {
+
+    setCurrentPage(prev => {
+    if (typeof action === 'string'  && action === 'prev') return Math.max(1, prev - 1);
+    if (typeof action === 'string'  && action === 'next') return Math.min(paginatedOrders.total, prev + 1);
+    if(typeof action === 'number' && Number(action)) return action
+    return prev ;
+  });
+  
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -155,13 +166,13 @@ function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersRe
 
       
         <OrdersTable
-          orders={paginatedOrders ?? []}
+          orders={paginatedOrders.data ?? []}
         />
 
          {/* pagination */}
 
          <TableMeta onPerPageChange={(perPage) => setAmountPerPage(Number(perPage))} perPage={amountPerPage} currentPage={paginatedOrders.current_page} totalItems={paginatedOrders.total} >
-             <PaginationTable  totalPages={paginatedOrders.total} currentPage={currentPage} onCurrentPageChange={(page) => setCurrentPage(page) }  />
+             <PaginationTable  totalPages={paginatedOrders.total} currentPage={currentPage} onCurrentPageChange={handlePageChange}  />
          </TableMeta>
       </div>
 

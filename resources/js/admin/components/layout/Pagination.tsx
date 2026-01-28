@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationTableProps {
-   onCurrentPageChange : (page : () => number) => void ;
+   onCurrentPageChange : (action: 'prev' | 'next' | number) => void ;
    totalPages : number ; 
    currentPage : number
 
@@ -16,7 +16,7 @@ interface PaginationTableProps {
               type="button"
               variant="outline"
               size="icon"
-              onClick={() => onCurrentPageChange((prev) => Math.max(1, prev - 1))}
+              onClick={() => onCurrentPageChange('prev')}
               disabled={currentPage === 1}
               className="rounded-lg"
             >
@@ -53,7 +53,7 @@ interface PaginationTableProps {
               type="button"
               variant="outline"
               size="icon"
-              onClick={() => onCurrentPageChange((prev) => Math.min(totalPages, prev + 1))}
+              onClick={() => onCurrentPageChange('next')}
               disabled={currentPage === totalPages}
               className="rounded-lg"
             >

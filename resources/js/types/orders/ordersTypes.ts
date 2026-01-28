@@ -16,19 +16,34 @@ interface OrdersStatistics {
   canceled: OrderStatistic;
 }
 
-// Single order type (you can extend this with your actual Order fields)
-interface Order {
-  id: number;
-  order_number: number;
-  user_id: number;
-  status: string;
+export interface Order {
+  id: number;                        // internal ID, not usually visible
+  order_number: string;
+  customer: {
+      id : number  , 
+      name : string  , 
+      avatar : string 
+  };
+  order_items: {
+    ItemName : string
+    ItemImage : string
+    ItemId : string
+    ItemQuantity: number;
+    ItemPrice: number;
+  }[];                                // array of products in the order
   total_amount: number;
+  currency: "MAD";
+  payment_method: 'Card' | 'Paypal' | 'COD';
+  status: 'delivered' | 'out_for_delivery' | 'delivery_failed' | 'pending' | 'canceled' | 'returned';
+  confirmed: boolean;
   paid: boolean;
-  created_at: string;
+  shipping_cost?: number;
+  discount_amount?: number;
+  tax?: number;
+  notes?: string;
   updated_at: string;
-  // add more fields as needed
+  created_at: string;
 }
-
 // Paginated orders
 interface PaginatedOrders {
   data: Order[];

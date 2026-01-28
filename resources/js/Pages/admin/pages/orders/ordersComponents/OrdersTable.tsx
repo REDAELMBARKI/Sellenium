@@ -1,12 +1,12 @@
 import {
   Eye,
   EyeClosed,
+  MoreHorizontal,
   MoreVertical,
   Pencil,
   Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Order } from "@/admin/types/ordersTypes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import MoreOptions from "@/components/ui/moreOptions";
@@ -24,40 +24,63 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Order } from "@/types/orders/ordersTypes";
+
+
 
 interface OrdersTableProps {
   orders: Order[];
 }
 
+const ORDER_HEADER_KEYS   =  [
+  "order_number",
+  "date",
+  "customer",
+  "avatar",
+  "items",
+  "total_amount",
+  "currency",
+  "payment_method",
+  "status",
+  "confirmed",
+  "paid",
+  "shipping_cost",
+  "discount_amount",
+  "tax",
+  "notes",
+  "created_at", 
+];
+
+
 export function OrdersTable({ orders }: OrdersTableProps) {
   const {
     state: { currentTheme },
   } = useStoreConfigCtx();
-
+  
   /* ================= STATES ================= */
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [openMoreOptions, setOpenMoreOptions] = useState<string | null>(null);
-
+  const [showHiddennColumns , setShowHiddennColumns] = useState(false) ;
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Orders");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-
+  const [headerKeysToShow , setHeaderKeysToShow]  = useState(ORDER_HEADER_KEYS)
   const [perPage, setPerPage] = useState("10");
   const [currentPage, setCurrentPage] = useState(1);
 
   /* ================= FILTERING ================= */
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
-      const matchesSearch =
-        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customer.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = false 
+        // order.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // order.customer.name.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesStatus =
         statusFilter === "All Orders" ||
         order.status === statusFilter;
 
-      const orderDate = new Date(order.date).getTime();
+      const orderDate = new Date(order.created_at).getTime();
       const from = dateFrom ? new Date(dateFrom).getTime() : null;
       const to = dateTo ? new Date(dateTo).getTime() : null;
 
@@ -86,7 +109,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 
   const toggleSelectAll = () => {
     setSelectedOrders(
-      allSelected ? [] : filteredOrders.map((o) => o.id)
+      allSelected ? [] : filteredOrders.map((o) => String(o.id))
     );
   };
 
@@ -198,17 +221,16 @@ export function OrdersTable({ orders }: OrdersTableProps) {
                   onCheckedChange={toggleSelectAll}
                 />
               </TableHead>
+               {
+                  showHiddennColumns  && (
+                    <TableHead>
+                     <MoreHorizontal />
+                    </TableHead>
+                  )
+                   
+                }
 
-              {[
-                "Order",
-                "Date",
-                "Customer",
-                "Status",
-                "Items",
-                "Total",
-                "Payment Method",
-                "Actions",
-              ].map((h) => (
+              {headerKeysToShow.slice(0,6).concat(['actions']).map((h) => (
                 <TableHead
                   key={h}
                   className="text-xs uppercase"
@@ -220,129 +242,165 @@ export function OrdersTable({ orders }: OrdersTableProps) {
                   {h}
                 </TableHead>
               ))}
+
+               {
+                  !showHiddennColumns  && (
+                    <TableHead>
+                       <Button onClick={() => }>
+                        <MoreHorizontal /> more
+                       </Button>
+                    </TableHead>
+                  )
+                   
+                }
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {filteredOrders.map((order) => {
-              const isSelected = selectedOrders.includes(order.id);
+              const isSelected = selectedOrders.includes(String(order.id));
 
               return (
+                
                 <TableRow
                   key={order.id}
                   className="transition-colors cursor-pointer"
                   style={{
-                    background: isSelected
-                      ? `${currentTheme.accent}12`
-                      : currentTheme.card,
+                    background: isSelected ? `${currentTheme.accent}12` : currentTheme.card,
                     borderBottom: `1px solid ${currentTheme.border}`,
-                    borderLeft: isSelected
-                      ? `4px solid ${currentTheme.accent}`
-                      : "4px solid transparent",
+                    borderLeft: isSelected ? `4px solid ${currentTheme.accent}` : "4px solid transparent",
                   }}
                 >
-                  <TableCell
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Checkbox
-                      checked={isSelected}
-                      onCheckedChange={() =>
-                        toggleSelectOne(order.id)
-                      }
-                    />
-                  </TableCell>
+                {/* Select */}
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <Checkbox checked={isSelected} onCheckedChange={() => toggleSelectOne(String(order.id))} />
+                </TableCell>
 
-                  <TableCell
-                    className="font-medium"
-                    style={{ color: currentTheme.text }}
-                  >
-                    #{order.id}
-                  </TableCell>
+                {/* Order ID */}
+                <TableCell className="font-medium" style={{ color: currentTheme.text }}>
+                  #{order.order_number}
+                </TableCell>
 
-                  <TableCell
-                    className="text-sm"
-                    style={{ color: currentTheme.textMuted }}
-                  >
-                    {formatDate(order.date)}
-                  </TableCell>
+                {/* Date */}
+                <TableCell className="text-sm" style={{ color: currentTheme.textMuted }}>
+                  {formatDate(order.created_at)}
+                </TableCell>
 
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold"
-                        style={{
-                          background: currentTheme.accent,
-                          color: currentTheme.textInverse,
-                        }}
-                      >
-                        {order.avatar}
-                      </div>
-                      <span style={{ color: currentTheme.text }}>
-                        {order.customer}
-                      </span>
-                    </div>
-                  </TableCell>
-
-                  <TableCell
-                    className="text-sm"
-                    style={{ color: currentTheme.textMuted }}
-                  >
-                    {order.delivery}
-                  </TableCell>
-
-                  <TableCell style={{ color: currentTheme.text }}>
-                    {order.items} items
-                  </TableCell>
-
-                  <TableCell
-                    className="font-semibold"
-                    style={{ color: currentTheme.text }}
-                  >
-                    ${order.total}
-                  </TableCell>
-
-                  <TableCell>
-                    {getPaymentBadge(order.payment)}
-                  </TableCell>
-
-                  <TableCell
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() =>
-                        setOpenMoreOptions(
-                          openMoreOptions === order.id
-                            ? null
-                            : order.id
-                        )
-                      }
+                {/* Customer */}
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold"
+                      style={{
+                        background: currentTheme.accent,
+                        color: currentTheme.textInverse,
+                      }}
                     >
-                      <MoreVertical size={18} />
-                    </Button>
+                      {order.customer?.avatar}
+                    </div>
+                    <span style={{ color: currentTheme.text }}>{order.customer.name}</span>
+                  </div>
+                </TableCell>
 
-                    {openMoreOptions === order.id && (
-                      <MoreOptions>
-                        {[
-                          { icon: Eye, label: "View Details" },
-                          { icon: EyeClosed, label: "Mark as Shipped" },
-                          { icon: Pencil, label: "Edit" },
-                          { icon: Trash2, label: "Delete" },
-                        ].map(({ icon: Icon, label }) => (
-                          <button
-                            key={label}
-                            className="w-full px-4 py-2 flex items-center gap-2 text-sm"
-                            style={{ color: currentTheme.text }}
-                          >
-                            <Icon size={14} />
-                            {label}
-                          </button>
-                        ))}
-                      </MoreOptions>
-                    )}
-                  </TableCell>
-                </TableRow>
+
+                {/* Items Count */}
+                <TableCell style={{ color: currentTheme.text }}>
+                  {order.order_items.length} items
+                </TableCell>
+
+                {/* Total Amount */}
+                <TableCell className="font-semibold" style={{ color: currentTheme.text }}>
+                  {order.currency} {order.total_amount.toFixed(2)}
+                </TableCell>
+
+                {/* Payment Method */}
+                <TableCell>{getPaymentBadge(order.payment_method)}</TableCell>
+
+                {/* Status */}
+                <TableCell>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium`}
+                    style={{
+                      background:
+                        order.status === "delivered"
+                          ? "#d1fae5"
+                          : order.status === "pending"
+                          ? "#fef3c7"
+                          : order.status === "canceled"
+                          ? "#fee2e2"
+                          : "#e5e7eb",
+                      color:
+                        order.status === "delivered"
+                          ? "#065f46"
+                          : order.status === "pending"
+                          ? "#78350f"
+                          : order.status === "canceled"
+                          ? "#991b1b"
+                          : "#374151",
+                    }}
+                  >
+                    {order.status}
+                  </span>
+                </TableCell>
+
+                {/* Confirmed */}
+                <TableCell>
+                  {order.confirmed ? (
+                    <span style={{ color: "#10b981" }}>Yes</span>
+                  ) : (
+                    <span style={{ color: "#f59e0b" }}>No</span>
+                  )}
+                </TableCell>
+
+                {/* Paid */}
+                <TableCell>
+                  {order.paid ? (
+                    <span style={{ color: "#10b981" }}>Yes</span>
+                  ) : (
+                    <span style={{ color: "#ef4444" }}>No</span>
+                  )}
+                </TableCell>
+
+                {/* More options */}
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() =>
+                      setOpenMoreOptions(openMoreOptions === order.id ? null : order.id)
+                    }
+                  >
+                    <MoreVertical size={18} />
+                  </Button>
+
+                  {openMoreOptions === order.id && (
+                    <MoreOptions>
+                      {[
+                        { icon: Eye, label: "View Details" },
+                        { icon: Pencil, label: "Edit" },
+                        { icon: Trash2, label: "Delete" },
+                      ].map(({ icon: Icon, label }) => (
+                        <button
+                          key={label}
+                          className="w-full px-4 py-2 flex items-center gap-2 text-sm"
+                          style={{ color: currentTheme.text }}
+                        >
+                          <Icon size={14} />
+                          {label}
+                        </button>
+                      ))}
+                    </MoreOptions>
+                  )}
+                </TableCell>
+
+                {/* Overflow / Hidden columns */}
+                <TableCell>
+                  <span className="text-xs text-gray-400 cursor-pointer">⋯</span>
+                  {/* Here you could open a tooltip or modal to show:
+                      tax, notes, shipping_cost, discount_amount, items details, etc. */}
+                </TableCell>
+              </TableRow>
+
               );
             })}
           </TableBody>
