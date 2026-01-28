@@ -11,6 +11,7 @@ class OrderResource extends JsonResource
     public static $wrap = null;
     public function toArray(Request $request){
         $order = Parent::toArray($request);
+        // dd($order);
         return array_merge(
             Arr::except($order, ['user']),
             [

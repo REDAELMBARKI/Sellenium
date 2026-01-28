@@ -22,7 +22,9 @@ export interface Order {
   customer: {
       id : number  , 
       name : string  , 
-      avatar : string 
+      avatar : string ,
+      email : string , 
+      phone : string
   };
   order_items: {
     ItemName : string
@@ -31,6 +33,15 @@ export interface Order {
     ItemQuantity: number;
     ItemPrice: number;
   }[];                                // array of products in the order
+  address : {
+    address_line1 :string | null ;
+    address_line2 : string | null ;
+    city : string
+    state : string | null
+    postal_code : number | null
+    country :  string
+    phone :  string
+  }
   total_amount: number;
   currency: "MAD";
   payment_method: 'Card' | 'Paypal' | 'COD';

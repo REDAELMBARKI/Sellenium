@@ -7,6 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderAddress extends Model
 {
+    use HasFactory ;
+    protected $hidden = [
+    "id" ,
+    "order_id" ,
+    "type" , 
+    "full_name" , 
+    "created_at" ,
+    "updated_at" ,
+    ];
     protected $guarded = [];
-     use HasFactory ;
+    public function order(){
+        return $this->belongsTo(Order::class) ;
+    }
 }

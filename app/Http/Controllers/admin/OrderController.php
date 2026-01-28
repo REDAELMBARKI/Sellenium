@@ -11,8 +11,7 @@ use Inertia\Inertia;
 class OrderController extends Controller
 {
     public function index() {
-        $orders = OrderResource::collection(Order::with('user:id,name' , 'orderItems.product.thumbnail')->paginate(10));
-
+        $orders = OrderResource::collection(Order::with('user:id,name,email' , 'orderItems.product.thumbnail' , 'address')->paginate(10));
         $statistics = [
             'total' => [
                 'count' => 12,
