@@ -24,10 +24,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {   
-
-        $this->app->singleton(GoogleSheetsService::class, function ($app) {
-            return new GoogleSheetsService();
-        });
         Order::observe(OrderObserver::class);
         Vite::prefetch(concurrency: 3);
         Route::middleware('web') // or 'api' if you want

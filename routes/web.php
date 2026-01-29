@@ -9,6 +9,7 @@ use App\Http\Controllers\admin\OrderController as AdminOrderController;
 use App\Http\Controllers\admin\StoreConfigController;
 use App\Http\Controllers\admin\VariantsController;
 use App\Http\Controllers\AttributesController;
+use App\Http\Controllers\GoogleSheetsController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -35,6 +36,9 @@ Route::get('/cart', function () {
     return Inertia::render('ShoppingCartPage');
 })->name('cart');
 
+// routes/web.php
+Route::post('/google-sheets/create-orders', [GoogleSheetsController::class, 'createOrderSheet'])
+    ->name('google-sheets.create');
 
 
 // Route::get('/dashboard', function () {

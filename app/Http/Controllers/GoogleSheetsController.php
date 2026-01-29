@@ -1,13 +1,16 @@
 <?php
 
+namespace App\Http\Controllers;
+
 use App\Models\SheetsCustom;
 use App\Services\Google\GoogleSheetsService;
+use Illuminate\Http\Request;
 
-class GoogleSheetManager
+class GoogleSheetsController extends Controller
 {
     public function __construct(private GoogleSheetsService $service) {}
 
-    public function getOrCreateOrdersSheet(): SheetsCustom
+    private function getOrCreateOrdersSheet(): SheetsCustom
     {
         return SheetsCustom::firstOrCreate(
                 ['key' => 'orders'],
@@ -22,6 +25,10 @@ class GoogleSheetManager
                     ];
                 }
         );
-}
+    }
 
+    public function createOrderSheet(){
+        $sheet =  $this->getOrCreateOrdersSheet();
+        return redirect()->back()->with('success', "Orders sheet created! <a href='{$sheet->spreadsheet_url}' target='_blank'>Open Sheet</a>");
+    }
 }

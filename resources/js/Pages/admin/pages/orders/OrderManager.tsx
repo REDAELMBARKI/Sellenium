@@ -15,6 +15,7 @@ import { PaginationTable } from '@/admin/components/layout/Pagination';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { TableMeta } from '@/components/ui/TableMeta';
 import { Order, OrdersResponse } from '@/types/orders/ordersTypes';
+import { router } from '@inertiajs/react';
 
 
 function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersResponse) {
@@ -77,7 +78,12 @@ function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersRe
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || dateFrom || dateTo;
 
 
-
+  const handleCreateSheet = async () => {
+      const response = await router.post('google-sheets.create', {} , {
+         onError : (err) => console.warn(err) , 
+         onSuccess : () => console.log('success request')
+      });
+  }
   const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
     setter(value);
   };
@@ -107,6 +113,10 @@ function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersRe
             <Button type="button" className="rounded-lg" variant='default'>
               <Plus size={18} />
               Create Order
+            </Button>
+            <Button onClick={handleCreateSheet}>
+              <Plus />
+              Create Sheet
             </Button>
             </div>
         </SectionHeader>

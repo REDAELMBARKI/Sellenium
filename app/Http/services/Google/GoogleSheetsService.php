@@ -20,8 +20,6 @@ class GoogleSheetsService
         $this->service = new Sheets($client);
     }
 
-    // seviice $service = app(GoogleSheetsService::class)->make();
-
     public function createOrderSheet($sheetName = 'orders'){
         $sheet = $this->service = new Sheets\Spreadsheet([
          'properties' => [
