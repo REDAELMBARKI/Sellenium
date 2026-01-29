@@ -1,15 +1,17 @@
 <?php
 
 namespace App\Services\Google;
+
+use App\Http\Controllers\SheetsController;
+use App\Models\SheetsCustom;
+use Exception;
 use Google\Client;
 use Google\Service\Sheets;
 
 class GoogleSheetsService
 {
     protected $service ;
-    public function __construct(
-       
-    ) {
+    public function __construct() {
         $client = new Client();
         $client->setApplicationName(config('google.application_name'));
         $client->setAuthConfig(config('google.credentials_path'));
@@ -20,7 +22,7 @@ class GoogleSheetsService
 
     // seviice $service = app(GoogleSheetsService::class)->make();
 
-    public function createOrderSheet($sheetName = 'My Orders'){
+    public function createOrderSheet($sheetName = 'orders'){
         $sheet = $this->service = new Sheets\Spreadsheet([
          'properties' => [
                 'title' => $sheetName
@@ -30,15 +32,10 @@ class GoogleSheetsService
         $createdSheet = $this->service->spreadsheets->create($sheet);
         $spreadSheetId = $createdSheet->spreadsheetId ;
         $this->setupHeaders($spreadSheetId);
-        // Save to settings
-        Setting::set('google_sheet_id', $spreadSheetId);
-        Setting::set('google_sheet_url', "https://docs.google.com/spreadsheets/d/{$spreadSheetId}");
-        
         return $spreadSheetId;
-
     }
 
-    public function setupHeaders($spreadsheetId, $sheetName = 'Orders')
+    public function setupHeaders($spreadsheetId, $sheetName = 'orders')
     {
         // Add headers
         $headers = [
@@ -117,13 +114,9 @@ class GoogleSheetsService
         
         $this->service->spreadsheets->batchUpdate($spreadsheetId, $batchUpdateRequest);
     }
-
-
-      // Get the current sheet ID from settings
-    public function getSheetId()
-    {
-        return Setting::get('google_sheet_id');
+    
+    public function appendOrder(){
+        
     }
-
-
+   
 }
