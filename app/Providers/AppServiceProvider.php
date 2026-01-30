@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Models\Order;
 use App\Observers\OrderObserver;
-use App\Services\Google\GoogleSheetsService;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;

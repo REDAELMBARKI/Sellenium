@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Services\product\validation;
+namespace App\Services\product\validation;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;

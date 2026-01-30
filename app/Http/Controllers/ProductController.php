@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDraftProductRequest;
 use App\Http\Resources\ProductResources;
-use App\Http\Services\product\ProductService;
+use App\Services\product\ProductService;
 use App\Models\Category;
 use App\Models\Media;
 use App\Models\Product;

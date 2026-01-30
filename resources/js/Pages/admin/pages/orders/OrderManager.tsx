@@ -16,6 +16,8 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { TableMeta } from '@/components/ui/TableMeta';
 import { Order, OrdersResponse } from '@/types/orders/ordersTypes';
 import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
+import axios from 'axios';
 
 
 function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersResponse) {
@@ -79,10 +81,9 @@ function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersRe
 
 
   const handleCreateSheet = async () => {
-      const response = await router.post('google-sheets.create', {} , {
-         onError : (err) => console.warn(err) , 
-         onSuccess : () => console.log('success request')
-      });
+      const response = await axios.post(route('googleSheet.create'), {})
+      const res = response.data
+     
   }
   const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
     setter(value);

@@ -3,25 +3,27 @@
 namespace App\Services\Google;
 
 use App\Http\Controllers\SheetsController;
-use App\Models\SheetsCustom;
 use Exception;
 use Google\Client;
 use Google\Service\Sheets;
+use Google_Client;
+use Google_Service_Drive;
 
 class GoogleSheetsService
 {
     protected $service ;
-    public function __construct() {
-        $client = new Client();
-        $client->setApplicationName(config('google.application_name'));
-        $client->setAuthConfig(config('google.credentials_path'));
-        $client->setScopes([Sheets::SPREADSHEETS]);
+    public function __construct(Google_Client $client) {
+        $client->
         $client->setAccessType('offline');
-        $this->service = new Sheets($client);
+        // ONLY FOR LOCAL DEVELOPMENT - REMOVE IN PRODUCTION
+        $httpClient = new \GuzzleHttp\Client(['verify' => false]);
+        $client->setHttpClient($httpClient);
+        $service = new Sheets($client);
     }
 
-    public function createOrderSheet($sheetName = 'orders'){
-        $sheet = $this->service = new Sheets\Spreadsheet([
+    public function createOrderSheet(Google_Client $client  , $sheetName = 'orders'){
+        $client->setScopes([Sheets::SPREADSHEETS]);
+        $sheet = new Sheets\Spreadsheet([
          'properties' => [
                 'title' => $sheetName
             ]
@@ -32,6 +34,7 @@ class GoogleSheetsService
         $this->setupHeaders($spreadSheetId);
         return $spreadSheetId;
     }
+
 
     public function setupHeaders($spreadsheetId, $sheetName = 'orders')
     {

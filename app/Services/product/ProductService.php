@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Http\Services\product;
+namespace App\Services\product;
 
 use App\Models\Product;
 use App\Models\Tag;

@@ -3,7 +3,7 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Services\product\validation\SubmitedProductValidation;
+use App\Services\product\validation\SubmitedProductValidation;
 use App\Models\Media;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;

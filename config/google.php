@@ -1,12 +1,6 @@
 <?php
 
 return [
-    'application_name' => env('GOOGLE_APPLICATION_NAME', 'Laravel Google Sheets'),
-    'credentials_path' => storage_path('app/google/credentials.json'),
-    'spreadsheet_id' => env('GOOGLE_SPREADSHEET_ID'),
+    'application_name' => env('APP_NAME', 'MyEcomApp'),
+    'credentials_path' => storage_path('app/google/laravelsheets-clientSheetcredentials.json'),
 ];
-// ```
-
-// Add to `.env`:
-// ```
-// GOOGLE_SPREADSHEET_ID=your_spreadsheet_id_here
