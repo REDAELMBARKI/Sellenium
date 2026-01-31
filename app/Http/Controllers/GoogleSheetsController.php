@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class GoogleSheetsController extends Controller
-{   protected $service;
+{
+    
+    protected $service;
     public function __construct(GoogleSheetsService $service) {
         $this->service = $service ;
     }
@@ -30,7 +32,7 @@ class GoogleSheetsController extends Controller
 
         if (!$sheet) {
             // Create the sheet via Google API
-            $spreadsheetId = $this->service->createOrderSheet('Orders');
+            $spreadsheetId = $this->service->createOrderSheet('orders');
 
             // Insert into DB
             $sheet = GoogleSheet::create([
@@ -43,9 +45,6 @@ class GoogleSheetsController extends Controller
         return $sheet;
     }
 
-
-
-
     public function createOrderSheet(){
         try {
             $sheet = $this->getOrCreateOrdersSheet();
@@ -55,8 +54,7 @@ class GoogleSheetsController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
             return redirect()->back()->with('error', 'Failed to create sheet: ' . $e->getMessage());
         }
-   }
+    }
 }

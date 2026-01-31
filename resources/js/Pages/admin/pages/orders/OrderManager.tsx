@@ -81,8 +81,7 @@ function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersRe
 
 
   const handleCreateSheet = async () => {
-      const response = await axios.post(route('googleSheet.create'), {})
-      const res = response.data
+     globalThis.location.href = '/sheetAuth/google/auth'; // This works!
      
   }
   const handleFilterChange = (setter: (value: string) => void) => (value: string) => {

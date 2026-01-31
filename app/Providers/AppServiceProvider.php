@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
-    {   
+    {
         Order::observe(OrderObserver::class);
         Vite::prefetch(concurrency: 3);
         Route::middleware('web') // or 'api' if you want

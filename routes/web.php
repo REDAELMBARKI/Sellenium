@@ -40,6 +40,7 @@ Route::get('/cart', function () {
 
 // routes/web.php or api.php
 Route::get('/sheetAuth/google/callback', [DriveController::class, 'callBack']);
+Route::get('/sheetAuth/google/auth', [DriveController::class, 'auth']);
 Route::post('/sheets', [DriveController::class, 'auth'])
 ->name('googleSheet.create');
 

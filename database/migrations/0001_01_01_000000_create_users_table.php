@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('google_id')->nullable();
+            $table->text('google_token')->nullable();
+            $table->text('google_refresh_token')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
@@ -42,7 +45,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['google_id', 'google_token', 'google_refresh_token']);
+        });
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }

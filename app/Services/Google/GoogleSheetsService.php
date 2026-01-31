@@ -12,17 +12,14 @@ use Google_Service_Drive;
 class GoogleSheetsService
 {
     protected $service ;
+    protected $client ;
     public function __construct(Google_Client $client) {
-        $client->
-        $client->setAccessType('offline');
-        // ONLY FOR LOCAL DEVELOPMENT - REMOVE IN PRODUCTION
-        $httpClient = new \GuzzleHttp\Client(['verify' => false]);
-        $client->setHttpClient($httpClient);
-        $service = new Sheets($client);
+        $this->client = $client ;
+        $this->service = new Sheets($this->client);
     }
 
-    public function createOrderSheet(Google_Client $client  , $sheetName = 'orders'){
-        $client->setScopes([Sheets::SPREADSHEETS]);
+    public function createOrderSheet($sheetName = 'orders'){
+        $this->client->setScopes([Sheets::SPREADSHEETS]);
         $sheet = new Sheets\Spreadsheet([
          'properties' => [
                 'title' => $sheetName
