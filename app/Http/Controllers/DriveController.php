@@ -21,11 +21,16 @@ class DriveController extends Controller
     
     public function callBack(GoogleSheetsService $sheetService)
     {
+       
         $socialite = app('Laravel\Socialite\Contracts\Factory');
         $httpClient = new \GuzzleHttp\Client(['verify' => false]);
         $googleUser = $socialite->driver('google-drive')->setHttpClient($httpClient)->stateless()->user();
+         
+        if (!$googleUser) {
+            return redirect('/login')->with('error', 'Failed to get Google user data');
+        }
         $user = Auth::user();
-        
+      
         if (!$user) {
             return redirect('/login')->with('error', 'Please login first');
         }

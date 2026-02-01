@@ -16,7 +16,7 @@ class GoogleServiceClientProvider extends ServiceProvider
     {
         $this->app->singleton('googleApp' , function($app){
             $client = new Google_Client() ;
-            $client->setAuthConfig(config('google.oauth_credentials_path'));
+            $client->setAuthConfig(config('googleDrive.oauth_drive_credentials_path'));
                $client->setScopes([
                 Google_Service_Drive::DRIVE_FILE,
                 Google_Service_Sheets::SPREADSHEETS

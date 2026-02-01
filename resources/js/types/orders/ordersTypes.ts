@@ -66,6 +66,8 @@ interface PaginatedOrders {
 
 // Full response from backend
 export interface OrdersResponse {
+  sheetUrl?:string, 
+  success?:string;
   orders: PaginatedOrders;
   statistics: OrdersStatistics;
 }

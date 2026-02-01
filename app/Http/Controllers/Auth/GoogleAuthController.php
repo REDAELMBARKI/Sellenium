@@ -18,20 +18,21 @@ class GoogleAuthController extends Controller
 
     }
     
-    public function callback()
-    {
-        $googleUser = Socialite::driver('google-login')->user();
-        dd($googleUser);
-        // Find or create user
+   public function callback()
+{
+    try {
+        $socialite = app('Laravel\Socialite\Contracts\Factory');
+        $httpClient = new \GuzzleHttp\Client(['verify' => false]);
+        
+        $googleUser = $socialite->driver('google-login')
+            ->setHttpClient($httpClient)
+            ->user();
+        
         $user = User::where('email', $googleUser->email)->first();
         
         if ($user) {
-            // Existing user - just login
-            $user->update([
-                'google_id' => $googleUser->id,
-            ]);
+            $user->update(['google_id' => $googleUser->id]);
         } else {
-            // New user - register
             $user = User::create([
                 'name' => $googleUser->name,
                 'email' => $googleUser->email,
@@ -41,9 +42,13 @@ class GoogleAuthController extends Controller
             ]);
         }
         
-        // Log them in
         Auth::login($user);
         
         return redirect('/')->with('success', 'Logged in successfully!');
+        
+    } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
+        return redirect('/login')->with('error', 'Session expired. Please try again.');
+    }
+        
     }
 }

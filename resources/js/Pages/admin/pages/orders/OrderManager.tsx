@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Download, Plus, RefreshCw, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import { Stats } from '@/admin/types/ordersTypes';
@@ -15,12 +15,12 @@ import { PaginationTable } from '@/admin/components/layout/Pagination';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { TableMeta } from '@/components/ui/TableMeta';
 import { Order, OrdersResponse } from '@/types/orders/ordersTypes';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import axios from 'axios';
 
 
-function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersResponse) {
+function OrderManager({orders : paginatedOrders , statistics : stats  } : OrdersResponse) {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -51,7 +51,8 @@ function OrderManager({orders : paginatedOrders , statistics : stats} : OrdersRe
       return matchesSearch && matchesStatus && matchesDate;
     });
   }, [searchQuery, statusFilter, dateFrom, dateTo, allOrders]);
-
+ 
+  
  
   const handleSelectOrder = (id: string) => {
     setSelectedOrders((prev) =>
