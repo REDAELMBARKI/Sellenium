@@ -8,28 +8,42 @@ use Google\Client;
 use Google\Service\Sheets;
 use Google_Client;
 use Google_Service_Drive;
+use Illuminate\Support\Facades\Log;
 
 class GoogleSheetsService
 {
     protected $service ;
     protected $client ;
-    public function __construct(Google_Client $client) {
-        $this->client = $client ;
+    public function __construct() {
+        $this->client = app('googleApp') ;
         $this->service = new Sheets($this->client);
     }
 
-    public function createOrderSheet($sheetName = 'orders'){
+    public function createOrderSheet($sheetName = 'orders' , $accessToken = null){
+        if ($accessToken) {
+            $this->client->setAccessToken($accessToken);
+        }else{
+            Log::emergency('access token ' , 'acces token for creating sheets is missing or null');
+        }
+
         $this->client->setScopes([Sheets::SPREADSHEETS]);
         $sheet = new Sheets\Spreadsheet([
-         'properties' => [
-                'title' => $sheetName
+            'properties' => [
+                    'title' => $sheetName
+            ],
+           'sheets' => [
+            [
+                'properties' => [
+                    'title' => 'orders', // ✅ Create the "orders" tab
+                ]
             ]
+        ]
         ]) ;
 
         $createdSheet = $this->service->spreadsheets->create($sheet);
         $spreadSheetId = $createdSheet->spreadsheetId ;
         $this->setupHeaders($spreadSheetId);
-        return $spreadSheetId;
+        return $createdSheet;
     }
 
 

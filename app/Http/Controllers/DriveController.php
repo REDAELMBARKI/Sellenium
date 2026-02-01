@@ -3,32 +3,41 @@
 namespace App\Http\Controllers;
 
 use App\Services\Google\GoogleSheetsService;
-use Google_Client;
-use Google_Service_Drive;
-use Google_Service_Sheets;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Auth;
+
 class DriveController extends Controller
 {
-    private $client ;
-    public function __construct()
+    public function auth()
     {
-         $this->client = app('googleApp');
-    }
-
-    // public function callBack(){
+        $socialite = app('Laravel\Socialite\Contracts\Factory');
         
-    // }
-
-    public function auth(){
-        try{
-             return Socialite::driver('google')
+        return $socialite->driver('google-drive')
             ->scopes(['https://www.googleapis.com/auth/drive.file'])
-            ->with(['prompt' => 'consent'])  // ✅ Force consent screen
+            ->stateless()
+            ->with(['prompt' => 'consent'])
             ->redirect();
-        }catch(\Exception $e){
-          Log::error($e->getMessage());
-        }
     }
+    
+    public function callBack(GoogleSheetsService $sheetService)
+    {
+        $socialite = app('Laravel\Socialite\Contracts\Factory');
+        $httpClient = new \GuzzleHttp\Client(['verify' => false]);
+        $googleUser = $socialite->driver('google-drive')->setHttpClient($httpClient)->stateless()->user();
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect('/login')->with('error', 'Please login first');
+        }
+        
+        $user->update([
+            'google_token' => $googleUser->token,
+            'google_refresh_token' => $googleUser->refreshToken,
+        ]);
+      
+        $createdSheet = $sheetService->createOrderSheet('orders' , $googleUser->token) ;
+        return redirect()->away($createdSheet->spreadsheetUrl);
+    }
+    
+   
 }

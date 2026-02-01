@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import { router } from "@inertiajs/react";
+import { route } from "ziggy-js";
 
 export function Header() {
   const { admin } = useAuth();
@@ -15,6 +17,9 @@ export function Header() {
     // Implement your sidebar toggle logic here, e.g. updating state or triggering a class
   };
 
+  const logout = () => {
+     router.post(route('logout'))
+  }
   return (
     <header 
     style={{background : currentTheme.bg , color : currentTheme.text}}
@@ -80,7 +85,7 @@ export function Header() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              // onClick={logout}
+              onClick={logout}
               data-testid="menu-item-logout"
               className="text-destructive focus:text-destructive"
             >

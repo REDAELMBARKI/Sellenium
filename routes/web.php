@@ -16,6 +16,33 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+
+// auth 
+Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
+    ->name('google.login');
+   
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
+    ->name('google.callback');
+
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])
+    ->name('login');
+
+
+Route::get('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->name('logout');    
+    
+Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+    ->name('login.store');
+
+Route::get('/register', [RegisteredUserController::class, 'create'])
+    ->name('register');
+    
+Route::post('/register', [RegisteredUserController::class, 'store'])
+    ->name('register.store');
+
 
 Route::get('/', function () {
     return Inertia::render('HomePage');
@@ -36,6 +63,8 @@ Route::get('/blog', function () {
 Route::get('/cart', function () {
     return Inertia::render('ShoppingCartPage');
 })->name('cart');
+
+
 
 
 // routes/web.php or api.php
@@ -112,7 +141,7 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 
 // oderes
 // OrderManager
-Route::get('/orders' , [AdminOrderController::class, 'index']) ;
+Route::get('/orders' , [AdminOrderController::class, 'index'])->middleware('auth') ;
 
 
 
