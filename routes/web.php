@@ -141,7 +141,7 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 
 // oderes
 // OrderManager
-Route::get('/orders' , [AdminOrderController::class, 'index'])->middleware('auth') ;
+Route::get('/orders' , [AdminOrderController::class, 'index'])->middleware('auth')->name('orders.index') ;
 
 
 

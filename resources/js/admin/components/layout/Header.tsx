@@ -18,7 +18,7 @@ export function Header() {
   };
 
   const logout = () => {
-     router.post(route('logout'))
+     router.get(route('logout'))
   }
   return (
     <header 

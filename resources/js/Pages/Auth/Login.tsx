@@ -15,8 +15,25 @@ export default function Login() {
         post(route('login.store'));
     };
 
-    const handleGoogleLogin = () => {
-        window.location.href = route('google.login');
+     const handleGoogleLogin = () => {
+        const width = 500;
+        const height = 600;
+        const left = (window.screen.width / 2) - (width / 2);
+        const top = (window.screen.height / 2) - (height / 2);
+        
+        const popup = window.open(
+            route('google.login'),
+            'Google Login',
+            `width=${width},height=${height},left=${left},top=${top},toolbar=0,scrollbars=1,status=1,resizable=1,location=1,menuBar=0`
+        );
+        
+        // Listen for popup close and reload
+        const checkPopup = setInterval(() => {
+            if (!popup || popup.closed) {
+                clearInterval(checkPopup);
+                window.location.reload(); // Refresh to check if logged in
+            }
+        }, 1000);
     };
 
     return (

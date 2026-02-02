@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Services\Google\GoogleSheetsService;
+use App\Services\OrderService;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class DriveController extends Controller
 {
@@ -19,7 +21,7 @@ class DriveController extends Controller
             ->redirect();
     }
     
-    public function callBack(GoogleSheetsService $sheetService)
+    public function callBack(GoogleSheetsService $sheetService , OrderService $os)
     {
        
         $socialite = app('Laravel\Socialite\Contracts\Factory');
@@ -40,8 +42,15 @@ class DriveController extends Controller
             'google_refresh_token' => $googleUser->refreshToken,
         ]);
       
-        $createdSheet = $sheetService->createOrderSheet('orders' , $googleUser->token) ;
-        return redirect()->away($createdSheet->spreadsheetUrl);
+        $sheet = $sheetService->getOrCreateOrderSheet('orders' , $googleUser->token) ;
+        return Inertia::render('admin/pages/orders/OrderManager' ,
+        [
+
+            'statistics' => $os->getStats() ,
+            'orders' => $os->getOrders() ,
+            'sheetUrl' => $sheet?->spreadsheet_url,
+
+        ]);
     }
     
    

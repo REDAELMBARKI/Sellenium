@@ -20,7 +20,7 @@ import { route } from 'ziggy-js';
 import axios from 'axios';
 
 
-function OrderManager({orders : paginatedOrders , statistics : stats  } : OrdersResponse) {
+function OrderManager({orders : paginatedOrders , statistics : stats  , sheetUrl } : OrdersResponse) {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -82,8 +82,11 @@ function OrderManager({orders : paginatedOrders , statistics : stats  } : Orders
 
 
   const handleCreateSheet = async () => {
-     globalThis.location.href = '/sheetAuth/google/auth'; // This works!
-     
+    if(!sheetUrl || sheetUrl == '' )  globalThis.location.href = '/sheetAuth/google/auth'; 
+    else {
+        // Sheet exists, open it
+        window.open(sheetUrl, '_blank'); // Opens in new tab
+    }
   }
   const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
     setter(value);
@@ -117,7 +120,7 @@ function OrderManager({orders : paginatedOrders , statistics : stats  } : Orders
             </Button>
             <Button onClick={handleCreateSheet}>
               <Plus />
-              Create Sheet
+              {sheetUrl ? 'Open sheet' : 'Create Sheet'}
             </Button>
             </div>
         </SectionHeader>

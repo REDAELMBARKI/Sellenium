@@ -3,6 +3,7 @@
 namespace App\Services\Google;
 
 use App\Http\Controllers\SheetsController;
+use App\Models\GoogleSheet;
 use Exception;
 use Google\Client;
 use Google\Service\Sheets;
@@ -19,7 +20,7 @@ class GoogleSheetsService
         $this->service = new Sheets($this->client);
     }
 
-    public function createOrderSheet($sheetName = 'orders' , $accessToken = null){
+    private function createOrderSheet($sheetName , $accessToken){
         if ($accessToken) {
             $this->client->setAccessToken($accessToken);
         }else{
@@ -34,18 +35,32 @@ class GoogleSheetsService
            'sheets' => [
             [
                 'properties' => [
-                    'title' => 'orders', // ✅ Create the "orders" tab
+                    'title' => $sheetName
                 ]
             ]
         ]
         ]) ;
 
         $createdSheet = $this->service->spreadsheets->create($sheet);
+        
         $spreadSheetId = $createdSheet->spreadsheetId ;
         $this->setupHeaders($spreadSheetId);
+        $this->syncFirstTimeDataToSheet() ;
         return $createdSheet;
     }
 
+    public function getOrCreateOrderSheet($sheetName= 'orders' , $accessToken = null){
+        $sheet = GoogleSheet::where('key' , $sheetName)->first() ;
+        if(!$sheet){
+            $createdSheet = $this->createOrderSheet($sheetName, $accessToken);
+            return GoogleSheet::create([
+                'key' => $sheetName ,
+                'spreadsheet_id' => $createdSheet->spreadsheetId ,
+                'spreadsheet_url' =>  $createdSheet->spreadsheetUrl ,
+            ]);
+        }
+        return $sheet;
+    }
 
     public function setupHeaders($spreadsheetId, $sheetName = 'orders')
     {
@@ -127,8 +142,12 @@ class GoogleSheetsService
         $this->service->spreadsheets->batchUpdate($spreadsheetId, $batchUpdateRequest);
     }
     
+    public function syncFirstTimeDataToSheet(){
+
+    }
+    
     public function appendOrder(){
-        
+    
     }
    
 }
