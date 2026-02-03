@@ -42,7 +42,7 @@ class DriveController extends Controller
             'google_refresh_token' => $googleUser->refreshToken,
         ]);
       
-        $sheet = $sheetService->getOrCreateOrderSheet('orders' , $googleUser->token) ;
+        $sheet = $sheetService->getOrCreateOrderSheet($googleUser->token) ;
         return Inertia::render('admin/pages/orders/OrderManager' ,
         [
 

@@ -6,9 +6,22 @@ use App\Services\Google\GoogleSheetsService;
 
 class OrderObserver
 {
+    public function __construct(
+        protected GoogleSheetsService $sheetService
+    ) {}
+
     public function created(Order $order)
     {
-        // call service to append this order
-        app(GoogleSheetsService::class)->appendOrder($order);
+        $this->sheetService->appendOrder($order);
+    }
+
+    public function updated(Order $order)
+    {
+        $this->sheetService->updateOrder($order);
+    }
+
+    public function deleted(Order $order)
+    {
+        $this->sheetService->deleteOrder($order);
     }
 }
