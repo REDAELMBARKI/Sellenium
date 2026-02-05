@@ -18,10 +18,6 @@ class ProductFactory extends Factory
             ]),
             'description' => $this->faker->paragraphs(3, true),
 
-            'price' => $price,
-            'oldPrice' => $hasOldPrice
-                ? $price + $this->faker->randomFloat(2, 50, 800)
-                : null,
 
             'isFeatured' => $this->faker->boolean(20),
             'isFreeShipping' => $this->faker->boolean(30),

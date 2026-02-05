@@ -16,8 +16,7 @@ return new class extends Migration
             $table->string('name')->nullable();        // user might not fill yet
             $table->string('brand')->nullable();       // optional in draft
             $table->text('description')->nullable();   // optional in draft
-            $table->decimal('price', 10, 2)->nullable();
-            $table->decimal('oldPrice', 10, 2)->nullable();
+          
             $table->boolean('isFeatured')->default(false);
             $table->boolean('isFreeShipping')->default(false);
             

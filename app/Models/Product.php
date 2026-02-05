@@ -53,11 +53,9 @@ class Product extends Model
     ];
   
 
-    public static function getColumsToselect(){
-        return array_merge(
-            ['id'],
-            (new Static)->getFillable()
-        );
+
+    public function variants(){
+        $this->hasMany(ProductVariant::class , 'product_id' , 'id') ;
     }
 
     public function thumbnail(){
@@ -104,18 +102,15 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
  
-   
-    // public function covers() // for example only 
-    // {
-    //     return $this->hasManyThrough(Cover::class, Inventory::class, 'product_id', 'inventory_id', 'id', 'id') ;
-              
-    // }
+
 
     public function promotion()
     {
         return $this->belongsTo(Promotion::class);
     }
    
+
+
 
 
    

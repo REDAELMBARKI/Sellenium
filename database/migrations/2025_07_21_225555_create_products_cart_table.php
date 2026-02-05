@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,14 +16,16 @@ return new class extends Migration
     {
         Schema::create('products_cart', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(ProductVariant::class , 'product_variant_id')->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->string('cart_token')->nullable(); // for guest users
             $table->integer('quantity')->default(1);
             // Store price at the moment to avoid price changes affecting cart
-            $table->decimal('price', 12, 2);
-            $table->unique(['user_id' , 'product_id']);
+            $table->decimal('price_snapshot', 10, 2)->nullable();
+            $table->index(['user_id', 'product_variant_id']);
             $table->timestamps();
         });
+        
     }
 
     /**

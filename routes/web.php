@@ -1,13 +1,12 @@
 <?php
 
-use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\admin\CurstomerController;
-use App\Http\Controllers\admin\DashboardController;
-use App\Http\Controllers\admin\MessageController;
-use App\Http\Controllers\admin\OrderController as AdminOrderController;
-use App\Http\Controllers\admin\StoreConfigController;
-use App\Http\Controllers\admin\VariantsController;
+use App\Http\Controllers\CurstomerController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\StoreConfigController;
+use App\Http\Controllers\VariantsController;
 use App\Http\Controllers\AttributesController;
 use App\Http\Controllers\DriveController;
 use App\Http\Controllers\GoogleSheetsController;
@@ -141,8 +140,8 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 
 // oderes
 // OrderManager
-Route::get('/orders' , [AdminOrderController::class, 'index'])->middleware('auth')->name('orders.index') ;
-
+Route::get('/orders' , [OrderController::class, 'index'])->middleware('auth')->name('orders.index') ;
+Route::post('/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
 
 
 // customer

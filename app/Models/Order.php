@@ -9,7 +9,21 @@ class Order extends Model
 {
     /** @use HasFactory<\Database\Factories\OrderFactory> */
     use HasFactory;
-     protected $guarded = [];
+    protected $fillable = [
+        'order_number',
+        'user_id',
+        'status',
+        'confirmed',
+        'tax',
+        'currency',
+        'payment_method',
+        'paid',
+        'paid_at',
+        'shipping_cost',
+        'discount_amount',
+        'total_amount',
+        'notes',
+    ];
      protected $hidden = [
       'updated_at'
      ] ;

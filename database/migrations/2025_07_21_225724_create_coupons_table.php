@@ -13,6 +13,33 @@ return new class extends Migration
     {
         Schema::create('coupons', function (Blueprint $table) {
             $table->id();
+            $table->string('code')->unique(); // SUMMER2024, WELCOME10
+            $table->string('description')->nullable(); // "Summer sale discount"
+            
+            // Discount Type
+            $table->enum('type', ['percentage', 'fixed']); // 20% off OR 50 MAD off
+            $table->decimal('value', 10, 2); // 20.00 (for 20%) or 50.00 (for 50 MAD)
+            
+            // Minimum Requirements
+            $table->decimal('minimum_order_amount', 10, 2)->nullable(); // Min 200 MAD to use coupon
+            $table->integer('minimum_items')->nullable(); // Min 2 items required
+            
+            // Usage Limits
+            $table->integer('max_uses')->nullable(); // Total times coupon can be used (null = unlimited)
+            $table->integer('max_uses_per_user')->default(1); // How many times ONE user can use it
+            $table->integer('times_used')->default(0); // Track how many times it's been used
+            
+            // Validity Period
+            $table->dateTime('valid_from')->nullable();
+            $table->dateTime('valid_until')->nullable();
+            
+            // Status
+            $table->boolean('is_active')->default(true);
+            
+            // Optional: Specific Products/Categories
+            $table->json('applicable_product_ids')->nullable(); // [1, 2, 5] - only these products
+            $table->json('applicable_category_ids')->nullable(); // [3, 7] - only these categories
+            
             $table->timestamps();
         });
     }
