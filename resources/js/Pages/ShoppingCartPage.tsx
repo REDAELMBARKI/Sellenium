@@ -8,6 +8,7 @@ import {
     Package,
     Lock,
 } from "lucide-react";
+import { StyledCo } from "./styles/ShopingCartPageStyles";
 
 type PaymentMethod = "cod" | "card";
 
@@ -79,6 +80,7 @@ function ShoppingCartContent({
                     className="text-xl font-bold mb-6"
                 >
                     Order Summary
+                    <StyledCo.Test >hello</StyledCo.Test>
                 </h2>
 
                 <div
