@@ -76,12 +76,24 @@ class OrderController extends Controller
             ]);
         }
 
-        $cartItems = Cart::where('user_id', Auth::user()->id )
-        ->orWhere('cart_token' , Cookie::get('cart_token'))
-        ->with('product')
-        ->get();
-    
+        $cartItems = Cart::query()
+            ->when(Auth::check(), function($q) {
+                $q->where('user_id', Auth::id());
+            })
+            ->when(!Auth::check() && Cookie::has('cart_token'), function($q) {
+                $q->where('cart_token', Cookie::get('cart_token'));
+            })
+            ->with('productVariant.product')
+            ->get();
+        
+            dd($cartItems);
 
+        // validate cart items
+        if ($cartItems->isEmpty()) {
+            return response()->json([
+                'message' => 'Your cart is empty.'
+            ], 400);
+        }
         // Validate stock
         foreach ($cartItems as $item) {
             if ($item->product->stock < $item->quantity) {
@@ -91,14 +103,8 @@ class OrderController extends Controller
             }
         }
     
-
-        $dto = CreateOrderDTO::fromRequest($request->validated());
-        if (empty($dto->items))
-        {
-            return response()->json([
-                'message' => 'Your cart is empty.'
-            ], 400);
-        }
+ 
+        $dto = CreateOrderDTO::fromRequest(array_merge($request->validated() , ['items' => $cartItems->toArray()]));
         
         try{
             $order = $action->execute($dto);
@@ -107,6 +113,9 @@ class OrderController extends Controller
              throw new OrderException($e);
         }
     }
+
+
+
     public function destroy(Order $order)
     {
         Order::destroy($order->id);

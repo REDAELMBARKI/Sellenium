@@ -60,7 +60,7 @@ Route::get('/blog', function () {
 })->name('blog');
 
 Route::get('/cart', function () {
-    return Inertia::render('ShoppingCartPage');
+    return Inertia::render('shoopingCart/CheckoutPageIndex');
 })->name('cart');
 
 

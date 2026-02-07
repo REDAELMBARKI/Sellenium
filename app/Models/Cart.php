@@ -11,12 +11,16 @@ class Cart extends Model
     use HasFactory;
 
     protected $table = "products_cart";
-    protected $fillable = ['user_id' , 'product_id' , 'quantity'];
+    protected $fillable = ['user_id' , 'product_variant_id' , 'quantity' , 'price_snapshot' , 'cart_token' , ''];
 
-    public function product(){
-          return $this->belongsTo(Product::class);
+    public function productVariant(){
+          return $this->belongsTo(ProductVariant::class , 'product_variant_id');
     }
-
+  
+    public function getProductAttribute()
+    {
+        return $this->productVariant?->product;
+    }
 
     public function user(){
         return $this->belongsTo(User::class);
