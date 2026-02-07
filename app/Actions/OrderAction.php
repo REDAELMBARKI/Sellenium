@@ -17,22 +17,16 @@ class OrderAction
     {
     }
 
-    public function execute(CreateOrderDTO $orderDTO) 
+    public function execute(CreateOrderDTO $dto) 
     {
-        if ($this->orderService->getCartItems()->isEmpty()) 
-        {
-            return response()->json([
-                'message' => 'Your cart is empty.'
-            ], 400);
-        }
-        
-        if($orderDTO->paymentMethod == 'CARD'){
-            $this->orderService->checkoutCOD();
+        $order = null ;
+        if($dto->payment_method == 'CARD'){
+           $order =  $this->orderService->checkoutCOD($dto);
         }else{
-            $this->orderService->checkoutPayment();
+           $order =   $this->orderService->checkoutPayment($dto);
         }
-
-
+      
+        return $order ;
 
     }
 

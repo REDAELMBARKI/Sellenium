@@ -3,14 +3,17 @@
 namespace App\Services;
 
 use App\DTOs\CreateOrderDTO;
+use App\Exceptions\OrderException;
 use App\Http\Resources\OrderResource;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\Order;
+use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class OrderService
 {
@@ -58,44 +61,68 @@ class OrderService
         }
 
         
-        public function checkoutCOD($dto){
+        public function checkoutCOD(CreateOrderDTO $dto){
+            $calculations = $this->calculateOrderTotalWithDependencies($dto);
+            $dto = CreateOrderDTO::fromCheckout($dto->toArray() , $calculations);
+            try{
+              $order = $this->createOrderMaster($dto);
+              return $order;
+            }catch(Exception $e){
+               throw new OrderException($e);
+            }
+        }
+        
+        public function checkoutPayment($dto){
+            $cod_calculations = $this->calculateOrderTotalWithDependencies($dto);
+            $dto = CreateOrderDTO::fromCheckout($dto, $cod_calculations);
+            try{
+                $order =  $this->perceedToPaymentAndOrder_transaction($dto);
+                 return $order;
+            }catch(Exception $e){
+                throw new OrderException($e);
+            }
+        }
+
+        
+        public function createOrderMaster(CreateOrderDTO $dto){
+            $order = DB::transaction(function() use($dto){
+                $order =  $this->storeOrder(Arr::except($dto->toArray() , ['items' , 'address']));
+                $this->storeOrderItems($dto->items , $order);
+                $this->storeOrderAddress($dto->address->toArray() , $order);
+                return $order;
+            });
+            return $order;
+        }
+
+        public function storeOrder(array $dto){
+            return Order::create($dto);
+        }
+
+        public function storeOrderItems(array $items ,Order $order){
+            return array_map(function($item) use($order){
+                return  $order->items()->create($item);
+            } , $items);
+        }
+
+        public function storeOrderAddress($address , Order $order){
+            return $order->address()->create($address);
+        }
+     
+        private function calculateOrderTotalWithDependencies($dto){
             $subtotal = $this->calculateSubtotal($dto->items);
             $discount = $this->calculateDiscount($dto->couponCode, $subtotal);
             $shipping = $this->calculateShipping();
             $tax = $this->calculateTax($subtotal - $discount + $shipping);
             $total = $subtotal - $discount + $shipping + $tax;
-            $calculated = [] ;
-            
-            $calculated['total_amount'] = $total;
-            $this->createOrderMaster($dto);
+            return [
+                'total_amount'=> $total,
+                'discount_amount'=> $discount,
+                'shipping_cost'=> $shipping ,
+                'tax'=> $tax ,
+                'order_number' => $this->generateOrderNumber(),
+            ] ;
+ 
         }
-        
-        public function checkoutPayment($dto){
-            $total = $this->getCartItemsTotalPrice();
-        }
-
-        
-        public function createOrderMaster($dto){
-            DB::transaction(function() use($dto){
-                $order =  $this->storeOrder(Arr::except($dto , ['items' , 'address']));
-                $this->storeOrderItems($dto , $order['items']);
-                $this->storeOrderAddress($dto['address'] , $order);
-                return $order;
-            });
-        }
-
-        public function storeOrder($dto){
-            return Order::create($dto);
-        }
-
-        public function storeOrderItems(array $dtos ,Order $order){
-            return $order->items()->create($dtos);
-        }
-
-        public function storeOrderAddress($dto , Order $order){
-            return $order->address()->create($dto);
-        }
-
      
         private function calculateShipping()
         {
@@ -131,77 +158,93 @@ class OrderService
 
         }
 
-        public  function getCartItems(){
-            $user = Auth::user();
-            $cartItems = null;
-            if ($user) {
-                $cartItems = Cart::where('user_id', $user->id)->get();
-            } elseif (Cookie::has('cart_token')) {
-                $cartItems = Cart::where('cart_token', Cookie::get('cart_token'))->get();
-            } 
-            return $cartItems;
-        }
-
         private function calculateSubtotal($items){
             return  $items->sum(function ($item) {
                          return $item->price_snapshot * $item->quantity;
                      });
         }
 
+        private function generateOrderNumber(){
+            return random_int(1000000 , 9999999);
+        }
         // stripe payment
-    // private function perceedToPaymentAndOrder_transaction(array $data) : void
-    // {
-    //     $paymentIntent = $this->authorizePayment($data['total_ttc']);
+    private function perceedToPaymentAndOrder_transaction(CreateOrderDTO $dto) : void
+    {
+        $paymentIntent = $this->authorizePayment($dto->total_amount);
 
-    //     DB::transaction(function() use ($data, $paymentIntent) {
-    //         // 2. Create order
-    //         $order = $this->storeOrder($data);
+        DB::transaction(function() use ($dto, $paymentIntent) {
+            // 2. Create order
+            $payment_calculations = [
+                 'confirmed' => true,
+                 'paid'=> true,
+                 'paid_at'=> now()
+            ] ;
+
+            $final_dto = CreateOrderDTO::fromPayment($dto->toArray() , $payment_calculations) ;
+            $order = $this->createOrderMaster($final_dto);
             
-    //         // 3. Capture the authorized payment
-    //         $this->capturePayment($paymentIntent, $order->id);
-    //     });
-    // }
+            if (!$order) {
+                // Cancel/refund the payment intent if it exists
+                if ($paymentIntent) {
+                    // Cancel the payment intent in Stripe
+                    $this->cancelPayment($paymentIntent);
+                }
+                
+                throw new \Exception('Failed to create order');
+            }
 
-    // private function authorizePayment(float $amount, string $currency = 'usd')
-    // {
-    //     // Initialize Stripe with your secret key
-    //     \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
-        
-    //     // Create a PaymentIntent - this HOLDS the money but doesn't charge yet
-    //     $paymentIntent = \Stripe\PaymentIntent::create([
-    //         'amount' => $amount * 100, // Stripe uses cents, so $50.00 = 5000
-    //         'currency' => $currency,
-    //         'capture_method' => 'manual', // CRITICAL: Don't auto-capture, we'll do it manually
-    //         'payment_method' => request()->payment_method_id, // From frontend Stripe.js
-    //         'confirmation_method' => 'manual', // We'll confirm it ourselves
-    //         'confirm' => true, // Confirm immediately to authorize
-    //     ]);
-        
-    //     // Check if authorization succeeded
-    //     if ($paymentIntent->status !== 'requires_capture') {
-    //         throw new \Exception('Payment authorization failed: ' . $paymentIntent->status);
-    //     }
-        
-    //     return $paymentIntent; // Return the intent object to use later
-    // }
+            // 3. Capture the authorized payment
+            $this->capturePayment($paymentIntent, $order->id);
 
-    // private function capturePayment($paymentIntent, int $orderId)
-    // {
-    //     // Initialize Stripe again (in case different request)
-    //     \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+            return $order ;
+        });
+    }
+
+    private function authorizePayment(float $amount, string $currency = 'usd')
+    {
+        // Initialize Stripe with your secret key
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
         
-    //     // Capture the authorized payment - NOW the money actually moves
-    //     $captured = \Stripe\PaymentIntent::retrieve($paymentIntent->id);
-    //     $captured->capture([
-    //         'metadata' => ['order_id' => $orderId] // Link payment to order for records
-    //     ]);
+        // Create a PaymentIntent - this HOLDS the money but doesn't charge yet
+        $paymentIntent = \Stripe\PaymentIntent::create([
+            'amount' => $amount * 100, // Stripe uses cents, so $50.00 = 5000
+            'currency' => $currency,
+            'capture_method' => 'manual', // CRITICAL: Don't auto-capture, we'll do it manually
+            'payment_method' => request()->payment_method_id, // From frontend Stripe.js
+            'confirmation_method' => 'manual', // We'll confirm it ourselves
+            'confirm' => true, // Confirm immediately to authorize
+        ]);
         
-    //     // Verify capture succeeded
-    //     if ($captured->status !== 'succeeded') {
-    //         throw new \Exception('Payment capture failed');
-    //     }
+        // Check if authorization succeeded
+        if ($paymentIntent->status !== 'requires_capture') {
+            throw new \Exception('Payment authorization failed: ' . $paymentIntent->status);
+        }
         
-    //     return $captured;
-    // }
+        return $paymentIntent; // Return the intent object to use later
+    }
+
+
+    private function cancelPayment(){
+        
+    }
+
+    private function capturePayment($paymentIntent, int $orderId)
+    {
+        // Initialize Stripe again (in case different request)
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+        
+        // Capture the authorized payment - NOW the money actually moves
+        $captured = \Stripe\PaymentIntent::retrieve($paymentIntent->id);
+        $captured->capture([
+            'metadata' => ['order_id' => $orderId] // Link payment to order for records
+        ]);
+        
+        // Verify capture succeeded
+        if ($captured->status !== 'succeeded') {
+            throw new \Exception('Payment capture failed');
+        }
+        
+        return $captured;
+    }
 
 }
