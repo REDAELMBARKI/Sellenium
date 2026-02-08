@@ -22,7 +22,7 @@ export default function CartItemsList({
                     backgroundColor: theme.card,
                     borderColor: theme.border,
                 }}
-                className="border rounded-lg p-8 text-center"
+                className="border rounded-lg text-center"
             >
                 <p style={{ color: theme.textSecondary }}>Your cart is empty</p>
             </div>

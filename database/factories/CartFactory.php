@@ -24,7 +24,7 @@ class CartFactory extends Factory
     {  
         
         return [
-            'user_id' => User::inRandomOrder()->first()->id , 
+            'user_id' => User::inRandomOrder()->first()->id ,
             'product_variant_id' => ProductVariant::inRandomOrder()->first()->id ,
             'quantity' => $this->faker->numberBetween(1,100),
             'price_snapshot'=> $this->faker->numberBetween(1,100),

@@ -16,6 +16,7 @@ use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\GoogleSheet;
 use App\Models\Order;
+use App\Services\CartService;
 use App\Services\OrderService;
 use Exception;
 use Illuminate\Http\Request;
@@ -69,25 +70,13 @@ class OrderController extends Controller
     // }
 
      // constroller
-    public function checkout(StoreOrderRequest $request , OrderAction $action){
+    public function checkout(StoreOrderRequest $request , OrderAction $action , CartService $cartService){
         if(!$request->has('payment_method') || !in_array( $request->payment_method  , ['COD' , 'CARD']) ){
             return response()->json([
                 'message' => 'payment method is required'
             ]);
         }
-
-        $cartItems = Cart::query()
-            ->when(Auth::check(), function($q) {
-                $q->where('user_id', Auth::id());
-            })
-            ->when(!Auth::check() && Cookie::has('cart_token'), function($q) {
-                $q->where('cart_token', Cookie::get('cart_token'));
-            })
-            ->with('productVariant.product')
-            ->get();
-        
-            dd($cartItems);
-
+        $cartItems = $cartService->getCartItems();
         // validate cart items
         if ($cartItems->isEmpty()) {
             return response()->json([

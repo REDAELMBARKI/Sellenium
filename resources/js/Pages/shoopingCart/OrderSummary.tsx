@@ -2,6 +2,7 @@
 import { Lock, Tag } from "lucide-react";
 import { router } from '@inertiajs/react';
 import { route } from "ziggy-js";
+import CardPaymentForm from "./CardPaymentForm";
 
 interface OrderSummaryProps {
     subtotal: number;
@@ -10,19 +11,23 @@ interface OrderSummaryProps {
     total: number;
     promoCode: string;
     onPromoChange: (code: string) => void;
-    paymentMethod: string;
+    payment_method: string;
     theme: any;
+    cardData: any;
+    onChange: (data: any) => void;
 }
 
 export default function OrderSummary({
+    payment_method , 
     subtotal,
     shipping,
     tax,
     total,
     promoCode,
     onPromoChange,
-    paymentMethod,
     theme,
+    cardData , 
+    onChange
 }: OrderSummaryProps) {
 
     const handleCheckout = () => {
@@ -124,6 +129,15 @@ export default function OrderSummary({
                 </div>
             </div>
 
+            {
+                payment_method === 'CARD' &&
+                  <CardPaymentForm
+                    data={cardData}
+                    onChange={onchange}
+                />
+                              
+            }
+
             {/* Place Order Button */}
             <button
                 type="button"
@@ -134,7 +148,7 @@ export default function OrderSummary({
                 }}
                 className="w-full py-3 rounded font-bold hover:opacity-90 transition mb-3"
             >
-                {paymentMethod === "COD" ? "Place Order (COD)" : "Proceed to Payment"}
+                {payment_method === "COD" ? "Place Order (COD)" : "Proceed to Payment"}
             </button>
 
             <button

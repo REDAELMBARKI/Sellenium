@@ -14,9 +14,9 @@ export default function CartItemCard({
     onDelete,
     theme,
 }: CartItemCardProps) {
-    const variant = item.product_variant;
-    const product = variant.product;
-    const itemTotal = variant.price * item.quantity;
+    const variant = item.product_variant || {};
+    const product = variant.product || {};
+    const itemTotal = item.subtotal ?? 0
     const savings = variant.old_price
         ? (variant.old_price - variant.price) * item.quantity
         : 0;
@@ -34,9 +34,9 @@ export default function CartItemCard({
                 style={{ borderColor: theme.border }}
                 className="border rounded w-24 h-24 flex-shrink-0 overflow-hidden"
             >
-                {variant.image ? (
+                {product.thumbnail.url ? (
                     <img
-                        src={variant.image}
+                        src={`${product.thumbnail.url}`}
                         alt={product.name}
                         className="w-full h-full object-cover"
                     />
@@ -75,7 +75,7 @@ export default function CartItemCard({
 
                 <div className="flex items-center gap-2 mb-2">
                     <span style={{ color: theme.text }} className="font-bold">
-                        ${variant.price.toFixed(2)}
+                        ${variant.price}
                     </span>
                     {variant.old_price && (
                         <>
@@ -83,13 +83,13 @@ export default function CartItemCard({
                                 style={{ color: theme.textSecondary }}
                                 className="text-sm line-through"
                             >
-                                ${variant.old_price.toFixed(2)}
+                                ${variant.old_price}
                             </span>
                             <span
                                 style={{ color: theme.success }}
                                 className="text-xs font-medium"
                             >
-                                Save ${savings.toFixed(2)}
+                                Save ${savings}
                             </span>
                         </>
                     )}
@@ -116,7 +116,7 @@ export default function CartItemCard({
                         style={{ color: theme.text }}
                         className="font-bold text-lg mb-2"
                     >
-                        ${itemTotal.toFixed(2)}
+                        ${itemTotal}
                     </div>
 
                     <div

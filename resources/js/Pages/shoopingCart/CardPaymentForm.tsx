@@ -1,21 +1,20 @@
 // Pages/Checkout/components/CardPaymentForm.tsx
 import { CreditCard, Lock } from "lucide-react";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 interface CardPaymentFormProps {
     data: any;
     onChange: (data: any) => void;
-    theme: any;
 }
 
 export default function CardPaymentForm({
     data,
     onChange,
-    theme,
 }: CardPaymentFormProps) {
     const handleChange = (field: string, value: string) => {
         onChange({ ...data, [field]: value });
     };
-
+    const {state:{currentTheme : theme}} = useStoreConfigCtx();
     return (
         <div
             style={{

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('quantity')->default(1);
             // Store price at the moment to avoid price changes affecting cart
             $table->decimal('price_snapshot', 10, 2)->nullable();
+            $table->decimal('subtotal', 10, 2)->storedAs('price_snapshot * quantity');
             $table->index(['user_id', 'product_variant_id']);
             $table->timestamps();
         });

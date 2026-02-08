@@ -18,6 +18,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\CartController;
 
 // auth 
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
@@ -59,9 +60,7 @@ Route::get('/blog', function () {
     return Inertia::render('BlogPage');
 })->name('blog');
 
-Route::get('/cart', function () {
-    return Inertia::render('shoopingCart/CheckoutPageIndex');
-})->name('cart');
+Route::get('/cart', [CartController::class , 'index'])->name('cart');
 
 
 

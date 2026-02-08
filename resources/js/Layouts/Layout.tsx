@@ -250,7 +250,7 @@ const LayoutContent = ({ children, currentPage}:LayoutProps) => {
       )}
 
       {/* Main Content */}
-      <main>
+      <main >
         {children}
       </main>
 

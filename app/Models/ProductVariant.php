@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductVariant extends Model
-{  
+{
     use HasFactory ;
     
     public function product(){
-        $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class);
     }
 }
