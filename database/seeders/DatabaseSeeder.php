@@ -21,8 +21,11 @@ class DatabaseSeeder extends Seeder
            CategorySeeder::class,
            AttributesTableSeeder::class ,
            AttributeValuesSeeder::class ,
-           OrderSeeder::class
+           ProductVariantSeeder::class , 
+          //  OrderSeeder::class ,
+            CartSeeder::class,
           //  TagSeeder::class,
+          //  ReviewSeeder::class,
           //  SizeSeeder::class,
           //  ColorSeeder::class,
           //  MaterialSeeder::class,
@@ -30,8 +33,6 @@ class DatabaseSeeder extends Seeder
           //  UserSeeder::class,
           //  OrderSeeder::class,
           //  PromotionSeeder::class,
-          //  ReviewSeeder::class,
-          //  CartSeeder::class,
           //  WishListSeeder::class,
     
         // Add more seeders here...

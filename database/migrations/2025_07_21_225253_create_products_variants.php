@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('sku')->unique()->nullable();
             
             // Store all attributes as JSON
-            $table->json('attributes'); // {"color": "red", "storage": "32GB"}
+            $table->json('attributes')->nullable(); // {"color": "red", "storage": "32GB"}
             
             // Virtual columns for common searchable attributes (optional, for performance)
             $table->string('color')->nullable()->virtualAs("JSON_UNQUOTE(JSON_EXTRACT(attributes, '$.color'))");

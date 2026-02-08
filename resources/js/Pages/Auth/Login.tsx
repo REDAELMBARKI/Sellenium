@@ -1,6 +1,6 @@
 // resources/js/Pages/Auth/Login.jsx
 
-import { useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
 export default function Login() {
