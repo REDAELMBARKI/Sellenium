@@ -10,6 +10,7 @@ class CreateOrderDTO
 {
     public function __construct(
         public readonly string $order_number , 
+        public readonly string $payment_method_id , 
         public readonly int $user_id,
         public readonly string $notes , 
         public readonly string $payment_method,
@@ -36,6 +37,7 @@ class CreateOrderDTO
         return new self(
             user_id: $user_id,
             payment_method: $data['payment_method'],
+            payment_method_id: $data['payment_method_id'],
             items: array_map(
                 fn($item) => OrderItemDTO::fromArray($item),
                 $data['items']
@@ -74,8 +76,8 @@ class CreateOrderDTO
                'coupon_code' => $this->coupon_code,
                'notes'=> $this->notes ,
                'payment_method' => $this->payment_method,
-                'items' => array_map(fn($item) => $item->toArray(), $this->items),
-                'address' => $this->address->toArray(),
+               'items' => array_map(fn($item) => $item->toArray(), $this->items),
+               'address' => $this->address->toArray(),
 
         ];
     }

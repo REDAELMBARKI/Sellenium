@@ -39,14 +39,16 @@ interface CartItem {
 
 interface CheckoutPageProps {
     cartItems: CartItem[];
+    tax : number
 }
 
 export default function CheckoutPageIndex({
     cartItems = [],
+    tax
 }: CheckoutPageProps) {
     return (
         <StoreConfigProvider>
-            <CheckoutPage {...{ cartItems }} />
+            <CheckoutPage {...{ cartItems , tax }} />
         </StoreConfigProvider>
     );
 }
@@ -115,12 +117,11 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
     );
 }
 
-function CheckoutPage({ cartItems }: CheckoutPageProps) {
+function CheckoutPage({ cartItems , tax }: CheckoutPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
-
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("COD");
+    const [payment_method, setPaymen_method] = useState<PaymentMethod>("COD");
     const [shippingData, setShippingData] = useState({
         guest_name: "",
         guest_email: "",
@@ -149,15 +150,23 @@ function CheckoutPage({ cartItems }: CheckoutPageProps) {
     const shipping = 5.0;
     const discount = promoCode ? -10.0 : 0;
     const total = subtotal + shipping + discount;
+    
+    const {payment_method_id} = useStripe();
+
 
     const handlePlaceOrder = (e: React.FormEvent) => {
         e.preventDefault();
-
+  
+        let payment_method_id = null ;
+        if(payment_method === 'CARD')
+        {
+           payment_method_id = loadStipe();
+        }
         const orderData = {
             ...shippingData,
-            payment_method: paymentMethod,
+            payment_method,
             promo_code: promoCode || null,
-            ...(paymentMethod === "CARD" && { card: cardData }),
+            ...(payment_method === "CARD" && payment_method_id && { payment_method_id }),
         };
 
         router.post("/checkout", orderData, {
@@ -209,9 +218,9 @@ function CheckoutPage({ cartItems }: CheckoutPageProps) {
                                     <div className="flex gap-4">
                                         <button
                                             type="button"
-                                            onClick={() => setPaymentMethod("COD")}
+                                            onClick={() => setPaymen_method("COD")}
                                             className={`flex-1 p-4 rounded-lg border-2 transition-all ${
-                                                paymentMethod === "COD"
+                                                payment_method === "COD"
                                                     ? "border-blue-600 bg-blue-50"
                                                     : "border-gray-300 hover:border-gray-400"
                                             }`}
@@ -241,9 +250,9 @@ function CheckoutPage({ cartItems }: CheckoutPageProps) {
 
                                         <button
                                             type="button"
-                                            onClick={() => setPaymentMethod("CARD")}
+                                            onClick={() => setPaymen_method("CARD")}
                                             className={`flex-1 p-4 rounded-lg border-2 transition-all ${
-                                                paymentMethod === "CARD"
+                                                payment_method === "CARD"
                                                     ? "border-blue-600 bg-blue-50"
                                                     : "border-gray-300 hover:border-gray-400"
                                             }`}
@@ -397,7 +406,7 @@ function CheckoutPage({ cartItems }: CheckoutPageProps) {
                                         payment_method , 
                                         cardData , 
                                     }}
-                                    onPromoChange={onPromoChange}
+                                    onPromoChange={setPromoCode}
                                     onChange={setCardData}
                                     
                                     />

@@ -170,7 +170,7 @@ class OrderService
         // stripe payment
     private function perceedToPaymentAndOrder_transaction(CreateOrderDTO $dto) : void
     {
-        $paymentIntent = $this->authorizePayment($dto->total_amount);
+        $paymentIntent = $this->authorizePayment($dto->total_amount , $dto->payment_method_id);
 
         DB::transaction(function() use ($dto, $paymentIntent) {
             // 2. Create order
@@ -200,17 +200,17 @@ class OrderService
         });
     }
 
-    private function authorizePayment(float $amount, string $currency = 'usd')
+    private function authorizePayment(float $amount, $payment_method_id)
     {
         // Initialize Stripe with your secret key
         \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
-        
+         $currency = env('STORE_CURRENCY');
         // Create a PaymentIntent - this HOLDS the money but doesn't charge yet
         $paymentIntent = \Stripe\PaymentIntent::create([
             'amount' => $amount * 100, // Stripe uses cents, so $50.00 = 5000
             'currency' => $currency,
             'capture_method' => 'manual', // CRITICAL: Don't auto-capture, we'll do it manually
-            'payment_method' => request()->payment_method_id, // From frontend Stripe.js
+            'payment_method' => $payment_method_id, // From frontend Stripe.js
             'confirmation_method' => 'manual', // We'll confirm it ourselves
             'confirm' => true, // Confirm immediately to authorize
         ]);

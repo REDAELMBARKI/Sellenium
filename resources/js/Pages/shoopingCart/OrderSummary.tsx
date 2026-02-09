@@ -27,7 +27,7 @@ export default function OrderSummary({
     onPromoChange,
     theme,
     cardData , 
-    onChange
+    onChange 
 }: OrderSummaryProps) {
 
     const handleCheckout = () => {
@@ -133,7 +133,7 @@ export default function OrderSummary({
                 payment_method === 'CARD' &&
                   <CardPaymentForm
                     data={cardData}
-                    onChange={onchange}
+                    onChange={onChange}
                 />
                               
             }
