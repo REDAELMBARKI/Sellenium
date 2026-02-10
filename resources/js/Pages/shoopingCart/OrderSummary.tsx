@@ -9,7 +9,7 @@ interface OrderSummaryProps {
     shipping: number;
     tax: number;
     total: number;
-    promoCode: string;
+    coupon_code: string;
     onPromoChange: (code: string) => void;
     payment_method: string;
     theme: any;
@@ -23,16 +23,14 @@ export default function OrderSummary({
     shipping,
     tax,
     total,
-    promoCode,
+    coupon_code,
     onPromoChange,
     theme,
     cardData , 
     onChange 
 }: OrderSummaryProps) {
 
-    const handleCheckout = () => {
-        router.post(route('orders.checkout') , {})
-    }
+
     return (
         <div
             style={{
@@ -57,7 +55,7 @@ export default function OrderSummary({
                 <div className="flex justify-between">
                     <span style={{ color: theme.textSecondary }}>Subtotal</span>
                     <span style={{ color: theme.text }}>
-                        ${subtotal.toFixed(2)}
+                        ${subtotal}
                     </span>
                 </div>
                 <div className="flex justify-between">
@@ -66,13 +64,13 @@ export default function OrderSummary({
                         {shipping === 0 ? (
                             <span style={{ color: theme.success }}>Free</span>
                         ) : (
-                            `$${shipping.toFixed(2)}`
+                            `$${shipping}`
                         )}
                     </span>
                 </div>
                 <div className="flex justify-between">
                     <span style={{ color: theme.textSecondary }}>Tax (10%)</span>
-                    <span style={{ color: theme.text }}>${tax.toFixed(2)}</span>
+                    <span style={{ color: theme.text }}>${tax}</span>
                 </div>
             </div>
 
@@ -88,7 +86,7 @@ export default function OrderSummary({
                 <div className="flex gap-2">
                     <input
                         type="text"
-                        value={promoCode}
+                        value={coupon_code}
                         onChange={(e) => onPromoChange(e.target.value)}
                         style={{
                             borderColor: theme.border,
@@ -124,7 +122,7 @@ export default function OrderSummary({
                         Total
                     </span>
                     <span style={{ color: theme.primary }} className="font-bold text-2xl">
-                        ${total.toFixed(2)}
+                        ${total}
                     </span>
                 </div>
             </div>
@@ -140,8 +138,7 @@ export default function OrderSummary({
 
             {/* Place Order Button */}
             <button
-                type="button"
-                onClick={handleCheckout}
+                type="submit"
                 style={{
                     backgroundColor: theme.primary,
                     color: theme.textInverse,

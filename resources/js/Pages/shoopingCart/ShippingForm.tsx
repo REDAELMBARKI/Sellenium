@@ -47,7 +47,7 @@ export default function ShippingForm({
                     </label>
                     <input
                         type="text"
-                        required
+                        
                         value={data.guest_name}
                         onChange={(e) => handleChange("guest_name", e.target.value)}
                         style={{
@@ -72,7 +72,7 @@ export default function ShippingForm({
                         </label>
                         <input
                             type="email"
-                            required
+                            
                             value={data.guest_email}
                             onChange={(e) =>
                                 handleChange("guest_email", e.target.value)
@@ -97,7 +97,7 @@ export default function ShippingForm({
                         </label>
                         <input
                             type="tel"
-                            required
+                            
                             value={data.guest_phone}
                             onChange={(e) =>
                                 handleChange("guest_phone", e.target.value)
@@ -113,21 +113,23 @@ export default function ShippingForm({
                     </div>
                 </div>
 
-                {/* Address */}
+                <div className="flex flex-col lg:flex-row gap-4">
+
+                    {/* Address 1 */}
                 <div>
                     <label
                         style={{ color: theme.textSecondary }}
                         className="block text-sm mb-2"
                     >
                         <MapPin size={16} className="inline mr-2" />
-                        Street Address *
+                        Address 1 *
                     </label>
                     <input
                         type="text"
-                        required
-                        value={data.address.street}
+                        
+                        value={data.address.address_line1}
                         onChange={(e) =>
-                            handleAddressChange("street", e.target.value)
+                            handleAddressChange("address_line1", e.target.value)
                         }
                         style={{
                             borderColor: theme.border,
@@ -137,6 +139,33 @@ export default function ShippingForm({
                         className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
                         placeholder="123 Main Street"
                     />
+                </div>
+
+                {/* address 2 */}
+                <div>
+                    <label
+                        style={{ color: theme.textSecondary }}
+                        className="block text-sm mb-2"
+                    >
+                        <MapPin size={16} className="inline mr-2" />
+                         Address 2 (optional)
+                    </label>
+                    <input
+                        type="text"
+                        
+                        value={data.address.address_line2}
+                        onChange={(e) =>
+                            handleAddressChange("address_line2", e.target.value)
+                        }
+                        style={{
+                            borderColor: theme.border,
+                            backgroundColor: theme.bgSecondary,
+                            color: theme.text,
+                        }}
+                        className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
+                        placeholder="123 Main Street"
+                    />
+                </div>
                 </div>
 
                 {/* City, State, ZIP */}
@@ -150,7 +179,7 @@ export default function ShippingForm({
                         </label>
                         <input
                             type="text"
-                            required
+                            
                             value={data.address.city}
                             onChange={(e) =>
                                 handleAddressChange("city", e.target.value)
@@ -174,7 +203,7 @@ export default function ShippingForm({
                         </label>
                         <input
                             type="text"
-                            required
+                            
                             value={data.address.state}
                             onChange={(e) =>
                                 handleAddressChange("state", e.target.value)
@@ -198,10 +227,10 @@ export default function ShippingForm({
                         </label>
                         <input
                             type="text"
-                            required
-                            value={data.address.zip_code}
+                            
+                            value={data.address.postal_code}
                             onChange={(e) =>
-                                handleAddressChange("zip_code", e.target.value)
+                                handleAddressChange("postal_code", e.target.value)
                             }
                             style={{
                                 borderColor: theme.border,
@@ -224,7 +253,7 @@ export default function ShippingForm({
                     </label>
                     <input
                         type="text"
-                        required
+                        
                         value={data.address.country}
                         onChange={(e) =>
                             handleAddressChange("country", e.target.value)

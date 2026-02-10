@@ -4,11 +4,11 @@ import Layout from "@/Layouts/Layout";
 import { useState } from "react";
 import { router, Link } from "@inertiajs/react";
 import ShippingForm from "./ShippingForm";
-import PaymentMethodSelector from "./PaymentMethodSelector";
-import CardPaymentForm from "./CardPaymentForm";
 import StoreConfigProvider from "@/contextProvoders/StoreConfigProvider";
 import { Cover } from "@/types/inventoryTypes";
 import OrderSummary from "./OrderSummary";
+import useStripeCaller from "@/hooks/stripe/useStripeCaller";
+import { route } from "ziggy-js";
 
 type PaymentMethod = "COD" | "CARD";
 interface Attribute {
@@ -44,11 +44,11 @@ interface CheckoutPageProps {
 
 export default function CheckoutPageIndex({
     cartItems = [],
-    tax
+    tax , 
 }: CheckoutPageProps) {
     return (
         <StoreConfigProvider>
-            <CheckoutPage {...{ cartItems , tax }} />
+            <CheckoutPage {...{ cartItems , tax  }} />
         </StoreConfigProvider>
     );
 }
@@ -121,16 +121,20 @@ function CheckoutPage({ cartItems , tax }: CheckoutPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
+
     const [payment_method, setPaymen_method] = useState<PaymentMethod>("COD");
+
     const [shippingData, setShippingData] = useState({
-        guest_name: "",
-        guest_email: "",
-        guest_phone: "",
+        name: "",
+        email: "",
+        phone: "",
+        notes : '' , 
         address: {
-            street: "",
+            address_line1 : '' , 
+            address_line2 : '' ,
             city: "",
             state: "",
-            zip_code: "",
+            postal_code: "",
             country: "",
         },
     });
@@ -140,7 +144,7 @@ function CheckoutPage({ cartItems , tax }: CheckoutPageProps) {
         cvv: "",
         cardholder_name: "",
     });
-    const [promoCode, setPromoCode] = useState("");
+    const [coupon_code, setCoupon_code] = useState("");
 
     // Calculate totals
     const subtotal = cartItems.reduce(
@@ -148,37 +152,43 @@ function CheckoutPage({ cartItems , tax }: CheckoutPageProps) {
         0
     );
     const shipping = 5.0;
-    const discount = promoCode ? -10.0 : 0;
+    const discount = coupon_code ? -10.0 : 0;
     const total = subtotal + shipping + discount;
     
-    const {payment_method_id} = useStripe();
-
-
-    const handlePlaceOrder = (e: React.FormEvent) => {
+    // const {payment_method_id , createPaymentMethod , processing } = useStripeCaller({cardData , payment_method , userInfo : shippingData});
+    
+    const handleCheckout = (e:React.FormEvent) => {
         e.preventDefault();
-  
-        let payment_method_id = null ;
-        if(payment_method === 'CARD')
-        {
-           payment_method_id = loadStipe();
+        console.log('post')
+        if(payment_method === 'CARD'){
+        //   createPaymentMethod()
+          handlePlaceOrder()
         }
+        else{
+            handlePlaceOrder();
+        }
+
+
+    }
+    const handlePlaceOrder = () => {
         const orderData = {
             ...shippingData,
             payment_method,
-            promo_code: promoCode || null,
-            ...(payment_method === "CARD" && payment_method_id && { payment_method_id }),
+            coupon_code : coupon_code || null,
+            // ...(payment_method === "CARD" && payment_method_id && { payment_method_id }),
         };
 
-        router.post("/checkout", orderData, {
+        router.post(route("order.checkout"), orderData, {
             onSuccess: () => {
                 // Redirect to order confirmation
+                console.log('the order is successfuly done')
             },
             onError: (errors) => {
                 console.error("Checkout errors:", errors);
             },
         });
     };
-
+    
     return (
         <Layout currentPage="checkout">
             <div
@@ -196,7 +206,7 @@ function CheckoutPage({ cartItems , tax }: CheckoutPageProps) {
                         Checkout
                     </h1>
 
-                    <form onSubmit={handlePlaceOrder}>
+                    <form onSubmit={handleCheckout}>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             {/* Left Column - Forms */}
                             <div className="space-y-6">
@@ -401,12 +411,12 @@ function CheckoutPage({ cartItems , tax }: CheckoutPageProps) {
                                         shipping ,
                                         tax ,
                                         total ,
-                                        promoCode ,
+                                        coupon_code ,
                                         theme ,
                                         payment_method , 
                                         cardData , 
                                     }}
-                                    onPromoChange={setPromoCode}
+                                    onPromoChange={setCoupon_code}
                                     onChange={setCardData}
                                     
                                     />

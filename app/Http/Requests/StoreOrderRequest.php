@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreOrderRequest extends FormRequest
 {
@@ -22,7 +23,20 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            
+            'name' => ['required', 'string', 'min:2', 'max:100'],
+            'email' => ['required', 'email', 'max:150'],
+            'phone' => ['required', 'string', 'min:8', 'max:20'],
+            'notes' => ['nullable', 'string', 'max:500'],
+            'payment_method' => ['required', Rule::in(['CARD', 'COD'])],
+            'payment_method_id' => [Rule::requiredIf(fn() => request('payment_method') === 'CARD') , 'string'], 
+            'address.address_line1' => ['required', 'string', 'min:5', 'max:255'],
+            'address.address_line2' => ['nullable', 'string', 'max:255'],
+            'address.city' => ['required', 'string', 'max:100'],
+            'address.state' => ['required', 'string', 'max:100'],
+            'address.postal_code' => ['required', 'string', 'min:3', 'max:20'],
+            'address.country' => ['required', 'string', 'size:2'],
         ];
     }
+
+
 }

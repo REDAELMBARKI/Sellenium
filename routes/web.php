@@ -140,7 +140,7 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 // oderes
 // OrderManager
 Route::get('/orders' , [OrderController::class, 'index'])->middleware('auth')->name('orders.index') ;
-Route::post('/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
+Route::post('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
 
 
 // customer
