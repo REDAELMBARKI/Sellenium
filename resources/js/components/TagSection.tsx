@@ -3,7 +3,7 @@ import { Plus, Tag, TagIcon } from 'lucide-react';
 import SelectedChip from './ui/SelectedChip';
 import { Button } from './ui/button';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
+import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 
 interface TagInputProps {
   tags: string[];

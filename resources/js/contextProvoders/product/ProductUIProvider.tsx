@@ -1,5 +1,5 @@
 
-import { ProductUIContext } from '@/context/sharedProductContext/ProductUIContext';
+import { ProductUIContext } from '@/context/product/ProductUIContext';
 import { ImagePreviewItem } from '@/types/mediaTypes';
 import { useState } from 'react';
 

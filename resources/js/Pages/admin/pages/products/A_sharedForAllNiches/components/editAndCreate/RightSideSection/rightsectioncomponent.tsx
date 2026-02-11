@@ -8,7 +8,7 @@ import {
   Tag,
 } from 'lucide-react';
 import { SectionWrapper } from './sectionwrapper';
-import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
+import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import { HoverInfoLabel } from './HoverInfoLabel';
 import { ThemedInput, ThemedSelect, ThemedTextarea } from './ThemedInput';
 import { Category } from '@/types/inventoryTypes';

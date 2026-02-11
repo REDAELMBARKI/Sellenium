@@ -2,10 +2,10 @@ import { Edit2, Trash2, Package, SprayCan } from "lucide-react";
 import { useState } from "react";
 import { currentTheme } from "@/data/currentTheme";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { VariantDisplayProps } from "@/types/productsTypes";
 import { useVariantsDisplayActions } from "@/functions/product/useVariantsDisplayActions";
-import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
+import { useProductUICtx } from "@/contextHooks/product/useProductUICtx";
 
 export const ParfumesVariantDisplayCard = ({ variant }: VariantDisplayProps) => {
   const { productData } = useProductDataCtx();

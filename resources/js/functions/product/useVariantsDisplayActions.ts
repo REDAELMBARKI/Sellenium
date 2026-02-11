@@ -1,8 +1,8 @@
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { ProductVariant } from "@/types/productsTypes";
 import { NicheItem } from "@/context/NicheContext";
 import { useNicheCtx } from "@/contextHooks/useStoreConfigCtx";
-import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
+import { useProductUICtx } from "@/contextHooks/product/useProductUICtx";
 
 type VariantKey = "fashionVariants"  | "parfumesVariants" | "electronicsVariants" ; 
 export function useVariantsDisplayActions() {

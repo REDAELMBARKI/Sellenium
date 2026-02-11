@@ -1,5 +1,5 @@
 import CollapsibleSection from "@/components/CollapsibleSection";
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import {
     Video as VideoIcon,
     Droplet,

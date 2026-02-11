@@ -1,5 +1,5 @@
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { currentTheme } from "@/data/currentTheme";
 import { useBasicinfoActions } from "@/functions/product/useBasicinfoActions";
 import { Plus, Tag, Upload, X } from "lucide-react";

@@ -7,9 +7,9 @@ import ProductBasicInfoRouter from "./A_sharedForAllNiches/RouterAndMasters/Prod
 import { ToasterNative } from "@/components/ui/ToasterNative";
 import { useToasts } from "@/contextHooks/useToasts";
 import ProductDataProvider from "@/contextProvoders/sharedProviders/ProductDataProvider";
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import ProductUIProvider from "@/contextProvoders/sharedProviders/ProductUIProvider";
-import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
+import { useProductUICtx } from "@/contextHooks/product/useProductUICtx";
 import GoCreateProduct from "@/components/partials/GoCreateProduct";
 
 

@@ -1,9 +1,9 @@
 import React, { FormEventHandler, useEffect } from 'react';
-import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
+import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import FashionBasicInfoForm from './ProductCrEdForm';
 import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
 import { Button } from '@/components/ui/button';
-import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
+import { useProductUICtx } from '@/contextHooks/product/useProductUICtx';
 import { useForm } from '@inertiajs/react' 
 import { route } from 'ziggy-js';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';

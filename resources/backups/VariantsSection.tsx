@@ -3,7 +3,7 @@ import { Box } from "lucide-react";
 import EmptyListSection from "@/admin/components/partials/EmptyListSection";
 import { FashionVariantDisplayCard } from "./displayVariantCards/FashionVariantDisplayCard";
 import { ProductVariant } from "@/types/productsTypes";
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { fakeFashionVariants, fakeParfumesVariants } from "@/data/fakeVariants";
 import { useNicheCtx } from "@/contextHooks/useStoreConfigCtx";
 import { NicheItem } from '@/context/NicheContext';

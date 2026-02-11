@@ -25,3 +25,9 @@ export function isFormWorthSavingAsDraft(
   return filledFields >= minFilledFields 
    
 }
+
+
+
+export function isEmptyObject(data : any){
+      return !isFormWorthSavingAsDraft(data, 1 , []);
+}

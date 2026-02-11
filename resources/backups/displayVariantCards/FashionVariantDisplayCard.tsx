@@ -2,10 +2,10 @@ import { Edit2, Trash2, Package } from "lucide-react";
 import { FashionVariantEditForm } from "../variantsForms/FashionVariantEditForm";
 
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import {  VariantDisplayProps } from "@/types/productsTypes";
 import { useVariantsDisplayActions } from "@/functions/product/useVariantsDisplayActions";
-import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
+import { useProductUICtx } from "@/contextHooks/product/useProductUICtx";
 import { useColorsCtx } from "@/contextHooks/useColorsCtx";
 
 

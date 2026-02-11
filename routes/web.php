@@ -60,7 +60,7 @@ Route::get('/blog', function () {
     return Inertia::render('BlogPage');
 })->name('blog');
 
-Route::get('/cart', [CartController::class , 'index'])->name('cart');
+Route::get('/cart', [CartController::class , 'index'])->name('shoppingCart.index');
 
 
 

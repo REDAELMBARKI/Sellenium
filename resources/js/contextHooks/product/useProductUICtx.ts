@@ -1,6 +1,6 @@
 
 
-import { ProductUIContext } from '@/context/sharedProductContext/ProductUIContext';
+import { ProductUIContext } from '@/context/product/ProductUIContext';
 import { useContext } from 'react';
 
 

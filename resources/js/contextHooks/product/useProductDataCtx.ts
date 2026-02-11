@@ -1,5 +1,5 @@
 
-import { ProductDataContext } from '@/context/sharedProductContext/ProductDataContext';
+import { ProductDataContext } from '@/context/product/ProductDataContext';
 import { useContext } from 'react';
 
 

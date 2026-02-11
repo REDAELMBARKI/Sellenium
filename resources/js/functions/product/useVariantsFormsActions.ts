@@ -1,5 +1,5 @@
-import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductUICtx } from "@/contextHooks/product/useProductUICtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { FashionVariant } from "@/types/productsTypes";
 import { v4  as uuidByV4} from "uuid";
 

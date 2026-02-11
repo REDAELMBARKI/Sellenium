@@ -1,7 +1,7 @@
 import CollapsibleSection from "@/components/CollapsibleSection";
 import CustomSelect from "@/components/ui/CustomSelect";
 import MultiSelectDropdown from "@/components/ui/MultiSelectDropdown";
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { Gender, PerfumesProduct, ProductDataGlobal } from "@/types/productsTypes";
 import { Upload, X, Plus, Video, Droplet, DollarSign, Settings } from "lucide-react";
 import { useEffect, useState, useRef } from "react";

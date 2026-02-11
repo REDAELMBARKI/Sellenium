@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Tag   , Sparkles, Droplet, Flower2, Clock, Wind, Star, Heart, Layers, Image} from "lucide-react";
-import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
+import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import { Gender, ProductDataGlobal } from '@/types/productsTypes';
 import SkuDisplay from '@/components/SkuDisplayBoard';
 import SkuDisplayBoard from '@/components/SkuDisplayBoard';

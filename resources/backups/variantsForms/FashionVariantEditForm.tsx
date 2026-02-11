@@ -1,8 +1,8 @@
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import LoadingBlankPage from "@/components/LoadingBlankPage";
 import { Button } from "@/components/ui/button";
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
-import { useProductUICtx } from "@/contextHooks/sharedhooks/useProductUICtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
+import { useProductUICtx } from "@/contextHooks/product/useProductUICtx";
 import { currentTheme } from "@/data/currentTheme";
 import { useDataLoadingListener } from "@/functions/createFunctions/useDataLoadingListener";
 import {  useImagesPreviewRevoker } from "@/functions/createFunctions/useImagesPreviewer";

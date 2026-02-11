@@ -23,6 +23,7 @@ export default function ShippingForm({
         });
     };
 
+    
     return (
         <div
             style={{
@@ -49,7 +50,7 @@ export default function ShippingForm({
                         <input
                             type="text"
                             
-                            value={data.first_name}
+                            value={data.address.first_name || ''}
                             onChange={(e) => handleAddressChange("first_name", e.target.value)}
                             style={{
                                 borderColor: theme.border,
@@ -71,7 +72,7 @@ export default function ShippingForm({
                         <input
                             type="text"
                             
-                            value={data.last_name}
+                            value={data.address.last_name || ''}
                             onChange={(e) => handleAddressChange("last_name", e.target.value)}
                             style={{
                                 borderColor: theme.border,
@@ -96,7 +97,7 @@ export default function ShippingForm({
                         <input
                             type="email"
                             
-                            value={data.email}
+                            value={data.address.email || ''}
                             onChange={(e) =>
                                 handleAddressChange("email", e.target.value)
                             }
@@ -121,7 +122,7 @@ export default function ShippingForm({
                         <input
                             type="tel"
                             
-                            value={data.phone}
+                            value={data.address.phone || ''}
                             onChange={(e) =>
                                 handleAddressChange("phone", e.target.value)
                             }
@@ -150,7 +151,7 @@ export default function ShippingForm({
                     <input
                         type="text"
                         
-                        value={data.address.address_line1}
+                        value={data.address.address_line1 || ''}
                         onChange={(e) =>
                             handleAddressChange("address_line1", e.target.value)
                         }
@@ -176,7 +177,7 @@ export default function ShippingForm({
                     <input
                         type="text"
                         
-                        value={data.address.address_line2}
+                        value={data.address.address_line2 || ''}
                         onChange={(e) =>
                             handleAddressChange("address_line2", e.target.value)
                         }
@@ -203,7 +204,7 @@ export default function ShippingForm({
                         <input
                             type="text"
                             
-                            value={data.address.city}
+                            value={data.address.city || ''}
                             onChange={(e) =>
                                 handleAddressChange("city", e.target.value)
                             }
@@ -227,7 +228,7 @@ export default function ShippingForm({
                         <input
                             type="text"
                             
-                            value={data.address.state}
+                            value={data.address.state || ''}
                             onChange={(e) =>
                                 handleAddressChange("state", e.target.value)
                             }
@@ -251,7 +252,7 @@ export default function ShippingForm({
                         <input
                             type="text"
                             
-                            value={data.address.postal_code}
+                            value={data.address.postal_code || ''}
                             onChange={(e) =>
                                 handleAddressChange("postal_code", e.target.value)
                             }
@@ -272,10 +273,10 @@ export default function ShippingForm({
                         style={{ color: theme.textSecondary }}
                         className="block text-sm mb-2"
                     >
-                        Country *
+                        Notes (for the delivery)
                     </label>
                     <textarea
-                        value={data.notes}
+                        value={data.notes || ''}
                         onChange={(e) =>
                             handleChange("notes", e.target.value)
                         }

@@ -1,5 +1,5 @@
 import TagSection from "@/components/TagSection"
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx"
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx"
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 import { generateSKU } from "@/functions/product/generateSku";

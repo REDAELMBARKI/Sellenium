@@ -16,7 +16,7 @@ import {
   Twitter
 } from 'lucide-react';
 import { Link } from '@inertiajs/react';
-import CartSideBar from '@/Pages/checkout/CartSideBar';
+import CartSideBar from '@/Pages/cart/cartlisting/CartSideBar';
 import StoreConfigProvider from '@/contextProvoders/StoreConfigProvider';
 
 

@@ -1,5 +1,5 @@
-import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
-import { useProductUICtx } from '@/contextHooks/sharedhooks/useProductUICtx';
+import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
+import { useProductUICtx } from '@/contextHooks/product/useProductUICtx';
 import { Tag as TagType } from '@/types/tagsTypes';
 import { useState, useRef, useEffect, useCallback, RefObject } from 'react';
 

@@ -1,7 +1,7 @@
 
 
 import EmptyListSection from "@/admin/components/partials/EmptyListSection";
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
 import { Color, Cover, Size } from "@/types/inventoryTypes";
 import { ImagePreviewItem } from "@/types/mediaTypes";

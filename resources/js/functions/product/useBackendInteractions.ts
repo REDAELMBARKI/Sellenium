@@ -1,4 +1,4 @@
-import { useProductDataCtx } from "@/contextHooks/sharedhooks/useProductDataCtx";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { router, useForm } from "@inertiajs/react";
 import axios from "axios";
 import { route } from "ziggy-js";

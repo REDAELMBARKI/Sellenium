@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from 'react';
-import { ModeForm, ProductDataContext } from '@/context/sharedProductContext/ProductDataContext';
+import { ModeForm, ProductDataContext } from '@/context/product/ProductDataContext';
 import {  Category, Cover } from '@/types/inventoryTypes';
 import { getEditedData, getEmptyInitialProductData } from '@/data/initialProductData';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';

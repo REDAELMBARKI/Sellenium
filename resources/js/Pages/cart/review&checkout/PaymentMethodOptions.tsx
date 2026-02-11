@@ -2,7 +2,7 @@ import { ThemePalette } from "@/types/ThemeTypes";
 
 interface PaymentMethodOptionsProps {
     payment_method: string;
-    onPaymentMethodChange: (method: string) => void;
+    onPaymentMethodChange: (method: any) => void;
     theme: ThemePalette;
 }
 

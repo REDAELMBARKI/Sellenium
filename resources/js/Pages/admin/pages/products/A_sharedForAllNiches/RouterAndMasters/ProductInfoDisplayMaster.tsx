@@ -8,7 +8,7 @@ import { TagSuggestion } from '../../../../../../types/tagsTypes';
 import { P } from 'node_modules/framer-motion/dist/types.d-BJcRxCew';
 import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown';
 
-import { useProductDataCtx } from '@/contextHooks/sharedhooks/useProductDataCtx';
+import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import FashionBasicInfoForm from './ProductCrEdForm';
 import PerfumesBasicInfoForm from '../../perfumesNiche/forms/PerfumesBasicInfoForm';
 import FashionReadonlyDisplay from '../../fashionNiche/displays/FashionReadonlyDisplay';
