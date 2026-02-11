@@ -3,6 +3,7 @@ import { Lock, Tag } from "lucide-react";
 import { router } from '@inertiajs/react';
 import { route } from "ziggy-js";
 import CardPaymentForm from "./CardPaymentForm";
+import PaymentMethodOptions from "./PaymentMethodOptions";
 
 interface OrderSummaryProps {
     subtotal: number;
@@ -15,10 +16,12 @@ interface OrderSummaryProps {
     theme: any;
     cardData: any;
     onChange: (data: any) => void;
+    onPaymentMethodChange: (method: any) => void;
 }
 
 export default function OrderSummary({
     payment_method , 
+    onPaymentMethodChange ,
     subtotal,
     shipping,
     tax,
@@ -43,7 +46,7 @@ export default function OrderSummary({
             <h2 style={{ color: theme.text }} className="text-xl font-bold mb-6">
                 Order Summary
             </h2>
-
+            
             {/* Price Breakdown */}
             <div
                 className="space-y-3 mb-6 pb-6"
@@ -126,7 +129,7 @@ export default function OrderSummary({
                     </span>
                 </div>
             </div>
-
+            <PaymentMethodOptions  {...{payment_method , theme , onPaymentMethodChange}}/>
             {
                 payment_method === 'CARD' &&
                   <CardPaymentForm
