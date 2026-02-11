@@ -159,7 +159,7 @@ class OrderService
         }
 
         private function calculateSubtotal($items){
-            return  $items->sum(function ($item) {
+            return (int) collect($items)->sum(function ($item) {
                          return $item->price_snapshot * $item->quantity;
                      });
         }
@@ -168,83 +168,83 @@ class OrderService
             return random_int(1000000 , 9999999);
         }
         // stripe payment
-    private function perceedToPaymentAndOrder_transaction(CreateOrderDTO $dto) : void
-    {
-        $paymentIntent = $this->authorizePayment($dto->total_amount , $dto->payment_method_id);
+    // private function perceedToPaymentAndOrder_transaction(CreateOrderDTO $dto) : void
+    // {
+    //     $paymentIntent = $this->authorizePayment($dto->total_amount , $dto->payment_method_id);
 
-        DB::transaction(function() use ($dto, $paymentIntent) {
-            // 2. Create order
-            $payment_calculations = [
-                 'confirmed' => true,
-                 'paid'=> true,
-                 'paid_at'=> now()
-            ] ;
+    //     DB::transaction(function() use ($dto, $paymentIntent) {
+    //         // 2. Create order
+    //         $payment_calculations = [
+    //              'confirmed' => true,
+    //              'paid'=> true,
+    //              'paid_at'=> now()
+    //         ] ;
 
-            $final_dto = CreateOrderDTO::fromPayment($dto->toArray() , $payment_calculations) ;
-            $order = $this->createOrderMaster($final_dto);
+    //         $final_dto = CreateOrderDTO::fromPayment($dto->toArray() , $payment_calculations) ;
+    //         $order = $this->createOrderMaster($final_dto);
             
-            if (!$order) {
-                // Cancel/refund the payment intent if it exists
-                if ($paymentIntent) {
-                    // Cancel the payment intent in Stripe
-                    $this->cancelPayment($paymentIntent);
-                }
+    //         if (!$order) {
+    //             // Cancel/refund the payment intent if it exists
+    //             if ($paymentIntent) {
+    //                 // Cancel the payment intent in Stripe
+    //                 $this->cancelPayment($paymentIntent);
+    //             }
                 
-                throw new \Exception('Failed to create order');
-            }
+    //             throw new \Exception('Failed to create order');
+    //         }
 
-            // 3. Capture the authorized payment
-            $this->capturePayment($paymentIntent, $order->id);
+    //         // 3. Capture the authorized payment
+    //         $this->capturePayment($paymentIntent, $order->id);
 
-            return $order ;
-        });
-    }
+    //         return $order ;
+    //     });
+    // }
 
-    private function authorizePayment(float $amount, $payment_method_id)
-    {
-        // Initialize Stripe with your secret key
-        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
-         $currency = env('STORE_CURRENCY');
-        // Create a PaymentIntent - this HOLDS the money but doesn't charge yet
-        $paymentIntent = \Stripe\PaymentIntent::create([
-            'amount' => $amount * 100, // Stripe uses cents, so $50.00 = 5000
-            'currency' => $currency,
-            'capture_method' => 'manual', // CRITICAL: Don't auto-capture, we'll do it manually
-            'payment_method' => $payment_method_id, // From frontend Stripe.js
-            'confirmation_method' => 'manual', // We'll confirm it ourselves
-            'confirm' => true, // Confirm immediately to authorize
-        ]);
+    // private function authorizePayment(float $amount, $payment_method_id)
+    // {
+    //     // Initialize Stripe with your secret key
+    //     \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+    //      $currency = env('STORE_CURRENCY');
+    //     // Create a PaymentIntent - this HOLDS the money but doesn't charge yet
+    //     $paymentIntent = \Stripe\PaymentIntent::create([
+    //         'amount' => $amount * 100, // Stripe uses cents, so $50.00 = 5000
+    //         'currency' => $currency,
+    //         'capture_method' => 'manual', // CRITICAL: Don't auto-capture, we'll do it manually
+    //         'payment_method' => $payment_method_id, // From frontend Stripe.js
+    //         'confirmation_method' => 'manual', // We'll confirm it ourselves
+    //         'confirm' => true, // Confirm immediately to authorize
+    //     ]);
         
-        // Check if authorization succeeded
-        if ($paymentIntent->status !== 'requires_capture') {
-            throw new \Exception('Payment authorization failed: ' . $paymentIntent->status);
-        }
+    //     // Check if authorization succeeded
+    //     if ($paymentIntent->status !== 'requires_capture') {
+    //         throw new \Exception('Payment authorization failed: ' . $paymentIntent->status);
+    //     }
         
-        return $paymentIntent; // Return the intent object to use later
-    }
+    //     return $paymentIntent; // Return the intent object to use later
+    // }
 
 
     private function cancelPayment(){
         
     }
 
-    private function capturePayment($paymentIntent, int $orderId)
-    {
-        // Initialize Stripe again (in case different request)
-        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+    // private function capturePayment($paymentIntent, int $orderId)
+    // {
+    //     // Initialize Stripe again (in case different request)
+    //     \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
         
-        // Capture the authorized payment - NOW the money actually moves
-        $captured = \Stripe\PaymentIntent::retrieve($paymentIntent->id);
-        $captured->capture([
-            'metadata' => ['order_id' => $orderId] // Link payment to order for records
-        ]);
+    //     // Capture the authorized payment - NOW the money actually moves
+    //     $captured = \Stripe\PaymentIntent::retrieve($paymentIntent->id);
+    //     $captured->capture([
+    //         'metadata' => ['order_id' => $orderId] // Link payment to order for records
+    //     ]);
         
-        // Verify capture succeeded
-        if ($captured->status !== 'succeeded') {
-            throw new \Exception('Payment capture failed');
-        }
+    //     // Verify capture succeeded
+    //     if ($captured->status !== 'succeeded') {
+    //         throw new \Exception('Payment capture failed');
+    //     }
         
-        return $captured;
-    }
+    //     return $captured;
+    // }
 
 }

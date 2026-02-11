@@ -70,40 +70,61 @@ class OrderController extends Controller
     // }
 
      // constroller
+
+    public function checkoutSuccess(){
+        return Inertia::render('checkout/OrderConfirmation');
+    }
     public function checkout(StoreOrderRequest $request , OrderAction $action , CartService $cartService){
-        if(!$request->has('payment_method') || !in_array( $request->payment_method  , ['COD' , 'CARD']) ){
-            return response()->json([
-                'message' => 'payment method is required'
-            ]);
+        $validationError = $this->validateCheckout($request, $cartService);
+        if ($validationError) {
+            return back()->withErrors([''=> $validationError]);
         }
+
         $cartItems = $cartService->getCartItems();
-        // validate cart items
-        if ($cartItems->isEmpty()) {
-            return response()->json([
-                'message' => 'Your cart is empty.'
-            ], 400);
-        }
-        // Validate stock
-        foreach ($cartItems as $item) {
-            if ($item->product->stock < $item->quantity) {
-                return response()->json([
-                    'error' => "Insufficient stock for {$item->product->name}"
-                ], 400);
-            }
-        }
-    
- 
         $dto = CreateOrderDTO::fromRequest(array_merge($request->validated() , ['items' => $cartItems->toArray()]));
         
         try{
             $order = $action->execute($dto);
-            return response()->json($order, 201);
+            if( $order ){
+                return redirect()
+                        ->route('checkout.success')
+                        ->with('success', 'Order placed successfully!');
+            }
+            else{
+                 return back()->withErrors([
+                    'error'=> 'failed to create order'
+                 ]);
+            }
         }catch(Exception $e){
-             throw new OrderException($e);
+              return back()->withErrors([
+                    'error' => 'failed to create order (execute) '
+                 ]);
         }
     }
 
-
+    private function validateCheckout(StoreOrderRequest $request, CartService $cartService): ?string
+    {
+        // Validate payment method
+        if (!$request->has('payment_method') || !in_array($request->payment_method, ['COD', 'CARD'])) {
+            return 'Payment method is required';
+        }
+        
+        $cartItems = $cartService->getCartItems();
+        
+        // Validate cart not empty
+        if ($cartItems->isEmpty()) {
+            return 'Your cart is empty.';
+        }
+        
+        // Validate stock availability
+        foreach ($cartItems as $item) {
+            if ($item->productVariant->stock < $item->quantity) {
+                return "Insufficient stock for {$item->productVariant->product->name}";
+            }
+        }
+        
+        return null;
+    }
 
     public function destroy(Order $order)
     {

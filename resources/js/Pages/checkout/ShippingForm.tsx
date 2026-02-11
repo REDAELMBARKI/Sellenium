@@ -37,29 +37,52 @@ export default function ShippingForm({
 
             <div className="space-y-4">
                 {/* Name */}
-                <div>
-                    <label
-                        style={{ color: theme.textSecondary }}
-                        className="block text-sm mb-2"
-                    >
-                        <User size={16} className="inline mr-2" />
-                        Full Name *
-                    </label>
-                    <input
-                        type="text"
-                        
-                        value={data.guest_name}
-                        onChange={(e) => handleChange("guest_name", e.target.value)}
-                        style={{
-                            borderColor: theme.border,
-                            backgroundColor: theme.bgSecondary,
-                            color: theme.text,
-                        }}
-                        className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
-                        placeholder="John Doe"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            style={{ color: theme.textSecondary }}
+                            className="block text-sm mb-2"
+                        >
+                            <User size={16} className="inline mr-2" />
+                            First Name *
+                        </label>
+                        <input
+                            type="text"
+                            
+                            value={data.first_name}
+                            onChange={(e) => handleAddressChange("first_name", e.target.value)}
+                            style={{
+                                borderColor: theme.border,
+                                backgroundColor: theme.bgSecondary,
+                                color: theme.text,
+                            }}
+                            className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
+                            placeholder="John Doe"
+                        />
+                    </div>
+                    <div>
+                        <label
+                            style={{ color: theme.textSecondary }}
+                            className="block text-sm mb-2"
+                        >
+                            <User size={16} className="inline mr-2" />
+                            Last Name *
+                        </label>
+                        <input
+                            type="text"
+                            
+                            value={data.last_name}
+                            onChange={(e) => handleAddressChange("last_name", e.target.value)}
+                            style={{
+                                borderColor: theme.border,
+                                backgroundColor: theme.bgSecondary,
+                                color: theme.text,
+                            }}
+                            className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
+                            placeholder="John Doe"
+                        />
+                    </div>
                 </div>
-
                 {/* Email & Phone */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -73,9 +96,9 @@ export default function ShippingForm({
                         <input
                             type="email"
                             
-                            value={data.guest_email}
+                            value={data.email}
                             onChange={(e) =>
-                                handleChange("guest_email", e.target.value)
+                                handleAddressChange("email", e.target.value)
                             }
                             style={{
                                 borderColor: theme.border,
@@ -98,9 +121,9 @@ export default function ShippingForm({
                         <input
                             type="tel"
                             
-                            value={data.guest_phone}
+                            value={data.phone}
                             onChange={(e) =>
-                                handleChange("guest_phone", e.target.value)
+                                handleAddressChange("phone", e.target.value)
                             }
                             style={{
                                 borderColor: theme.border,
@@ -251,12 +274,10 @@ export default function ShippingForm({
                     >
                         Country *
                     </label>
-                    <input
-                        type="text"
-                        
-                        value={data.address.country}
+                    <textarea
+                        value={data.notes}
                         onChange={(e) =>
-                            handleAddressChange("country", e.target.value)
+                            handleChange("notes", e.target.value)
                         }
                         style={{
                             borderColor: theme.border,
@@ -264,7 +285,7 @@ export default function ShippingForm({
                             color: theme.text,
                         }}
                         className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
-                        placeholder="United States"
+                        placeholder="any notes for the delivery ?"
                     />
                 </div>
             </div>

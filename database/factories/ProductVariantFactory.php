@@ -21,7 +21,7 @@ class ProductVariantFactory extends Factory
             'product_id' => Product::inRandomOrder()->first()->id,
             'price' => $this->faker->numberBetween(0,0),
             'oldPrice' => $this->faker->numberBetween(0,1),
-            'stock_quantity' => $this->faker->numberBetween(0,1),
+            'stock' => $this->faker->numberBetween(0,100),
              
         ];
     }

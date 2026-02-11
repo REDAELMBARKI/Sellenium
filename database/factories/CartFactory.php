@@ -26,7 +26,7 @@ class CartFactory extends Factory
         return [
             'user_id' => User::inRandomOrder()->first()->id ,
             'product_variant_id' => ProductVariant::inRandomOrder()->first()->id ,
-            'quantity' => $this->faker->numberBetween(1,100),
+            'quantity' => $this->faker->numberBetween(1,5),
             'price_snapshot'=> $this->faker->numberBetween(1,100),
             'cart_token' => Str::slug($this->faker->numberBetween(1,100)),
         ];

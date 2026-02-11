@@ -11,7 +11,7 @@ class CartController extends Controller
     
     public function index(){
         $cartItems =(new CartService())->getCartItems();
-        return Inertia::render('shoopingCart/CheckoutPageIndex' , compact(var_name: 'cartItems'));
+        return Inertia::render('checkout/CheckoutPageIndex' , compact(var_name: 'cartItems'));
     }
 
 

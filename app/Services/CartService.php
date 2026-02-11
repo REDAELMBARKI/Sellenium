@@ -37,7 +37,7 @@ class CartService
                 $q->where('cart_token', Cookie::get('cart_token'));
             })
             ->with(['productVariant' => function($q){
-                    $q->select('id'  , 'product_id', 'attributes' , 'stock_quantity'); // this fials everything is showed up why
+                    $q->select('id'  , 'product_id', 'attributes' , 'stock'); // this fials everything is showed up why
                     $q->with(['product' => function($q2){
                          $q2->select('id','name' , 'description'); // this works shows only these attributes
                          $q2->with('thumbnail') ;

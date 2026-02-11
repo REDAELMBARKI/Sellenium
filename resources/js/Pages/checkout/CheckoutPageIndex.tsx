@@ -2,7 +2,7 @@
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import Layout from "@/Layouts/Layout";
 import { useState } from "react";
-import { router, Link } from "@inertiajs/react";
+import { router, Link, useForm, usePage } from "@inertiajs/react";
 import ShippingForm from "./ShippingForm";
 import StoreConfigProvider from "@/contextProvoders/StoreConfigProvider";
 import { Cover } from "@/types/inventoryTypes";
@@ -125,18 +125,18 @@ function CheckoutPage({ cartItems , tax }: CheckoutPageProps) {
     const [payment_method, setPaymen_method] = useState<PaymentMethod>("COD");
 
     const [shippingData, setShippingData] = useState({
-        name: "",
-        email: "",
-        phone: "",
-        notes : '' , 
         address: {
+            first_name: "",
+            last_name: "",
+            email: "",
+            phone: "",
             address_line1 : '' , 
             address_line2 : '' ,
             city: "",
             state: "",
             postal_code: "",
-            country: "",
         },
+        notes : '' , 
     });
     const [cardData, setCardData] = useState({
         card_number: "",
@@ -145,7 +145,7 @@ function CheckoutPage({ cartItems , tax }: CheckoutPageProps) {
         cardholder_name: "",
     });
     const [coupon_code, setCoupon_code] = useState("");
-
+    const page = usePage()
     // Calculate totals
     const subtotal = cartItems.reduce(
         (sum, item) => sum + item.price_snapshot * item.quantity,
@@ -159,7 +159,6 @@ function CheckoutPage({ cartItems , tax }: CheckoutPageProps) {
     
     const handleCheckout = (e:React.FormEvent) => {
         e.preventDefault();
-        console.log('post')
         if(payment_method === 'CARD'){
         //   createPaymentMethod()
           handlePlaceOrder()
@@ -167,8 +166,6 @@ function CheckoutPage({ cartItems , tax }: CheckoutPageProps) {
         else{
             handlePlaceOrder();
         }
-
-
     }
     const handlePlaceOrder = () => {
         const orderData = {
@@ -184,7 +181,8 @@ function CheckoutPage({ cartItems , tax }: CheckoutPageProps) {
                 console.log('the order is successfuly done')
             },
             onError: (errors) => {
-                console.error("Checkout errors:", errors);
+                console.error("Checkout errors:",  errors.error);
+
             },
         });
     };

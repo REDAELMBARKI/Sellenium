@@ -141,7 +141,7 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 // OrderManager
 Route::get('/orders' , [OrderController::class, 'index'])->middleware('auth')->name('orders.index') ;
 Route::post('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
-
+Route::get("/checkout/success" , [OrderController::class, 'checkoutSuccess'])->name('checkout.success') ;
 
 // customer
 Route::get('/customers' , [CurstomerController::class, 'index']) ;

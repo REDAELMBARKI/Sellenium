@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(Product::class)->constrained()->onDelete('cascade');
             $table->decimal('price', 10, 2);
             $table->decimal('oldPrice', 10, 2)->nullable();
-            $table->integer('stock_quantity')->default(0);
+            $table->integer('stock')->default(0);
             $table->string('sku')->unique()->nullable();
             
             // Store all attributes as JSON

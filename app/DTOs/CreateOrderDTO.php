@@ -4,26 +4,27 @@ namespace App\DTOs;
 
 use App\Http\Requests\StoreOrderRequest;
 use App\Models\User;
+use DateTime;
 use Illuminate\Support\Facades\Auth;
 
 class CreateOrderDTO
 {
     public function __construct(
-        public readonly string $order_number , 
-        public readonly string $payment_method_id , 
-        public readonly int $user_id,
+        public readonly ?string $order_number = null, 
+        public readonly ?string $payment_method_id = null, 
+        public readonly ?int $user_id = null,
         public readonly string $notes , 
         public readonly string $payment_method,
         public readonly array $items,              // Array of OrderItemDTO
         public readonly OrderAddressDTO $address,  // Nested DTO
         public readonly ?string $coupon_code = null,
-        public readonly int $paid_at,
-        public readonly int $paid ,
-        public readonly string $tax = 0,
-        public readonly string $confirmed = false,
-        public readonly string $total_amount = 0 ,
-        public readonly string $discount_amount = 0 ,
-        public readonly string $shipping_cost = 0,
+        public readonly ?DateTime $paid_at,
+        public readonly ?bool $paid ,
+        public readonly ?float $tax = 0.0,
+        public readonly ?bool $confirmed = false,
+        public readonly ?int $total_amount = 0 ,
+        public readonly ?int $discount_amount = 0 ,
+        public readonly ?int $shipping_cost = 0,
         
     ) {}
     
@@ -37,7 +38,7 @@ class CreateOrderDTO
         return new self(
             user_id: $user_id,
             payment_method: $data['payment_method'],
-            payment_method_id: $data['payment_method_id'],
+            payment_method_id: $data['payment_method_id'] ?? null,
             items: array_map(
                 fn($item) => OrderItemDTO::fromArray($item),
                 $data['items']
@@ -87,9 +88,9 @@ class CreateOrderDTO
 class OrderItemDTO
 {
     public function __construct(
-        public int $product_variant_Id,
+        public int $product_variant_id,
         public int $quantity,
-        public float $price,
+        public float $subtotal,
         public string  $product_name
     ) {}
 
@@ -98,10 +99,10 @@ class OrderItemDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            product_variant_Id: $data["product_variant_Id"],
+            product_variant_id: $data["product_variant_id"],
             quantity: $data["quantity"],
-            price: $data["price"],
-            product_name : $data["product_name"],
+            subtotal: $data["subtotal"],
+            product_name : $data["productVariant"]['product']['name'] ?? 'Unknown Product',
             
         );
     }
@@ -109,10 +110,10 @@ class OrderItemDTO
      public function toArray(): array
     {
         return [
-            "product_variant_id"=> $this->product_variant_Id,
+            "product_variant_id"=> $this->product_variant_id,
             "product_name"=> $this->product_name,
             "quantity"=> $this->quantity,
-            "price"=> $this->price,
+            "subtotal"=> $this->subtotal,
         ];
     }
 }
@@ -121,27 +122,33 @@ class OrderItemDTO
 class OrderAddressDTO
 {
     public function __construct(
-        public readonly string $full_name ,
+        public readonly string $first_name ,
+        public readonly string $last_name ,
         public string $address_line1,
-        public string $address_line2,
+        public ?string $address_line2,
         public string $city,
-        public string $state,
-        public string $postal_code,
-        public string $country,
+        public ?string $state,
+        public ?string $postal_code,
+        public ?string $country ,
         public ?string $phone = null,
-    ) {}
+        public ?string $email = null,
+    ) {
+           $this->country = $country ?? env('APP_COUNTRY', 'US');
+    }
     
     public function toArray(): array
     {
         return [
-            'full_name' => $this->full_name,
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
             'address_line1'=> $this->address_line1,
             'address_line2'=> $this->address_line2,
             'city'=> $this->city,
             'state'=> $this->state,
             'postal_code'=> $this->postal_code,
-            'country'=> $this->country , 
-            'phone' => $this->phone
+            'country'=> $this->country ,
+            'phone' => $this->phone ,
+            'email' => $this->email
 
         
         ];
@@ -149,14 +156,16 @@ class OrderAddressDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            full_name: $data["full_name"],
+            first_name: $data["first_name"],
+            last_name: $data["last_name"],
             address_line1: $data["address_line1"],
             address_line2: $data["address_line2"],
             city: $data["city"],
             state: $data["state"],
-            postal_code: $data[""],
-            country: $data["country"],
+            postal_code: $data["postal_code"],
+            country: $data["country"] ?? env('APP_COUNTRY'),
             phone: $data["phone"],
+            email: $data["email"],
         );
     }
 }
