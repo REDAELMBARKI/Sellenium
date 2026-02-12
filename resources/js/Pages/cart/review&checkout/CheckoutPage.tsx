@@ -1,7 +1,7 @@
 // Pages/Checkout/CheckoutPage.tsx
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import Layout from "@/Layouts/Layout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { router } from "@inertiajs/react";
 import StoreConfigProvider from "@/contextProvoders/StoreConfigProvider";
 import { route } from "ziggy-js";
@@ -21,10 +21,11 @@ interface CheckoutPageProps {
     cartItems: any[];
     tax: number;
     shippingData: any;
-    onStepChange : (action : 'prev' | 'next' ) => void
+    onStepChange : (action : 'prev' | 'next' ) => void , 
+    errors : any
 }
 
-export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChange }: CheckoutPageProps) {
+export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChange , errors  }: CheckoutPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
@@ -60,6 +61,11 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
         });
     };
 
+      useEffect(() => {
+      console.log(errors)
+    }, [errors]);
+
+    
     return (
         <Layout currentPage="checkout">
             <div
@@ -67,7 +73,7 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
                 className="min-h-screen py-8"
             >
                 <div className="container mx-auto px-4 max-w-7xl">
-                    <StepIndicator currentStep={3} />
+                    <StepIndicator currentStep={3} errors={errors} />
 
                     <form onSubmit={handlePlaceOrder}>
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

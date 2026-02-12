@@ -57,9 +57,6 @@ export default function CartPage({ cartItems , onStepChange }: CartPageProps) {
         <Layout currentPage="cart">
             <div style={{ backgroundColor: theme.bg }} className="min-h-screen py-8">
                 <div className="container mx-auto px-4 max-w-7xl">
-                    {/* Step Indicator */}
-                    <StepIndicator currentStep={1} />
-
                     {/* Free Shipping Banner */}
                     {subtotal >= 50 && (
                         <div

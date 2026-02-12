@@ -1,9 +1,9 @@
 import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
-import ProductDataProvider from "@/contextProvoders/sharedProviders/ProductDataProvider";
-import ProductUIProvider from "@/contextProvoders/sharedProviders/ProductUIProvider";
 import { ProductBackendProps } from "@/types/productsTypes";
 import BasicInfoFormMaster from "./A_sharedForAllNiches/RouterAndMasters/ProductFormMaster";
+import ProductDataProvider from "@/contextProvoders/product/ProductDataProvider";
+import ProductUIProvider from "@/contextProvoders/product/ProductUIProvider";
 
 
 export default function Create({options , data}: ProductBackendProps) { 

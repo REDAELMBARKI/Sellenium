@@ -92,12 +92,12 @@ class OrderController extends Controller
             }
             else{
                  return back()->withErrors([
-                    'error'=> 'failed to create order'
+                    'submit'=> 'failed to create order'
                  ]);
             }
         }catch(Exception $e){
               return back()->withErrors([
-                    'error' => 'failed to create order (execute) '
+                    'submit' => 'failed to create order (execute) '
                  ]);
         }
     }

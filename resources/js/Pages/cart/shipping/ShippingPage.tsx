@@ -18,11 +18,12 @@ interface ShippingPageProps {
     shippingData : ShippingData ,
     onStepChange : (action : 'prev' | 'next' ) => void,
     setShippingData : React.Dispatch<React.SetStateAction<ShippingData>>
+    errors : any
 }
 
 
 
-export default function ShippingPage({ cartItems, tax  , shippingData, setShippingData , onStepChange}: ShippingPageProps) {
+export default function ShippingPage({ cartItems, tax  , shippingData, setShippingData , onStepChange , errors}: ShippingPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
@@ -47,7 +48,7 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
                 className="min-h-screen py-8"
             >
                 <div className="container mx-auto px-4 max-w-7xl">
-                    <StepIndicator currentStep={2} />
+                    <StepIndicator currentStep={1} errors={errors} />
 
                     {/* Free Shipping Banner */}
                     {subtotal >= 50 && (
