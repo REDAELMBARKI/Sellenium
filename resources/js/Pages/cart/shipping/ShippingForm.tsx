@@ -1,5 +1,6 @@
 // Pages/Checkout/components/ShippingForm.tsx
 import { Mail, MapPin, Phone, User } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 interface ShippingFormProps {
     data: any;
@@ -22,6 +23,10 @@ export default function ShippingForm({
             address: { ...data.address, [field]: value },
         });
     };
+
+
+
+    const {register , handleSubmit , formState : {errors , isDirty}} = useForm({})
 
     
     return (
