@@ -14,6 +14,7 @@ import OrderSummaryCard from "../shared/OrderSummary";
 import { isEmpty } from "lodash";
 import { isEmptyObject } from "@/functions/product/souldSaveDraft";
 import { Button } from "@/components/ui/button";
+import ShippingAddressReview from "./ShippingAddressReview";
 
 type PaymentMethod = "COD" | "CARD";
 
@@ -22,10 +23,10 @@ interface CheckoutPageProps {
     tax: number;
     shippingData: any;
     onStepChange : (action : 'prev' | 'next' ) => void , 
-    errors : any
+    backendErrors : any
 }
 
-export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChange , errors  }: CheckoutPageProps) {
+export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChange , backendErrors  }: CheckoutPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
@@ -61,20 +62,14 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
         });
     };
 
-      useEffect(() => {
-      console.log(errors)
-    }, [errors]);
-
     
     return (
-        <Layout currentPage="checkout">
+       
             <div
                 style={{ backgroundColor: theme.bg }}
                 className="min-h-screen py-8"
             >
                 <div className="container mx-auto px-4 max-w-7xl">
-                    <StepIndicator currentStep={3} errors={errors} />
-
                     <form onSubmit={handlePlaceOrder}>
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             {/* Left: Payment Options */}
@@ -156,68 +151,7 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
                     </form>
                 </div>
             </div>
-        </Layout>
+
     );
 }
 
-
-const ShippingAddressReview = ({ shippingData, theme , onStepChange } : {onStepChange : (action : any) => void ,  shippingData : any , theme : any}) => {
-
-
-    return (
-                           <div
-                                    style={{
-                                        backgroundColor: theme.bgSecondary,
-                                        borderColor: theme.border,
-                                        borderRadius: theme.borderRadius,
-                                    }}
-                                    className="border p-4"
-                                >
-                                    <div className="flex items-center justify-between mb-3">
-                                        <h3
-                                            style={{ color: theme.text }}
-                                            className="font-semibold"
-                                        >
-                                            Shipping Address
-                                        </h3>
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                               onStepChange('prev')
-                                            }
-                                            style={{ color: theme.link }}
-                                            className="text-xs hover:underline"
-                                        >
-                                            Edit
-                                        </button>
-                                    </div>
-                                    <div
-                                        style={{ color: theme.textSecondary }}
-                                        className="text-sm space-y-1"
-                                    >
-                                        <p>
-                                            {shippingData?.address?.first_name}{" "}
-                                            {shippingData?.address?.last_name}
-                                        </p>
-                                        <p>{shippingData?.address?.address_line1}</p>
-                                        {shippingData?.address?.address_line2 && (
-                                            <p>{shippingData?.address?.address_line2}</p>
-                                        )}
-                                        <p>
-                                            {shippingData?.address?.city}{" "}
-                                            {shippingData?.address?.state}{" "}
-                                            {shippingData?.address?.postal_code}
-                                        </p>
-                                    </div>
-
-                                    {isEmptyObject(shippingData) &&  (<div className="flex flex-col items-center gap-4 mt-4">
-                                                 <p className="text-center ">
-                                                    no address (address is required)
-                                                 </p>
-                                                <div>
-                                                    <Button onClick={() => onStepChange('prev')}>add address</Button>
-                                                </div>
-                                        </div> )}
-                                </div>
-    )
-} ;

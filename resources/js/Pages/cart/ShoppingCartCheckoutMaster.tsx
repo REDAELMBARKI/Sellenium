@@ -5,6 +5,8 @@ import CheckoutPage from "./review&checkout/CheckoutPage";
 import ShippingPage from "./shipping/ShippingPage";
 import { set } from "lodash";
 import { usePage } from "@inertiajs/react";
+import StepIndicator from "./shared/StepIndicator";
+import Layout from "@/Layouts/Layout";
 
 // Pages/Cart/CartPage.tsx
 interface ShoppingCartPageMasterProps {
@@ -14,7 +16,7 @@ interface ShoppingCartPageMasterProps {
 
 export default function ShoppingCartCheckoutMaster({ cartItems = [] , tax = 0 }: ShoppingCartPageMasterProps) {
     const [step , setStep] = useState(0);
-    const {props : {errors}} = usePage();
+    const {props : {errors : backendErrors}} = usePage();
     const [shippingData, setShippingData] = useState({
         address: {
             first_name: "",
@@ -36,14 +38,20 @@ export default function ShoppingCartCheckoutMaster({ cartItems = [] , tax = 0 }:
 
     const stepsCompos : Record<string , React.ReactElement> = {
         '0' : <CartPage {...{cartItems  , onStepChange}} /> , 
-        '1' : <ShippingPage {...{cartItems ,tax , shippingData, setShippingData , onStepChange , errors}} /> , 
-        '2' : <CheckoutPage {...{ cartItems , shippingData , tax  , onStepChange , errors }} /> , 
+        '1' : <ShippingPage {...{cartItems ,tax , shippingData, setShippingData , onStepChange , backendErrors}} /> , 
+        '2' : <CheckoutPage {...{ cartItems , shippingData , tax  , onStepChange , backendErrors }} /> , 
     };
 
+
+   
+   const stepName = step === 0 ? "cart" : step === 1 ? "shipping" : "checkout" ;
     
     return (
         <StoreConfigProvider>
-             {stepsCompos[step]}
+         <Layout currentPage={stepName} >
+                <StepIndicator currentStep={step} errors={backendErrors} />
+                {stepsCompos[step]}
+        </Layout>
         </StoreConfigProvider>
     );
 }

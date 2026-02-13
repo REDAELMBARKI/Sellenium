@@ -13,7 +13,7 @@ class CreateOrderDTO
         public readonly ?string $order_number = null, 
         public readonly ?string $payment_method_id = null, 
         public readonly ?int $user_id = null,
-        public readonly string $notes , 
+        public readonly ?string $notes , 
         public readonly string $payment_method,
         public readonly array $items,              // Array of OrderItemDTO
         public readonly OrderAddressDTO $address,  // Nested DTO

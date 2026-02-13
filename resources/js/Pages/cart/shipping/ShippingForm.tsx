@@ -1,34 +1,27 @@
-// Pages/Checkout/components/ShippingForm.tsx
+
 import { Mail, MapPin, Phone, User } from "lucide-react";
-import { useForm } from "react-hook-form";
+
+import { isEmpty } from "lodash";
+import { da } from "zod/v4/locales";
+import { useEffect, useMemo } from "react";
 
 interface ShippingFormProps {
-    data: any;
     onChange: (data: any) => void;
     theme: any;
+    ZodErrors : any ,
+    backendErrors ?: any ,
+    register : any
 }
 
 export default function ShippingForm({
-    data,
     onChange,
     theme,
+    ZodErrors , 
+    backendErrors , 
+    register
 }: ShippingFormProps) {
-    const handleChange = (field: string, value: string) => {
-        onChange({ ...data, [field]: value });
-    };
-
-    const handleAddressChange = (field: string, value: string) => {
-        onChange({
-            ...data,
-            address: { ...data.address, [field]: value },
-        });
-    };
-
-
-
-    const {register , handleSubmit , formState : {errors , isDirty}} = useForm({})
-
     
+
     return (
         <div
             style={{
@@ -42,7 +35,7 @@ export default function ShippingForm({
             </h2>
 
             <div className="space-y-4">
-                {/* Name */}
+                {/* full Name */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label
@@ -54,9 +47,7 @@ export default function ShippingForm({
                         </label>
                         <input
                             type="text"
-                            
-                            value={data.address.first_name || ''}
-                            onChange={(e) => handleAddressChange("first_name", e.target.value)}
+                            {...register("address.first_name")}
                             style={{
                                 borderColor: theme.border,
                                 backgroundColor: theme.bgSecondary,
@@ -65,6 +56,11 @@ export default function ShippingForm({
                             className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
                             placeholder="John Doe"
                         />
+                       {(backendErrors['address.first_name'] || ZodErrors.address?.first_name?.message) && (
+                            <div className="text-red-500 text-sm mt-1">
+                                {backendErrors['address.first_name'] || ZodErrors.address?.first_name?.message}
+                            </div>
+                        )}
                     </div>
                     <div>
                         <label
@@ -76,9 +72,9 @@ export default function ShippingForm({
                         </label>
                         <input
                             type="text"
-                            
-                            value={data.address.last_name || ''}
-                            onChange={(e) => handleAddressChange("last_name", e.target.value)}
+                       
+                            {...register("address.last_name")}
+
                             style={{
                                 borderColor: theme.border,
                                 backgroundColor: theme.bgSecondary,
@@ -87,6 +83,11 @@ export default function ShippingForm({
                             className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
                             placeholder="John Doe"
                         />
+                         {(backendErrors['address.last_name'] || ZodErrors.address?.last_name?.message) && (
+                            <div className="text-red-500 text-sm mt-1">
+                                {backendErrors['address.last_name'] || ZodErrors.address?.last_name?.message}
+                            </div>
+                        )}
                     </div>
                 </div>
                 {/* Email & Phone */}
@@ -102,10 +103,8 @@ export default function ShippingForm({
                         <input
                             type="email"
                             
-                            value={data.address.email || ''}
-                            onChange={(e) =>
-                                handleAddressChange("email", e.target.value)
-                            }
+                            {...register("address.email")}
+
                             style={{
                                 borderColor: theme.border,
                                 backgroundColor: theme.bgSecondary,
@@ -114,6 +113,11 @@ export default function ShippingForm({
                             className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
                             placeholder="john@example.com"
                         />
+                          {(backendErrors['address.email'] || ZodErrors.address?.email?.message) && (
+                            <div className="text-red-500 text-sm mt-1">
+                                {backendErrors['address.email'] || ZodErrors.address?.email?.message}
+                            </div>
+                        )}
                     </div>
 
                     <div>
@@ -127,10 +131,8 @@ export default function ShippingForm({
                         <input
                             type="tel"
                             
-                            value={data.address.phone || ''}
-                            onChange={(e) =>
-                                handleAddressChange("phone", e.target.value)
-                            }
+                             {...register("address.phone")}
+
                             style={{
                                 borderColor: theme.border,
                                 backgroundColor: theme.bgSecondary,
@@ -139,6 +141,11 @@ export default function ShippingForm({
                             className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
                             placeholder="+1 (555) 123-4567"
                         />
+                        {(backendErrors['address.phone'] || ZodErrors.address?.phone?.message) && (
+                            <div className="text-red-500 text-sm mt-1">
+                                {backendErrors['address.phone'] || ZodErrors.address?.phone?.message}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -155,11 +162,9 @@ export default function ShippingForm({
                     </label>
                     <input
                         type="text"
-                        
-                        value={data.address.address_line1 || ''}
-                        onChange={(e) =>
-                            handleAddressChange("address_line1", e.target.value)
-                        }
+                      
+                        {...register("address.address_line1")}
+
                         style={{
                             borderColor: theme.border,
                             backgroundColor: theme.bgSecondary,
@@ -168,6 +173,11 @@ export default function ShippingForm({
                         className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
                         placeholder="123 Main Street"
                     />
+                      {(backendErrors['address.address_line1'] || ZodErrors.address?.address_line1?.message) && (
+                            <div className="text-red-500 text-sm mt-1">
+                                {backendErrors['address.address_line1'] || ZodErrors.address?.address_line1?.message}
+                            </div>
+                        )}
                 </div>
 
                 {/* address 2 */}
@@ -182,10 +192,8 @@ export default function ShippingForm({
                     <input
                         type="text"
                         
-                        value={data.address.address_line2 || ''}
-                        onChange={(e) =>
-                            handleAddressChange("address_line2", e.target.value)
-                        }
+                        {...register("address.address_line2")}
+
                         style={{
                             borderColor: theme.border,
                             backgroundColor: theme.bgSecondary,
@@ -194,6 +202,11 @@ export default function ShippingForm({
                         className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
                         placeholder="123 Main Street"
                     />
+                    {(backendErrors['address.address_line2'] || ZodErrors.address?.address_line2?.message) && (
+                            <div className="text-red-500 text-sm mt-1">
+                                {backendErrors['address.address_line2'] || ZodErrors.address?.address_line2?.message}
+                            </div>
+                        )}
                 </div>
                 </div>
 
@@ -208,11 +221,8 @@ export default function ShippingForm({
                         </label>
                         <input
                             type="text"
+                            {...register("address.city")}
                             
-                            value={data.address.city || ''}
-                            onChange={(e) =>
-                                handleAddressChange("city", e.target.value)
-                            }
                             style={{
                                 borderColor: theme.border,
                                 backgroundColor: theme.bgSecondary,
@@ -221,6 +231,13 @@ export default function ShippingForm({
                             className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
                             placeholder="New York"
                         />
+                        {(backendErrors['address.city'] || ZodErrors.address?.city?.message) && (
+                            <div className="text-red-500 text-sm mt-1">
+                                {backendErrors['address.city'] || ZodErrors.address?.city?.message}
+                            </div>
+                        )}
+
+                
                     </div>
 
                     <div>
@@ -233,10 +250,8 @@ export default function ShippingForm({
                         <input
                             type="text"
                             
-                            value={data.address.state || ''}
-                            onChange={(e) =>
-                                handleAddressChange("state", e.target.value)
-                            }
+                            {...register("address.state")}
+                            
                             style={{
                                 borderColor: theme.border,
                                 backgroundColor: theme.bgSecondary,
@@ -245,6 +260,11 @@ export default function ShippingForm({
                             className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
                             placeholder="NY"
                         />
+                       {(backendErrors['address.state']  || ZodErrors.address?.state?.message) && (
+                            <div className="text-red-500 text-sm mt-1">
+                                {backendErrors['address.state']  || ZodErrors.address?.state?.message}
+                            </div>
+                        )}
                     </div>
 
                     <div>
@@ -257,10 +277,8 @@ export default function ShippingForm({
                         <input
                             type="text"
                             
-                            value={data.address.postal_code || ''}
-                            onChange={(e) =>
-                                handleAddressChange("postal_code", e.target.value)
-                            }
+                            {...register("address.postal_code")}
+                            
                             style={{
                                 borderColor: theme.border,
                                 backgroundColor: theme.bgSecondary,
@@ -269,10 +287,15 @@ export default function ShippingForm({
                             className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
                             placeholder="10001"
                         />
+                        {(backendErrors['address.postal_code']  || ZodErrors.address?.postal_code?.message) && (
+                            <div className="text-red-500 text-sm mt-1">
+                                {backendErrors['address.postal_code']  || ZodErrors.address?.postal_code?.message}
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Country */}
+                {/* notes */}
                 <div>
                     <label
                         style={{ color: theme.textSecondary }}
@@ -281,10 +304,8 @@ export default function ShippingForm({
                         Notes (for the delivery)
                     </label>
                     <textarea
-                        value={data.notes || ''}
-                        onChange={(e) =>
-                            handleChange("notes", e.target.value)
-                        }
+                        {...register("notes")}
+                        
                         style={{
                             borderColor: theme.border,
                             backgroundColor: theme.bgSecondary,
@@ -293,8 +314,13 @@ export default function ShippingForm({
                         className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
                         placeholder="any notes for the delivery ?"
                     />
+                   {(backendErrors['notes'] || ZodErrors?.notes?.message) && (
+                            <div className="text-red-500 text-sm mt-1">
+                                {backendErrors['notes'] || ZodErrors?.notes?.message}
+                            </div>
+                        )}
                 </div>
             </div>
         </div>
     );
-}
+} 

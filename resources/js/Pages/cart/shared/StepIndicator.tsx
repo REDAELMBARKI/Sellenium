@@ -1,4 +1,5 @@
 import { isEmpty } from "lodash";
+import { useEffect } from "react";
 
 interface StepIndicatorProps {
     currentStep: number;
@@ -6,7 +7,12 @@ interface StepIndicatorProps {
 }
 
 export default function StepIndicator({ currentStep, errors }: StepIndicatorProps) {
-    const hasError = !isEmpty(errors) ;
+    
+    const { submit, ...withoutSubmit } = errors || {};
+    const filteredErrors = currentStep === 1 ? withoutSubmit : errors;
+    const hasError = !isEmpty(filteredErrors);
+
+
 
     const steps = [
         { number: 1, label: "Shipping" },
@@ -16,17 +22,16 @@ export default function StepIndicator({ currentStep, errors }: StepIndicatorProp
     const getCircleClass = (stepNumber: number) => {
         const base = "w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all";
 
-        if (stepNumber <= currentStep && hasError && stepNumber == 1) return `${base} bg-red-500 text-white`;
-        if (stepNumber <= currentStep)             return `${base} bg-green-600 text-white`;
-        return `${base} bg-gray-200 text-gray-500`;
+        if(hasError && currentStep > stepNumber ) return `${base} bg-red-500 text-white`;
+      else if(stepNumber >= currentStep)    return `${base} bg-gray-200 text-gray-500`;
+        else return `${base} bg-green-600 text-white`;
     };
 
     const getLabelClass = (stepNumber: number) => {
         const base = "mt-2 text-sm font-medium";
-
-        if (stepNumber <= currentStep && hasError &&  stepNumber == 2) return `${base} text-red-500`;
-        if (stepNumber === currentStep)            return `${base} text-green-600`;
-        return `${base} text-gray-500`;
+        if(hasError && currentStep > stepNumber )  return `${base} text-red-500`;
+        else if(stepNumber >= currentStep)            return `${base} text-gray-600`;
+        else  return  `${base} text-green-500`;
     };
 
     return (

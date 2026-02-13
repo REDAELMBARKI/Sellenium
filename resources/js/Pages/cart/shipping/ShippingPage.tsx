@@ -1,16 +1,16 @@
 // Pages/Checkout/ShippingPage.tsx
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import Layout from "@/Layouts/Layout";
-import { useState } from "react";
-import { router } from "@inertiajs/react";
-import ShippingForm from "./ShippingForm";
-import StoreConfigProvider from "@/contextProvoders/StoreConfigProvider";
-import { route } from "ziggy-js";
 import StepIndicator from "../shared/StepIndicator";
 import PageHeader from "../shared/PageHeader";
 import OrderSummaryCard from "../shared/OrderSummary";
 import MiniCartPreview from "../shared/MiniCardPreview";
 import { ShippingData } from "@/types/cart/shipping";
+import { shippingSchema } from "@/shemas/checkout";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { SubmitHandler, useForm } from "react-hook-form";
+import ShippingForm from "./ShippingForm";
+import { useEffect } from "react";
 
 interface ShippingPageProps {
     cartItems: any[];
@@ -18,15 +18,18 @@ interface ShippingPageProps {
     shippingData : ShippingData ,
     onStepChange : (action : 'prev' | 'next' ) => void,
     setShippingData : React.Dispatch<React.SetStateAction<ShippingData>>
-    errors : any
+    backendErrors : any
 }
 
 
 
-export default function ShippingPage({ cartItems, tax  , shippingData, setShippingData , onStepChange , errors}: ShippingPageProps) {
+export default function ShippingPage({ cartItems, tax  , shippingData, setShippingData , onStepChange , backendErrors}: ShippingPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
+    const {register , handleSubmit , formState : {errors : ZodErrors , isDirty}} = useForm<any>(
+        {resolver : zodResolver(shippingSchema) , mode : "onChange" , defaultValues : shippingData}
+    ) ;
 
 
     const subtotal = cartItems.reduce(
@@ -35,20 +38,25 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
     );
     const shipping = subtotal >= 50 ? 0 : 5.0;
     const total = subtotal + shipping;
+    
+    const onValid: any = (data : any) => {
+        setShippingData(data);
+       onStepChange('next');
+    };
 
     const handleContinueToPayment = (e: React.FormEvent) => {
         e.preventDefault();
-        onStepChange('next');
+        handleSubmit(onValid)() ;
     };
 
+    const {  ValidationErrors } = {...backendErrors , ...ZodErrors} ; 
     return (
-        <Layout currentPage="checkout">
+      
             <div
                 style={{ backgroundColor: theme.bg }}
                 className="min-h-screen py-8"
             >
                 <div className="container mx-auto px-4 max-w-7xl">
-                    <StepIndicator currentStep={1} errors={errors} />
 
                     {/* Free Shipping Banner */}
                     {subtotal >= 50 && (
@@ -82,9 +90,13 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
                                     />
 
                                     <ShippingForm
-                                        data={shippingData}
-                                        onChange={setShippingData}
-                                        theme={theme}
+                                        {...{
+                                            ZodErrors , 
+                                            backendErrors , 
+                                            register , 
+                                            theme , 
+                                            onChange:setShippingData
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -124,6 +136,5 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
                     </form>
                 </div>
             </div>
-        </Layout>
     );
 }

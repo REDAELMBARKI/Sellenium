@@ -58,7 +58,7 @@ const LayoutContent = ({ children, currentPage}:LayoutProps) => {
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-dark-50">
       {/* Header */}
       <header className="relative">
         {/* Top Bar */}

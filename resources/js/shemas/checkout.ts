@@ -8,8 +8,11 @@ export const shippingSchema = z.object({
   notes: z
     .string()
     .max(500, "Notes must be at most 500 characters")
+    .regex(/^[A-Za-z0-9À-ÿ\s.,'-]+$/, "Address line 1 contains invalid characters")
     .nullable()
-    .optional(),
+    .optional().
+    or(z.literal(""))   ,
+    
 
   payment_method_id: z.string().optional(),
 
@@ -60,7 +63,7 @@ export const shippingSchema = z.object({
     city: z
       .string()
       .max(100, "City must be at most 100 characters")
-      .regex(/^[A-Za-zÀ-ÿ\s'-]+$/, "City contains invalid characters"),
+      .regex(/^[A-Za-zÀ-ÿ\s'-]+$/, "City contains invalid characters") , 
 
     state: z
       .string()
@@ -72,5 +75,9 @@ export const shippingSchema = z.object({
       .min(3, "Postal code must have at least 3 characters")
       .max(20, "Postal code must have at most 20 characters")
       .regex(/^[A-Za-z0-9\s-]+$/, "Postal code contains invalid characters"),
-  }),
+      }),
 })
+
+
+
+export type ShippingData = z.infer<typeof shippingSchema>;
