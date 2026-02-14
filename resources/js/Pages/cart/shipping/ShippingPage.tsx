@@ -18,13 +18,13 @@ interface ShippingPageProps {
     shippingData : ShippingData ,
     onStepChange : (action : 'prev' | 'next' ) => void,
     setShippingData : React.Dispatch<React.SetStateAction<ShippingData>>
-    setBackendErrorsState : React.Dispatch<React.SetStateAction<any>>
+    onChangeBackendErrors : (errors : any) => void
     backendErrors : any
 }
 
 
 
-export default function ShippingPage({ cartItems, tax  , shippingData, setShippingData , onStepChange , backendErrors , setBackendErrorsState}: ShippingPageProps) {
+export default function ShippingPage({ cartItems, tax  , shippingData, setShippingData , onStepChange , backendErrors , onChangeBackendErrors }: ShippingPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
@@ -41,7 +41,7 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
     const total = subtotal + shipping;
     
     const onValid: any = (data : any) => {
-        setBackendErrorsState({}) ; // clear backend errors when submitting again
+        onChangeBackendErrors({});
         setShippingData(data);
         onStepChange('next');
     };

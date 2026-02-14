@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import CheckoutPage from "./review&checkout/CheckoutPage";
 import ShippingPage from "./shipping/ShippingPage";
 import { isEmpty, set } from "lodash";
-import { router, usePage } from "@inertiajs/react";
+import { router, useForm, usePage } from "@inertiajs/react";
 import StepIndicator from "./shared/StepIndicator";
 import Layout from "@/Layouts/Layout";
 import { ArrowLeft } from "lucide-react";
@@ -27,7 +27,9 @@ export  default function ShoppingCartMaster({ cartItems = [] , tax = 0 }: Shoppi
 
 function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMasterProps) {
     const [step , setStep] = useState(0);
-    const {props : {errors : backendErrors}} = usePage();
+    const [backendErrors , setBackendErrors] = useState<any>({}) ;
+
+
     const [shippingData, setShippingData] = useState({
         address: {
             first_name: "",
@@ -43,15 +45,12 @@ function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMast
         notes: "",
     });
 
-    const [backendErrorsState , setBackendErrorsState] = useState<any>(backendErrors) ; // this this second state to be able to clear backend errors when we perseed to payment (like fresh restart )
-   
-   
-    useEffect(() => {
-        if (!isEmpty(backendErrors)) {
-            setBackendErrorsState(backendErrors);
-        }
-    }, [JSON.stringify(backendErrors)]);
-  
+    
+    const onChangeBackendErrors = (errors : any) => {
+        setBackendErrors(errors) ;
+    }
+
+
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
@@ -63,8 +62,8 @@ function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMast
 
     const stepsCompos : Record<string , React.ReactElement> = {
         '0' : <CartPage {...{cartItems  , onStepChange}} /> , 
-        '1' : <ShippingPage {...{cartItems ,tax , shippingData, setShippingData , onStepChange , backendErrors , setBackendErrorsState}} /> , 
-        '2' : <CheckoutPage {...{ cartItems , shippingData , tax  , onStepChange , backendErrors }} /> , 
+        '1' : <ShippingPage {...{cartItems ,tax , shippingData, setShippingData , onStepChange , backendErrors  , onChangeBackendErrors }} /> , 
+        '2' : <CheckoutPage {...{ cartItems , shippingData , tax  , onStepChange , onChangeBackendErrors }} /> , 
     };
 
 
@@ -76,11 +75,7 @@ function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMast
 
             <div>
                                    
-                                        <div>
-                                         
-                                        <StepIndicator currentStep={step} errors={backendErrorsState} />
-
-                                        </div>
+                                        
 
 
                                             {/* Free Shipping Banner */}
@@ -94,8 +89,11 @@ function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMast
                                         >
                                             FREE SHIPPING UNLOCKED!
                                         </div>
-                
-            </div>
+                                  {   
+                                            step > 0 && <StepIndicator currentStep={step} errors={backendErrors} />
+                                        }
+
+            </div> 
                 {stepsCompos[step]}
         </Layout>
        

@@ -104,14 +104,14 @@ export default function StepIndicator({ currentStep, errors }: StepIndicatorProp
                     : isCompleted
                     ? theme.success
                     : isActive
-                    ? theme.textMuted   // ✅ active label also muted gray
-                    : theme.textMuted,
+                    ? theme.textSecondary   // ✅ active label also muted gray
+                    : theme.textSecondary,
             },
         };
     };
 
     return (
-        <div style={{ display: "flex", justifyContent: "center" }} className="py-3">
+        <div style={{ display: "flex", justifyContent: "center" }} className="py-4">
             <Stepper
                 activeStep={activeStep}
                 connector={<ColorConnector bordercolor={theme.border} />}

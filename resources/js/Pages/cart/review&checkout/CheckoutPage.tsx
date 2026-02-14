@@ -23,10 +23,10 @@ interface CheckoutPageProps {
     tax: number;
     shippingData: any;
     onStepChange : (action : 'prev' | 'next' ) => void , 
-    backendErrors : any
+    onChangeBackendErrors : ( errors : any) => void
 }
 
-export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChange , backendErrors  }: CheckoutPageProps) {
+export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChange , onChangeBackendErrors  }: CheckoutPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
@@ -58,7 +58,7 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
 
         router.post(route("order.checkout"), orderData, {
             onSuccess: () => alert("Order placed successfully!"),
-            onError: (errors) => console.error("Checkout errors:", errors),
+            onError: (errors) => onChangeBackendErrors(errors),
         });
     };
 
