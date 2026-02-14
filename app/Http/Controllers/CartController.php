@@ -11,7 +11,7 @@ class CartController extends Controller
     
     public function index(){
         $cartItems =(new CartService())->getCartItems();
-        return Inertia::render('cart/ShoppingCartCheckoutMaster' , compact('cartItems'));
+        return Inertia::render('cart/ShoppingCartMaster' , compact('cartItems'));
     }
 
 

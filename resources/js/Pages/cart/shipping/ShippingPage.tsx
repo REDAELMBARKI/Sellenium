@@ -18,18 +18,19 @@ interface ShippingPageProps {
     shippingData : ShippingData ,
     onStepChange : (action : 'prev' | 'next' ) => void,
     setShippingData : React.Dispatch<React.SetStateAction<ShippingData>>
+    setBackendErrorsState : React.Dispatch<React.SetStateAction<any>>
     backendErrors : any
 }
 
 
 
-export default function ShippingPage({ cartItems, tax  , shippingData, setShippingData , onStepChange , backendErrors}: ShippingPageProps) {
+export default function ShippingPage({ cartItems, tax  , shippingData, setShippingData , onStepChange , backendErrors , setBackendErrorsState}: ShippingPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
     const {register , handleSubmit , formState : {errors : ZodErrors , isDirty}} = useForm<any>(
         {resolver : zodResolver(shippingSchema) , mode : "onChange" , defaultValues : shippingData}
-    ) ;
+    ) ; 
 
 
     const subtotal = cartItems.reduce(
@@ -40,8 +41,9 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
     const total = subtotal + shipping;
     
     const onValid: any = (data : any) => {
+        setBackendErrorsState({}) ; // clear backend errors when submitting again
         setShippingData(data);
-       onStepChange('next');
+        onStepChange('next');
     };
 
     const handleContinueToPayment = (e: React.FormEvent) => {
@@ -49,7 +51,6 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
         handleSubmit(onValid)() ;
     };
 
-    const {  ValidationErrors } = {...backendErrors , ...ZodErrors} ; 
     return (
       
             <div
@@ -57,19 +58,6 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
                 className="min-h-screen py-8"
             >
                 <div className="container mx-auto px-4 max-w-7xl">
-
-                    {/* Free Shipping Banner */}
-                    {subtotal >= 50 && (
-                        <div
-                            style={{
-                                backgroundColor: theme.success,
-                                color: theme.textInverse,
-                            }}
-                            className="mb-6 py-3 text-center font-semibold rounded-lg"
-                        >
-                            🎉 FREE SHIPPING UNLOCKED!
-                        </div>
-                    )}
 
                     <form onSubmit={handleContinueToPayment}>
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -1,69 +1,153 @@
 import { isEmpty } from "lodash";
-import { useEffect } from "react";
+import {
+    Stepper,
+    Step,
+    StepLabel,
+    StepConnector,
+    stepConnectorClasses,
+    styled,
+} from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import ErrorIcon from "@mui/icons-material/Error";
+import { ThemePalette } from "@/types/ThemeTypes";
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 interface StepIndicatorProps {
     currentStep: number;
     errors?: any;
 }
 
+const ColorConnector = styled(StepConnector)<{ bordercolor: string }>(({ bordercolor }) => ({
+    [`&.${stepConnectorClasses.alternativeLabel}`]: { top: 12 },
+    [`& .${stepConnectorClasses.line}`]: {
+        height: 2,
+        border: 0,
+        borderRadius: 1,
+        width: 24,
+        backgroundColor: bordercolor,
+    },
+}));
+
+function CustomStepIcon({
+    active,
+    completed,
+    hasError,
+    icon,
+    theme,
+}: {
+    active: boolean;
+    completed: boolean;
+    hasError: boolean;
+    icon: number;
+    theme: ThemePalette;
+}) {
+    const base = "w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200";
+
+    if (hasError) {
+        return (
+            <div className={base} style={{ backgroundColor: theme.error, color: theme.textInverse }}>
+                <ErrorIcon sx={{ fontSize: 14 }} />
+            </div>
+        );
+    }
+    if (completed) {
+        return (
+            <div className={base} style={{ backgroundColor: theme.success, color: theme.textInverse }}>
+                <CheckIcon sx={{ fontSize: 14 }} />
+            </div>
+        );
+    }
+    if (active) {
+        // ✅ active + no error = gray transparent
+        return (
+            <div className={base} style={{ backgroundColor: theme.bgSecondary, color: theme.textMuted, border: `1.5px solid ${theme.border}` }}>
+                {icon}
+            </div>
+        );
+    }
+    return (
+        <div className={base} style={{ backgroundColor: theme.bgSecondary, color: theme.textMuted }}>
+            {icon}
+        </div>
+    );
+}
+
 export default function StepIndicator({ currentStep, errors }: StepIndicatorProps) {
-    
-    const { submit, ...withoutSubmit } = errors || {};
-    const filteredErrors = currentStep === 1 ? withoutSubmit : errors;
-    const hasError = !isEmpty(filteredErrors);
+    const { state: { currentTheme: theme } } = useStoreConfigCtx();
 
+    if (currentStep < 1) return null;
 
+    const { submit, ...errorsWithoutSubmit } = errors || {};
 
-    const steps = [
-        { number: 1, label: "Shipping" },
-        { number: 2, label: "Payment" },
-    ];
-
-    const getCircleClass = (stepNumber: number) => {
-        const base = "w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all";
-
-        if(hasError && currentStep > stepNumber ) return `${base} bg-red-500 text-white`;
-      else if(stepNumber >= currentStep)    return `${base} bg-gray-200 text-gray-500`;
-        else return `${base} bg-green-600 text-white`;
+    const stepErrors: Record<number, boolean> = {
+        1: !isEmpty(errorsWithoutSubmit),
+        2: !isEmpty(submit),
     };
 
-    const getLabelClass = (stepNumber: number) => {
-        const base = "mt-2 text-sm font-medium";
-        if(hasError && currentStep > stepNumber )  return `${base} text-red-500`;
-        else if(stepNumber >= currentStep)            return `${base} text-gray-600`;
-        else  return  `${base} text-green-500`;
+    const steps = ["Shipping", "Payment"];
+    const activeStep = currentStep - 1;
+
+    const getLabelSx = (stepIndex: number) => {
+        const isCompleted = stepIndex < activeStep;
+        const isActive = stepIndex === activeStep;
+        const stepNumber = stepIndex + 1;
+        // ✅ check error for both completed and active steps
+        const isErrored = stepErrors[stepNumber] && (isCompleted || isActive);
+
+        return {
+            "& .MuiStepLabel-label": {
+                fontSize: "0.7rem",
+                fontWeight: 500,
+                marginTop: "3px !important",
+                color: isErrored
+                    ? theme.error
+                    : isCompleted
+                    ? theme.success
+                    : isActive
+                    ? theme.textMuted   // ✅ active label also muted gray
+                    : theme.textMuted,
+            },
+        };
     };
 
     return (
-        <div className="flex items-center justify-center gap-4 mb-8">
-            {steps.map((step, index) => (
-                <div key={step.number} className="flex items-center">
-                    <div className="flex flex-col items-center">
-                        <div className={getCircleClass(step.number)}>
-                            {(step.number < currentStep && (!hasError && (step.number == 1)))  ? (
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                        fillRule="evenodd"
-                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                        clipRule="evenodd"
-                                    />
-                                </svg>
-                            ) : (
-                                step.number
-                            )}
-                        </div>
-                        <span className={getLabelClass(step.number)}>
-                            {step.label}
-                        </span>
-                    </div>
+        <div style={{ display: "flex", justifyContent: "center" }} className="py-3">
+            <Stepper
+                activeStep={activeStep}
+                connector={<ColorConnector bordercolor={theme.border} />}
+                sx={{
+                    p: 0,
+                    width: "fit-content",
+                    backgroundColor: "transparent",
+                    "& .MuiStep-root": { px: 0.5 },
+                    "& .MuiStepLabel-root": { gap: 0 },
+                }}
+            >
+                {steps.map((label, index) => {
+                    const stepNumber = index + 1;
+                    const isCompleted = index < activeStep;
+                    const isActive = index === activeStep;
+                    // ✅ error fires for both completed and active
+                    const isErrored = stepErrors[stepNumber] && (isCompleted || isActive);
 
-                    {index < steps.length - 1 && (
-                        <div
-                            className={`w-16 h-0.5 mb-6 mx-2 bg-gray-500`}
-                        />
-                    )}
-                </div>
-            ))}
+                    return (
+                        <Step key={label} completed={isCompleted}>
+                            <StepLabel
+                                sx={getLabelSx(index)}
+                                StepIconComponent={(props) => (
+                                    <CustomStepIcon
+                                        {...props}
+                                        hasError={isErrored}
+                                        theme={theme}
+                                    />
+                                )}
+                            >
+                                {label}
+                            </StepLabel>
+                        </Step>
+                    );
+                })}
+            </Stepper>
         </div>
     );
 }

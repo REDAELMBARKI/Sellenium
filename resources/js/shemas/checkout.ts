@@ -63,7 +63,10 @@ export const shippingSchema = z.object({
     city: z
       .string()
       .max(100, "City must be at most 100 characters")
-      .regex(/^[A-Za-zÀ-ÿ\s'-]+$/, "City contains invalid characters") , 
+      .regex(/^[A-Za-zÀ-ÿ\s'-]+$/, "City contains invalid characters")
+      .optional()
+      .or(z.literal(""))
+      , 
 
     state: z
       .string()

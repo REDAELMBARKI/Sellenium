@@ -56,24 +56,8 @@ export default function CartPage({ cartItems , onStepChange }: CartPageProps) {
     return (
             <div style={{ backgroundColor: theme.bg }} className="min-h-screen py-8">
                 <div className="container mx-auto px-4 max-w-7xl">
-                    {/* Free Shipping Banner */}
-                    {subtotal >= 50 && (
-                        <div
-                            style={{
-                                backgroundColor: theme.success,
-                                color: theme.textInverse,
-                                borderRadius: theme.borderRadius,
-                            }}
-                            className="mb-6 py-3 text-center font-semibold"
-                        >
-                            FREE SHIPPING UNLOCKED!
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Left Column - Cart Items */}
-                        <div className="lg:col-span-2">
-                            {/* Continue Shopping Button */}
+                
+                     {/* Continue Shopping Button */}
                             <button
                                 type="button"
                                 onClick={() => router.visit("/")}
@@ -83,6 +67,11 @@ export default function CartPage({ cartItems , onStepChange }: CartPageProps) {
                                 <ArrowLeft size={16} />
                                 CONTINUE SHOPPING
                             </button>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Left Column - Cart Items */}
+                        <div className="lg:col-span-2">
+                           
 
                             {/* Cart Header */}
                             <div className="mb-6">
