@@ -13,6 +13,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class OrderService
@@ -62,10 +63,14 @@ class OrderService
 
         
         public function checkoutCOD(CreateOrderDTO $dto){
+            Log::error('Calculating order total with dependencies for COD order with DTO: ' . json_encode($dto->toArray()));
             $calculations = $this->calculateOrderTotalWithDependencies($dto);
             $dto = CreateOrderDTO::fromCheckout($dto->toArray() , $calculations);
+            Log::error('Finished calculating order total for COD order with DTO: ' . json_encode($dto->toArray()));
             try{
+              Log::error('Creating order master for COD order with DTO: ' . json_encode($dto->toArray()));
               $order = $this->createOrderMaster($dto);
+              
               return $order;
             }catch(Exception $e){
                throw new OrderException($e);
@@ -86,8 +91,11 @@ class OrderService
         
         public function createOrderMaster(CreateOrderDTO $dto){
             $order = DB::transaction(function() use($dto){
-                $order =  $this->storeOrder(Arr::except($dto->toArray() , ['items' , 'address']));
+                
+                $orderAttributes = Arr::except($dto->toArray() , []) ;
+                $order =  $this->storeOrder($orderAttributes);
                 $this->storeOrderItems($dto->items , $order);
+                
                 $this->storeOrderAddress($dto->address->toArray() , $order);
                 return $order;
             });
@@ -98,31 +106,52 @@ class OrderService
      
 
         public function storeOrder(array $dto){
-            return Order::create($dto);
+                try {
+                    $order = Order::create($dto);
+                    return $order;
+                } catch (\Exception $e) {
+                    throw $e; // rethrow so the app still handles it properly
+                }
         }
 
         public function storeOrderItems(array $items ,Order $order){
             return array_map(function($item) use($order){
-                return  $order->items()->create($item);
+                try{
+                   Log::error('item type ' . gettype($item));
+                   $orderItem = $order->items()->create($item->toArray());
+                   return $orderItem ;
+
+                }catch (\Exception $e) {
+                    Log::error('from create order items '. $e->getMessage());
+                }
             } , $items);
         }
 
         public function storeOrderAddress($address , Order $order){
-            return $order->address()->create($address);
+            Log::alert('store address') ;
+            try{
+
+                return $order->address()->create($address);
+            }
+            catch (\Exception $e) {
+                Log::error(''. $e->getMessage());
+            }
         }
      
         private function calculateOrderTotalWithDependencies($dto){
-            $subtotal = $this->calculateSubtotal($dto->items);
-            $discount = $this->calculateDiscount($dto->couponCode, $subtotal);
+            $subtotal = $this->calculateSubtotal($dto->items); 
+            $discount = $this->calculateDiscount($dto->coupon_code, $subtotal);
             $shipping = $this->calculateShipping();
             $tax = $this->calculateTax($subtotal - $discount + $shipping);
             $total = $subtotal - $discount + $shipping + $tax;
+            $order_number = $this->generateOrderNumber();
+
             return [
                 'total_amount'=> $total,
                 'discount_amount'=> $discount,
                 'shipping_cost'=> $shipping ,
                 'tax'=> $tax ,
-                'order_number' => $this->generateOrderNumber(),
+                'order_number' => $order_number,
             ] ;
  
         }
@@ -137,14 +166,18 @@ class OrderService
            return 0 ;
         }
 
-        private function calculateDiscount(string $coupon_code , string $total)
+        private function calculateDiscount(?string $coupon_code , string $total)
         {
-              $coupon = Coupon::where('code', $coupon_code)
-                ->where('active', true)
-                ->whereNull('expires_at')
-                ->orWhere('expires_at', '>', now())
-                ->select('code', 'type', 'value')
-                ->first();
+            if(!$coupon_code){
+                return 0; // discount is zero if no coupon code provided
+            }
+
+            $coupon = Coupon::where('code', $coupon_code)
+            ->where('active', true)
+            ->whereNull('expires_at')
+            ->orWhere('expires_at', '>', now())
+            ->select('code', 'type', 'value')
+            ->first();
 
             
 
@@ -162,14 +195,20 @@ class OrderService
         }
 
         private function calculateSubtotal($items){
-            return (int) collect($items)->sum(function ($item) {
-                         return $item->price_snapshot * $item->quantity;
+            $subtotal = (int) collect($items)->sum(function ($item) {
+                        return $item->subtotal;
                      });
+            return $subtotal;
         }
 
-        private function generateOrderNumber(){
-            return random_int(1000000 , 9999999);
-        }
+        private function generateOrderNumber() : string {
+                // e.g. ORD-20260214-00001
+                $date   = now()->format('Ymd');
+                $last   = Order::whereDate('created_at', today())->count() + 1;
+                $seq    = str_pad($last, 5, '0', STR_PAD_LEFT);
+                return "ORD-{$date}-{$seq}";
+            }
+        
         // stripe payment
     // private function perceedToPaymentAndOrder_transaction(CreateOrderDTO $dto) : void
     // {

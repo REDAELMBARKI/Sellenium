@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id');
             $table->enum('type', ['shipping', 'billing']);
-            $table->string('full_name');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('address_line1');
             $table->string('address_line2')->nullable();
             $table->string('city');

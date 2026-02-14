@@ -19,8 +19,8 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->integer('order_number')->unsigned()->unique();
-            $table->foreignIdFor(User::class);
+            $table->string('order_number')->unique();
+            $table->foreignIdFor(User::class)->nullable()->constrained()->onDelete('cascade');
             $table->enum('status',['pending','out_for_delivery','delivery_failed' , 'delivered','canceled' , 'returned'])->default('pending');
             $table->boolean('confirmed')->default(false)->comment('Confirmed by admin/confirmation team');
             $table->decimal('tax', 10, 2)->default(0);

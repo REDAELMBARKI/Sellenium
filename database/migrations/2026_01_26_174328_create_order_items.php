@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id');
             $table->unsignedBigInteger('product_variant_id');
-            $table->string('product_name'); // snapshot
-            $table->decimal('price', 10, 2);
+            $table->string('product_name');
+            $table->decimal('price_snapshot', 10, 2); // snapshot
+            $table->decimal('subtotal',10,2);
             $table->integer('quantity')->default(1);
             $table->timestamps();
 

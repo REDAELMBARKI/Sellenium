@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\User;
+use DateTime;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -22,7 +23,7 @@ class OrderFactory extends Factory
 
         return [
 
-            'order_number' => $this->faker->unique()->numberBetween(100000, 999999),
+            'order_number' => (new DateTime()).now(),
             'user_id' => User::inRandomOrder()->first()->id,
             'status' => $this->faker->randomElement(['pending', 'delivered', 'canceled']),
             'tax' => $tax,

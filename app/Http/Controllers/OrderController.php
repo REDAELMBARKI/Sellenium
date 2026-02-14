@@ -81,8 +81,8 @@ class OrderController extends Controller
         }
 
         $cartItems = $cartService->getCartItems();
+        // dd($cart);
         $dto = CreateOrderDTO::fromRequest(array_merge($request->validated() , ['items' => $cartItems->toArray()]));
-        
         try{
             $order = $action->execute($dto);
             if( $order ){
@@ -92,7 +92,7 @@ class OrderController extends Controller
             }
             else{
                  return back()->withErrors([
-                    'submit'=> 'failed to create order'
+                    'submit'=> 'no order created ,  try again later'
                  ]);
             }
         }catch(Exception $e){

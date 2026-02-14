@@ -58,7 +58,10 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
 
         router.post(route("order.checkout"), orderData, {
             onSuccess: () => alert("Order placed successfully!"),
-            onError: (errors) => onChangeBackendErrors(errors),
+            onError: (errors) => {
+                console.log("Checkout errors:", errors);
+                onChangeBackendErrors(errors)
+            },
         });
     };
 

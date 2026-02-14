@@ -73,13 +73,21 @@ class CreateOrderDTO
     public function toArray(): array
     {
         return [
-               'user_id'=> $this->user_id,
-               'coupon_code' => $this->coupon_code,
-               'notes'=> $this->notes ,
-               'payment_method' => $this->payment_method,
-               'items' => array_map(fn($item) => $item->toArray(), $this->items),
-               'address' => $this->address->toArray(),
-
+            'user_id'           => $this->user_id,
+            'order_number'      => $this->order_number,
+            'payment_method_id' => $this->payment_method_id,
+            'payment_method'    => $this->payment_method,
+            'coupon_code'       => $this->coupon_code,
+            'notes'             => $this->notes,
+            'confirmed'         => $this->confirmed,
+            'paid'              => $this->paid,
+            'paid_at'           => $this->paid_at,
+            'tax'               => $this->tax,
+            'total_amount'      => $this->total_amount,
+            'discount_amount'   => $this->discount_amount,
+            'shipping_cost'     => $this->shipping_cost,
+            'items'             => array_map(fn($item) => $item->toArray(), $this->items),
+            'address'           => $this->address->toArray(),
         ];
     }
 }
@@ -90,6 +98,7 @@ class OrderItemDTO
     public function __construct(
         public int $product_variant_id,
         public int $quantity,
+        public float $price_snapshot,
         public float $subtotal,
         public string  $product_name
     ) {}
@@ -101,6 +110,7 @@ class OrderItemDTO
         return new self(
             product_variant_id: $data["product_variant_id"],
             quantity: $data["quantity"],
+            price_snapshot: $data["price_snapshot"],
             subtotal: $data["subtotal"],
             product_name : $data["productVariant"]['product']['name'] ?? 'Unknown Product',
             
@@ -113,6 +123,7 @@ class OrderItemDTO
             "product_variant_id"=> $this->product_variant_id,
             "product_name"=> $this->product_name,
             "quantity"=> $this->quantity,
+            "price_snapshot"=> $this->price_snapshot,
             "subtotal"=> $this->subtotal,
         ];
     }

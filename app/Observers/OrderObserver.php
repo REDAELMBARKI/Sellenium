@@ -12,16 +12,25 @@ class OrderObserver
 
     public function created(Order $order)
     {
+        if(!$this->sheetService->getSpreadsheetsId()) {
+            return ;
+        }
         $this->sheetService->appendOrder($order);
     }
 
     public function updated(Order $order)
     {
+        if(!$this->sheetService->getSpreadsheetsId()) {
+            return ;
+        }
         $this->sheetService->updateOrder($order);
     }
 
     public function deleted(Order $order)
     {
+        if(!$this->sheetService->getSpreadsheetsId()) {
+            return ;
+        }
         $this->sheetService->deleteOrder($order);
     }
 }

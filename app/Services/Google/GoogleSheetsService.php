@@ -86,6 +86,11 @@ class GoogleSheetsService
         return $sheet;
     }
 
+
+    public function getSpreadsheetsId(){
+        return $this->spreadSheetId;
+    }
+
     public function syncFirstTimeDataToSheet($spreadsheetId)
     {
         try {

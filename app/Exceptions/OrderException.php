@@ -11,6 +11,6 @@ class OrderException extends Exception
      */
     public function __construct(public Exception $e)
     {
-        parent::__construct($e->getMessage(), $e->getCode(), $e);
+        parent::__construct($e->getMessage(), (int) $e->getCode(), $e);
     }
 }
