@@ -26,8 +26,6 @@ class CartService
         cookie()->queue(cookie()->forget('cart_token'));
     }
 
-
-
     public function getCartItems(){
         return Cart::query()
             ->when(Auth::check(), function($q) {
@@ -44,5 +42,12 @@ class CartService
                     }]) ;
             }] )
             ->get();
+    }
+
+
+    public  function calculateCartItemsSubtotal(array $items){
+            return  (int) collect($items)->sum(function ($item) {
+                        return $item->subtotal;
+                     });
     }
 }

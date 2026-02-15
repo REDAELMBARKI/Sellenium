@@ -18,8 +18,12 @@ use Illuminate\Support\Str;
 
 class OrderService
 {
-    
-
+        private $couponService ;
+        private $cartService ;
+        public function __construct(){
+            $this->couponService = new CouponService() ;
+            $this->cartService = new CartService();
+        }
         public function getOrders(){
            return OrderResource::collection(Order::with('user:id,name,email' , 'orderItems.product.thumbnail' , 'address')->paginate(10));
         }
@@ -94,14 +98,20 @@ class OrderService
                 
                 $this->storeOrderAddress($dto->address->toArray() , $order);
 
-                // handle coupon changes 
+                $this->updateCouponInOrderSuccess($dto->coupon_code , $order);
                 return $order;
             });
             return $order;
         }
 
    
-     
+        private function updateCouponInOrderSuccess(string $coupon_code){
+            // if(user per user and !auth->user() ) skip the coupon did not get applied
+            // incriment times_use
+            // check of (max == times used ) set to inactive
+            // check for usage peruser if this has usage peruser and auth (if )
+           
+        }
 
         public function storeOrder(array $dto){
                 try {
@@ -136,7 +146,7 @@ class OrderService
         }
      
         private function calculateOrderTotalWithDependencies($dto){
-            $subtotal = $this->calculateSubtotal($dto->items); 
+            $subtotal = $this->cartService->calculateCartItemsSubtotal($dto->items);
             $discount = $this->calculateDiscount($dto->coupon_code, $subtotal);
             $shipping = $this->calculateShipping();
             $tax = $this->calculateTax($subtotal - $discount + $shipping);
@@ -162,23 +172,21 @@ class OrderService
         {
            return 0 ;
         }
+     
 
         private function calculateDiscount(?string $coupon_code , string $total)
         {
             if(!$coupon_code){
                 return 0; // discount is zero if no coupon code provided
             }
-
-            $coupon = Coupon::where('code', $coupon_code)
-            ->where('active', true)
-            ->whereNull('expires_at')
-            ->orWhere('expires_at', '>', now())
-            ->select('code', 'type', 'value')
-            ->first();
-
-            
-
+          
+            $coupon = $this->couponService->getDbCouponCodeMatch($coupon_code);
+             
             $discount = 0;
+
+            if(!$this->couponService->checkIsValidCoupon($coupon )){
+               return 0;
+            }
             
             if ($coupon->type === 'fixed') {
                 $discount = $coupon->value;
@@ -191,12 +199,7 @@ class OrderService
 
         }
 
-        private function calculateSubtotal($items){
-            $subtotal = (int) collect($items)->sum(function ($item) {
-                        return $item->subtotal;
-                     });
-            return $subtotal;
-        }
+         
 
         private function generateOrderNumber() : string {
                 // e.g. ORD-20260214-00001
