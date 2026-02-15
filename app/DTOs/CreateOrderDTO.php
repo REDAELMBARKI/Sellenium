@@ -53,7 +53,7 @@ class CreateOrderDTO
             confirmed: $calulations['confirmed'] ?? false,
             paid : $calulations['paid'] ?? false ,
             paid_at : $calulations['paid_at'] ?? null,
-            discount_amount: $calulations['discount_amount'] ??  0,
+            discount_amount: $calulations['discount_amount'] ??  0 ,
             order_number: $calulations['order_number'] ?? null,
             
         );
@@ -101,7 +101,7 @@ class OrderItemDTO
         public float $price_snapshot,
         public float $subtotal,
         public string  $product_name
-    ) {}
+    ) { }
 
 
 
@@ -112,7 +112,7 @@ class OrderItemDTO
             quantity: $data["quantity"],
             price_snapshot: $data["price_snapshot"],
             subtotal: $data["subtotal"],
-            product_name : $data["productVariant"]['product']['name'] ?? 'Unknown Product',
+            product_name : $data["product_variant"]['product']['name'] ?? 'Unknown Product',
             
         );
     }

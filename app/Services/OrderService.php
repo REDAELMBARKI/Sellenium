@@ -63,14 +63,10 @@ class OrderService
 
         
         public function checkoutCOD(CreateOrderDTO $dto){
-            Log::error('Calculating order total with dependencies for COD order with DTO: ' . json_encode($dto->toArray()));
             $calculations = $this->calculateOrderTotalWithDependencies($dto);
             $dto = CreateOrderDTO::fromCheckout($dto->toArray() , $calculations);
-            Log::error('Finished calculating order total for COD order with DTO: ' . json_encode($dto->toArray()));
             try{
-              Log::error('Creating order master for COD order with DTO: ' . json_encode($dto->toArray()));
               $order = $this->createOrderMaster($dto);
-              
               return $order;
             }catch(Exception $e){
                throw new OrderException($e);
@@ -90,7 +86,7 @@ class OrderService
 
         
         public function createOrderMaster(CreateOrderDTO $dto){
-            $order = DB::transaction(function() use($dto){
+                $order = DB::transaction(function() use($dto){
                 
                 $orderAttributes = Arr::except($dto->toArray() , []) ;
                 $order =  $this->storeOrder($orderAttributes);
@@ -128,7 +124,6 @@ class OrderService
         }
 
         public function storeOrderAddress($address , Order $order){
-            Log::alert('store address') ;
             try{
 
                 return $order->address()->create($address);

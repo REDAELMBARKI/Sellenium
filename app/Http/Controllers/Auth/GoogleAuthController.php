@@ -62,21 +62,7 @@ class GoogleAuthController extends Controller
             $intendedUrl = session()->pull('url.intended', '/');
             Log::error('getting the url intended', ['url' => $intendedUrl]);
             
-            return response("
-                <!DOCTYPE html>
-                <html>
-                <body>
-                    <script>
-                        if (window.opener) {
-                            window.opener.location.href = '{$intendedUrl}';
-                            window.close();
-                        } else {
-                            window.location.href = '{$intendedUrl}';
-                        }
-                    </script>
-                </body>
-                </html>
-            ");
+            return redirect()->intended($intendedUrl , '/');
             
         } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
             Log::error('InvalidStateException: ' . $e->getMessage());
@@ -92,20 +78,6 @@ class GoogleAuthController extends Controller
 
     private function redirectToLogin()
     {
-        return response("
-            <!DOCTYPE html>
-            <html>
-            <body>
-                <script>
-                    if (window.opener) {
-                        window.opener.location.href = '/login';
-                        window.close();
-                    } else {
-                        window.location.href = '/login';
-                    }
-                </script>
-            </body>
-            </html>
-        ");
+        return redirect('/login');
     }
 }

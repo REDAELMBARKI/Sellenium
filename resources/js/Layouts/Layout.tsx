@@ -15,27 +15,31 @@ import {
   Instagram,
   Twitter
 } from 'lucide-react';
-import { Link } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import CartSideBar from '@/Pages/cart/cartlisting/CartSideBar';
 import StoreConfigProvider from '@/contextProvoders/StoreConfigProvider';
 
 
 interface LayoutProps {
   children : React.ReactNode 
-  currentPage : string 
+  currentPage : string  ; 
+  seo : {
+      title : string , 
+      description : string 
+  }
 }
 
-const Layout = ({ children, currentPage = 'home' }:LayoutProps) => {
+const Layout = ({ children, currentPage = 'home' , seo }:LayoutProps) => {
      return (
        <>
           <StoreConfigProvider >
-                      <LayoutContent {...{children , currentPage}}/>
+                      <LayoutContent {...{children , currentPage , seo}}/>
           </StoreConfigProvider>
        </>
      )
 } 
 
-const LayoutContent = ({ children, currentPage}:LayoutProps) => {
+const LayoutContent = ({ children, currentPage , seo}:LayoutProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -57,7 +61,14 @@ const LayoutContent = ({ children, currentPage}:LayoutProps) => {
 
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  return (
+  return (<>
+    {/* header and meta data for seo */}
+      <Head>
+        <title>{seo?.title || 'Default Store Title'}</title>
+        <meta name="description" content={seo?.description || 'Default description'} />
+      </Head>
+
+    {/* main page content */}
     <div className="min-h-screen bg-dark-50">
       {/* Header */}
       <header className="relative">
@@ -343,6 +354,7 @@ const LayoutContent = ({ children, currentPage}:LayoutProps) => {
         <ChevronUp className="w-5 h-5" />
       </button>
     </div>
+  </>
   );
 };
 

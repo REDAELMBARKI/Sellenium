@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Coupon;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -24,7 +26,9 @@ class DatabaseSeeder extends Seeder
            ProductVariantSeeder::class , 
           //  OrderSeeder::class ,
             CartSeeder::class,
-            MediaSeeder::class
+            MediaSeeder::class ,
+            CouponSeeder::class ,
+            ShippingZoneSeeder::class ,
           //  TagSeeder::class,
           //  ReviewSeeder::class,
           //  SizeSeeder::class,
