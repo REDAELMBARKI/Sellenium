@@ -77,8 +77,8 @@ class OrderService
             $cod_calculations = $this->calculateOrderTotalWithDependencies($dto);
             $dto = CreateOrderDTO::fromCheckout($dto, $cod_calculations);
             try{
-                $order =  $this->perceedToPaymentAndOrder_transaction($dto);
-                 return $order;
+                // $order =  $this->perceedToPaymentAndOrder_transaction($dto);
+                //  return $order;
             }catch(Exception $e){
                 throw new OrderException($e);
             }
@@ -93,6 +93,8 @@ class OrderService
                 $this->storeOrderItems($dto->items , $order);
                 
                 $this->storeOrderAddress($dto->address->toArray() , $order);
+
+                // handle coupon changes 
                 return $order;
             });
             return $order;

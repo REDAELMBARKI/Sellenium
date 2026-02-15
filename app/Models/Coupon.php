@@ -9,6 +9,10 @@ class Coupon extends Model
 {
     /** @use HasFactory<\Database\Factories\CouponFactory> */
     use HasFactory;
-
+    
     protected $guarded = [];
+    protected $casts = [
+        'applicable_product_ids'  => 'array',
+        'applicable_category_ids' => 'array',
+    ];
 }
