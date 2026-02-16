@@ -15,7 +15,8 @@ class OrderAddressFactory extends Factory
     {
         return [
             'type' => $this->faker->randomElement(['shipping', 'billing']),
-            'full_name' => $this->faker->name(),
+            'first_name' => $this->faker->name(),
+            'last_name' => $this->faker->name(),
             'address_line1' => $this->faker->streetAddress(),
             'address_line2' => $this->faker->boolean(30) ? $this->faker->secondaryAddress() : null,
             'city' => $this->faker->randomElement(['Casablanca', 'Rabat', 'Marrakech', 'Agadir']),

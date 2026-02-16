@@ -38,10 +38,17 @@ class CartService
                     $q->select('id'  , 'product_id', 'attributes' , 'stock'); // this fials everything is showed up why
                     $q->with(['product' => function($q2){
                          $q2->select('id','name' , 'description'); // this works shows only these attributes
-                         $q2->with('thumbnail') ;
+                         $q2->with('thumbnail' , 'categories' ) ;
                     }]) ;
             }] )
             ->get();
+    }
+
+
+    public function calculateCartSubQuantity(array $items){
+        return  (int) collect($items)->sum(function ($item) {
+                        return $item->quantity;
+                     });
     }
 
 

@@ -39,6 +39,7 @@ return new class extends Migration
             // Optional: Specific Products/Categories
             $table->json('applicable_product_ids')->nullable(); // [1, 2, 5] - only these products
             $table->json('applicable_category_ids')->nullable(); // [3, 7] - only these categories
+            $table->json('applicable_sub_category_ids')->nullable(); // [3, 7] - only these categories
             
             $table->timestamps();
         });

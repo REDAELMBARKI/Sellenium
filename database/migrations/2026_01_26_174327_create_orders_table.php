@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Address;
+use App\Models\Coupon;
 use App\Models\Product;
 
 
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->id();
             $table->string('order_number')->unique();
             $table->foreignIdFor(User::class)->nullable()->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Coupon::class)->nullable()->constrained()->onDelete('cascade');
             $table->enum('status',['pending','out_for_delivery','delivery_failed' , 'delivered','canceled' , 'returned'])->default('pending');
             $table->boolean('confirmed')->default(false)->comment('Confirmed by admin/confirmation team');
             $table->decimal('tax', 10, 2)->default(0);

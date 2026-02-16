@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\User;
@@ -23,14 +24,16 @@ class OrderFactory extends Factory
 
         return [
 
-            'order_number' => (new DateTime()).now(),
+            'order_number' => $this->faker->word() . now()->format('YmdHisv'),
             'user_id' => User::inRandomOrder()->first()->id,
+            'coupon_id' => Coupon::inRandomOrder()->first()->id,
             'status' => $this->faker->randomElement(['pending', 'delivered', 'canceled']),
             'tax' => $tax,
             'currency' => 'MAD',
             'shipping_cost' => $shipping,
             'discount_amount' => $discount,
             'total_amount' => 0, // calculated later
+
             'notes' => $this->faker->boolean(40)
                 ? $this->faker->sentence()
                 : null,
