@@ -1,5 +1,5 @@
 
-import { z } from "zod";
+import { literal, z } from "zod";
 
 
 
@@ -36,10 +36,7 @@ export const shippingSchema = z.object({
       .max(100, "Last name must have at most 100 characters")
       .regex(/^[A-Za-zÀ-ÿ\s'-]+$/, "Last name contains invalid characters"),
 
-    email: z
-      .string()
-      .email("Invalid email format")
-      .max(150, "Email must be at most 150 characters"),
+
 
     phone: z
       .string()
@@ -75,8 +72,29 @@ export const shippingSchema = z.object({
       .string()
       .min(3, "Postal code must have at least 3 characters")
       .max(20, "Postal code must have at most 20 characters")
-      .regex(/^[A-Za-z0-9\s-]+$/, "Postal code contains invalid characters"),
-      }),
+      .regex(/^[A-Za-z0-9\s-]+$/, "Postal code contains invalid characters")
+     
+    ,
+
+     email: z
+      .string()
+      .email("Invalid email format")
+      .max(150, "Email must be at most 150 characters")
+      .optional().
+      or(z.literal(""))
+      ,
+
+    company: z
+      .string()
+      .max(150, "Company must be at most 150 characters")
+      .optional()
+      .or(z.literal(""))
+    
+    
+    
+    }),
+
+   
 })
 
 

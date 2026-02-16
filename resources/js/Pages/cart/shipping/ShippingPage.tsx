@@ -45,10 +45,13 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
         setShippingData(data);
         onStepChange('next');
     };
-
+    const onInvalid = (errors : any) => {
+  console.log("❌ Form has errors:", errors);
+};
+    
     const handleContinueToPayment = (e: React.FormEvent) => {
         e.preventDefault();
-        handleSubmit(onValid)() ;
+        handleSubmit(onValid , onInvalid)() ; // somethin wrong in here never calls on valid afetr i added a proper company 
     };
 
     return (

@@ -3,6 +3,7 @@
 namespace App\DTOs;
 
 use App\Http\Requests\StoreOrderRequest;
+use App\Models\Product;
 use App\Models\User;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
@@ -25,18 +26,16 @@ class CreateOrderDTO
         public readonly ?int $total_amount = 0 ,
         public readonly ?int $discount_amount = 0 ,
         public readonly ?int $shipping_cost = 0,
+        public readonly ?int $coupon_id = null,
         
     ) {}
     
-    public static function fromRequest(array $data , ?array $calulations = []): self
+    public static function fromRequest(array $data , ?User $user, ?array $calulations = []): self
     {
-        $user_id = null ;
-        if(Auth::user()){
-            $user_id = Auth::user()->id;
-        }
+
 
         return new self(
-            user_id: $user_id,
+            user_id: $user?->id,
             payment_method: $data['payment_method'],
             payment_method_id: $data['payment_method_id'] ?? null,
             items: array_map(
@@ -55,18 +54,20 @@ class CreateOrderDTO
             paid_at : $calulations['paid_at'] ?? null,
             discount_amount: $calulations['discount_amount'] ??  0 ,
             order_number: $calulations['order_number'] ?? null,
+            coupon_id : $data['coupon_id'] ?? null,
             
         );
     }
 
-    public static function fromPayment(array $data  , $calculations = []) : self
+    public static function fromPayment(array $data  ,?User $user , array $calculations ) : self
     {
-        return self::fromRequest($data , $calculations);
+        return self::fromRequest($data , $user , $calculations);
     }
 
-    public static function fromCheckout(array $data , $calculations = []): self
-    {
-        return self::fromRequest($data , $calculations);
+    public static function fromCheckout(array $data ,?User $user , array $calculations ): self
+    { 
+
+        return self::fromRequest($data , $user , $calculations);
     }
     
 
@@ -74,6 +75,7 @@ class CreateOrderDTO
     {
         return [
             'user_id'           => $this->user_id,
+            'coupon_id' =>$this->coupon_id ,
             'order_number'      => $this->order_number,
             'payment_method_id' => $this->payment_method_id,
             'payment_method'    => $this->payment_method,
@@ -101,7 +103,10 @@ class OrderItemDTO
         public int $quantity,
         public float $price_snapshot,
         public float $subtotal,
-        public string  $product_name
+        public string $product_name,
+
+        public array  $product_variant , 
+        public array  $product
     ) { }
 
 
@@ -109,13 +114,14 @@ class OrderItemDTO
     public static function fromArray(array $data): self
     {
         return new self(
-               id : $data['id'],
+            id : $data['id'],
             product_variant_id: $data["product_variant_id"],
             quantity: $data["quantity"],
             price_snapshot: $data["price_snapshot"],
             subtotal: $data["subtotal"],
             product_name : $data["product_variant"]['product']['name'] ?? 'Unknown Product',
-            
+            product : $data['product_variant']['product'] ,
+            product_variant : $data['product_variant']
         );
     }
 
@@ -126,8 +132,11 @@ class OrderItemDTO
             "product_variant_id"=> $this->product_variant_id,
             "product_name"=> $this->product_name,
             "quantity"=> $this->quantity,
+            "product" => $this->product ,
+            "product_variant" => $this->product_variant ,
             "price_snapshot"=> $this->price_snapshot,
             "subtotal"=> $this->subtotal,
+
         ];
     }
 }
@@ -144,8 +153,9 @@ class OrderAddressDTO
         public ?string $state,
         public ?string $postal_code,
         public ?string $country ,
-        public ?string $phone = null,
+        public string $phone ,
         public ?string $email = null,
+        public ?string $company = null,
     ) {
            $this->country = $country ?? env('APP_COUNTRY', 'US');
     }
@@ -162,8 +172,8 @@ class OrderAddressDTO
             'postal_code'=> $this->postal_code,
             'country'=> $this->country ,
             'phone' => $this->phone ,
-            'email' => $this->email
-
+            'email' => $this->email ,
+            'company' => $this->company
         
         ];
     }
@@ -180,6 +190,7 @@ class OrderAddressDTO
             country: $data["country"] ?? env('APP_COUNTRY'),
             phone: $data["phone"],
             email: $data["email"],
+            company: $data["company"]
         );
     }
 }

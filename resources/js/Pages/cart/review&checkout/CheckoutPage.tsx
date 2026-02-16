@@ -50,6 +50,7 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
 
     const handlePlaceOrder = (e: React.FormEvent) => {
         e.preventDefault();
+        console.log(shippingData)
         const orderData = {
             ...shippingData,
             payment_method,

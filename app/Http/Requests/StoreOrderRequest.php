@@ -28,10 +28,10 @@ class StoreOrderRequest extends FormRequest
             'payment_method' => ['required', Rule::in(['CARD', 'COD'])],
             'payment_method_id' => [Rule::requiredIf(fn() => request('payment_method') === 'CARD') , 'string'],
             'coupon_code' => ['nullable', 'string', 'max:50'],
-            
             'address.first_name' => ['required', 'string', 'min:2', 'max:100'],
             'address.last_name' => ['required', 'string', 'min:2', 'max:100'],
-            'address.email' => ['required', 'email', 'max:150'],
+            'address.email' => ['nullable', 'email', 'max:150'],
+            'address.company' => ['nullable', 'string', 'max:150'],
             'address.phone' => ['required', 'string', 'min:8', 'max:20'],
             'address.address_line1' => ['required', 'string', 'min:5', 'max:255'],
             'address.address_line2' => ['nullable', 'string', 'max:255'],

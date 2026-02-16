@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('postal_code');
             $table->string('country');
             $table->string('phone')->nullable();
+            $table->string('email')->nullable(); // for shipping notifications
+            $table->string('company')->nullable();
             $table->timestamps();
 
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');

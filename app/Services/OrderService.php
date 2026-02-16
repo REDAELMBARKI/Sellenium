@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Context\CheckoutContext;
 use App\DTOs\CreateOrderDTO;
+use App\Exceptions\CouponException;
 use App\Exceptions\OrderException;
 use App\Http\Resources\OrderResource;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\Order;
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -18,12 +21,9 @@ use Illuminate\Support\Str;
 
 class OrderService
 {
-        private $couponService ;
-        private $cartService ;
-        public function __construct(){
-            $this->couponService = new CouponService() ;
-            $this->cartService = new CartService();
+        public function __construct(private CartService $cartService , private CouponService $couponService ){
         }
+
         public function getOrders(){
            return OrderResource::collection(Order::with('user:id,name,email' , 'orderItems.product.thumbnail' , 'address')->paginate(10));
         }
@@ -66,23 +66,52 @@ class OrderService
         }
 
         
-        public function checkoutCOD(CreateOrderDTO $dto){
-            $calculations = $this->calculateOrderTotalWithDependencies($dto);
-            $dto = CreateOrderDTO::fromCheckout($dto->toArray() , $calculations);
+        public function checkoutCOD(CheckoutContext $context){
+            $calculations = $this->calculateOrderTotalWithDependencies($context);
+            try {
+                $dto = CreateOrderDTO::fromCheckout(
+                    $context->dto->toArray(),
+                    $context->user,
+                    $calculations
+                );
+                
+                Log::info('✅ DTO created successfully', ['dto' => $dto]);
+                
+            } catch (\Throwable $e) {
+                Log::error('❌ DTO creation failed', [
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                
+                // re-throw if you want it to bubble up
+                throw $e;
+            }
+
+            $contextUpdate = new CheckoutContext($dto , $context->user);
+            Log::error('checkout Cod - context created  ');
+
             try{
-              $order = $this->createOrderMaster($dto);
-              return $order;
+              return $this->createOrderMaster($contextUpdate->dto);
             }catch(Exception $e){
+               Log::error('Outer Create Order master - exception'. $e->getMessage());
                throw new OrderException($e);
             }
         }
         
-        public function checkoutPayment($dto){
-            $cod_calculations = $this->calculateOrderTotalWithDependencies($dto);
-            $dto = CreateOrderDTO::fromCheckout($dto, $cod_calculations);
+        public function checkoutPayment(CheckoutContext $context){
+            $cod_calculations = $this->calculateOrderTotalWithDependencies($context);
+
+            $dto =  CreateOrderDTO::fromCheckout(
+                $context->dto->toArray(),
+                        $context->user ,
+            $cod_calculations
+                    );
+            $contextUpdate = new CheckoutContext($dto , $context->user);
+            
             try{
-                // $order =  $this->perceedToPaymentAndOrder_transaction($dto);
-                //  return $order;
+                //  return $this->perceedToPaymentAndOrder_transaction($dto);
             }catch(Exception $e){
                 throw new OrderException($e);
             }
@@ -91,26 +120,25 @@ class OrderService
         
         public function createOrderMaster(CreateOrderDTO $dto){
                 $order = DB::transaction(function() use($dto){
-                
                 $orderAttributes = Arr::except($dto->toArray() , []) ;
                 $order =  $this->storeOrder($orderAttributes);
                 $this->storeOrderItems($dto->items , $order);
                 
                 $this->storeOrderAddress($dto->address->toArray() , $order);
 
-                $this->updateCouponInOrderSuccess($dto->coupon_code , $order);
+                if($dto->coupon_id != null){
+                    $this->updateCouponInOrderSuccess($dto->coupon_id );
+                }
+
                 return $order;
             });
             return $order;
         }
 
    
-        private function updateCouponInOrderSuccess(string $coupon_code){
-            // if(user per user and !auth->user() ) skip the coupon did not get applied
-            // incriment times_use
-            // check of (max == times used ) set to inactive
-            // check for usage peruser if this has usage peruser and auth (if )
-           
+        private function updateCouponInOrderSuccess(int|string|null  $coupon_id ){
+          Coupon::find($coupon_id)->increment('times_used');
+
         }
 
         public function storeOrder(array $dto){
@@ -118,6 +146,7 @@ class OrderService
                     $order = Order::create($dto);
                     return $order;
                 } catch (\Exception $e) {
+                    Log::error('create order exc:' . $e->getMessage());
                     throw $e; // rethrow so the app still handles it properly
                 }
         }
@@ -130,7 +159,7 @@ class OrderService
                    return $orderItem ;
 
                 }catch (\Exception $e) {
-                    Log::error('from create order items '. $e->getMessage());
+                    Log::error('store order items error :'. $e->getMessage());
                 }
             } , $items);
         }
@@ -141,28 +170,38 @@ class OrderService
                 return $order->address()->create($address);
             }
             catch (\Exception $e) {
-                Log::error(''. $e->getMessage());
+                Log::error('sotre order address error :'. $e->getMessage());
             }
         }
      
-        private function calculateOrderTotalWithDependencies($dto){
-            $subtotal = $this->cartService->calculateCartItemsSubtotal($dto->items);
-            $discount = $this->calculateDiscount($dto->coupon_code, $subtotal);
+
+       
+
+        private function calculateOrderTotalWithDependencies(CheckoutContext $context) {
+            $subtotal = $this->cartService->calculateCartItemsSubtotal($context->dto->items);
+            $coupon = $this->couponService->getValidCoupon($context);
+
+            $discount = 0;
+            if ($coupon) {
+                $discount = $this->calculateDiscount((float)$subtotal, $coupon);
+                $discount = min($discount, (float)$subtotal); // never more than subtotal
+            }
+
             $shipping = $this->calculateShipping();
             $tax = $this->calculateTax($subtotal - $discount + $shipping);
             $total = $subtotal - $discount + $shipping + $tax;
             $order_number = $this->generateOrderNumber();
 
             return [
-                'total_amount'=> $total,
-                'discount_amount'=> $discount,
-                'shipping_cost'=> $shipping ,
-                'tax'=> $tax ,
+                'total_amount' => $total,
+                'discount_amount' => $discount,
+                'shipping_cost' => $shipping,
+                'tax' => $tax,
                 'order_number' => $order_number,
-            ] ;
- 
+                'coupon_id' => $coupon?->id
+            ];
         }
-     
+            
         private function calculateShipping()
         {
            return 0 ;
@@ -174,29 +213,14 @@ class OrderService
         }
      
 
-        private function calculateDiscount(?string $coupon_code , string $total)
-        {
-            if(!$coupon_code){
-                return 0; // discount is zero if no coupon code provided
-            }
-          
-            $coupon = $this->couponService->getDbCouponCodeMatch($coupon_code);
-             
-            $discount = 0;
-
-            if(!$this->couponService->checkIsValidCoupon($coupon )){
-               return 0;
-            }
-            
+        
+        private function calculateDiscount(float $total, Coupon $coupon): float {
             if ($coupon->type === 'fixed') {
-                $discount = $coupon->value;
+                return (float)$coupon->value;
             } elseif ($coupon->type === 'percentage') {
-                // Assuming value is stored as decimal (0.1 = 10%)
-                $discount = $coupon->value * $total;
+                return $coupon->value * $total;
             }
-
-            return $discount;
-
+            return 0;
         }
 
          

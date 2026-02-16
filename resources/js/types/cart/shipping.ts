@@ -11,6 +11,7 @@ export interface ShippingAddress {
     city: string;
     state: string;
     postal_code: string;
+    company : string
 }
 
 export interface ShippingData {

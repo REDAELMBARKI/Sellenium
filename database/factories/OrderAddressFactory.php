@@ -24,6 +24,8 @@ class OrderAddressFactory extends Factory
             'postal_code' => $this->faker->postcode(),
             'country' => 'Morocco',
             'phone' => '06' . $this->faker->numberBetween(10000000, 99999999),
+            'email' => $this->faker->email(),
+            'company' => $this->faker->company()
         ];
     }
 }

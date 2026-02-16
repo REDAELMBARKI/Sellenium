@@ -41,6 +41,7 @@ function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMast
             city: "",
             state: "",
             postal_code: "",
+            company : ""
         },
         notes: "",
     });

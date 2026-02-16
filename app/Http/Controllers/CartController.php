@@ -10,7 +10,7 @@ class CartController extends Controller
 {
     
     public function index(){
-        $cartItems =(new CartService())->getCartItems();
+        $cartItems =(new CartService())->getCartItems(false);
         return Inertia::render('cart/ShoppingCartMaster' , compact('cartItems'));
     }
 

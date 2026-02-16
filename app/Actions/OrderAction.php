@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Context\CheckoutContext;
 use App\DTOs\CreateOrderDTO;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\DB;
@@ -18,16 +19,17 @@ class OrderAction
     {
     }
 
-    public function execute(CreateOrderDTO $dto) 
+    public function execute(CheckoutContext $context )
     {
         $order = null ;
+        $dto = $context->dto;
 
         if($dto->payment_method == 'COD'){
            Log::error('Processing COD order with DTO: ' . json_encode($dto->toArray()));
-           $order =  $this->orderService->checkoutCOD($dto);
+           $order =  $this->orderService->checkoutCOD($context);
            Log::error('Finished processing COD order with ID: ' . $order->id);
         }else{
-           $order =   $this->orderService->checkoutPayment($dto);
+           $order =   $this->orderService->checkoutPayment($context);
         }
       
         return $order ;

@@ -98,7 +98,7 @@ export default function ShippingForm({
                             className="block text-sm mb-2"
                         >
                             <Mail size={16} className="inline mr-2" />
-                            Email *
+                            Email (optional)
                         </label>
                         <input
                             type="email"
@@ -120,6 +120,7 @@ export default function ShippingForm({
                         )}
                     </div>
 
+            {/* phone */}
                     <div>
                         <label
                             style={{ color: theme.textSecondary }}
@@ -294,7 +295,34 @@ export default function ShippingForm({
                         )}
                     </div>
                 </div>
+                {/* compant  */}
+                  <div>
+                        <label
+                            style={{ color: theme.textSecondary }}
+                            className="block text-sm mb-2"
+                        >
+                            Compnay (optional)
+                        </label>
+                        <input
+                            type="text"
+                            {...register("address.company")}
+                            
+                            style={{
+                                borderColor: theme.border,
+                                backgroundColor: theme.bgSecondary,
+                                color: theme.text,
+                            }}
+                            className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
+                            placeholder="New York"
+                        />
+                        {(backendErrors['address.company'] || ZodErrors.address?.company?.message) && (
+                            <div className="text-red-500 text-sm mt-1">
+                                {backendErrors['address.company'] || ZodErrors.address?.company?.message}
+                            </div>
+                        )}
 
+                
+                    </div>
                 {/* notes */}
                 <div>
                     <label

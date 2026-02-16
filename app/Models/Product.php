@@ -83,7 +83,7 @@ class Product extends Model
    
 
     public function nichCategory(){
-        return  Category::find($this->category_niche_id);
+        return  $this->belongsTo(Category::class ,'category_niche_id');
     }
 
     public function tags(){

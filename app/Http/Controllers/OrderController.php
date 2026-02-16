@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\OrderAction;
+use App\Context\CheckoutContext;
 use App\DTOs\CreateOrderDTO;
 use App\DTOs\OrderAddressDTO;
 use App\DTOs\OrderDTO;
@@ -24,22 +25,25 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Testing\Fakes\Fake;
 use Inertia\Inertia;
 
 class OrderController extends Controller
 {
-  
+    
+    public function __construct(
+        private OrderService $orderService
+    ) {}
     
     public function index() {
-        $orderService = new OrderService() ;
         $sheet = GoogleSheet::where('key', 'orders')->first();
         return Inertia::render('admin/pages/orders/OrderManager' ,
         [
 
-            'statistics' => $orderService->getStats() ,
-            'orders' => $orderService->getOrders() ,
+            'statistics' => $this->orderService->getStats() ,
+            'orders' => $this->orderService->getOrders() ,
             'sheetUrl' => $sheet?->spreadsheet_url,
         ]
         ) ;
@@ -52,49 +56,49 @@ class OrderController extends Controller
         throw new Exception();
     }
 
-    // public function checkout(StoreOrderRequest $request){
-    //     $method = null ;
-        
-    //     else{
-    //         $method = $request->payment_method ; 
-    //     }
-   
-
-        
-
-    //     if($request->has('coupon_code')){
-    //        $total_discounted =  $this->applyDiscount($request->coupon_code , $total) ;
-    //        $total = $total_discounted ;
-    //     } // how can i use this has function sice i dont call the logic here any more i can this in the sevice or action how can i check if the coupin is there shoul duse request methoods in side service class 
-
-    // }
-
-     // constroller
-
     public function checkoutSuccess(){
         return Inertia::render('checkout/OrderConfirmation');
     }
+
     public function checkout(StoreOrderRequest $request , OrderAction $action , CartService $cartService){
         $validationError = $this->validateCheckout($request, $cartService);
         if ($validationError) {
             return back()->withErrors([''=> $validationError]);
         }
+        $user = Auth::user();
 
-        $cartItems = $cartService->getCartItems();
-        $dto = CreateOrderDTO::fromRequest(array_merge($request->validated() , ['items' => $cartItems->toArray()]));
+        $cartItems = $cartService->getCartItems(true);
+        Log::error('cart items goten' . $cartItems);
+     
+        
+        // dto object
+        $dto = CreateOrderDTO::fromRequest(
+            array_merge($request->validated() , ['items' => $cartItems->toArray()]) ,
+            $user
+        );
+
+        Log::error('dto created');
+        $context = new CheckoutContext($dto , $user) ;
+        Log::error('checkout contxt creatd ');
+
         try{
-            $order = $action->execute($dto);
+            $order = $action->execute($context);
             if( $order ){
+                Log::error('order created succesfully x controller ');
                 return redirect()
                         ->route('checkout.success')
                         ->with('success', 'Order placed successfully!');
             }
             else{
+                Log::error('order created x controller ');
+
                  return back()->withErrors([
                     'submit'=> 'no order created ,  try again later'
                  ]);
             }
         }catch(Exception $e){
+             Log::error('failed to cleare the eror x exception x controller ');
+
               return back()->withErrors([
                     'submit' => 'failed to create order (execute) '
                  ]);
@@ -111,7 +115,7 @@ class OrderController extends Controller
         $cartItems = $cartService->getCartItems();
         
         // Validate cart not empty
-        if ($cartItems->isEmpty()) {
+        if (is_null($cartItems) || $cartItems->isEmpty()) {
             return 'Your cart is empty.';
         }
         
