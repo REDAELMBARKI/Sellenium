@@ -25,9 +25,13 @@ class CouponService
 
 
         public function getDbCouponCodeMatch(string $coupon_code){
-              return Coupon::where('code' , $coupon_code)
+               try{
+                 return Coupon::where('code' , $coupon_code)
                      ->where('is_active' , true)
                      ->first();
+               }catch(CouponException $e){
+                   Log::error($e->getMessage());
+               }
         }
 
         private function checkMinimumAmount(Coupon $coupon ,CreateOrderDTO $dto) : bool {
@@ -178,7 +182,7 @@ class CouponService
 
 
 
-        public  function getValidCoupon(CheckoutContext $context): ?Coupon {
+        public  function getValidCoupon(CheckoutContext $context): Coupon | null {
             $dto = $context->dto;
 
             if (!$dto->coupon_code) {
@@ -187,6 +191,11 @@ class CouponService
             }
 
             $coupon = $this->getDbCouponCodeMatch($dto->coupon_code);
+            
+            if (!$coupon) {
+                Log::alert('coupon not found ' . $dto->coupon_code);
+                return null ;
+            }
 
             try {
                 $this->checkIsValidCoupon($coupon, $context);

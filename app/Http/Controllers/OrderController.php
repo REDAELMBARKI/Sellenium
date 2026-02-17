@@ -68,7 +68,6 @@ class OrderController extends Controller
         $user = Auth::user();
 
         $cartItems = $cartService->getCartItems(true);
-        Log::error('cart items goten' . $cartItems);
      
         
         // dto object
@@ -77,9 +76,7 @@ class OrderController extends Controller
             $user
         );
 
-        Log::error('dto created');
         $context = new CheckoutContext($dto , $user) ;
-        Log::error('checkout contxt creatd ');
 
         try{
             $order = $action->execute($context);
@@ -90,7 +87,6 @@ class OrderController extends Controller
                         ->with('success', 'Order placed successfully!');
             }
             else{
-                Log::error('order created x controller ');
 
                  return back()->withErrors([
                     'submit'=> 'no order created ,  try again later'

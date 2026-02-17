@@ -75,7 +75,6 @@ class OrderService
                     $calculations
                 );
                 
-                Log::info('✅ DTO created successfully', ['dto' => $dto]);
                 
             } catch (\Throwable $e) {
                 Log::error('❌ DTO creation failed', [
@@ -90,7 +89,6 @@ class OrderService
             }
 
             $contextUpdate = new CheckoutContext($dto , $context->user);
-            Log::error('checkout Cod - context created  ');
 
             try{
               return $this->createOrderMaster($contextUpdate->dto);
