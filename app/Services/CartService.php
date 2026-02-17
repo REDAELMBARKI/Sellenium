@@ -62,14 +62,21 @@ class CartService
 
 
     public function calculateCartSubQuantity(array $items){
+
         return  (int) collect($items)->sum(function ($item) {
-                        return $item->quantity;
-                     });
+                 if (is_array($item)) {
+                      return $item['quantity'];
+                 }
+                return $item->quantity;
+      });
     }
 
 
     public  function calculateCartItemsSubtotal(array $items){
             return  (int) collect($items)->sum(function ($item) {
+                        if (is_array($item)) {
+                            return $item['subtotal'];
+                        }
                         return $item->subtotal;
                      });
     }

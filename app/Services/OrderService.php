@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Context\CheckoutContext;
 use App\DTOs\CreateOrderDTO;
+use App\Exceptions\CheckoutException;
 use App\Exceptions\CouponException;
 use App\Exceptions\OrderException;
 use App\Http\Resources\OrderResource;
@@ -67,14 +68,17 @@ class OrderService
 
         
         public function checkoutCOD(CheckoutContext $context){
+            Log::error('claculate dependencies');
             $calculations = $this->calculateOrderTotalWithDependencies($context);
+            Log::error(' dependencies calculated');
+
             try {
                 $dto = CreateOrderDTO::fromCheckout(
                     $context->dto->toArray(),
                     $context->user,
                     $calculations
                 );
-                
+                 
                 
             } catch (\Throwable $e) {
                 Log::error('❌ DTO creation failed', [
@@ -94,7 +98,7 @@ class OrderService
               return $this->createOrderMaster($contextUpdate->dto);
             }catch(Exception $e){
                Log::error('Outer Create Order master - exception'. $e->getMessage());
-               throw new OrderException($e);
+               throw new CheckoutException($e->getMessage());
             }
         }
         
@@ -111,7 +115,7 @@ class OrderService
             try{
                 //  return $this->perceedToPaymentAndOrder_transaction($dto);
             }catch(Exception $e){
-                throw new OrderException($e);
+                throw new CheckoutException($e);
             }
         }
 
@@ -123,8 +127,11 @@ class OrderService
                 $this->storeOrderItems($dto->items , $order);
                 
                 $this->storeOrderAddress($dto->address->toArray() , $order);
-
+                Log::error("stored address successful") ; 
+                
                 if($dto->coupon_id != null){
+                     Log::error("update coupon") ;
+                     
                     $this->updateCouponInOrderSuccess($dto->coupon_id );
                 }
 
@@ -152,8 +159,9 @@ class OrderService
         public function storeOrderItems(array $items ,Order $order){
             return array_map(function($item) use($order){
                 try{
-                   Log::error('item type ' . gettype($item));
-                   $orderItem = $order->items()->create($item->toArray());
+
+                   $orderItem = $order->items()->create(Arr::except($item->toArray() , ['product' , 'product_variant']));
+                   Log::error("stored order items sucessfull") ;
                    return $orderItem ;
 
                 }catch (\Exception $e) {
@@ -164,6 +172,7 @@ class OrderService
 
         public function storeOrderAddress($address , Order $order){
             try{
+                Log::error("stored address") ;
 
                 return $order->address()->create($address);
             }
@@ -177,13 +186,16 @@ class OrderService
 
         private function calculateOrderTotalWithDependencies(CheckoutContext $context) {
             $subtotal = $this->cartService->calculateCartItemsSubtotal($context->dto->items);
-            $coupon = $this->couponService->getValidCoupon($context);
+            Log::error('get valid coupon run');
 
-            $discount = 0;
+            $coupon = $this->couponService->getValidCoupon($context);
+            Log::error('coupon valid' , ['coupon'=> $coupon]);
+            $discount = 0; 
             if ($coupon) {
                 $discount = $this->calculateDiscount((float)$subtotal, $coupon);
                 $discount = min($discount, (float)$subtotal); // never more than subtotal
             }
+             
 
             $shipping = $this->calculateShipping();
             $tax = $this->calculateTax($subtotal - $discount + $shipping);

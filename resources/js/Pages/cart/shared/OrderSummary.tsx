@@ -15,6 +15,7 @@ interface OrderSummaryCardProps {
     showPromoCode?: boolean;
     showSecurityBadge?: boolean;
     ctaButton?: React.ReactNode; // Custom CTA button
+    applyCouponWithFeedback : () => void
 }
 
 export default function OrderSummaryCard({
@@ -30,6 +31,7 @@ export default function OrderSummaryCard({
     showPromoCode = false,
     showSecurityBadge = false,
     ctaButton,
+    applyCouponWithFeedback
 }: OrderSummaryCardProps) {
     return (
         <div
@@ -136,6 +138,7 @@ export default function OrderSummaryCard({
                         />
                         <button
                             type="button"
+                            onClick={applyCouponWithFeedback}
                             style={{
                                 backgroundColor: theme.secondary,
                                 color: theme.text,

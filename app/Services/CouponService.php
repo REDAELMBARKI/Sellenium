@@ -30,22 +30,24 @@ class CouponService
                      ->where('is_active' , true)
                      ->first();
                }catch(CouponException $e){
-                   Log::error($e->getMessage());
+                   return null;
                }
         }
 
-        private function checkMinimumAmount(Coupon $coupon ,CreateOrderDTO $dto) : bool {
+        private function checkMinimumAmount(Coupon $coupon , array $items) : bool {
             // 'minimum_order_amount' // Min 200 MAD to use coupon
-            $cartSubtotal = $this->cartService->calculateCartItemsSubtotal($dto->items);
+            $cartSubtotal = $this->cartService->calculateCartItemsSubtotal($items);
             return   $cartSubtotal >= $coupon->minimum_amount ;
         }
 
-        private function checkMinimumItems(Coupon $coupon ,CreateOrderDTO $dto) : bool{
+        private function checkMinimumItems(Coupon $coupon , array $items) : bool{
             //  'minimum_items' // Min 2 items required
-            if(count($dto->items) >=  $coupon->minimum_items){
+            if(count($items) >=  $coupon->minimum_items){
                   return true ;
             }else {
-                  $sub_quantity = (int) $this->cartService->calculateCartSubQuantity($dto->items);
+                  
+                  $sub_quantity = (int) $this->cartService->calculateCartSubQuantity($items);
+
                   return $sub_quantity >= $coupon->minimum_items;
             }
         }
@@ -73,24 +75,25 @@ class CouponService
 
         }
        
-        private function  checkIsValidForProduct(Coupon $coupon, CreateOrderDTO $dto){
-            //  $table->json('applicable_product_ids' // [1, 2, 5] - only these products
+        private function  checkIsValidForProduct(Coupon $coupon, array $items){
+
             if(is_null($coupon->applicable_product_ids) || 
                empty($coupon->applicable_product_ids)
              ){
                 return true ;
             }
 
-            return collect($dto->items)->every(function ($item) use ($coupon) {
-                return isset($item['product']['id']) &&
-                    in_array($item['product']['id'], $coupon->applicable_product_ids ?? []);
+            return collect($items)->every(function ($item) use ($coupon) {
+                return isset($item->product->id) &&
+                    in_array($item->product->id, $coupon->applicable_product_ids ?? []);
             });
-
 
         }
 
-        private function  checkIsValidForCategory(Coupon $coupon,CreateOrderDTO $dto) :bool {
+        private function  checkIsValidForCategory(Coupon $coupon,array $items) :bool {
             //     $table->json('applicable_category_ids' // [3, 7] - only these categories
+                Log::info('etap 9.2');
+
             if(
                 (is_null($coupon->applicable_category_ids) ||
                 empty($coupon->applicable_category_ids) )
@@ -105,8 +108,8 @@ class CouponService
             }
 
 
-             return collect($dto->items)->every(function($item) use ($coupon) {
-                    return isset($item['product']) && $this->checkCouponForItem($coupon, $item['product']);
+             return collect($items)->every(function($item) use ($coupon) {
+                    return isset($item->product) && $this->checkCouponForItem($coupon, $item->product);
              });
 
         }
@@ -117,8 +120,6 @@ class CouponService
            
             $productCategoriesIds = collect($product['sub_categories'])->merge($product['nich_category']) ->pluck('id')->toArray();
             
-            Log::info('categories of each item in the cart'. $coupon->id .''. $productCategoriesIds);
-
             // Merge allowed categories
             $allowedCategories = array_merge(
                 $coupon->applicable_category_ids ?? [],
@@ -134,49 +135,74 @@ class CouponService
         
         public function checkIsValidCoupon(
         Coupon $coupon,
-        CheckoutContext $context
+        array $items ,
+        ?User $user
         ): void {
+
+                Log::info('etap 1');
 
                 if (!$coupon) {
                     throw new CouponException('Coupon code does not exist. or Inactive ');
                 }
+              
+                Log::info('etap 2');
+
                
-                if ($coupon->max_uses_per_user && !$context->user) {
+                if ($coupon->max_uses_per_user && !$user) {
                     throw new CouponException('This coupon requires an account. Please login or register to use it.');
                 }
 
+                Log::info('etap 3');
+
+
                 if ($coupon->max_uses_per_user &&
-                    !$this->checkUsagePerUser($coupon, $context->user)) {
+                    !$this->checkUsagePerUser($coupon, $user)) {
                     throw new CouponException('You have already reached the maximum number of uses for this coupon.');
                 }
 
+                Log::info('etap 4');
+
 
                 if (!$this->checkUsageLimits($coupon)) {
-                    throw new CouponException('This coupon has already been used the maximum number of times allowed.');
+                    throw new CouponException('This coupon has reached its maximum of use ');
                 }
+
+                Log::info('etap 5');
 
                 if (!$this->checkValidityPeriod($coupon)) {
                     throw new CouponException('This coupon is not valid at this time.');
                 }
 
-                if (!$this->checkMinimumAmount($coupon, $context->dto)) {
+                Log::info('etap 6');
+
+
+                if (!$this->checkMinimumAmount($coupon, $items)) {
                     throw new CouponException(
                         'Your order does not meet the minimum amount required to use this coupon.'
                     );
                 }
 
-                if (!$this->checkMinimumItems($coupon, $context->dto)) {
+                Log::info('etap 7');
+
+
+                if (!$this->checkMinimumItems($coupon, $items)) {
                     throw new CouponException(
                         'Your order does not have enough items to use this coupon.'
                     );
                 }
 
-                if (!$this->checkIsValidForProduct($coupon, $context->dto) &&
-                    !$this->checkIsValidForCategory($coupon, $context->dto)) {
+                Log::info('etap 8');
+
+                
+                if (!$this->checkIsValidForProduct($coupon, $items) &&
+                    !$this->checkIsValidForCategory($coupon, $items)) {
                     throw new CouponException(
                         'This coupon does not apply to the products or categories in your cart.'
                     );
                 }
+
+            
+
 
          }
 
@@ -198,7 +224,7 @@ class CouponService
             }
 
             try {
-                $this->checkIsValidCoupon($coupon, $context);
+                $this->checkIsValidCoupon($coupon, $context->dto->items , $context->user);
                 return $coupon;
             } catch (CouponException $e) {
                 Log::info('Coupon invalid: ' . $e->getMessage());

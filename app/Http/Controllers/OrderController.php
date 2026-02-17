@@ -8,6 +8,8 @@ use App\DTOs\CreateOrderDTO;
 use App\DTOs\OrderAddressDTO;
 use App\DTOs\OrderDTO;
 use App\DTOs\OrderItemDTO;
+use App\Exceptions\CheckoutException;
+use App\Exceptions\InsufficientStockException;
 use App\Exceptions\OrderException;
 use App\Http\Resources\OrderResource;
 use App\Http\Controllers\Controller;
@@ -28,6 +30,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Testing\Fakes\Fake;
+use Illuminate\Validation\Rules\In;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class OrderController extends Controller
@@ -61,24 +65,24 @@ class OrderController extends Controller
     }
 
     public function checkout(StoreOrderRequest $request , OrderAction $action , CartService $cartService){
-        $validationError = $this->validateCheckout($request, $cartService);
-        if ($validationError) {
-            return back()->withErrors([''=> $validationError]);
-        }
-        $user = Auth::user();
-
-        $cartItems = $cartService->getCartItems(true);
-     
-        
-        // dto object
-        $dto = CreateOrderDTO::fromRequest(
-            array_merge($request->validated() , ['items' => $cartItems->toArray()]) ,
-            $user
-        );
-
-        $context = new CheckoutContext($dto , $user) ;
 
         try{
+            $this->validateCheckout($request, $cartService);
+
+            $user = Auth::user();
+
+            $cartItems = $cartService->getCartItems(true);
+        
+        
+             // dto object
+            $dto = CreateOrderDTO::fromRequest(
+                array_merge($request->validated() , ['items' => $cartItems->toArray()]) ,
+                $user
+            );
+
+            $context = new CheckoutContext($dto , $user) ;
+
+
             $order = $action->execute($context);
             if( $order ){
                 Log::error('order created succesfully x controller ');
@@ -87,42 +91,41 @@ class OrderController extends Controller
                         ->with('success', 'Order placed successfully!');
             }
             else{
-
-                 return back()->withErrors([
-                    'submit'=> 'no order created ,  try again later'
-                 ]);
+                 throw new CheckoutException("failed to create the order plaise , refresh the page and  try again");
             }
-        }catch(Exception $e){
-             Log::error('failed to cleare the eror x exception x controller ');
 
-              return back()->withErrors([
-                    'submit' => 'failed to create order (execute) '
-                 ]);
+        }catch(ValidationException $e){
+             return back()->withErrors( $e->errors())->withInput();
+            
+        }
+        catch(Exception $e){
+             return back()->withErrors(['submit' => $e->getMessage()]);
         }
     }
 
-    private function validateCheckout(StoreOrderRequest $request, CartService $cartService): ?string
+    private function validateCheckout(StoreOrderRequest $request, CartService $cartService): void
     {
         // Validate payment method
         if (!$request->has('payment_method') || !in_array($request->payment_method, ['COD', 'CARD'])) {
-            return 'Payment method is required';
+            throw new CheckoutException('Payment method is required');
         }
         
         $cartItems = $cartService->getCartItems();
         
         // Validate cart not empty
         if (is_null($cartItems) || $cartItems->isEmpty()) {
-            return 'Your cart is empty.';
+
+            throw new CheckoutException('Your cart is empty');
+
         }
         
         // Validate stock availability
         foreach ($cartItems as $item) {
             if ($item->productVariant->stock < $item->quantity) {
-                return "Insufficient stock for {$item->productVariant->product->name}";
+                throw new CheckoutException("Insufficient stock for " . $item->productVariant->product->name);
             }
         }
         
-        return null;
     }
 
     public function destroy(Order $order)

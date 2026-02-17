@@ -98,14 +98,12 @@ class CreateOrderDTO
 class OrderItemDTO
 {
     public function __construct(
-        public int $id,
         public int $product_variant_id,
         public int $quantity,
         public float $price_snapshot,
         public float $subtotal,
         public string $product_name,
-
-        public array  $product_variant , 
+        public array  $product_variant ,
         public array  $product
     ) { }
 
@@ -114,7 +112,6 @@ class OrderItemDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            id : $data['id'],
             product_variant_id: $data["product_variant_id"],
             quantity: $data["quantity"],
             price_snapshot: $data["price_snapshot"],
@@ -128,7 +125,6 @@ class OrderItemDTO
      public function toArray(): array
     {
         return [
-            'id'=> $this->id,
             "product_variant_id"=> $this->product_variant_id,
             "product_name"=> $this->product_name,
             "quantity"=> $this->quantity,

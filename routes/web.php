@@ -19,6 +19,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CouponController;
 
 // auth 
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
@@ -143,6 +144,8 @@ Route::get('/orders' , [OrderController::class, 'index'])->middleware('auth')->n
 Route::post('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
 Route::get("/checkout/success" , [OrderController::class, 'checkoutSuccess'])->name('checkout.success') ;
 
+// coupon aplly ajaxrequest
+Route::post('/coupon_feedback', [CouponController::class,'coupon_feedback'])->name('coupon.feedback');
 // customer
 Route::get('/customers' , [CurstomerController::class, 'index']) ;
 

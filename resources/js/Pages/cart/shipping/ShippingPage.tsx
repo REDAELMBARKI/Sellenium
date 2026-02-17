@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from "react-hook-form";
 import ShippingForm from "./ShippingForm";
 import { useEffect } from "react";
+import { effect } from "zod/v3";
 
 interface ShippingPageProps {
     cartItems: any[];
@@ -32,7 +33,9 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
         {resolver : zodResolver(shippingSchema) , mode : "onChange" , defaultValues : shippingData}
     ) ; 
 
-
+    useEffect(()=>{
+        console.log(backendErrors)
+    },[backendErrors])
     const subtotal = cartItems.reduce(
         (sum, item) => sum + item.price_snapshot * item.quantity,
         0

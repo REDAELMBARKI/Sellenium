@@ -15,6 +15,7 @@ import { isEmpty } from "lodash";
 import { isEmptyObject } from "@/functions/product/souldSaveDraft";
 import { Button } from "@/components/ui/button";
 import ShippingAddressReview from "./ShippingAddressReview";
+import axios from "axios";
 
 type PaymentMethod = "COD" | "CARD";
 
@@ -66,6 +67,21 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
         });
     };
 
+    const applyCouponWithFeedback = async () => {
+        try{
+            const res = await axios({method:"POST" , url : route("coupon.feedback") , data : {coupon_code}}) ; 
+            if(res){
+                alert(res.data.success)
+            }
+
+        }catch(err : any){
+              console.log(err)
+               const errorMessage = err.response?.data?.error || 'Failed to apply coupon';
+               alert(errorMessage);
+               console.log('Error applying coupon:', err);
+        }
+
+    }
     
     return (
        
@@ -122,6 +138,7 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
                                     />
 
                                     <OrderSummaryCard
+                                        applyCouponWithFeedback={applyCouponWithFeedback}
                                         subtotal={subtotal}
                                         shipping={shipping}
                                         tax={tax}
