@@ -1,10 +1,12 @@
+import { ToastContext } from "@/context/ToastContext";
+import { useContext } from "react";
 
-import { useContext } from "react"
-import { ToastContext } from '@/context/ToastesContext';
 
 
-export const useToasts = () => {
-    const toasts = useContext(ToastContext) ; 
-    if(!toasts) throw new Error("toasts context should e passed din the provider ") ; 
-    return toasts
+
+
+export function useToast() {
+  const ctx = useContext(ToastContext);
+  if (!ctx) throw new Error("useToast must be used inside <ToastProvider>");
+  return ctx;
 }

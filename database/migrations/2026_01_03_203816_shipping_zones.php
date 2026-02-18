@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shipping_zones' , function(Blueprint $table) {
-            $table->id();
-            $table->string('name');           // "Major Cities", "Remote Areas"
-            $table->decimal('price', 10, 2); // 30.00 MAD
-            $table->integer('estimated_days')->nullable(); // 2-3 days
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-        }) ;
+        Schema::create('shipping_zones', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        $table->enum('type', ['fixed', 'calculated'])->default('fixed');
+        $table->decimal('price', 10, 2);          // used for both — base price for calculated, final price for fixed
+        $table->integer('estimated_days')->nullable();
+        $table->boolean('is_active')->default(true);
+        $table->timestamps();
+    });
     }
 
     /**

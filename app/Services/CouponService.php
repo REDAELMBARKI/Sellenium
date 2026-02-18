@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Error;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -29,7 +30,7 @@ class CouponService
                  return Coupon::where('code' , $coupon_code)
                      ->where('is_active' , true)
                      ->first();
-               }catch(CouponException $e){
+               }catch(Exception $e){
                    return null;
                }
         }

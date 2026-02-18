@@ -18,6 +18,7 @@ import {
 import { Head, Link } from '@inertiajs/react';
 import CartSideBar from '@/Pages/cart/cartlisting/CartSideBar';
 import StoreConfigProvider from '@/contextProvoders/StoreConfigProvider';
+import { ToastProvider } from '@/contextProvoders/ToastProvider';
 
 
 interface LayoutProps {
@@ -31,11 +32,12 @@ interface LayoutProps {
 
 const Layout = ({ children, currentPage = 'home' , seo }:LayoutProps) => {
      return (
-       <>
+       <ToastProvider>
+         
           <StoreConfigProvider >
                       <LayoutContent {...{children , currentPage , seo}}/>
           </StoreConfigProvider>
-       </>
+       </ToastProvider>
      )
 } 
 

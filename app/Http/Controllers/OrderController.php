@@ -121,10 +121,19 @@ class OrderController extends Controller
         
         // Validate stock availability
         foreach ($cartItems as $item) {
-            if ($item->productVariant->stock < $item->quantity) {
-                throw new CheckoutException("Insufficient stock for " . $item->productVariant->product->name);
+            $stock = $item->productVariant->stock;
+            $name  = $item->productVariant->product->name;
+
+            if ($stock < $item->quantity) {
+                if ($stock > 0) {
+                    $message = "Only {$stock} items available for {$name} — please update your quantity.";
+                } else {
+                    $message = "{$name} is out of stock — please remove it from your cart.";
+                }
+
+                throw new CheckoutException($message);
             }
-        }
+          }
         
     }
 

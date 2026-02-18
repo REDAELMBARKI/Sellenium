@@ -22,7 +22,7 @@ use Illuminate\Support\Str;
 
 class OrderService
 {
-        public function __construct(private CartService $cartService , private CouponService $couponService ){
+        public function __construct(private CartService $cartService , private CouponService $couponService , private ShippingService $shippingService ){
         }
 
         public function getOrders(){
@@ -186,20 +186,33 @@ class OrderService
 
         private function calculateOrderTotalWithDependencies(CheckoutContext $context) {
             $subtotal = $this->cartService->calculateCartItemsSubtotal($context->dto->items);
-            Log::error('get valid coupon run');
 
+            // ======== discount secton ========================
+            Log::error('get valid coupon run');
             $coupon = $this->couponService->getValidCoupon($context);
             Log::error('coupon valid' , ['coupon'=> $coupon]);
-            $discount = 0; 
+            $discount = 0;
             if ($coupon) {
                 $discount = $this->calculateDiscount((float)$subtotal, $coupon);
                 $discount = min($discount, (float)$subtotal); // never more than subtotal
             }
-             
 
-            $shipping = $this->calculateShipping();
+
+            // ======== shipping section ========================
+
+            $shipping = $this->shippingService->calculateShipping($context->dto->items);
+
+            // ======== tax secton ========================
+
             $tax = $this->calculateTax($subtotal - $discount + $shipping);
+
+
+            // ======== total secton ========================
+ 
             $total = $subtotal - $discount + $shipping + $tax;
+            
+            // ======== genrate a number unique for this order  secton ========================
+            
             $order_number = $this->generateOrderNumber();
 
             return [
@@ -212,10 +225,7 @@ class OrderService
             ];
         }
             
-        private function calculateShipping()
-        {
-           return 0 ;
-        }
+      
 
         private function calculateTax()
         {
