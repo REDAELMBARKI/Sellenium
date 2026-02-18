@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('shipping_settings', function (Blueprint $table) {
             $table->id();
-            $table->decimal('free_shipping_threshold', 10, 2)->nullable(); // 500 MAD
+            $table->enum('free_shipping_type', ['amount', 'items', 'either', 'both'])->default('amount');
+            $table->decimal('free_shipping_threshold_amount', 10, 2)->nullable(); // 500 MAD
+            $table->integer('free_shipping_threshold_items', )->nullable();       // 5 items
             $table->decimal('base_weight_kg', 8, 2)->nullable();           // 2kg
             $table->decimal('extra_kg_price', 8, 2)->nullable();           // 5 MAD/kg
             $table->timestamps();

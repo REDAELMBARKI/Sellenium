@@ -45,7 +45,7 @@ class Product extends Model
         'isFreeShipping' => 'boolean',
         'ready_to_publish' => 'boolean',
 
-        'shipping' => 'array',
+        'shipping' => 'object',
         'aggregated_attributes' => 'array',
         'inventory' => 'array',
         'meta' => 'array',

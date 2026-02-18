@@ -200,7 +200,7 @@ class OrderService
 
             // ======== shipping section ========================
 
-            $shipping = $this->shippingService->calculateShipping($context->dto->items);
+            $shipping = $this->shippingService->calculateShipping($context->dto->items , $context->dto->address->city);
 
             // ======== tax secton ========================
 

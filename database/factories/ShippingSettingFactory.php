@@ -1,0 +1,86 @@
+<?php
+
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+class ShippingSettingFactory extends Factory
+{
+    public function definition(): array
+    {
+        return [
+            'free_shipping_type'             => 'amount',
+            'free_shipping_threshold_amount' => 500,
+            'free_shipping_threshold_items'  => null,
+            'base_weight_kg'                 => null,
+            'extra_kg_price'                 => null,
+        ];
+    }
+
+    // ── Free shipping types ────────────────────────────────────────────────
+
+    public function freeByAmount(float $amount = 500): static
+    {
+        return $this->state(fn () => [
+            'free_shipping_type'             => 'amount',
+            'free_shipping_threshold_amount' => $amount,
+            'free_shipping_threshold_items'  => null,
+        ]);
+    }
+
+    public function freeByItems(int $items = 5): static
+    {
+        return $this->state(fn () => [
+            'free_shipping_type'             => 'items',
+            'free_shipping_threshold_amount' => null,
+            'free_shipping_threshold_items'  => $items,
+        ]);
+    }
+
+    public function freeByEither(float $amount = 500, int $items = 5): static
+    {
+        return $this->state(fn () => [
+            'free_shipping_type'             => 'either',
+            'free_shipping_threshold_amount' => $amount,
+            'free_shipping_threshold_items'  => $items,
+        ]);
+    }
+
+    public function freeByBoth(float $amount = 500, int $items = 5): static
+    {
+        return $this->state(fn () => [
+            'free_shipping_type'             => 'both',
+            'free_shipping_threshold_amount' => $amount,
+            'free_shipping_threshold_items'  => $items,
+        ]);
+    }
+
+    // ── Weight pricing ─────────────────────────────────────────────────────
+
+    public function withWeightPricing(float $baseKg = 2, float $pricePerKg = 5): static
+    {
+        return $this->state(fn () => [
+            'base_weight_kg' => $baseKg,
+            'extra_kg_price' => $pricePerKg,
+        ]);
+    }
+
+    public function withoutWeightPricing(): static
+    {
+        return $this->state(fn () => [
+            'base_weight_kg' => null,
+            'extra_kg_price' => null,
+        ]);
+    }
+
+    // ── No free shipping ───────────────────────────────────────────────────
+
+    public function noFreeShipping(): static
+    {
+        return $this->state(fn () => [
+            'free_shipping_type'             => 'amount',
+            'free_shipping_threshold_amount' => null,
+            'free_shipping_threshold_items'  => null,
+        ]);
+    }
+}

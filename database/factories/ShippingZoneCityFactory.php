@@ -19,7 +19,7 @@ class ShippingZoneCityFactory extends Factory
     {
         return [
             'shipping_zone_id' => ShippingZone::factory(), // default id wil be overided later in the seeder
-            'city' => $this->faker->city,
+            'city' => $this->faker->randomElement(['marrakech' , 'casa' , 'agadir' , 'asfi' , 'tanger' ,  'rabat']),
         ];
     }
 }

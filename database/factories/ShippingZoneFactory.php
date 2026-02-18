@@ -10,6 +10,7 @@ class ShippingZoneFactory extends Factory
     {
         return [
             'name'           => $this->faker->word(),
+            'type' => $this->faker->randomElement(['fixed' , 'calculated']) ,
             'price'          => $this->faker->randomElement([30, 40, 50, 60]),
             'estimated_days' => $this->faker->randomElement([1, 2, 3, 5]),
             'is_active'      => true,
