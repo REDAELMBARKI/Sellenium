@@ -135,22 +135,39 @@ class OrderService
                     $this->storeOrderItems($dto->items , $order);
                     // $this->decrementStock($dto->items);
                     $this->storeOrderAddress($dto->address->toArray() , $order);
-                    Log::error("stored address successful") ; 
+                    Log::error("stored address successful") ;
                     $this->updateCouponInOrderSuccess($dto->coupon_id );
-                    
-
                     return $order;
                  });
 
         }
 
    
-        private function updateCouponInOrderSuccess(int|string|null  $coupon_id ){
-           if($coupon_id === null){
-             return;
-           }
-           Coupon::find($coupon_id)->increment('times_used');
+        protected function updateCouponInOrderSuccess(int|string|null $coupon_id)
+        {
+            if ($coupon_id === null) return;
+
+            $coupon = Coupon::find($coupon_id);
+
+            if (!$coupon) {
+                throw new \Exception("Coupon {$coupon_id} not found.");
+            }
+
+            // atomic check + increment in one query — no race condition
+            $updated = Coupon::where('id', $coupon_id)
+                            ->where(function ($q) use ($coupon) {
+                                $q->whereNull('max_uses') // unlimited
+                                ->orWhere('times_used', '<', $coupon->max_uses); // still has uses
+                            })
+                            ->update(['times_used' => DB::raw('times_used + 1')]);
+
+            if (!$updated) {
+                // either coupon exhausted between discount calc and save
+                // or coupon doesn't exist
+                throw new \Exception("Coupon no longer valid or has reached its usage limit.");
+            }
         }
+
 
         public function storeOrder(array $dto){
                 try {
@@ -172,6 +189,7 @@ class OrderService
 
                 }catch (\Exception $e) {
                     Log::error('store order items error :'. $e->getMessage());
+                    throw $e  ;
                 }
             } , $items);
         }
@@ -184,6 +202,7 @@ class OrderService
             }
             catch (\Exception $e) {
                 Log::error('sotre order address error :'. $e->getMessage());
+                 throw $e; 
             }
         }
      

@@ -18,6 +18,8 @@ class ShippingService
     {
     }
 
+
+    
    public function getZoneShippingInfo(string $city): ?ShippingZone
      {
           $record = ShippingZoneCity::with('shipping_zone')->where('city', $city)->first();

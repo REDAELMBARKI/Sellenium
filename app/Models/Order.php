@@ -17,6 +17,7 @@ class Order extends Model
         'currency',
         'payment_method',
         'paid',
+         'tracking_token' , 
         'paid_at',
         'shipping_cost',
         'discount_amount',
