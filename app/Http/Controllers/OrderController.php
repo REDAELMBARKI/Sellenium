@@ -15,12 +15,14 @@ use App\Http\Resources\OrderResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CODOrderRequest;
 use App\Http\Requests\StoreOrderRequest;
+use App\Http\Resources\OrderTrackResource;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\GoogleSheet;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\OrderService;
+use App\Services\ShippingService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -38,7 +40,8 @@ class OrderController extends Controller
 {
     
     public function __construct(
-        private OrderService $orderService
+        private OrderService $orderService , 
+        private ShippingService $shippingService
     ) {}
     
     public function index() {
@@ -60,8 +63,13 @@ class OrderController extends Controller
         throw new Exception();
     }
 
-    public function checkoutSuccess(){
-        return Inertia::render('checkout/OrderConfirmation');
+    public function trackOrder(Order $order){
+        $order->load(['items','address' , 'coupon']);
+        $shipping =  $this->shippingService->getZoneShippingInfo($order->address->city);
+
+        $data = new OrderTrackResource($order);
+
+        return Inertia::render('orders/TrackOrder' , $data);
     }
 
     public function checkout(StoreOrderRequest $request , OrderAction $action , CartService $cartService){
@@ -85,9 +93,9 @@ class OrderController extends Controller
 
             $order = $action->execute($context);
             if( $order ){
-                Log::error('order created succesfully x controller ');
+
                 return redirect()
-                        ->route('checkout.success')
+                        ->route('track' , $order->id)
                         ->with('success', 'Order placed successfully!');
             }
             else{

@@ -20,9 +20,10 @@ interface CheckoutPageProps {
     shippingData: any;
     onStepChange : (action : 'prev' | 'next' ) => void , 
     onChangeBackendErrors : ( errors : any) => void
+    onResetShippingData : () => void
 }
 
-export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChange , onChangeBackendErrors  }: CheckoutPageProps) {
+export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChange , onChangeBackendErrors , onResetShippingData  }: CheckoutPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
@@ -46,7 +47,6 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
 
     const handlePlaceOrder = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(shippingData)
         const orderData = {
             ...shippingData,
             payment_method,
@@ -54,7 +54,17 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
         };
 
         router.post(route("order.checkout"), orderData, {
-            onSuccess: () => alert("Order placed successfully!"),
+            onSuccess: () => {
+                    setCardData({
+                        card_number: "",
+                        expiry: "",
+                        cvv: "",
+                        cardholder_name: "",
+                    })
+                    setCoupon_code("")
+                    onResetShippingData()
+                    onChangeBackendErrors([])
+            },
             onError: (errors) => {
                   if (errors?.submit) {
                         addToast({
@@ -63,7 +73,6 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
                         description: Array.isArray(errors.submit) ? errors.submit[0] : errors.submit,
                         });
                     }
-                console.log(errors)
                 onChangeBackendErrors(errors)
             },
         });

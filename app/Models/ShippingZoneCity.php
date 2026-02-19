@@ -15,5 +15,6 @@ class ShippingZoneCity extends Model
     {
         return $this->belongsTo(ShippingZone::class);
     }
+    
 
 }

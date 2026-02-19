@@ -1,7 +1,7 @@
 // Pages/Cart/components/CartItemsList.tsx
 import { ThemePalette } from "@/types/ThemeTypes";
 import CartItemRow from "./CartItemRow";
-import CouponCodeInput from "../review&checkout/CouponCodeInput";
+import CouponCodeInput from "../checkout/CouponCodeInput";
 
 interface CartItemsListProps {
     cartItems: any[];

@@ -142,7 +142,8 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 // OrderManager
 Route::get('/orders' , [OrderController::class, 'index'])->middleware('auth')->name('orders.index') ;
 Route::post('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
-Route::get("/checkout/success" , [OrderController::class, 'checkoutSuccess'])->name('checkout.success') ;
+// after checkout sucess 
+Route::get("/track/{order}" , [OrderController::class, 'trackOrder'])->name('track') ;
 
 // coupon aplly ajaxrequest
 Route::post('/coupon_feedback', [CouponController::class,'coupon_feedback'])->name('coupon.feedback');

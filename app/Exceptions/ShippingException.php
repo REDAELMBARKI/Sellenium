@@ -9,6 +9,6 @@ class ShippingException extends \Exception
      */
     public function __construct($message)
     {
-        Parent::__construct($message)
+        parent::__construct($message) ; 
    }
 }

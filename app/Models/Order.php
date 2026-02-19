@@ -52,6 +52,10 @@ class Order extends Model
          return $this->hasOne(OrderAddress::class) ;
       }
 
+
+      public function coupon(){
+         return  $this->belongsTo::class(Coupon::class);
+      }
       
 
 

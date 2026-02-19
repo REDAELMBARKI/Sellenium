@@ -1,7 +1,7 @@
 import StoreConfigProvider from "@/contextProvoders/StoreConfigProvider";
 import CartPage from "./cartlisting/CartPage";
 import { useEffect, useState } from "react";
-import CheckoutPage from "./review&checkout/CheckoutPage";
+import CheckoutPage from "./checkout/CheckoutPage";
 import ShippingPage from "./shipping/ShippingPage";
 import { isEmpty, set } from "lodash";
 import { router, useForm, usePage } from "@inertiajs/react";
@@ -61,10 +61,28 @@ function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMast
          setStep(prev => action === 'next' ? prev + 1 : prev - 1);
     }
 
+    const onResetShippingData = () => {
+      setShippingData({
+        address: {
+            first_name: "",
+            last_name: "",
+            email: "",
+            phone: "",
+            address_line1: "",
+            address_line2: "",
+            city: "",
+            state: "",
+            postal_code: "",
+            company : ""
+        },
+        notes: "",
+    })
+    }
+
     const stepsCompos : Record<string , React.ReactElement> = {
         '0' : <CartPage {...{cartItems  , onStepChange}} /> , 
         '1' : <ShippingPage {...{cartItems ,tax , shippingData, setShippingData , onStepChange , backendErrors  , onChangeBackendErrors }} /> , 
-        '2' : <CheckoutPage {...{ cartItems , shippingData , tax  , onStepChange , onChangeBackendErrors }} /> , 
+        '2' : <CheckoutPage {...{ cartItems , shippingData , tax  , onStepChange , onChangeBackendErrors ,onResetShippingData}} /> , 
     };
 
 

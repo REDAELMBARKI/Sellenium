@@ -18,10 +18,11 @@ class ShippingService
     {
     }
 
-    private function getZoneShippingInfo(string $city){
-                 $city =  ShippingZoneCity::where("city", $city)->first() ;
-                 return $city?->zone()->select('id' , 'is_active' , 'price' , 'type')->first() ;
-    }
+   public function getZoneShippingInfo(string $city): ?ShippingZone
+     {
+     $record = ShippingZoneCity::with('zone')->where('city', $city)->first();
+     return $record?->zone;
+     }
 
 
     private function getShippingSettings(){

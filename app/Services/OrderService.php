@@ -22,7 +22,12 @@ use Illuminate\Support\Str;
 
 class OrderService
 {
-        public function __construct(private CartService $cartService , private CouponService $couponService , private ShippingService $shippingService ){
+        public function __construct(private CartService $cartService , 
+                                  private CouponService $couponService , 
+                                  private ShippingService $shippingService ,
+                                  private TaxService $taxService
+                                  
+                                  ){
         }
 
         public function getOrders(){
@@ -95,7 +100,9 @@ class OrderService
             $contextUpdate = new CheckoutContext($dto , $context->user);
 
             try{
-              return $this->createOrderMaster($contextUpdate->dto);
+              $order =  $this->createOrderMaster($contextUpdate->dto);
+              $this->cartService->clearCart($context->user);
+              return $order ; 
             }catch(Exception $e){
                Log::error('Outer Create Order master - exception'. $e->getMessage());
                throw new CheckoutException($e->getMessage());
@@ -121,29 +128,28 @@ class OrderService
 
         
         public function createOrderMaster(CreateOrderDTO $dto){
-                $order = DB::transaction(function() use($dto){
-                $orderAttributes = Arr::except($dto->toArray() , []) ;
-                $order =  $this->storeOrder($orderAttributes);
-                $this->storeOrderItems($dto->items , $order);
-                
-                $this->storeOrderAddress($dto->address->toArray() , $order);
-                Log::error("stored address successful") ; 
-                
-                if($dto->coupon_id != null){
-                     Log::error("update coupon") ;
-                     
-                    $this->updateCouponInOrderSuccess($dto->coupon_id );
-                }
 
-                return $order;
-            });
-            return $order;
+               return  DB::transaction(function() use($dto){
+                    $orderAttributes = Arr::except($dto->toArray() , []) ;
+                    $order =  $this->storeOrder($orderAttributes);
+                    $this->storeOrderItems($dto->items , $order);
+                    // $this->decrementStock($dto->items);
+                    $this->storeOrderAddress($dto->address->toArray() , $order);
+                    Log::error("stored address successful") ; 
+                    $this->updateCouponInOrderSuccess($dto->coupon_id );
+                    
+
+                    return $order;
+                 });
+
         }
 
    
         private function updateCouponInOrderSuccess(int|string|null  $coupon_id ){
-          Coupon::find($coupon_id)->increment('times_used');
-
+           if($coupon_id === null){
+             return;
+           }
+           Coupon::find($coupon_id)->increment('times_used');
         }
 
         public function storeOrder(array $dto){
@@ -196,15 +202,13 @@ class OrderService
                 $discount = $this->calculateDiscount((float)$subtotal, $coupon);
                 $discount = min($discount, (float)$subtotal); // never more than subtotal
             }
-
-
             // ======== shipping section ========================
 
             $shipping = $this->shippingService->calculateShipping($context->dto->items , $context->dto->address->city);
 
             // ======== tax secton ========================
 
-            $tax = $this->calculateTax($subtotal - $discount + $shipping);
+            $tax = $this->taxService->calculate($subtotal - $discount);
 
 
             // ======== total secton ========================
@@ -226,13 +230,6 @@ class OrderService
         }
             
       
-
-        private function calculateTax()
-        {
-           return 0 ;
-        }
-     
-
         
         private function calculateDiscount(float $total, Coupon $coupon): float {
             if ($coupon->type === 'fixed') {
