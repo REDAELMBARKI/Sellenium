@@ -92,15 +92,14 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
             }
 
         }catch(err : any){
-              console.log(err)
                const errorMessage = err.response?.data?.error || 'Failed to apply coupon';
-            if(errorMessage){
-                addToast({
-                        type: "error",
-                        title: "Coupon failed",
-                        description: Array.isArray(errorMessage) ? errorMessage[0] : errorMessage,
-                        });
-            }
+                if(errorMessage){
+                    addToast({
+                            type: "error",
+                            title: "Coupon failed",
+                            description: Array.isArray(errorMessage) ? errorMessage[0] : errorMessage,
+                            });
+                }
         }
 
     }

@@ -11,7 +11,7 @@ class ShippingZoneCity extends Model
 
     protected $fillable = ['shipping_zone_id', 'city'];
 
-    public function zone()
+    public function shipping_zone()
     {
         return $this->belongsTo(ShippingZone::class);
     }

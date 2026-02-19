@@ -60,7 +60,7 @@ class ShippingServiceTest extends TestCase
         ]);
 
         // force fresh load from DB with eager loaded zone
-        $city = ShippingZoneCity::with('zone')->find($city->id);
+        $city = ShippingZoneCity::with('shipping_zone')->find($city->id);
 
         return [$zone, $city];
     }
@@ -359,29 +359,6 @@ class ShippingServiceTest extends TestCase
         $this->assertEquals(30.00, $result);
     }
 
-    #[Test]
-public function debug_zone_lookup(): void
-{
-    $zone = ShippingZone::factory()->create([
-        'is_active' => true,
-        'price'     => 30.00,
-        'type'      => 'fixed',
-    ]);
 
-    $city = ShippingZoneCity::factory()->create([
-        'shipping_zone_id' => $zone->id,
-    ]);
 
-    // simulate exactly what service does
-    $found = ShippingZoneCity::with('zone')->where('city', $city->city)->first();
-
-    dump([
-        'city_name'    => $city->city,
-        'found_city'   => $found?->city,
-        'found_zone'   => $found?->zone,
-        'zone_id'      => $found?->shipping_zone_id,
-    ]);
-
-    $this->assertNotNull($found?->zone);
-}
 }

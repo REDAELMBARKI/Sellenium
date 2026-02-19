@@ -63,13 +63,39 @@ class OrderController extends Controller
         throw new Exception();
     }
 
-    public function trackOrder(Order $order){
-        $order->load(['items','address' , 'coupon']);
-        $shipping =  $this->shippingService->getZoneShippingInfo($order->address->city);
 
-        $data = new OrderTrackResource($order);
+    public function authTrack(Order $order){
 
-        return Inertia::render('orders/TrackOrder' , $data);
+          if(Auth::id() !== $order->user_id){
+               abort(403);
+          }
+
+          $this->renderTrackOrder($order);
+    }
+
+    public function guestTrack(string $token){
+          if(Auth::check()){
+               return redirect()->route('track.auth' , 'what can i send here sind here if noorder here should i just back him to wehre he was  ') ;
+          }
+           $order = Order::whereNull('user_id')
+                   ->where('tracking_token' , $token)
+                   ->with(['items', 'address'])
+                   ->first();
+
+          $this->renderTrackOrder($order);
+    }
+
+    private function renderTrackOrder(Order $order){
+
+        $order->load(['items','address' , 'coupon:id,code']);
+        $order->address->makeHidden(['created_at', 'updated_at', 'order_id']);
+        $order->items->makeHidden(['created_at' , 'updated_at']);
+        $shipping = $this->shippingService->getZoneShippingInfo($order->address->city);
+
+        return Inertia::render('orders/OrderTrack' , [
+            'order' => $order->makeHidden(['paid_at' , 'paid']) ,
+            'shipping' => $shipping
+        ]);
     }
 
     public function checkout(StoreOrderRequest $request , OrderAction $action , CartService $cartService){
@@ -93,10 +119,16 @@ class OrderController extends Controller
 
             $order = $action->execute($context);
             if( $order ){
-
-                return redirect()
-                        ->route('track' , $order->id)
-                        ->with('success', 'Order placed successfully!');
+                if(Auth::check()){
+                    return redirect()
+                    ->route('track.auth' , $order->id)
+                    ->with('success', 'Order placed successfully!');
+                }
+                else{
+                     return redirect()
+                    ->route('track.guest' , $order->tracking_token)
+                    ->with('success', 'Order placed successfully!');
+                }
             }
             else{
                  throw new CheckoutException("failed to create the order plaise , refresh the page and  try again");

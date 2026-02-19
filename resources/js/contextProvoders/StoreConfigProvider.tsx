@@ -9,7 +9,7 @@ import { useReducer } from "react"
 const initialState : StoreConfigType= {  
   currentThemeMode : "light" ,
   currentThemeStyle : "luxuryNoir" , 
-  currentTheme : currentThemeExample.luxuryNoir.dark,
+  currentTheme : currentThemeExample.luxuryNoir.light,
   currentLayoutStyle : 'grid'  , 
   currentCardConf : {
     cardId : 'card-2'  , 

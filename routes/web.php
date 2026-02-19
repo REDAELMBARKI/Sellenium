@@ -61,7 +61,11 @@ Route::get('/blog', function () {
     return Inertia::render('BlogPage');
 })->name('blog');
 
+
+
+// cart
 Route::get('/cart', [CartController::class , 'index'])->name('shoppingCart.index');
+Route::delete('/cart/{id}', [CartController::class , 'destroy'])->name('cart.destroy');
 
 
 
@@ -143,7 +147,9 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 Route::get('/orders' , [OrderController::class, 'index'])->middleware('auth')->name('orders.index') ;
 Route::post('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
 // after checkout sucess 
-Route::get("/track/{order}" , [OrderController::class, 'trackOrder'])->name('track') ;
+Route::get("orders/{order}/track" , [OrderController::class, 'authTrack'])->name('track.auth') ;
+Route::get('/track/{token}', [OrderController::class, 'guestTrack'])
+    ->where('token', '[0-9a-f-]{36}')->name('track.guest') ;
 
 // coupon aplly ajaxrequest
 Route::post('/coupon_feedback', [CouponController::class,'coupon_feedback'])->name('coupon.feedback');

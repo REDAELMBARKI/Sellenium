@@ -9,6 +9,8 @@ import { route } from "ziggy-js";
 import StepIndicator from "../shared/StepIndicator";
 import CartItemsList from "./CartItemsList";
 import CartSummary from "./CartSummary";
+import { useToast } from "@/contextHooks/useToasts";
+import axios from "axios";
 
 interface CartPageProps {
     cartItems: any[];
@@ -22,7 +24,7 @@ export default function CartPage({ cartItems , onStepChange }: CartPageProps) {
     } = useStoreConfigCtx();
 
     const [coupon_code, setCoupon_code] = useState("");
-
+    const {addToast} = useToast() ; 
     // Calculate totals
     const subtotal = cartItems.reduce(
         (sum, item) => sum + item.price_snapshot * item.quantity,
@@ -42,11 +44,34 @@ export default function CartPage({ cartItems , onStepChange }: CartPageProps) {
         );
     };
 
-    const handleRemoveItem = (itemId: number) => {
-        router.delete(route("cart.destroy", itemId), {
-            preserveScroll: true,
-            onError: (errors) => console.error("Delete error:", errors),
-        });
+    const handleRemoveItem = async (id: number) => {
+         try{
+            const res = await axios({
+            method: "DELETE",
+            url: route("cart.destroy" ,{ id }),
+         
+            });
+
+            if(res){
+                 if (res.data.success) {
+                        addToast({
+                        type: "success",
+                        title: "item deleted successfully plaise refresh the page ",
+                        });
+                    }
+            }
+
+        }catch(err : any){
+            console.log(err)
+               const errorMessage = err.response?.data?.error || 'Failed to Delete Item ';
+                if(errorMessage){
+                    addToast({
+                            type: "error",
+                            title: "Error",
+                            description: Array.isArray(errorMessage) ? errorMessage[0] : errorMessage,
+                            });
+                }
+        }
     };
 
     const handleProceedToCheckout = () => {

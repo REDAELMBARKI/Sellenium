@@ -14,6 +14,7 @@ class CreateOrderDTO
         public readonly ?string $order_number = null, 
         public readonly ?string $payment_method_id = null, 
         public readonly ?int $user_id = null,
+        public readonly ?string $tracking_token = null , 
         public readonly ?string $notes , 
         public readonly string $payment_method,
         public readonly array $items,              // Array of OrderItemDTO
@@ -54,6 +55,7 @@ class CreateOrderDTO
             paid_at : $calulations['paid_at'] ?? null,
             discount_amount: $calulations['discount_amount'] ??  0 ,
             order_number: $calulations['order_number'] ?? null,
+            tracking_token: $calulations['tracking_token'] ?? null,
             coupon_id : $data['coupon_id'] ?? null,
             
         );
@@ -65,7 +67,7 @@ class CreateOrderDTO
     }
 
     public static function fromCheckout(array $data ,?User $user , array $calculations ): self
-    { 
+    {
 
         return self::fromRequest($data , $user , $calculations);
     }
@@ -77,6 +79,7 @@ class CreateOrderDTO
             'user_id'           => $this->user_id,
             'coupon_id' =>$this->coupon_id ,
             'order_number'      => $this->order_number,
+            'tracking_token' =>  $this->tracking_token ,
             'payment_method_id' => $this->payment_method_id,
             'payment_method'    => $this->payment_method,
             'coupon_code'       => $this->coupon_code,

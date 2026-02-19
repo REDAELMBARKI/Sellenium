@@ -101,7 +101,7 @@ class OrderService
 
             try{
               $order =  $this->createOrderMaster($contextUpdate->dto);
-              $this->cartService->clearCart($context->user);
+            //   $this->cartService->clearCart($context->user);
               return $order ; 
             }catch(Exception $e){
                Log::error('Outer Create Order master - exception'. $e->getMessage());
@@ -218,13 +218,17 @@ class OrderService
             // ======== genrate a number unique for this order  secton ========================
             
             $order_number = $this->generateOrderNumber();
-
+            $tracking_token = null    ;
+            if($context->user === null){
+                $tracking_token = $this->generateTrackingToken() ;
+            }
             return [
                 'total_amount' => $total,
                 'discount_amount' => $discount,
                 'shipping_cost' => $shipping,
                 'tax' => $tax,
                 'order_number' => $order_number,
+                'tracking_token'=> $tracking_token ,
                 'coupon_id' => $coupon?->id
             ];
         }
@@ -249,6 +253,10 @@ class OrderService
                 $seq    = str_pad($last, 5, '0', STR_PAD_LEFT);
                 return "ORD-{$date}-{$seq}";
             }
+
+        private function generateTrackingToken() : string {
+              return  Str::uuid() ;
+        }
         
         // stripe payment
     // private function perceedToPaymentAndOrder_transaction(CreateOrderDTO $dto) : void

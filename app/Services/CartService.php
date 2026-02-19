@@ -82,8 +82,9 @@ class CartService
                      });
     }
 
-    public function clearCart(User $user): void
-    {
-        Cart::where('user_id', $user->id)->delete();
-    }
+ 
+    // public function clearCart(?User $user): void
+    // {
+    //     Cart::where('user_id', $user->id)->delete();
+    // }
 }

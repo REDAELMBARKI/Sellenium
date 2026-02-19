@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CartResource;
+use App\Models\Cart;
 use App\Services\CartService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class CartController extends Controller
@@ -14,6 +18,28 @@ class CartController extends Controller
         return Inertia::render('cart/ShoppingCartMaster' , compact('cartItems'));
     }
 
+    
+public function destroy($id)
+{
+       validator(['id' => $id], [
+            'id' => ['required', 'numeric', Rule::exists('products_cart', 'id')]
+        ])->validate();
+        return response()->json([
+                'looking_for_id'   => $id,
+                'auth_user_id'     => Auth::id(),
+                'cart_item'        => Cart::find($id),
+            ],200);
 
+       $deleted = Cart::where('id', $id)
+                    ->where('user_id', Auth::id())
+                    ->firstOrFail()
+                    ->delete();
+
+        if ($deleted) {
+            return response()->json(['success' => 'Cart item deleted'], 200);
+        }
+
+        return response()->json(['error' => 'Failed to delete'], 400);
+}
 
 }
