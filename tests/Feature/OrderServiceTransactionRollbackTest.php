@@ -39,9 +39,7 @@ class OrderServiceTransactionRollbackTest extends TestCase
         $this->orderService = app(OrderService::class);
     }
 
-    // ─────────────────────────────────────────────────────
-    // HELPER — creates a partial mock and binds it to the container
-    // ─────────────────────────────────────────────────────
+  
 private function partialOrderService(string $method, \Throwable $exception): OrderService
 {
     $mock = Mockery::mock(OrderService::class, [
@@ -60,9 +58,9 @@ private function partialOrderService(string $method, \Throwable $exception): Ord
     return $mock;
 }
 
-    // ─────────────────────────────────────────────────────
-    // SCENARIO 1: storeOrder fails
-    // ─────────────────────────────────────────────────────
+
+
+
 
     /** @test */
     public function it_rolls_back_when_order_creation_fails(): void
@@ -78,10 +76,7 @@ private function partialOrderService(string $method, \Throwable $exception): Ord
         $this->assertEquals(0, OrderAddress::count());
     }
 
-    // ─────────────────────────────────────────────────────
-    // SCENARIO 2: storeOrderItems fails
-    // ─────────────────────────────────────────────────────
-
+   
     /** @test */
     public function it_rolls_back_when_storing_items_fails(): void
     {

@@ -150,20 +150,20 @@ class OrderService
             $coupon = Coupon::find($coupon_id);
 
             if (!$coupon) {
-                throw new \Exception("Coupon {$coupon_id} not found.");
-            }
+                    throw new \Exception("Coupon {$coupon_id} not found.");
+                }
 
-            // atomic check + increment in one query — no race condition
             $updated = Coupon::where('id', $coupon_id)
-                            ->where(function ($q) use ($coupon) {
-                                $q->whereNull('max_uses') // unlimited
-                                ->orWhere('times_used', '<', $coupon->max_uses); // still has uses
-                            })
-                            ->update(['times_used' => DB::raw('times_used + 1')]);
+                ->where(function ($q) {
+                    $q->whereNull('max_uses')       // unlimited
+                    ->orWhere('times_used', '<', DB::raw('max_uses')); // still has uses
+                })
+                ->update([
+                    'times_used' => DB::raw('times_used + 1'),
+                    'is_active' => DB::raw('CASE WHEN max_uses IS NOT NULL AND times_used + 1 >= max_uses THEN 0 ELSE 1 END')
+                ]);
 
-            if (!$updated) {
-                // either coupon exhausted between discount calc and save
-                // or coupon doesn't exist
+            if ($updated === 0) {
                 throw new \Exception("Coupon no longer valid or has reached its usage limit.");
             }
         }
@@ -206,9 +206,6 @@ class OrderService
             }
         }
      
-
-       
-
         private function calculateOrderTotalWithDependencies(CheckoutContext $context) {
             $subtotal = $this->cartService->calculateCartItemsSubtotal($context->dto->items);
 
@@ -252,8 +249,7 @@ class OrderService
             ];
         }
             
-      
-        
+    
         private function calculateDiscount(float $total, Coupon $coupon): float {
             if ($coupon->type === 'fixed') {
                 return (float)$coupon->value;

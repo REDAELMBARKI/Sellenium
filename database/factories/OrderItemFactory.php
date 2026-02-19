@@ -14,7 +14,7 @@ class OrderItemFactory extends Factory
 
     public function definition()
     {
-        $productVariant = ProductVariant::inRandomOrder()->first();
+        $productVariant = ProductVariant::factory()->create();
         return [
             'product_variant_id' => $productVariant->id,
             'order_id' => Order::inRandomOrder()->first()->id  ,

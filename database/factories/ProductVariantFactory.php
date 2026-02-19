@@ -18,7 +18,7 @@ class ProductVariantFactory extends Factory
     public function definition(): array
     {
         return [
-            'product_id' => Product::inRandomOrder()->first()->id,
+            'product_id' => Product::factory()->create()->id,
             'price' => $this->faker->numberBetween(0,0),
             'oldPrice' => $this->faker->numberBetween(0,1),
             'stock' => $this->faker->numberBetween(0,100),

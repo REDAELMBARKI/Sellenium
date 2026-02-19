@@ -69,20 +69,22 @@ class OrderController extends Controller
           if(Auth::id() !== $order->user_id){
                abort(403);
           }
-
-          $this->renderTrackOrder($order);
+ 
+       return  $this->renderTrackOrder($order);
     }
 
+    
     public function guestTrack(string $token){
           if(Auth::check()){
                return redirect()->route('track.auth' , 'what can i send here sind here if noorder here should i just back him to wehre he was  ') ;
           }
-           $order = Order::whereNull('user_id')
-                   ->where('tracking_token' , $token)
-                   ->with(['items', 'address'])
-                   ->first();
+        $order = Order::whereNull('user_id')
+            ->where('tracking_token', $token)
+            ->with(['items', 'address'])
+            ->firstOrFail();
 
-          $this->renderTrackOrder($order);
+         return  $this->renderTrackOrder($order);
+
     }
 
     private function renderTrackOrder(Order $order){
@@ -118,6 +120,7 @@ class OrderController extends Controller
 
 
             $order = $action->execute($context);
+          
             if( $order ){
                 if(Auth::check()){
                     return redirect()

@@ -3,6 +3,7 @@ import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import StoreConfigProvider from "@/contextProvoders/StoreConfigProvider";
 import { Order, ShippingZone, TrackOrderProps } from "@/types/orders/trackordertypes";
 import { ThemePalette } from "@/types/ThemeTypes";
+import Layout from "@/Layouts/Layout";
 
 // ─────────────────────────────────────────────────────────────
 // HELPERS
@@ -47,7 +48,9 @@ const TIMELINE_STEPS = [
 export default function OrderTrackMaster({ order, shipping }: TrackOrderProps) {
   return (
     <StoreConfigProvider>
-      <OrderTrack order={order} shipping={shipping} />
+      <Layout>
+         <OrderTrack order={order} shipping={shipping} />
+      </Layout>
     </StoreConfigProvider>
   );
 }

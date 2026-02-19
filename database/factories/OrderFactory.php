@@ -25,10 +25,11 @@ class OrderFactory extends Factory
         return [
 
             'order_number' => $this->faker->word() . now()->format('YmdHisv'),
-            'user_id' => User::inRandomOrder()->first()->id,
-            'coupon_id' => Coupon::inRandomOrder()->first()->id,
+            'user_id' => User::factory()->create()->id,
+            'coupon_id' => Coupon::factory()->create()->id,
             'status' => $this->faker->randomElement(['pending', 'delivered', 'canceled']),
             'tax' => $tax,
+            'tracking_token' => null , 
             'currency' => 'MAD',
             'shipping_cost' => $shipping,
             'discount_amount' => $discount,

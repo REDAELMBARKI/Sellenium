@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CurstomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\StoreConfigController;
 use App\Http\Controllers\VariantsController;
 use App\Http\Controllers\AttributesController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CouponController;
+use Termwind\Components\Raw;
 
 // auth 
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
@@ -66,7 +68,7 @@ Route::get('/blog', function () {
 // cart
 Route::get('/cart', [CartController::class , 'index'])->name('shoppingCart.index');
 Route::delete('/cart/{id}', [CartController::class , 'destroy'])->name('cart.destroy');
-
+Route::get('/shipping/calculate/{id}' , [ShippingController::class , 'calculate' ])->name('shipping.calculate');
 
 
 
@@ -147,7 +149,7 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 Route::get('/orders' , [OrderController::class, 'index'])->middleware('auth')->name('orders.index') ;
 Route::post('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
 // after checkout sucess 
-Route::get("orders/{order}/track" , [OrderController::class, 'authTrack'])->name('track.auth') ;
+Route::get("orders/{order}/track" , [OrderController::class, 'authTrack'])->middleware('auth')->name('track.auth') ;
 Route::get('/track/{token}', [OrderController::class, 'guestTrack'])
     ->where('token', '[0-9a-f-]{36}')->name('track.guest') ;
 
