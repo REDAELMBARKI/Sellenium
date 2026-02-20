@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create("shipping_zone_cities", function (Blueprint $table) {
             $table->id();
             $table->foreignId('shipping_zone_id')->constrained()->cascadeOnDelete();
-            $table->string('city');          // "Casablanca"
+            $table->string('city')->unique();          // "Casablanca"
             $table->timestamps();
         });
     }

@@ -69,7 +69,7 @@ Route::get('/blog', function () {
 Route::get('/cart', [CartController::class , 'index'])->name('shoppingCart.index');
 Route::delete('/cart/{id}', [CartController::class , 'destroy'])->name('cart.destroy');
 Route::get('/shipping/calculate/{id}' , [ShippingController::class , 'calculate' ])->name('shipping.calculate');
-
+Route::get('/shippings_cities' , [ShippingController::class, 'getCities'])->name('shipping.cities.get') ;
 
 
 // routes/web.php or api.php

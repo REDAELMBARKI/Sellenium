@@ -107,9 +107,9 @@ const CustomSelectForObject: React.FC<CustomSelectProps> = ({
       <Button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-5 py-4 rounded-xl font-medium transition-all duration-200 focus:outline-none shadow-sm flex items-center justify-between"
+        className="w-full px-5 py-4 rounded-sm font-medium transition-all duration-200 focus:outline-none shadow-sm flex items-center justify-between"
         style={{ 
-          backgroundColor: currentTheme.bg,
+          backgroundColor: currentTheme.bgSecondary,
           color: currentTheme.text,
           borderWidth: '2px',
           borderColor: isOpen ? currentTheme.accent : currentTheme.border

@@ -3,17 +3,21 @@ import { Mail, MapPin, Phone, User } from "lucide-react";
 
 import { isEmpty } from "lodash";
 import { da } from "zod/v4/locales";
-import { useEffect, useMemo } from "react";
+import { RefObject, useEffect, useMemo } from "react";
 import { SelectScrollUpButton } from "@/components/ui/select";
 
 import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { Controller } from "react-hook-form";
+import CustomSelectForObject from "@/components/ui/CustomSelectForObject";
 interface ShippingFormProps {
     onChange: (data: any) => void;
     theme: any;
     ZodErrors : any ,
+    control : any , 
     backendErrors ?: any ,
     register : any , 
-    onCityChange : (id : string) => void
+    onCityChange : (id : string) => void , 
+    shippingCities : {id : string , city : string}[]
 }
 
 export default function ShippingForm({
@@ -22,10 +26,12 @@ export default function ShippingForm({
     ZodErrors , 
     backendErrors , 
     register , 
+    control , 
     onCityChange , 
+    shippingCities
 }: ShippingFormProps) {
-    
-
+  
+ 
     return (
         <div
             style={{
@@ -226,28 +232,27 @@ export default function ShippingForm({
                         </label>
                 
                         
-                           <FormControl fullWidth>
-                                <InputLabel id="city-select-label">City</InputLabel>
-                                
-                                <Select
-                                    labelId="city-select-label"
-                                    {...register("address.city")}
+                        <Controller
+                            name="address.city"
+                            control={control}
+                            defaultValue=""
+                            render={({ field }) => (
+                                <CustomSelectForObject
+                                    label="Select City"
+                                    isSearchable={false}
+                                    options={shippingCities.map((city) => ({
+                                        label: city.city,
+                                        value: String(city.id),
+                                    }))}
+                                    value={field.value ? { label: shippingCities.find(c => String(c.id) === String(field.value))?.city ?? '', value: String(field.value) } : null}
+                                    onChange={(option) => {
+                                        field.onChange(option.value);
+                                        onCityChange(option.value);
+                                    }}
+                                />
+                            )}
+                        />
 
-                                    label="City"
-                                    onChange={(e) => onCityChange(e.target.value)}
-                                >
-                                    <MenuItem value="">
-                                    <em>Select City</em>
-                                    </MenuItem>
-
-                                    {(shipping_cities || []).map((city) => (
-                                    <MenuItem key={city.id} value={city.id}>
-                                        {city.name}
-                                    </MenuItem>
-                                    ))}
-                                </Select>
-                             </FormControl>
-                     
                         {(backendErrors['address.city'] || ZodErrors.address?.city?.message) && (
                             <div className="text-red-500 text-sm mt-1">
                                 {backendErrors['address.city'] || ZodErrors.address?.city?.message}

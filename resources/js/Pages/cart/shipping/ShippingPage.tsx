@@ -10,8 +10,10 @@ import { shippingSchema } from "@/shemas/checkout";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from "react-hook-form";
 import ShippingForm from "./ShippingForm";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { effect } from "zod/v3";
+import { route } from "ziggy-js";
+import axios from "axios";
 
 interface ShippingPageProps {
     cartItems: any[];
@@ -29,19 +31,44 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
-    const {register , handleSubmit , formState : {errors : ZodErrors , isDirty}} = useForm<any>(
+    const {register  , control, handleSubmit , formState : {errors : ZodErrors , isDirty}} = useForm<any>(
         {resolver : zodResolver(shippingSchema) , mode : "onChange" , defaultValues : shippingData}
     ) ; 
 
+    const [shippingCities , setShippingCities] =  useState([]); 
+    const [zone , setZone] = useState(null) ; 
     useEffect(()=>{
         console.log(backendErrors)
     },[backendErrors])
+
+   
+    useEffect(()=> {
+        const ctrl = new AbortController() ; 
+          const getCities = async () => {
+
+                 const res = await axios({
+                    method : 'GET' , 
+                    url : route("shipping.cities.get") , 
+                    signal : ctrl.signal
+                 })
+                 if(res.status === 200) {
+                    console.log(Array.isArray(res.data))
+                         console.log(res.data)
+                       setShippingCities(res.data.cities)
+                 }
+          }
+          getCities();
+
+          return () => ctrl.abort()
+    },[])
+
     const subtotal = cartItems.reduce(
         (sum, item) => sum + item.price_snapshot * item.quantity,
         0
     );
-    const shipping = subtotal >= 50 ? 0 : 5.0;
-    const total = subtotal + shipping;
+   
+
+    const total = parseInt(subtotal) +  parseInt( ( zone?.price ?? 0));
     
     const onValid: any = (data : any) => {
         onChangeBackendErrors({});
@@ -49,13 +76,28 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
         onStepChange('next');
     };
     const onInvalid = (errors : any) => {
-  console.log("❌ Form has errors:", errors);
-};
+    console.log("❌ Form has errors:", errors);
+    };
     
     const handleContinueToPayment = (e: React.FormEvent) => {
         e.preventDefault();
         handleSubmit(onValid , onInvalid)() ; // somethin wrong in here never calls on valid afetr i added a proper company 
     };
+
+
+    const onCityChange = async (id :string) => {
+        try{
+          const res = await axios.get(route('shipping.calculate' , {id}))
+
+          if(res.status === 200){
+              setZone(res.data.zone)
+          }
+  
+        } catch(error : any){
+            setZone(null);
+        }       
+
+    }
 
     return (
       
@@ -85,11 +127,14 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
 
                                     <ShippingForm
                                         {...{
+                                            shippingCities , 
+                                            control , 
                                             ZodErrors , 
                                             backendErrors , 
                                             register , 
                                             theme , 
-                                            onChange:setShippingData
+                                            onChange:setShippingData , 
+                                            onCityChange
                                         }}
                                     />
                                 </div>
@@ -104,8 +149,9 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
                                     />
 
                                     <OrderSummaryCard
+                                        zone={zone}
                                         subtotal={subtotal}
-                                        shipping={shipping}
+                            
                                         tax={tax}
                                         total={total}
                                         theme={theme}

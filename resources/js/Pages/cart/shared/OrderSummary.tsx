@@ -4,7 +4,7 @@ import { Lock, Tag } from "lucide-react";
 
 interface OrderSummaryCardProps {
     subtotal: number;
-    shipping: number;
+
     tax: number;
     total: number;
     discount?: number;
@@ -15,12 +15,13 @@ interface OrderSummaryCardProps {
     showPromoCode?: boolean;
     showSecurityBadge?: boolean;
     ctaButton?: React.ReactNode; // Custom CTA button
-    applyCouponWithFeedback : () => void
+    applyCouponWithFeedback : () => void , 
+    zone : {estimated_days : number , price : number}
 }
 
 export default function OrderSummaryCard({
     subtotal,
-    shipping,
+
     tax,
     total,
     discount = 0,
@@ -31,7 +32,8 @@ export default function OrderSummaryCard({
     showPromoCode = false,
     showSecurityBadge = false,
     ctaButton,
-    applyCouponWithFeedback
+    applyCouponWithFeedback , 
+    zone
 }: OrderSummaryCardProps) {
     return (
         <div
@@ -57,7 +59,7 @@ export default function OrderSummaryCard({
                         Subtotal ({itemCount} item{itemCount !== 1 ? "s" : ""}):
                     </span>
                     <span style={{ color: theme.text }} className="font-semibold">
-                        ${subtotal.toFixed(2)}
+                        ${subtotal}
                     </span>
                 </div>
 
@@ -65,22 +67,22 @@ export default function OrderSummaryCard({
                     <span style={{ color: theme.textSecondary }}>Shipping:</span>
                     <span
                         style={{
-                            color: shipping === 0 ? theme.success : theme.text,
+                            color: zone?.price === 0 ? theme.success : theme.text,
                         }}
                         className="font-semibold"
                     >
-                        {shipping === 0 ? (
+                        {zone?.price === 0 ? (
                             <span className="flex items-center gap-1">
                                 FREE
                                 <span className="text-xs">✓</span>
                             </span>
                         ) : (
-                            `$${shipping.toFixed(2)}`
+                            `$${zone?.price}`
                         )}
                     </span>
                 </div>
 
-                {subtotal < 50 && shipping > 0 && (
+                {subtotal < 50 && zone?.price > 0 && (
                     <div
                         style={{
                             backgroundColor: theme.warning + "20",
@@ -89,7 +91,7 @@ export default function OrderSummaryCard({
                         }}
                         className="text-xs p-2 mt-2"
                     >
-                        Add ${(50 - subtotal).toFixed(2)} more for FREE shipping!
+                        Add ${(50 - subtotal)} more for FREE shipping!
                     </div>
                 )}
 
@@ -98,7 +100,7 @@ export default function OrderSummaryCard({
                         Tax (10%):
                     </span>
                     <span style={{ color: theme.text }} className="font-semibold">
-                        ${tax.toFixed(2)}
+                        ${tax}
                     </span>
                 </div>
 
@@ -106,7 +108,7 @@ export default function OrderSummaryCard({
                     <div className="flex justify-between text-sm">
                         <span style={{ color: theme.success }}>Discount:</span>
                         <span style={{ color: theme.success }} className="font-semibold">
-                            ${discount.toFixed(2)}
+                            ${discount}
                         </span>
                     </div>
                 )}
@@ -168,7 +170,7 @@ export default function OrderSummaryCard({
                         style={{ color: theme.primary }}
                         className="font-bold text-2xl"
                     >
-                        ${total.toFixed(2)}
+                        ${total}
                     </span>
                 </div>
             </div>

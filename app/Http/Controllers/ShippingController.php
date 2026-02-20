@@ -16,7 +16,16 @@ class ShippingController extends Controller
 
           $city = ShippingZoneCity::with('shipping_zone')->findOrFail($id);
 
-          $zone = $city->shipping_zone->makeHidden(["created_at" , "updated_at"]);
+          $zone = $city->shipping_zone()->first(['estimated_days' ,'price']);
           return response()->json(['zone' => $zone],200) ;
+    }
+
+
+
+    public function getCities() {
+        $cities =  ShippingZoneCity::all(['id' , 'city']);
+
+
+        return response()->json(['cities'=> $cities],200) ;
     }
 }
