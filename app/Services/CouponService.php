@@ -62,6 +62,7 @@ class CouponService
 
             return $coupon->max_uses_per_user > $countUsage ;
         }
+
         private function checkUsageLimits(Coupon $coupon) : bool {
             //     'max_uses' // Total times coupon can be used (null = unlimited)
             //     'times_used' // Track how many times it's been used
@@ -140,6 +141,12 @@ class CouponService
         ?User $user
         ): void {
 
+
+               if (!$user) {
+                    throw new CouponException('This coupon requires an account. Please login or register to use it.');
+                }
+
+
                 Log::info('etap 1');
 
                 if (!$coupon) {
@@ -149,15 +156,11 @@ class CouponService
                 Log::info('etap 2');
 
                
-                if ($coupon->max_uses_per_user && !$user) {
-                    throw new CouponException('This coupon requires an account. Please login or register to use it.');
-                }
-
+                
                 Log::info('etap 3');
 
 
-                if ($coupon->max_uses_per_user &&
-                    !$this->checkUsagePerUser($coupon, $user)) {
+                if (!$this->checkUsagePerUser($coupon, $user)) {
                     throw new CouponException('You have already reached the maximum number of uses for this coupon.');
                 }
 

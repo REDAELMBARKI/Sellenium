@@ -210,20 +210,29 @@ class OrderService
             $subtotal = $this->cartService->calculateCartItemsSubtotal($context->dto->items);
 
             // ======== discount secton ========================
-            Log::error('get valid coupon run');
-            $coupon = $this->couponService->getValidCoupon($context);
-            Log::error('coupon valid' , ['coupon'=> $coupon]);
-            $discount = 0;
-            if ($coupon) {
-                $discount = $this->calculateDiscount((float)$subtotal, $coupon);
-                $discount = min($discount, (float)$subtotal); // never more than subtotal
+            $couponDiscount = 0;
+            $promotionDiscount = 0;
+
+            if($context->user){
+                // calculate discount
+                $coupon = $this->couponService->getValidCoupon($context);
+                if ($coupon) {
+                    $couponDiscount = $this->calculateDiscount((float)$subtotal, $coupon);
+                    $couponDiscount = min($couponDiscount, (float)$subtotal); // never more than subtotal
+                }
+
+                // calculate promotion
+
+                
             }
+            $discount = max((float) $couponDiscount , (float) $promotionDiscount) ;
+            $discount = min((float) $subtotal ,(float) $discount);
             // ======== shipping section ========================
 
             $shipping = $this->shippingService->calculateShipping($context->dto->items , $context->dto->address->city);
-
+ 
             // ======== tax secton ========================
-
+            
             $tax = $this->taxService->calculate($subtotal - $discount);
 
 

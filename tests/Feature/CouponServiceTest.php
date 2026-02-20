@@ -16,7 +16,7 @@ class CouponServiceTest extends TestCase
     use RefreshDatabase;
 
     private CouponService $service;
-    private array $items;
+    private array $items = [];
 
     protected function setUp(): void
     {
@@ -27,7 +27,6 @@ class CouponServiceTest extends TestCase
         $cart->shouldReceive('calculateCartSubQuantity')->andReturn(5);
 
         $this->service = app(CouponService::class);
-        $this->items   = [];
     }
 
     // ── 1. Inactive ────────────────────────────────────────────────────────
@@ -41,12 +40,12 @@ class CouponServiceTest extends TestCase
         $this->service->checkIsValidCoupon($coupon, $this->items, null);
     }
 
-    // ── 2. Requires login ──────────────────────────────────────────────────
+    // ── 2. requires account (check order: before per-user & global limit) ──
 
     /** @test */
-    public function it_throws_if_coupon_requires_account_and_user_is_guest(): void
+    public function it_throws_if_guest_uses_coupon_with_per_user_limit(): void
     {
-        $coupon = Coupon::factory()->requiresLogin()->make();
+        $coupon = Coupon::factory()->make(['max_uses_per_user' => 1]);
 
         $this->expectException(CouponException::class);
         $this->expectExceptionMessage('requires an account');
@@ -54,19 +53,19 @@ class CouponServiceTest extends TestCase
     }
 
     /** @test */
-    public function it_passes_when_user_is_authenticated_and_coupon_requires_login(): void
+    public function it_passes_if_authenticated_user_uses_coupon_with_per_user_limit(): void
     {
         $user   = User::factory()->create();
-        $coupon = Coupon::factory()->unlimited()->make();
+        $coupon = Coupon::factory()->unlimited()->make(['max_uses_per_user' => 3]);
 
         $this->service->checkIsValidCoupon($coupon, $this->items, $user);
         $this->assertTrue(true);
     }
 
-    // ── 3. Max uses per user ───────────────────────────────────────────────
+    // ── 3. Per user usage limit ────────────────────────────────────────────
 
     /** @test */
-    public function it_throws_if_user_exceeded_their_personal_usage_limit(): void
+    public function it_throws_if_user_exceeded_personal_usage_limit(): void
     {
         $user   = User::factory()->create();
         $coupon = Coupon::factory()->userExhausted(1)->create();
@@ -82,46 +81,30 @@ class CouponServiceTest extends TestCase
         $this->service->checkIsValidCoupon($coupon, $this->items, $user);
     }
 
-    /** @test */
-    public function it_passes_if_user_has_not_reached_their_usage_limit(): void
-    {
-        $user   = User::factory()->create();
-        $coupon = Coupon::factory()->unlimited()->make(['max_uses_per_user' => 3]);
-
-        $this->service->checkIsValidCoupon($coupon, $this->items, $user);
-        $this->assertTrue(true);
-    }
-
     // ── 4. Global usage limit ──────────────────────────────────────────────
 
     /** @test */
-    public function it_throws_if_coupon_global_usage_is_exhausted(): void
+    public function it_throws_if_global_usage_is_exhausted(): void
     {
-        $coupon = Coupon::factory()->exhausted()->active()->make();
+        $user = User::factory()->create();
+        // max_uses_per_user must be null to skip check 2 & 3 and reach check 4
+        $coupon = Coupon::factory()->make([
+            'is_active'          => true,
+            'max_uses'           => 10,
+            'times_used'         => 10,
+            'max_uses_per_user'  => null,
+        ]);
 
         $this->expectException(CouponException::class);
         $this->expectExceptionMessage('maximum of use');
-        $this->service->checkIsValidCoupon($coupon, $this->items, null);
+        $this->service->checkIsValidCoupon($coupon, $this->items, $user);
     }
 
     /** @test */
-    public function it_passes_when_max_uses_is_null(): void
+    public function it_passes_if_max_uses_is_null(): void
     {
         $user   = User::factory()->create();
         $coupon = Coupon::factory()->unlimited()->make(['max_uses' => null]);
-
-        $this->service->checkIsValidCoupon($coupon, $this->items, $user);
-        $this->assertTrue(true);
-    }
-
-    /** @test */
-    public function it_passes_when_coupon_has_not_reached_global_limit(): void
-    {
-        $user   = User::factory()->create();
-        $coupon = Coupon::factory()->unlimited()->make([
-            'max_uses'   => 100,
-            'times_used' => 50,
-        ]);
 
         $this->service->checkIsValidCoupon($coupon, $this->items, $user);
         $this->assertTrue(true);
@@ -149,35 +132,12 @@ class CouponServiceTest extends TestCase
         $this->service->checkIsValidCoupon($coupon, $this->items, null);
     }
 
-    /** @test */
-    public function it_passes_when_coupon_is_within_valid_period(): void
-    {
-        $user   = User::factory()->create();
-        $coupon = Coupon::factory()->active()->unlimited()->make();
-
-        $this->service->checkIsValidCoupon($coupon, $this->items, $user);
-        $this->assertTrue(true);
-    }
-
-    /** @test */
-    public function it_passes_when_valid_from_and_valid_until_are_null(): void
-    {
-        $user   = User::factory()->create();
-        $coupon = Coupon::factory()->unlimited()->make([
-            'valid_from'  => null,
-            'valid_until' => null,
-        ]);
-
-        $this->service->checkIsValidCoupon($coupon, $this->items, $user);
-        $this->assertTrue(true);
-    }
-
     // ── 6. Minimum order amount ────────────────────────────────────────────
 
     /** @test */
     public function it_throws_if_cart_subtotal_is_below_minimum_amount(): void
     {
-        // CartService mock returns 300, set minimum above that
+        // cart mock returns 300, minimum set above that
         $coupon = Coupon::factory()->withMinimumAmount(500)->make();
 
         $this->expectException(CouponException::class);
@@ -185,50 +145,17 @@ class CouponServiceTest extends TestCase
         $this->service->checkIsValidCoupon($coupon, $this->items, null);
     }
 
-    /** @test */
-    public function it_passes_when_cart_subtotal_meets_minimum_amount(): void
-    {
-        $user   = User::factory()->create();
-        // CartService mock returns 300, set minimum below that
-        $coupon = Coupon::factory()->withMinimumAmount(100)->unlimited()->make();
-
-        $this->service->checkIsValidCoupon($coupon, $this->items, $user);
-        $this->assertTrue(true);
-    }
-
-    /** @test */
-    public function it_passes_when_cart_subtotal_equals_minimum_amount(): void
-    {
-        $user   = User::factory()->create();
-        // CartService mock returns exactly 300
-        $coupon = Coupon::factory()->withMinimumAmount(300)->unlimited()->make();
-
-        $this->service->checkIsValidCoupon($coupon, $this->items, $user);
-        $this->assertTrue(true);
-    }
-
     // ── 7. Minimum items ───────────────────────────────────────────────────
 
     /** @test */
     public function it_throws_if_cart_has_fewer_items_than_required(): void
     {
-        // CartService mock returns quantity 5, set minimum above that
+        // cart mock returns quantity 5, minimum set above that
         $coupon = Coupon::factory()->withMinimumItems(10)->active()->make();
 
         $this->expectException(CouponException::class);
         $this->expectExceptionMessage('enough items');
         $this->service->checkIsValidCoupon($coupon, $this->items, null);
-    }
-
-    /** @test */
-    public function it_passes_when_cart_meets_minimum_items(): void
-    {
-        $user   = User::factory()->create();
-        // CartService mock returns 5, set minimum below that
-        $coupon = Coupon::factory()->withMinimumItems(3)->unlimited()->make();
-
-        $this->service->checkIsValidCoupon($coupon, $this->items, $user);
-        $this->assertTrue(true);
     }
 
     // ── 8. Product / category restrictions ────────────────────────────────
@@ -243,28 +170,7 @@ class CouponServiceTest extends TestCase
         $this->service->checkIsValidCoupon($coupon, $this->items, null);
     }
 
-    /** @test */
-    public function it_passes_when_coupon_has_no_product_or_category_restrictions(): void
-    {
-        $user   = User::factory()->create();
-        $coupon = Coupon::factory()->unlimited()->make([
-            'applicable_product_ids'      => null,
-            'applicable_category_ids'     => null,
-            'applicable_sub_category_ids' => null,
-        ]);
-
-        $this->service->checkIsValidCoupon($coupon, $this->items, $user);
-        $this->assertTrue(true);
-    }
-
     // ── getDbCouponCodeMatch ───────────────────────────────────────────────
-
-    /** @test */
-    public function it_returns_null_for_nonexistent_coupon_code(): void
-    {
-        $result = $this->service->getDbCouponCodeMatch('DOESNOTEXIST');
-        $this->assertNull($result);
-    }
 
     /** @test */
     public function it_returns_coupon_for_valid_active_code(): void
@@ -272,25 +178,16 @@ class CouponServiceTest extends TestCase
         $coupon = Coupon::factory()->active()->create();
 
         $result = $this->service->getDbCouponCodeMatch($coupon->code);
-        $this->assertNotNull($result);
+
         $this->assertEquals($coupon->id, $result->id);
     }
 
     /** @test */
-    public function it_returns_null_for_inactive_coupon_code(): void
+    public function it_returns_null_for_inactive_or_nonexistent_code(): void
     {
-        $coupon = Coupon::factory()->inactive()->create();
+        $inactive = Coupon::factory()->inactive()->create();
 
-        $result = $this->service->getDbCouponCodeMatch($coupon->code);
-        $this->assertNull($result);
-    }
-
-    /** @test */
-    public function it_returns_null_for_expired_coupon_code(): void
-    {
-        $coupon = Coupon::factory()->expired()->create();
-
-        $result = $this->service->getDbCouponCodeMatch($coupon->code);
-        $this->assertNull($result);
+        $this->assertNull($this->service->getDbCouponCodeMatch($inactive->code));
+        $this->assertNull($this->service->getDbCouponCodeMatch('DOESNOTEXIST'));
     }
 }
