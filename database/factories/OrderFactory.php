@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\Order;
+use App\Models\Promotion;
 use App\Models\User;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -27,6 +28,7 @@ class OrderFactory extends Factory
             'order_number' => $this->faker->word() . now()->format('YmdHisv'),
             'user_id' => User::factory()->create()->id,
             'coupon_id' => Coupon::factory()->create()->id,
+            'promotion_id' => Promotion::factory()->create()->id,
             'status' => $this->faker->randomElement(['pending', 'delivered', 'canceled']),
             'tax' => $tax,
             'tracking_token' => null , 

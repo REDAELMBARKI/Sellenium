@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Discount;
 
 use App\Context\CheckoutContext;
 use App\DTOs\CreateOrderDTO;
@@ -10,6 +10,7 @@ use App\Models\CouponUsage;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\CartService;
 use Error;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +39,7 @@ class CouponService
         private function checkMinimumAmount(Coupon $coupon , array $items) : bool {
             // 'minimum_order_amount' // Min 200 MAD to use coupon
             $cartSubtotal = $this->cartService->calculateCartItemsSubtotal($items);
-            return   $cartSubtotal >= $coupon->minimum_amount ;
+            return   $cartSubtotal >= $coupon->minimum_order_amount ;
         }
 
         private function checkMinimumItems(Coupon $coupon , array $items) : bool{
@@ -79,15 +80,17 @@ class CouponService
        
         private function  checkIsValidForProduct(Coupon $coupon, array $items){
 
-            if(is_null($coupon->applicable_product_ids) || 
+            if(is_null($coupon->applicable_product_ids) ||
                empty($coupon->applicable_product_ids)
              ){
                 return true ;
             }
 
             return collect($items)->every(function ($item) use ($coupon) {
-                return isset($item->product->id) &&
-                    in_array($item->product->id, $coupon->applicable_product_ids ?? []);
+           
+                
+                return isset($item->product['id']) &&
+                       in_array($item->product['id'], $coupon->applicable_product_ids ?? []);
             });
 
         }
@@ -117,7 +120,7 @@ class CouponService
         }
 
 
-        private function checkCouponForItem(Coupon $coupon,Product $product): bool
+        private function checkCouponForItem(Coupon $coupon, array  $product): bool
         {
            
             $productCategoriesIds = collect($product['sub_categories'])->merge($product['nich_category']) ->pluck('id')->toArray();

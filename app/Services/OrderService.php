@@ -12,6 +12,8 @@ use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\Discount\CouponService;
+use App\Services\Discount\PromotionService;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +26,7 @@ class OrderService
 {
         public function __construct(private CartService $cartService , 
                                   private CouponService $couponService , 
+                                  private PromotionService $promotionService , 
                                   private ShippingService $shippingService ,
                                   private TaxService $taxService
                                   
@@ -136,37 +139,14 @@ class OrderService
                     // $this->decrementStock($dto->items);
                     $this->storeOrderAddress($dto->address->toArray() , $order);
                     Log::error("stored address successful") ;
-                    $this->updateCouponInOrderSuccess($dto->coupon_id );
+                    $this->couponService->updateCouponInOrderSuccess($dto->coupon_id );
                     return $order;
                  });
 
         }
 
    
-        protected function updateCouponInOrderSuccess(int|string|null $coupon_id)
-        {
-            if ($coupon_id === null) return;
-
-            $coupon = Coupon::find($coupon_id);
-
-            if (!$coupon) {
-                    throw new \Exception("Coupon {$coupon_id} not found.");
-                }
-
-            $updated = Coupon::where('id', $coupon_id)
-                ->where(function ($q) {
-                    $q->whereNull('max_uses')       // unlimited
-                    ->orWhere('times_used', '<', DB::raw('max_uses')); // still has uses
-                })
-                ->update([
-                    'times_used' => DB::raw('times_used + 1'),
-                    'is_active' => DB::raw('CASE WHEN max_uses IS NOT NULL AND times_used + 1 >= max_uses THEN 0 ELSE 1 END')
-                ]);
-
-            if ($updated === 0) {
-                throw new \Exception("Coupon no longer valid or has reached its usage limit.");
-            }
-        }
+     
 
 
         public function storeOrder(array $dto){
@@ -211,20 +191,26 @@ class OrderService
 
             // ======== discount secton ========================
             $couponDiscount = 0;
-            $promotionDiscount = 0;
-
+            $promotionDiscount = 0 ; 
+            
+            // discount coupon requires auth
+            $coupon = null ;
             if($context->user){
                 // calculate discount
                 $coupon = $this->couponService->getValidCoupon($context);
                 if ($coupon) {
-                    $couponDiscount = $this->calculateDiscount((float)$subtotal, $coupon);
+                    $couponDiscount = $this->couponService->calculateDiscount((float)$subtotal, $coupon);
                     $couponDiscount = min($couponDiscount, (float)$subtotal); // never more than subtotal
                 }
-
-                // calculate promotion
-
-                
             }
+            
+            // discount promotion
+            
+            $bestPromotion = $this->promotionService->getBestPromotion($context->dto->items);
+            if($bestPromotion){
+                $promotionDiscount =  $bestPromotion['discount'] ;
+            }
+              
             $discount = max((float) $couponDiscount , (float) $promotionDiscount) ;
             $discount = min((float) $subtotal ,(float) $discount);
             // ======== shipping section ========================
@@ -254,20 +240,13 @@ class OrderService
                 'tax' => $tax,
                 'order_number' => $order_number,
                 'tracking_token'=> $tracking_token ,
-                'coupon_id' => $coupon?->id
+                'coupon_id' => $coupon?->id ,
+                'promotion_id' => $bestPromotion['id'] ?? null ,
             ];
         }
             
     
-        private function calculateDiscount(float $total, Coupon $coupon): float {
-            if ($coupon->type === 'fixed') {
-                return (float)$coupon->value;
-            } elseif ($coupon->type === 'percentage') {
-                return $coupon->value * $total;
-            }
-            return 0;
-        }
-
+       
          
 
         private function generateOrderNumber() : string {

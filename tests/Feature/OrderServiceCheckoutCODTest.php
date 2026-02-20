@@ -6,6 +6,7 @@ use App\Exceptions\CheckoutException;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\Discount\CouponService;
 use App\Services\OrderService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Factories\CheckoutContextFactory;
@@ -27,7 +28,7 @@ class OrderServiceCheckoutCODTest extends TestCase
             $mock->shouldReceive('getZoneShippingInfo')->andReturn(null);
         });
 
-        $this->mock(\App\Services\CouponService::class, function ($mock) {
+        $this->mock(CouponService::class, function ($mock) {
             $mock->shouldReceive('getValidCoupon')->andReturn(null);
         });
 
