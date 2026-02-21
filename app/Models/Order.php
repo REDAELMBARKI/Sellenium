@@ -12,12 +12,16 @@ class Order extends Model
         'order_number',
         'user_id',
         'status',
-        'confirmed',
+        'payment_status',
+        'order_status' ,
+        'coupon_counted',
+        'promotion_counted' ,
+        'coupon_id' ,
+        'promotion_id',
         'tax',
         'currency',
         'payment_method',
-        'paid',
-         'tracking_token' , 
+        'tracking_token',
         'paid_at',
         'shipping_cost',
         'discount_amount',
@@ -28,7 +32,6 @@ class Order extends Model
       'updated_at'
      ] ;
      protected $casts = [
-       'confirmed' => 'boolean',
        'paid' => 'boolean'
        
       

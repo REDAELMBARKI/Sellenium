@@ -14,5 +14,6 @@ class Coupon extends Model
     protected $casts = [
         'applicable_product_ids'  => 'array',
         'applicable_category_ids' => 'array',
+        'applicable_sub_category_ids' => 'array'
     ];
 }

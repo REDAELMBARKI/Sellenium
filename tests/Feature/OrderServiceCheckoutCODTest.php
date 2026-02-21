@@ -7,6 +7,7 @@ use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\Discount\CouponService;
+use App\Services\Discount\PromotionService;
 use App\Services\OrderService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Factories\CheckoutContextFactory;
@@ -16,29 +17,40 @@ class OrderServiceCheckoutCODTest extends TestCase
 {
     use RefreshDatabase;
 
-  
     private OrderService $orderService;
 
-    protected function setUp(): void  // ← only in the test class
+    protected function setUp(): void
     {
         parent::setUp();
 
+        // ────────────── Shipping Service Mock ──────────────
         $this->mock(\App\Services\ShippingService::class, function ($mock) {
             $mock->shouldReceive('calculateShipping')->andReturn(20.0);
             $mock->shouldReceive('getZoneShippingInfo')->andReturn(null);
         });
 
+        // ────────────── Coupon Service Mock ──────────────
         $this->mock(CouponService::class, function ($mock) {
+            // old stub
             $mock->shouldReceive('getValidCoupon')->andReturn(null);
+
+            // NEW: stub updateCouponInOrdeUsage' so tests don't fail
+            $mock->shouldReceive('updateCouponInOrderUsage')->andReturnNull();
         });
 
+        // ────────────── Promotion Service Mock ──────────────
+        $this->mock(PromotionService::class, function ($mock) {
+            $mock->shouldReceive('updateOnOrderSuccess')->andReturnNull();
+            $mock->shouldReceive('getBestPromotion')->andReturnNull();
+        });
+
+        // ────────────── Tax Service Mock ──────────────
         $this->mock(\App\Services\TaxService::class, function ($mock) {
             $mock->shouldReceive('calculate')->andReturn(5.0);
         });
 
         $this->orderService = app(OrderService::class);
     }
-
 
     // ─────────────────────────────────────────────────────
     // HAPPY PATH
@@ -169,9 +181,10 @@ class OrderServiceCheckoutCODTest extends TestCase
     {
         $coupon  = Coupon::factory()->create(['times_used' => 0]);
         $context = CheckoutContextFactory::make(user: null, coupon: $coupon);
-
-        $this->orderService->checkoutCOD($context);
-
+        dump('Context coupon_id:', $context->dto->coupon_id);
+        $order = $this->orderService->checkoutCOD($context);
+        $this->assertNotNull($order, 'Order was not created');
+        $this->assertNotNull($order->coupon_id, 'Coupon ID is null. Order: ' . json_encode($order?->toArray()));
         $this->assertEquals(1, $coupon->fresh()->times_used);
     }
 
@@ -207,6 +220,4 @@ class OrderServiceCheckoutCODTest extends TestCase
             round((float) $order->total_amount, 2)
         );
     }
-
-   
 }

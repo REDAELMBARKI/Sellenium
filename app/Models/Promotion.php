@@ -9,8 +9,13 @@ class Promotion extends Model
 {
     /** @use HasFactory<\Database\Factories\PromotionFactory> */
     use HasFactory;
-    protected $fillable = ['product_id' , 'promo_percentage' , 'dead_line'];
+    protected $guarded = [];
 
+     protected $casts = [
+        'applicable_product_ids'  => 'array',
+        'applicable_category_ids' => 'array',
+        'applicable_sub_category_ids' => 'array'
+    ];
 
     public function products(){
          return $this->hasMany(Promotion::class);

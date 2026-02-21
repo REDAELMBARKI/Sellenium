@@ -72,11 +72,9 @@ class PromotionService  extends DiscountService {
             }
         }
 
-       public function updateOnOrderSuccess(?Promotion $promotion): void
+       public function updateOnOrderSuccess(string $promotion_id): void
         {
-            if (!$promotion) return;
-
-            $updated = Promotion::where('id', $promotion->id)
+            $updated = Promotion::where('id', $promotion_id)
                 ->where(fn($q) => $q->whereNull('max_uses')
                                     ->orWhereColumn('times_used', '<', 'max_uses'))
                 ->update([

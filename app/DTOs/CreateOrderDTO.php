@@ -21,15 +21,16 @@ class CreateOrderDTO
         public readonly OrderAddressDTO $address,  // Nested DTO
         public readonly ?string $coupon_code = null,
         public readonly ?DateTime $paid_at,
-        public readonly ?bool $paid ,
         public readonly ?float $tax = 0.0,
-        public readonly ?bool $confirmed = false,
         public readonly ?int $total_amount = 0 ,
         public readonly ?int $discount_amount = 0 ,
         public readonly ?int $shipping_cost = 0,
         public readonly ?int $coupon_id = null,
         public readonly ?int $promotion_id = null,
-        
+        public readonly ?bool $coupon_counted = false,
+        public readonly ?bool $promotion_counted = false,
+        public readonly ?string $order_status = 'pending',
+        public readonly ?string $payment_status = 'pending',
     ) {}
     
     public static function fromRequest(array $data , ?User $user, ?array $calulations = []): self
@@ -51,15 +52,16 @@ class CreateOrderDTO
             shipping_cost: $calulations['shipping_cost'] ?? 0 ,
             total_amount: $calulations['total_amount'] ?? 0,
             tax : $calulations['tax'] ?? 0,
-            confirmed: $calulations['confirmed'] ?? false,
-            paid : $calulations['paid'] ?? false ,
             paid_at : $calulations['paid_at'] ?? null,
             discount_amount: $calulations['discount_amount'] ??  0 ,
             order_number: $calulations['order_number'] ?? null,
             tracking_token: $calulations['tracking_token'] ?? null,
             coupon_id : $data['coupon_id'] ?? null,
-            promotion_id : $data['promotion_id'] ?? null
-            
+            promotion_id : $data['promotion_id'] ?? null ,
+            order_status : $calulations['order_status'] ?? 'pending' ,
+            payment_status : $calulations['payment_status'] ?? 'pending',
+            coupon_counted : $calulations['coupon_counted']  ?? false,
+            promotion_counted : $calulations['promotion_counted'] ?? false  ,
         );
     }
 
@@ -87,8 +89,6 @@ class CreateOrderDTO
             'payment_method'    => $this->payment_method,
             'coupon_code'       => $this->coupon_code,
             'notes'             => $this->notes,
-            'confirmed'         => $this->confirmed,
-            'paid'              => $this->paid,
             'paid_at'           => $this->paid_at,
             'tax'               => $this->tax,
             'total_amount'      => $this->total_amount,
@@ -96,6 +96,10 @@ class CreateOrderDTO
             'shipping_cost'     => $this->shipping_cost,
             'items'             => array_map(fn($item) => $item->toArray(), $this->items),
             'address'           => $this->address->toArray(),
+            'order_status' => $this->order_status ,
+            'payment_status' => $this->payment_status,
+            'coupon_counted' => $this->coupon_counted ,
+            'promotion_counted' => $this->promotion_counted ,
         ];
     }
 }

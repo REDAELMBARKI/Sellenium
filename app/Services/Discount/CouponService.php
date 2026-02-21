@@ -141,11 +141,8 @@ class CouponService extends DiscountService
             }
         }
 
-
-        public function updateCouponInOrderSuccess(int|string|null $coupon_id)
+        public function updateCouponInOrderUsage(int|string $coupon_id)
         {
-            if ($coupon_id === null) return;
-
             $coupon = Coupon::find($coupon_id);
 
             if (!$coupon) {
@@ -165,6 +162,7 @@ class CouponService extends DiscountService
             if ($updated === 0) {
                 throw new \Exception("Coupon no longer valid or has reached its usage limit.");
             }
+            return $updated;
         }
 
 }

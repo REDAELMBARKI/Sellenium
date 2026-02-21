@@ -25,12 +25,28 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->nullable()->constrained()->nullOnDelete();
             $table->foreignIdFor(Coupon::class)->nullable()->constrained()->nullOnDelete();
             $table->foreignIdFor(Promotion::class)->nullable()->constrained()->nullOnDelete();
-            $table->enum('status',['pending','out_for_delivery','delivery_failed' , 'delivered','canceled' , 'returned'])->default('pending');
-            $table->boolean('confirmed')->default(false)->comment('Confirmed by admin/confirmation team');
+
+            
+            // statu'
+            $table->enum('payment_status', ['pending', 'paid', 'failed' ])
+              ->default('pending') ;
+    
+
+            $table->enum('order_status', ['pending', 'confirmed', 'cancelled' , 'out_for_delivery','delivery_failed' , 'delivered' , 'returned'])
+                ->default('pending') ;
+
+            // idempotent counter updates
+            $table->boolean('coupon_counted')
+              ->default(false) ;
+
+
+             $table->boolean('promotion_counted')
+              ->default(false);
+             // end idempotent counter updates
+
             $table->decimal('tax', 10, 2)->default(0);
             $table->string('currency', 3)->default('MAD'); // always store the currency
             $table->enum('payment_method', ['cod', 'card', 'paypal'])->default('cod');
-            $table->boolean('paid')->default(false);
             $table->string('tracking_token', 64)->unique()->nullable();
             $table->dateTime('paid_at')->nullable();
             $table->float('shipping_cost')->unsigned()->nullable();
@@ -38,6 +54,9 @@ return new class extends Migration
             $table->float('total_amount')->unsigned();
             $table->string('notes')->nullable();
             $table->timestamps();
+
+            $table->index('coupon_counted');
+            $table->index('promotion_counted');
         });
     }
 

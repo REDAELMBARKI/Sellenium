@@ -61,13 +61,16 @@ class CheckoutContextFactory
             address:           self::makeAddress(),
             coupon_code:       $coupon?->code,
             paid_at:           null,
-            paid:              false,
             tax:               0,
-            confirmed:         false,
             total_amount:      0,
             discount_amount:   0,
             shipping_cost:     0,
             coupon_id:         $couponId,
+            promotion_id :         null,
+            promotion_counted : false ,
+            coupon_counted : false ,
+            payment_status : 'pending' ,
+            order_status : 'pending'
         );
     }
 

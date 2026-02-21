@@ -6,7 +6,6 @@ use App\Context\CheckoutContext;
 use App\DTOs\CreateOrderDTO;
 use App\Exceptions\CheckoutException;
 use App\Exceptions\CouponException;
-use App\Exceptions\OrderException;
 use App\Http\Resources\OrderResource;
 use App\Models\Cart;
 use App\Models\Coupon;
@@ -28,7 +27,8 @@ class OrderService
                                   private CouponService $couponService , 
                                   private PromotionService $promotionService , 
                                   private ShippingService $shippingService ,
-                                  private TaxService $taxService
+                                  private TaxService $taxService ,
+                                  private OrderFinalizerService $orderFinalizerService
                                   
                                   ){
         }
@@ -76,27 +76,14 @@ class OrderService
 
         
         public function checkoutCOD(CheckoutContext $context){
-            Log::error('claculate dependencies');
             $calculations = $this->calculateOrderTotalWithDependencies($context);
-            Log::error(' dependencies calculated');
-
             try {
                 $dto = CreateOrderDTO::fromCheckout(
                     $context->dto->toArray(),
                     $context->user,
                     $calculations
                 );
-                 
-                
             } catch (\Throwable $e) {
-                Log::error('❌ DTO creation failed', [
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                
-                // re-throw if you want it to bubble up
                 throw $e;
             }
 
@@ -104,10 +91,11 @@ class OrderService
 
             try{
               $order =  $this->createOrderMaster($contextUpdate->dto);
-            //   $this->cartService->clearCart($context->user);
-              return $order ; 
+              if($order){
+                 $this->orderFinalizerService->finalize($order);
+              }
+              return $order ;
             }catch(Exception $e){
-               Log::error('Outer Create Order master - exception'. $e->getMessage());
                throw new CheckoutException($e->getMessage());
             }
         }
@@ -133,21 +121,13 @@ class OrderService
         public function createOrderMaster(CreateOrderDTO $dto){
 
                return  DB::transaction(function() use($dto){
-                    $orderAttributes = Arr::except($dto->toArray() , []) ;
-                    $order =  $this->storeOrder($orderAttributes);
+                    $order =  $this->storeOrder($dto->toArray());
                     $this->storeOrderItems($dto->items , $order);
-                    // $this->decrementStock($dto->items);
                     $this->storeOrderAddress($dto->address->toArray() , $order);
-                    Log::error("stored address successful") ;
-                    $this->couponService->updateCouponInOrderSuccess($dto->coupon_id );
                     return $order;
                  });
 
         }
-
-   
-     
-
 
         public function storeOrder(array $dto){
                 try {
