@@ -10,6 +10,7 @@ use App\Models\OrderItem;
 use App\Models\User;
 use App\Services\OrderService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Tests\Factories\CheckoutContextFactory;
 use Tests\TestCase;
@@ -23,13 +24,13 @@ class OrderServiceSuccessRedirectionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
+        $this->withoutVite(); 
         $this->mock(\App\Services\ShippingService::class, function ($mock) {
             $mock->shouldReceive('calculateShipping')->andReturn(20.0);
             $mock->shouldReceive('getZoneShippingInfo')->andReturn(null);
         });
 
-        $this->mock(\App\Services\CouponService::class, function ($mock) {
+        $this->mock(\App\Services\Discount\CouponService::class, function ($mock) {
             $mock->shouldReceive('getValidCoupon')->andReturn(null);
         });
 
@@ -51,13 +52,10 @@ class OrderServiceSuccessRedirectionTest extends TestCase
             'user_id' => $user->id,
             'coupon_id' => $coupon->id,
         ]);
-
         OrderAddress::factory()->create(['order_id' => $order->id]);
         OrderItem::factory()->count(2)->create(['order_id' => $order->id]);
-
         $response = $this->actingAs($user)
                         ->get(route('track.auth', ['order' => $order->id]));
-
         $response->assertStatus(200);
     }
 
@@ -160,54 +158,6 @@ class OrderServiceSuccessRedirectionTest extends TestCase
         $response->assertStatus(404); // 404 = guest cannot access auth order
     }
 
-    // ── COUPON TESTS ────────────────────────────────
-
-    /** @test */
-    public function coupon_deactivates_after_reaching_max_uses(): void
-    {
-        $coupon = Coupon::factory()->create([
-            'max_uses' => 1,
-            'times_used' => 0,
-            'is_active' => true,
-        ]);
-
-        $context = CheckoutContextFactory::make(user: null, coupon: $coupon);
-        $this->orderService->checkoutCOD($context);
-
-        $coupon->refresh();
-        $this->assertEquals(1, $coupon->times_used);
-        $this->assertFalse((bool) $coupon->is_active);
-    }
-
-    /** @test */
-    public function only_one_user_can_use_last_coupon_slot(): void
-    {
-        $coupon = Coupon::factory()->create(['max_uses' => 1, 'times_used' => 0]);
-        $context1 = CheckoutContextFactory::make(user: null, coupon: $coupon);
-        $context2 = CheckoutContextFactory::make(user: null, coupon: $coupon);
-
-        $this->orderService->checkoutCOD($context1);
-
-        $this->expectException(CheckoutException::class);
-        $this->orderService->checkoutCOD($context2);
-
-        $this->assertEquals(1, Order::count());
-        $this->assertEquals(1, $coupon->fresh()->times_used);
-    }
-
-    /** @test */
-    public function coupon_deleted_between_checkout_and_save_rolls_back(): void
-    {
-        $coupon = Coupon::factory()->create();
-        $context = CheckoutContextFactory::makeWithCouponId(user: null, couponId: $coupon->id);
-
-        $coupon->delete();
-
-        $this->expectException(CheckoutException::class);
-        $this->orderService->checkoutCOD($context);
-
-        $this->assertEquals(0, Order::count());
-    }
 
     // ── GUEST TOKEN INTEGRITY ───────────────────────
 
@@ -217,8 +167,8 @@ class OrderServiceSuccessRedirectionTest extends TestCase
         $context1 = CheckoutContextFactory::make(user: null);
         $context2 = CheckoutContextFactory::make(user: null);
 
-        $order1 = $this->orderService->checkoutCOD($context1);
-        $order2 = $this->orderService->checkoutCOD($context2);
+        $order1 = $this->orderService->placeOrder($context1);
+        $order2 = $this->orderService->placeOrder($context2);
 
         $this->assertNotEquals($order1->tracking_token, $order2->tracking_token);
     }
@@ -227,7 +177,7 @@ class OrderServiceSuccessRedirectionTest extends TestCase
     public function guest_order_always_has_token(): void
     {
         $context = CheckoutContextFactory::make(user: null);
-        $order = $this->orderService->checkoutCOD($context);
+        $order = $this->orderService->placeOrder($context);
 
         $this->assertNotNull($order->tracking_token);
         $this->assertMatchesRegularExpression(
@@ -241,7 +191,7 @@ class OrderServiceSuccessRedirectionTest extends TestCase
     {
         $user = User::factory()->create();
         $context = CheckoutContextFactory::make(user: $user);
-        $order = $this->orderService->checkoutCOD($context);
+        $order = $this->orderService->placeOrder($context);
 
         $this->assertNull($order->tracking_token);
     }

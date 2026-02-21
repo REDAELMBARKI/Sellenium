@@ -2,8 +2,14 @@
 
 namespace App\Services;
 
+use App\DTOs\OrderItemDTO;
 use App\Models\Cart;
+use App\Models\Coupon;
+use App\Models\Promotion;
 use App\Models\User;
+use App\Services\Discount\CouponService;
+use App\Services\Discount\DiscountService;
+use App\Services\Discount\ItemEligibilityService;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -12,6 +18,8 @@ use Illuminate\Support\Str;
 
 class CartService
 {
+
+    public function __construct(private ItemEligibilityService $itemEligibilityService){}
     public function getOrCreateToken()
     {
         $token = request()->cookie('cart_token');
@@ -82,7 +90,27 @@ class CartService
                      });
     }
 
+
+    public function getCartEligibility(Coupon | Promotion $discount , array $items){
+           $eligibility = [] ;
+           foreach($items as $item){
+                try{
+                $itemArray = $item instanceof OrderItemDTO
+                ? $item->toArray()
+                : $item;
+
+                  $this->itemEligibilityService->assertApplicabilityForItem($discount ,$itemArray);
+                  $eligibility['eligibleItems'][]  = $itemArray;
+
+                }catch(Exception $e){
+                    $eligibility['ineligibleItems'][] = $itemArray;
+                }
+           }
+
+           return $eligibility;
+    }
  
+
     // public function clearCart(?User $user): void
     // {
     //     Cart::where('user_id', $user->id)->delete();

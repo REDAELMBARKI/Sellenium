@@ -69,7 +69,7 @@ private function partialOrderService(string $method, \Throwable $exception): Ord
         $service = $this->partialOrderService('storeOrder', new \Exception('DB error on order'));
 
         $this->expectException(CheckoutException::class);
-        $service->checkoutCOD($context);
+        $service->placeOrder($context);
 
         $this->assertEquals(0, Order::count());
         $this->assertEquals(0, OrderItem::count());
@@ -84,7 +84,7 @@ private function partialOrderService(string $method, \Throwable $exception): Ord
         $service = $this->partialOrderService('storeOrderItems', new \Exception('DB error on items'));
 
         $this->expectException(CheckoutException::class);
-        $service->checkoutCOD($context);
+        $service->placeOrder($context);
 
         $this->assertEquals(0, Order::count());
         $this->assertEquals(0, OrderItem::count());
@@ -101,7 +101,7 @@ private function partialOrderService(string $method, \Throwable $exception): Ord
         $service = $this->partialOrderService('storeOrderAddress', new \Exception('DB error on address'));
 
         $this->expectException(CheckoutException::class);
-        $service->checkoutCOD($context);
+        $service->placeOrder($context);
 
         $this->assertEquals(0, Order::count());
         $this->assertEquals(0, OrderItem::count());
@@ -124,7 +124,7 @@ private function partialOrderService(string $method, \Throwable $exception): Ord
         );
 
         $this->expectException(CheckoutException::class);
-        $service->checkoutCOD($context);
+        $service->placeOrder($context);
 
         $this->assertEquals(0, Order::count());
         $this->assertEquals(0, OrderItem::count());
@@ -145,7 +145,7 @@ private function partialOrderService(string $method, \Throwable $exception): Ord
         );
 
         $this->expectException(CheckoutException::class);
-        $this->orderService->checkoutCOD($context);
+        $this->orderService->placeOrder($context);
 
         $this->assertEquals(0, Order::count());
         $this->assertEquals(0, OrderItem::count());
@@ -161,7 +161,7 @@ private function partialOrderService(string $method, \Throwable $exception): Ord
     {
         $context = CheckoutContextFactory::make(user: null, itemCount: 2);
 
-        $this->orderService->checkoutCOD($context);
+        $this->orderService->placeOrder($context);
 
         $this->assertEquals(1, Order::count());
         $this->assertEquals(2, OrderItem::count());

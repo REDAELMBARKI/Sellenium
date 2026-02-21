@@ -2,7 +2,7 @@
 
 namespace Tests\Factories;
 
-use App\Context\CheckoutContext;
+use App\Context\Order\CheckoutContext;
 use App\DTOs\CreateOrderDTO;
 use App\DTOs\OrderAddressDTO;
 use App\DTOs\OrderItemDTO;

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTOs\CreateOrderDTO;
 use App\Exceptions\ShippingException;
+use App\Models\Promotion;
 use App\Models\ShippingSetting;
 use App\Models\ShippingZone;
 use App\Models\ShippingZoneCity;
@@ -73,8 +74,10 @@ class ShippingService
      }
     
     
-    public function calculateShipping(array $items ,string $city): float
+    public function calculateShipping(array $items ,string $city , ?int $promotion_id = null): float
     {
+               
+
                $zoneShippingInfo = $this->getZoneShippingInfo($city);
                $settings = $this->getShippingSettings();
 
@@ -82,6 +85,14 @@ class ShippingService
                // if shipping is free initialy
                if($zoneShippingInfo &&( $zoneShippingInfo->price == 0)) {
                     return 0 ;
+               }
+
+               // if has free shiipping promotion
+               if ($promotion_id) {
+                    $promotion = Promotion::find($promotion_id);
+                    if ($promotion && $promotion->type === 'free_shipping') {
+                         return 0;
+                    }
                }
 
                // shipping free in case some thresholds (amount / items count)

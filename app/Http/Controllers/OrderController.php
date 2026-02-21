@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\OrderAction;
-use App\Context\CheckoutContext;
+use App\Context\Order\CheckoutContext;
 use App\DTOs\CreateOrderDTO;
 use App\DTOs\OrderAddressDTO;
 use App\DTOs\OrderDTO;
@@ -60,7 +60,9 @@ class OrderController extends Controller
    
     public function store(StoreOrderRequest $request):void
     {
-        throw new Exception();
+         $user = Auth::user();
+         $dto = CreateOrderDTO::fromRequest($request->all() , $user);
+        //  $context = new SinglerOrderContext($dto , $user);
     }
 
 
@@ -108,8 +110,6 @@ class OrderController extends Controller
             $user = Auth::user();
 
             $cartItems = $cartService->getCartItems(true);
-        
-        
              // dto object
             $dto = CreateOrderDTO::fromRequest(
                 array_merge($request->validated() , ['items' => $cartItems->toArray()]) ,

@@ -7,6 +7,7 @@ use App\Services\Discount\CouponService;
 use App\Services\Discount\PromotionService;
 use Database\Seeders\PromotionSeeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderFinalizerService
 {
@@ -24,17 +25,20 @@ class OrderFinalizerService
    
 
     public function finalize(Order $order){
+          
+        // coupon finalizer
         if ($order->coupon_id && !$order->coupon_counted) {
             DB::transaction(function () use ($order) {
-
+    
                     $this->couponService
                         ->updateCouponInOrderUsage($order->coupon_id);
 
                     $order->coupon_counted = true;
                     $order->save();
                 });
-            }
-
+         }
+         
+        // promotion finalizer
         if ($order->promotion_id && !$order->promotion_counted) {
             DB::transaction(function () use ($order) {
 

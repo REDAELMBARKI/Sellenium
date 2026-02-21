@@ -1,10 +1,9 @@
 <?php
 
-namespace Tests\Unit\Services;
+namespace Tests\Unit\Services\Discount;
 
-use App\Models\Product;
+use App\Exceptions\PromotionException;
 use App\Models\Promotion;
-use App\Services\CartService;
 use App\Services\Discount\PromotionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -13,150 +12,297 @@ class PromotionServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private PromotionService $promotionService;
+    private PromotionService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $cartService = $this->mock(CartService::class, function ($mock) {
-            // Default cart subtotal 500 for simplicity
-            $mock->shouldReceive('calculateCartItemsSubtotal')->andReturn(500);
-            $mock->shouldReceive('calculateCartSubQuantity')->andReturn(3);
-        });
-
-        $this->promotionService = new PromotionService($cartService);
+        $this->service = app(PromotionService::class);
     }
 
-    /** @test */
-    public function it_returns_null_when_no_promotions_exist(): void
+    // ═══════════════════════════════════════════════════════
+    // getDbPromotions
+    // ═══════════════════════════════════════════════════════
+
+    public function test_returns_only_active_promotions(): void
     {
-        $result = $this->promotionService->getBestPromotion([]);
+        Promotion::factory()->active()->create();
+        Promotion::factory()->inactive()->create();
+
+        $results = $this->service->getDbPromotions();
+
+        $this->assertCount(1, $results);
+    }
+
+    public function test_excludes_expired_promotions(): void
+    {
+        Promotion::factory()->active()->create();
+        Promotion::factory()->expired()->create();
+
+        $results = $this->service->getDbPromotions();
+
+        $this->assertCount(1, $results);
+    }
+
+    public function test_excludes_not_yet_valid_promotions(): void
+    {
+        Promotion::factory()->active()->create();
+        Promotion::factory()->notYetValid()->create();
+
+        $results = $this->service->getDbPromotions();
+
+        $this->assertCount(1, $results);
+    }
+
+    public function test_excludes_exhausted_promotions(): void
+    {
+        Promotion::factory()->active()->create();
+        Promotion::factory()->exhausted()->create();
+
+        $results = $this->service->getDbPromotions();
+
+        $this->assertCount(1, $results);
+    }
+
+    public function test_includes_unlimited_promotion(): void
+    {
+        Promotion::factory()->active()->unlimited()->create();
+
+        $results = $this->service->getDbPromotions();
+
+        $this->assertCount(1, $results);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // checkIsValidPromotion
+    // ═══════════════════════════════════════════════════════
+
+    public function test_throws_when_promotion_exhausted(): void
+    {
+        $this->expectException(PromotionException::class);
+        $this->expectExceptionMessage('maximum number of uses');
+
+        $promotion = Promotion::factory()->exhausted()->create();
+        $this->service->checkIsValidPromotion($promotion);
+    }
+
+    public function test_throws_when_promotion_expired(): void
+    {
+        $this->expectException(PromotionException::class);
+        $this->expectExceptionMessage('not valid at this time');
+
+        $promotion = Promotion::factory()->expired()->create();
+        $this->service->checkIsValidPromotion($promotion);
+    }
+
+    public function test_throws_when_promotion_not_yet_valid(): void
+    {
+        $this->expectException(PromotionException::class);
+
+        $promotion = Promotion::factory()->notYetValid()->create();
+        $this->service->checkIsValidPromotion($promotion);
+    }
+
+    public function test_passes_for_valid_active_promotion(): void
+    {
+        $promotion = Promotion::factory()->active()->create();
+        $this->service->checkIsValidPromotion($promotion);
+        $this->assertTrue(true);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // assertPromotionApplicable
+    // ═══════════════════════════════════════════════════════
+
+    public function test_throws_when_eligible_items_empty(): void
+    {
+        $this->expectException(PromotionException::class);
+        $this->expectExceptionMessage('No eligible items');
+
+        $promotion = Promotion::factory()->active()->create();
+        $this->service->assertPromotionApplicable($promotion, []);
+    }
+
+    public function test_throws_when_eligible_subtotal_below_minimum(): void
+    {
+        $this->expectException(PromotionException::class);
+        $this->expectExceptionMessage('minimum amount');
+
+        $promotion = Promotion::factory()->active()->withMinimumAmount(500)->create();
+        $items     = $this->makeRawItems(2, 100); // 200 total
+
+        $this->service->assertPromotionApplicable($promotion, $items);
+    }
+
+    public function test_throws_when_eligible_item_count_below_minimum(): void
+    {
+        $this->expectException(PromotionException::class);
+        $this->expectExceptionMessage('enough items');
+
+        $promotion = Promotion::factory()->active()->withMinimumItems(5)->create();
+        $items     = $this->makeRawItems(2, 100);
+
+        $this->service->assertPromotionApplicable($promotion, $items);
+    }
+
+    public function test_passes_when_all_conditions_met(): void
+    {
+        $promotion = Promotion::factory()->active()
+            ->withMinimumAmount(100)
+            ->withMinimumItems(2)
+            ->create();
+
+        $items = $this->makeRawItems(3, 100);
+
+        $this->service->assertPromotionApplicable($promotion, $items);
+        $this->assertTrue(true);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // getBestPromotion
+    // ═══════════════════════════════════════════════════════
+
+    public function test_returns_null_when_no_promotions_exist(): void
+    {
+        $result = $this->service->getBestPromotion($this->makeRawItems(2, 100));
+
         $this->assertNull($result);
     }
 
-    /** @test */
-    public function it_applies_percentage_promotion_correctly(): void
+    public function test_returns_null_when_all_promotions_expired(): void
     {
-        $promotion = Promotion::factory()->percentage()->create();
-        $items = $this->makeItems();
+        Promotion::factory()->expired()->count(3)->create();
 
-        $best = $this->promotionService->getBestPromotion($items);
+        $result = $this->service->getBestPromotion($this->makeRawItems(2, 100));
 
-        $this->assertEquals($promotion->id, $best['promotion']);
-        $this->assertEquals($promotion->value * 500, $best['discount']);
+        $this->assertNull($result);
     }
 
-    /** @test */
-    public function it_applies_fixed_promotion_correctly(): void
+    public function test_returns_promotion_with_highest_discount(): void
     {
-        $promotion = Promotion::factory()->fixed()->create();
-        $items = $this->makeItems();
+        $low = Promotion::factory()->active()->percentage()->create([
+            'value'                       => 10,
+            'applicable_product_ids'      => null,
+            'applicable_category_ids'     => null,
+            'applicable_sub_category_ids' => null,
+            'minimum_order_amount'        => null,
+            'minimum_items'               => null,
+        ]);
 
-        $best = $this->promotionService->getBestPromotion($items);
+        $high = Promotion::factory()->active()->fixed()->create([
+            'value'                       => 50,
+            'applicable_product_ids'      => null,
+            'applicable_category_ids'     => null,
+            'applicable_sub_category_ids' => null,
+            'minimum_order_amount'        => null,
+            'minimum_items'               => null,
+        ]);
 
-        $this->assertEquals($promotion->id, $best['promotion']);
-        $this->assertEquals((float)$promotion->value, $best['discount']);
+        $result = $this->service->getBestPromotion($this->makeRawItems(2, 100));
+
+        $this->assertNotNull($result);
+        $this->assertEquals($high->id, $result['promotion_id']);
+        $this->assertEquals(50.0, $result['discount']);
     }
 
-    /** @test */
-    public function it_ignores_expired_promotions(): void
+    public function test_returns_null_when_no_promotions_qualify(): void
     {
-        $expired = Promotion::factory()->expired()->create();
-        $valid = Promotion::factory()->fixed()->create();
-        $items = $this->makeItems();
+        Promotion::factory()->active()->withMinimumAmount(9999)->create();
 
-        $best = $this->promotionService->getBestPromotion($items);
+        $result = $this->service->getBestPromotion($this->makeRawItems(2, 100));
 
-        $this->assertEquals($valid->id, $best['promotion']);
+        $this->assertNull($result);
     }
 
-    /** @test */
-    public function it_ignores_promotions_that_are_not_yet_valid(): void
-    {
-        $future = Promotion::factory()->notYetValid()->create();
-        $items = $this->makeItems();
+    // ═══════════════════════════════════════════════════════
+    // calculateDiscount
+    // ═══════════════════════════════════════════════════════
 
-        $best = $this->promotionService->getBestPromotion($items);
-        $this->assertNull($best);
+    public function test_fixed_discount_returns_flat_value(): void
+    {
+        $promotion = Promotion::factory()->fixed()->create(['value' => 50]);
+
+        $result = $this->service->calculateDiscount($promotion, 300.0);
+
+        $this->assertEquals(50.0, $result);
     }
 
-    /** @test */
-    public function it_checks_minimum_order_amount(): void
+    public function test_percentage_discount_calculated_correctly(): void
     {
-        $promotion = Promotion::factory()->fixed()->withMinimumAmount(600)->create();
-        $items = $this->makeItems(); // subtotal = 500
+        $promotion = Promotion::factory()->percentage()->create(['value' => 25]);
 
-        $best = $this->promotionService->getBestPromotion($items);
-        $this->assertNull($best);
+        $result = $this->service->calculateDiscount($promotion, 200.0);
+
+        $this->assertEquals(50.0, $result); // 25% of 200
     }
 
-    /** @test */
-    public function it_checks_minimum_items(): void
+    // ═══════════════════════════════════════════════════════
+    // updateOnOrderSuccess
+    // ═══════════════════════════════════════════════════════
+
+    public function test_increments_times_used(): void
     {
-        $promotion = Promotion::factory()->fixed()->withMinimumItems(5)->create();
-        $items = $this->makeItems(); // count = 3, subquantity = 3
+        $promotion = Promotion::factory()->active()->create([
+            'times_used' => 0,
+            'max_uses'   => 10,
+        ]);
 
-        $best = $this->promotionService->getBestPromotion($items);
-        $this->assertNull($best);
-    }
-
-    /** @test */
-    public function it_checks_product_and_category_restrictions(): void
-    {
-        $productA = Product::factory()->create();
-        $productB = Product::factory()->create();
-
-        $promotion = Promotion::factory()->forProducts([$productA->id])->create();
-
-        $items = [
-            (object)['product' => ['id' => $productB->id, 'sub_categories' => [], 'nich_category' => []]]
-        ];
-
-        $best = $this->promotionService->getBestPromotion($items);
-        $this->assertNull($best);
-    }
-
-    /** @test */
-    public function it_picks_highest_discount_when_multiple_promotions_exist(): void
-    {
-        $promo1 = Promotion::factory()->fixed()->create(['value' => 50]);
-        $promo2 = Promotion::factory()->percentage()->create(['value' => 0.2]); // 20% of 500 = 100
-
-        $items = $this->makeItems();
-
-        $best = $this->promotionService->getBestPromotion($items);
-
-        $this->assertEquals($promo2->id, $best['promotion']);
-        $this->assertEquals(100, $best['discount']);
-    }
-
-    /** @test */
-    public function it_increments_times_used_on_order_success(): void
-    {
-        $promotion = Promotion::factory()->fixed()->create(['times_used' => 0]);
-        $this->promotionService->updateOnOrderSuccess($promotion->id);
+        $this->service->updateOnOrderSuccess($promotion->id);
 
         $this->assertEquals(1, $promotion->fresh()->times_used);
     }
 
-    /** ── Helper to create dummy cart items ── */
-    private function makeItems(): array
+    public function test_deactivates_promotion_when_max_uses_reached(): void
     {
-        $product = Product::factory()->create();
-        return [
-            (object)[
-                'product' => $product->toArray(),
-                'quantity' => 2,
-                'price_snapshot' => 100,
-                'subtotal' => 200
-            ],
-            (object)[
-                'product' => $product->toArray(),
-                'quantity' => 1,
-                'price_snapshot' => 100,
-                'subtotal' => 100
-            ],
-        ];
+        $promotion = Promotion::factory()->active()->create([
+            'times_used' => 9,
+            'max_uses'   => 10,
+        ]);
+
+        $this->service->updateOnOrderSuccess($promotion->id);
+
+        $fresh = $promotion->fresh();
+        $this->assertEquals(10, $fresh->times_used);
+        $this->assertFalse((bool)$fresh->is_active);
+    }
+
+    public function test_does_not_deactivate_unlimited_promotion(): void
+    {
+        $promotion = Promotion::factory()->active()->unlimited()->create([
+            'times_used' => 50,
+        ]);
+
+        $this->service->updateOnOrderSuccess($promotion->id);
+
+        $this->assertTrue((bool)$promotion->fresh()->is_active);
+        $this->assertEquals(51, $promotion->fresh()->times_used);
+    }
+
+    public function test_throws_when_promotion_not_found(): void
+    {
+        $this->expectException(PromotionException::class);
+
+        $this->service->updateOnOrderSuccess('99999');
+    }
+
+    public function test_throws_when_promotion_already_exhausted(): void
+    {
+        $this->expectException(PromotionException::class);
+
+        $promotion = Promotion::factory()->exhausted()->create();
+        $this->service->updateOnOrderSuccess($promotion->id);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Helpers
+    // ═══════════════════════════════════════════════════════
+
+    private function makeRawItems(int $count, float $unitSubtotal): array
+    {
+        return array_map(fn($i) => [
+            'quantity' => 1,
+            'subtotal' => $unitSubtotal,
+            'product'  => ['id' => $i, 'sub_categories' => [], 'nich_category' => []],
+        ], range(1, $count));
     }
 }

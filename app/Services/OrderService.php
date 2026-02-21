@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Context\CheckoutContext;
+use App\Context\Order\CheckoutContext;
 use App\DTOs\CreateOrderDTO;
 use App\Exceptions\CheckoutException;
 use App\Exceptions\CouponException;
@@ -18,7 +18,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class OrderService
@@ -75,7 +74,7 @@ class OrderService
         }
 
         
-        public function checkoutCOD(CheckoutContext $context){
+        public function placeOrder(CheckoutContext $context){
             $calculations = $this->calculateOrderTotalWithDependencies($context);
             try {
                 $dto = CreateOrderDTO::fromCheckout(
@@ -92,6 +91,7 @@ class OrderService
             try{
               $order =  $this->createOrderMaster($contextUpdate->dto);
               if($order){
+
                  $this->orderFinalizerService->finalize($order);
               }
               return $order ;
@@ -134,7 +134,6 @@ class OrderService
                     $order = Order::create($dto);
                     return $order;
                 } catch (\Exception $e) {
-                    Log::error('create order exc:' . $e->getMessage());
                     throw $e; // rethrow so the app still handles it properly
                 }
         }
@@ -144,11 +143,9 @@ class OrderService
                 try{
 
                    $orderItem = $order->items()->create(Arr::except($item->toArray() , ['product' , 'product_variant']));
-                   Log::error("stored order items sucessfull") ;
                    return $orderItem ;
 
                 }catch (\Exception $e) {
-                    Log::error('store order items error :'. $e->getMessage());
                     throw $e  ;
                 }
             } , $items);
@@ -156,12 +153,10 @@ class OrderService
 
         public function storeOrderAddress($address , Order $order){
             try{
-                Log::error("stored address") ;
 
                 return $order->address()->create($address);
             }
             catch (\Exception $e) {
-                Log::error('sotre order address error :'. $e->getMessage());
                  throw $e; 
             }
         }
@@ -177,9 +172,12 @@ class OrderService
             $coupon = null ;
             if($context->user){
                 // calculate discount
-                $coupon = $this->couponService->getValidCoupon($context);
-                if ($coupon) {
-                    $couponDiscount = $this->couponService->calculateDiscount((float)$subtotal, $coupon);
+                $result = $this->couponService->CouponApplicationResult($context);
+                if ($result) {
+                    $coupon = $result['coupon'];
+                    $eligibleItems = $result['eligibleItems'] ?? [] ;
+                    $eligibleTatal = $this->cartService->calculateCartItemsSubtotal($eligibleItems);
+                    $couponDiscount = $this->couponService->calculateDiscount($coupon , $eligibleTatal);
                     $couponDiscount = min($couponDiscount, (float)$subtotal); // never more than subtotal
                 }
             }
@@ -188,14 +186,17 @@ class OrderService
             
             $bestPromotion = $this->promotionService->getBestPromotion($context->dto->items);
             if($bestPromotion){
-                $promotionDiscount =  $bestPromotion['discount'] ;
+                $promotionDiscount =  $bestPromotion['discount'] ?? 0;
             }
               
             $discount = max((float) $couponDiscount , (float) $promotionDiscount) ;
             $discount = min((float) $subtotal ,(float) $discount);
             // ======== shipping section ========================
 
-            $shipping = $this->shippingService->calculateShipping($context->dto->items , $context->dto->address->city);
+            $shipping = $this->shippingService->calculateShipping($context->dto->items ,
+                                                                  $context->dto->address->city ,
+                                                                  $bestPromotion['promotion_id'] ?? null ,
+                                                                 );
  
             // ======== tax secton ========================
             
@@ -221,7 +222,7 @@ class OrderService
                 'order_number' => $order_number,
                 'tracking_token'=> $tracking_token ,
                 'coupon_id' => $coupon?->id ,
-                'promotion_id' => $bestPromotion['id'] ?? null ,
+                'promotion_id' => $bestPromotion['promotion_id'] ?? null ,
             ];
         }
             

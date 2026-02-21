@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Context;
+namespace App\Context\Order;
 
 use App\DTOs\CreateOrderDTO;
 use App\Models\User;
