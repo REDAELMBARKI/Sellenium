@@ -87,7 +87,7 @@ class CouponService extends DiscountService
                 }
         }
         
-        public  function CouponApplicationResult(CheckoutContext $context): array | null {
+        public  function couponApplicationResult(CheckoutContext $context): array | null {
             $dto = $context->dto;
 
             if (!$dto->coupon_code) {
@@ -117,7 +117,6 @@ class CouponService extends DiscountService
             if (!$coupon) {
                     throw new \Exception("Coupon {$coupon_id} not found.");
                 }
-            
             $updated = Coupon::where('id', $coupon_id)
                 ->where(function ($q) {
                     $q->whereNull('max_uses')       // unlimited

@@ -25,30 +25,34 @@ class OrderFinalizerService
    
 
     public function finalize(Order $order){
-          
-        // coupon finalizer
-        if ($order->coupon_id && !$order->coupon_counted) {
-            DB::transaction(function () use ($order) {
-    
-                    $this->couponService
-                        ->updateCouponInOrderUsage($order->coupon_id);
+        $needsCouponUpdate = $order->coupon_id && !$order->coupon_counted ; 
+        $needsPromotionUpdate = $order->promotion_id && !$order->promotion_counted ; 
+     
+        if(!$needsCouponUpdate && !$needsPromotionUpdate) return ;
 
-                    $order->coupon_counted = true;
-                    $order->save();
-                });
-         }
-         
-        // promotion finalizer
-        if ($order->promotion_id && !$order->promotion_counted) {
-            DB::transaction(function () use ($order) {
+  
+        DB::transaction(function () use ($order) {
+                    $lockedOrder =  Order::lockForUpdate()->find($order->id);
+                   
+                    // coupon update
+                    if($lockedOrder->coupon_id && !$lockedOrder->coupon_counted){
+                        $this->couponService
+                            ->updateCouponInOrderUsage($lockedOrder->coupon_id);
+                        $lockedOrder->coupon_counted = true;
+                    }
+                
+                     // promo update
+                    if($lockedOrder->promotion_id && !$lockedOrder->promotion_counted){
 
-                $this->promotionService
-                    ->updateOnOrderSuccess($order->promotion_id);
+                          $this->promotionService
+                        ->updateOnOrderSuccess($lockedOrder->promotion_id);
 
-                $order->promotion_counted = true;
-                $order->save();
-            });
-        }
+                        $lockedOrder->promotion_counted = true;
 
+                    }
+                     
+                    $lockedOrder->save();
+        });
+        
     }
 }
