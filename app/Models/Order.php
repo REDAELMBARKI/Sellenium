@@ -19,6 +19,7 @@ class Order extends Model
         'coupon_id' ,
         'promotion_id',
         'tax',
+        'payment_id',
         'currency',
         'payment_method',
         'tracking_token',
@@ -32,9 +33,6 @@ class Order extends Model
       'updated_at'
      ] ;
      protected $casts = [
-       'paid' => 'boolean'
-       
-      
      ];
     
 

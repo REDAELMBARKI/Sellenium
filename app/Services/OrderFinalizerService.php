@@ -25,11 +25,10 @@ class OrderFinalizerService
    
 
     public function finalize(Order $order){
-        $needsCouponUpdate = $order->coupon_id && !$order->coupon_counted ; 
-        $needsPromotionUpdate = $order->promotion_id && !$order->promotion_counted ; 
-     
+        $needsCouponUpdate = $order->coupon_id && !$order->coupon_counted ;
+        $needsPromotionUpdate = $order->promotion_id && !$order->promotion_counted ;
+    
         if(!$needsCouponUpdate && !$needsPromotionUpdate) return ;
-
   
         DB::transaction(function () use ($order) {
                     $lockedOrder =  Order::lockForUpdate()->find($order->id);

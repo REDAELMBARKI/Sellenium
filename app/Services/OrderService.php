@@ -6,6 +6,7 @@ use App\Context\Order\CheckoutContext;
 use App\DTOs\Order\CreateOrderDTO;
 use App\Exceptions\CheckoutException;
 use App\Exceptions\CouponException;
+use App\Exceptions\PaymentException;
 use App\Http\Resources\OrderResource;
 use App\Models\Cart;
 use App\Models\Coupon;
@@ -24,12 +25,12 @@ use Illuminate\Support\Str;
 class OrderService
 {
         public function __construct(private CartService $cartService , 
-                                  private CouponService $couponService , 
-                                  private PromotionService $promotionService , 
-                                  private ShippingService $shippingService ,
-                                  private TaxService $taxService ,
-                                  private OrderFinalizerService $orderFinalizerService
-                                  
+                                    private CouponService $couponService , 
+                                    private PromotionService $promotionService , 
+                                    private ShippingService $shippingService ,
+                                    private TaxService $taxService ,
+                                    private OrderFinalizerService $orderFinalizerService
+                                    
                                   ){
         }
 
@@ -73,10 +74,8 @@ class OrderService
             ],
         ];
         }
-
-
-   
         
+
         public function placeOrder(CheckoutContext $context){
             $calculations = $this->calculateOrderTotalWithDependencies($context);
             try {
@@ -102,23 +101,6 @@ class OrderService
             }
         }
         
-        public function checkoutPayment(CheckoutContext $context){
-            $cod_calculations = $this->calculateOrderTotalWithDependencies($context);
-
-            $dto =  CreateOrderDTO::fromCheckout(
-                $context->dto->toArray(),
-                        $context->user ,
-            $cod_calculations
-                    );
-            $contextUpdate = new CheckoutContext($dto , $context->user);
-            
-            try{
-                //  return $this->perceedToPaymentAndOrder_transaction($dto);
-            }catch(Exception $e){
-                throw new CheckoutException($e);
-            }
-        }
-
         
         public function createOrderMaster(CreateOrderDTO $dto){
 
@@ -242,5 +224,35 @@ class OrderService
         }
         
  
+
+        public function placeOrderWithPayment(CheckoutContext $context, PaymentGateway $paymentGateway): array
+        {
+            $order = null;
+            $payment = null;
+
+            try {
+                $order = $this->placeOrder($context);
+                $payment = $paymentGateway->createPayment($order);
+                $order->update(['payment_intent_id' => $payment['payment_id']]);
+
+                return [
+                    'client_secret' => $payment['client_secret'],
+                    'order_id'      => $order->id,
+                ];
+
+            } catch (PaymentException $e) {
+                if ($payment) {
+                    $paymentGateway->cancelPayment($payment['payment_id']);
+                }
+                if ($order) {
+                    $order->update(['status' => 'payment_failed']);
+                }
+                throw $e;
+
+            } catch (Exception $e) {
+                throw new CheckoutException($e->getMessage());
+            }
+        }
+
 
 }

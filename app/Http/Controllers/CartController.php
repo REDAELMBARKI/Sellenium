@@ -14,7 +14,8 @@ class CartController extends Controller
 {
     
     public function index(){
-        $cartItems =(new CartService())->getCartItems(false);
+        $cartService = app(CartService::class);
+        $cartItems = $cartService->getCartItems(false);
         return Inertia::render('cart/ShoppingCartMaster' , compact('cartItems'));
     }
 
@@ -24,11 +25,7 @@ public function destroy($id)
        validator(['id' => $id], [
             'id' => ['required', 'numeric', Rule::exists('products_cart', 'id')]
         ])->validate();
-        return response()->json([
-                'looking_for_id'   => $id,
-                'auth_user_id'     => Auth::id(),
-                'cart_item'        => Cart::find($id),
-            ],200);
+     
 
        $deleted = Cart::where('id', $id)
                     ->where('user_id', Auth::id())

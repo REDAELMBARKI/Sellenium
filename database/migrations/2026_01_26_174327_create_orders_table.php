@@ -48,6 +48,7 @@ return new class extends Migration
             $table->string('currency', 3)->default('MAD'); // always store the currency
             $table->enum('payment_method', ['cod', 'card', 'paypal'])->default('cod');
             $table->string('tracking_token', 64)->unique()->nullable();
+            $table->string('payment_id')->nullable();
             $table->dateTime('paid_at')->nullable();
             $table->float('shipping_cost')->unsigned()->nullable();
             $table->float('discount_amount')->unsigned()->nullable();

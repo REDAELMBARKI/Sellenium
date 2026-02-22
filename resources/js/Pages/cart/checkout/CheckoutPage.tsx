@@ -1,6 +1,6 @@
 // Pages/Checkout/CheckoutPage.tsx
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import { router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import PageHeader from "../shared/PageHeader";
@@ -11,6 +11,8 @@ import OrderSummaryCard from "../shared/OrderSummary";
 import ShippingAddressReview from "./ShippingAddressReview";
 import axios from "axios";
 import { useToast } from "@/contextHooks/useToasts";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 
 type PaymentMethod = "COD" | "CARD";
 
@@ -20,21 +22,21 @@ interface CheckoutPageProps {
     shippingData: any;
     onStepChange : (action : 'prev' | 'next' ) => void , 
     onChangeBackendErrors : ( errors : any) => void
-    onResetShippingData : () => void
+    onResetShippingData : () => void , 
+    zone : any
 }
 
-export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChange , onChangeBackendErrors , onResetShippingData  }: CheckoutPageProps) {
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
+export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChange , zone ,onChangeBackendErrors , onResetShippingData  }: CheckoutPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
-
     const [payment_method, setPayment_method] = useState<PaymentMethod>("COD");
-    const [cardData, setCardData] = useState({
-        card_number: "",
-        expiry: "",
-        cvv: "",
-        cardholder_name: "",
+    const [orderCreatedRespose, setOrderCreatedRespose] = useState({
+        client_secret : undefined, 
+        order_id : undefined
     });
+
     const [coupon_code, setCoupon_code] = useState("");
     const {addToast} = useToast()
     const subtotal = cartItems.reduce(
@@ -54,12 +56,11 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
         };
 
         router.post(route("order.checkout"), orderData, {
-            onSuccess: () => {
-                    setCardData({
-                        card_number: "",
-                        expiry: "",
-                        cvv: "",
-                        cardholder_name: "",
+            onSuccess: (page : any) => {
+                    const {client_secret , order_id} = page.props ;
+                    setOrderCreatedRespose({
+                        client_secret ,
+                        order_id
                     })
                     setCoupon_code("")
                     onResetShippingData()
@@ -103,9 +104,10 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
         }
 
     }
-    
+   
+
     return (
-            <div
+                <div
                 style={{ backgroundColor: theme.bg }}
                 className="min-h-screen py-8"
             >
@@ -133,15 +135,6 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
                                         onPaymentMethodChange={setPayment_method}
                                         theme={theme}
                                     />
-
-                                    {payment_method === "CARD" && (
-                                        <div className="mt-6">
-                                            <CardPaymentForm
-                                                data={cardData}
-                                                onChange={setCardData}
-                                            />
-                                        </div>
-                                    )}
                                 </div>
 
                                 {/* Shipping Address Review */}
@@ -160,7 +153,7 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
                                     <OrderSummaryCard
                                         applyCouponWithFeedback={applyCouponWithFeedback}
                                         subtotal={subtotal}
-                                        shipping={shipping}
+                                        zone={zone}
                                         tax={tax}
                                         total={total}
                                         discount={discount}
@@ -186,12 +179,22 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
                                             </button>
                                         }
                                     />
+                                        {/* stripe payment form  */}
+                                    {orderCreatedRespose.client_secret && (
+                                        <Elements stripe={stripePromise} options={{ clientSecret: orderCreatedRespose.client_secret }}>
+                                            <CardPaymentForm {...{ orderCreatedRespose }} />
+                                        </Elements>)
+                                     }
+                                            
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
+               
     );
 }
+
+
 

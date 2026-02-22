@@ -6,21 +6,11 @@ use App\Actions\OrderAction;
 use App\Context\Order\CheckoutContext;
 use App\Context\Order\SingleOrderContext;
 use App\DTOs\Order\CreateOrderDTO;
-use App\DTOs\Order\OrderAddressDTO;
-use App\DTOs\Order\OrderDTO;
-use App\DTOs\Order\OrderItemDTO;
 use App\Exceptions\CheckoutException;
-use App\Exceptions\InsufficientStockException;
-use App\Exceptions\OrderException;
 use App\Exceptions\StockException;
-use App\Http\Resources\OrderResource;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CODOrderRequest;
 use App\Http\Requests\Order\CheckoutOrderRequest;
 use App\Http\Requests\Order\SingleOrderRequest;
-use App\Http\Resources\OrderTrackResource;
-use App\Models\Cart;
-use App\Models\Coupon;
 use App\Models\GoogleSheet;
 use App\Models\Order;
 use App\Services\CartService;
@@ -29,15 +19,7 @@ use App\Services\OrderService;
 use App\Services\ShippingService;
 use App\Services\StockService;
 use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-use Illuminate\Support\Testing\Fakes\Fake;
-use Illuminate\Validation\Rules\In;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
@@ -68,6 +50,9 @@ class OrderController extends Controller
     public function store(SingleOrderRequest $request , OrderAction $action)
     {
          try {
+         if ($request->payment_method === 'CARD' && !Auth::check()) {
+            return back()->withErrors(['submit' => 'Login required for card payment']);
+         }
          $user = Auth::user();
          $clientItemsParams = collect($request->validated('items')) ;
          $items = $this->stockService->getSingleOrderItems($clientItemsParams->pluck('variant_id')->toArray());
@@ -75,22 +60,25 @@ class OrderController extends Controller
          $itemsMatchToCheckoutDto = $this->dtoService->prepareItemsToMatchCheckoutItemDTO($items ,$clientItemsParams);
          $dto = CreateOrderDTO::fromRequest(array_merge($request->validated() , ['items' => $itemsMatchToCheckoutDto]) , $user);
          $context = new SingleOrderContext($dto , $user);
-         $order = $action->execute($context);
-         if( $order ){
-                if(Auth::check()){
+        
+         $result = $action->execute($context);
+         
+        if(isset($result['client_secret'])){ // auth => card
+                    return back()->with([
+                        'client_secret' => $result['client_secret'],
+                        'order_id'      => $result['order_id'],
+                    ]);
+            }
+        elseif(isset($result["tracking_token"])){ // guest
+                        return redirect()
+                        ->route('track.guest' , $result["tracking_token"])
+                        ->with('success', 'Order placed successfully!');
+            }
+        else{ // auth => cod 
                     return redirect()
-                    ->route('track.auth' , $order->id)
-                    ->with('success', 'Order placed successfully!');
-                }
-                else{
-                     return redirect()
-                    ->route('track.guest' , $order->tracking_token)
-                    ->with('success', 'Order placed successfully!');
-                }
-            }
-            else{
-                 throw new CheckoutException("failed to create the order plaise , refresh the page and  try again");
-            }
+                        ->route('track.auth' , $result["order_id"])
+                        ->with('success', 'Order placed successfully!');
+             }
          }
          catch (ValidationException $e) {
                          return back()->withErrors( $e->errors())->withInput();
@@ -112,37 +100,51 @@ class OrderController extends Controller
     {
 
         try{
-            $user = Auth::user();
-            $this->validateCheckout($request, $cartService);
-            $cartItems = $cartService->getCartItems(true);
-            // Validate cart not empty
-            if (is_null($cartItems) || $cartItems->isEmpty()) {
-                throw new CheckoutException('Your cart is empty');
-            }
-            // validate stock
-            $this->stockService->validateFromCheckout($cartItems) ;
-             // dto object
-            $dto = CreateOrderDTO::fromRequest(
-                array_merge($request->validated() , ['items' => $cartItems->toArray()]) ,
-                $user
-            );
-            $context = new CheckoutContext($dto , $user) ;
-            $order = $action->execute($context);
-            if( $order ){
-                if(Auth::check()){
+                if ($request->payment_method === 'CARD' && !Auth::check()) {
+                        return back()->withErrors([
+                            'submit' => 'You must be logged in to pay by card'
+                        ]);
+                }
+
+                $user = Auth::user();
+
+                $cartItems = $cartService->getCartItems(true);
+
+                // Validate cart not empty
+                if (is_null($cartItems) || $cartItems->isEmpty()) {
+                    throw new CheckoutException('Your cart is empty');
+                }
+               
+                
+                // validate stock
+                $this->stockService->validateFromCheckout($cartItems) ;
+            
+
+                // dto object
+                $dto = CreateOrderDTO::fromRequest(
+                    array_merge($request->validated() , ['items' => $cartItems->toArray()]) ,
+                    $user
+                );
+                $context = new CheckoutContext($dto , $user) ;
+
+                $result = $action->execute($context);
+
+                if(isset($result['client_secret'])){ // hes is auth already + payment 
+                     return back()->with([
+                        'client_secret' => $result['client_secret'],
+                        'order_id'      => $result['order_id'],
+                     ]);
+                }
+                elseif(isset($result["tracking_token"])){//he is a guest 
+                        return redirect()
+                        ->route('track.guest' , $result["tracking_token"])
+                        ->with('success', 'Order placed successfully!');
+                }else{ // auth + cod 
                     return redirect()
-                    ->route('track.auth' , $order->id)
-                    ->with('success', 'Order placed successfully!');
+                        ->route('track.auth' , $result["order_id"])
+                        ->with('success', 'Order placed successfully!');
                 }
-                else{
-                     return redirect()
-                    ->route('track.guest' , $order->tracking_token)
-                    ->with('success', 'Order placed successfully!');
-                }
-            }
-            else{
-                 throw new CheckoutException("failed to create the order plaise , refresh the page and  try again");
-            }
+
 
         }catch(ValidationException $e){
              return back()->withErrors( $e->errors())->withInput();
@@ -164,9 +166,9 @@ class OrderController extends Controller
 
     
     public function guestTrack(string $token){
-          if(Auth::check()){
-               return redirect()->route('track.auth' , 'what can i send here sind here if noorder here should i just back him to wehre he was  ') ;
-          }
+        if(Auth::check()){
+              return redirect()->route('orders.index')->with('message', 'Please use your account to track orders');
+        }
         $order = Order::whereNull('user_id')
             ->where('tracking_token', $token)
             ->with(['items', 'address'])
@@ -188,17 +190,10 @@ class OrderController extends Controller
             'shipping' => $shipping
         ]);
     }
-    private function validateCheckout(CheckoutOrderRequest $request, CartService $cartService): void
-    {
-        // Validate payment method
-        if (!$request->has('payment_method') || !in_array($request->payment_method, ['COD', 'CARD'])) {
-            throw new CheckoutException('Payment method is required');
-        }
-        
-    }
 
     public function destroy(Order $order)
     {
+        abort_if(Auth::id() !== $order->user_id, 403);
         Order::destroy($order->id);
     }
 
