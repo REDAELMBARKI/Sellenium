@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Discount;
 
-use App\DTOs\OrderItemDTO;
+use App\DTOs\Order\OrderItemDTO;
 use App\Exceptions\CheckoutException;
 use App\Exceptions\CouponException;
 use App\Models\Coupon;

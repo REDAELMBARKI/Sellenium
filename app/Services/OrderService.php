@@ -3,13 +3,14 @@
 namespace App\Services;
 
 use App\Context\Order\CheckoutContext;
-use App\DTOs\CreateOrderDTO;
+use App\DTOs\Order\CreateOrderDTO;
 use App\Exceptions\CheckoutException;
 use App\Exceptions\CouponException;
 use App\Http\Resources\OrderResource;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\Order;
+use App\Models\ProductVariant;
 use App\Models\User;
 use App\Services\Discount\CouponService;
 use App\Services\Discount\PromotionService;
@@ -73,6 +74,8 @@ class OrderService
         ];
         }
 
+
+   
         
         public function placeOrder(CheckoutContext $context){
             $calculations = $this->calculateOrderTotalWithDependencies($context);
@@ -226,9 +229,6 @@ class OrderService
             ];
         }
             
-    
-       
-         
 
         private function generateOrderNumber() : string {
                 // e.g. ORD-20260214-00001

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Order;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreOrderRequest extends FormRequest
+class SingleOrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,6 +24,9 @@ class StoreOrderRequest extends FormRequest
     {
 
         return [
+            'items' => ['array' , 'required'] ,
+            'items.*.variant_id' => ['integer', Rule::exists('product_variants','id')] ,
+            'items.*.quantity' => ['integer', 'min:1'] ,
             'notes' => ['nullable', 'string', 'max:500'],
             'payment_method' => ['required', Rule::in(['CARD', 'COD'])],
             'payment_method_id' => [Rule::requiredIf(fn() => request('payment_method') === 'CARD') , 'string'],

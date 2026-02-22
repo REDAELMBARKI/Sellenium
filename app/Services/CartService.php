@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\DTOs\OrderItemDTO;
+use App\DTOs\Order\OrderItemDTO;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\Promotion;

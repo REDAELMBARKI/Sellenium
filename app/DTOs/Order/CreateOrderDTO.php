@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTOs;
+namespace App\DTOs\Order;
 
 use App\Http\Requests\StoreOrderRequest;
 use App\Models\Product;

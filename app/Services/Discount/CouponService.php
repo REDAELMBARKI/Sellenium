@@ -3,7 +3,7 @@
 namespace App\Services\Discount;
 
 use App\Context\Order\CheckoutContext;
-use App\DTOs\CreateOrderDTO;
+use App\DTOs\Order\CreateOrderDTO;
 use App\Exceptions\CouponException;
 use App\Models\Coupon;
 use App\Models\CouponUsage;

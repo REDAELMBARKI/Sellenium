@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services;
 
 use App\Context\Order\CheckoutContext;
-use App\DTOs\CreateOrderDTO;
+use App\DTOs\Order\CreateOrderDTO;
 use App\Exceptions\CheckoutException;
 use App\Models\Coupon;
 use App\Models\Order;

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\DTOs\CreateOrderDTO;
+use App\DTOs\Order\CreateOrderDTO;
 use App\Exceptions\ShippingException;
 use App\Models\Promotion;
 use App\Models\ShippingSetting;

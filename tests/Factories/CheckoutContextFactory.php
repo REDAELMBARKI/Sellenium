@@ -3,9 +3,9 @@
 namespace Tests\Factories;
 
 use App\Context\Order\CheckoutContext;
-use App\DTOs\CreateOrderDTO;
-use App\DTOs\OrderAddressDTO;
-use App\DTOs\OrderItemDTO;
+use App\DTOs\Order\CreateOrderDTO;
+use App\DTOs\Order\OrderAddressDTO;
+use App\DTOs\Order\OrderItemDTO;
 use App\Models\Coupon;
 use App\Models\User;
 

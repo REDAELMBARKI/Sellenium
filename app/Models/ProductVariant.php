@@ -12,4 +12,10 @@ class ProductVariant extends Model
     public function product(){
         return $this->belongsTo(Product::class);
     }
+
+
+
+    protected $guarded = ["id"];
+    protected $casts = ['attributes' => 'array'] ;
+
 }
