@@ -69,6 +69,12 @@ Route::get('/blog', function () {
 // cart
 Route::get('/cart', [CartController::class , 'index'])->name('shoppingCart.index');
 Route::delete('/cart/{id}', [CartController::class , 'destroy'])->name('cart.destroy');
+
+// checkout steps routes (this fakes the url to make steps work fine)
+Route::get('/checkout', [CartController::class, 'index']);
+// end fake url 
+
+//shipping
 Route::get('/shipping/calculate/{id}' , [ShippingController::class , 'calculate' ])->name('shipping.calculate');
 Route::get('/shippings_cities' , [ShippingController::class, 'getCities'])->name('shipping.cities.get') ;
 

@@ -15,13 +15,12 @@ interface OrderSummaryCardProps {
     showPromoCode?: boolean;
     showSecurityBadge?: boolean;
     ctaButton?: React.ReactNode; // Custom CTA button
-    applyCouponWithFeedback : () => void , 
-    zone : {estimated_days : number , price : number}
+    applyCouponWithFeedback? : () => void , 
+    zone? : {estimated_days : number , price : number}
 }
 
 export default function OrderSummaryCard({
     subtotal,
-
     tax,
     total,
     discount = 0,
@@ -82,7 +81,7 @@ export default function OrderSummaryCard({
                     </span>
                 </div>
 
-                {subtotal < 50 && zone?.price > 0 && (
+                {subtotal < 50 && (((zone?.price) ?? 0) > 0 )&& (
                     <div
                         style={{
                             backgroundColor: theme.warning + "20",

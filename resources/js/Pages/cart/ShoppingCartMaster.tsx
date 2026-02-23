@@ -9,6 +9,7 @@ import StepIndicator from "./shared/StepIndicator";
 import Layout from "@/Layouts/Layout";
 import { ArrowLeft } from "lucide-react";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import { route } from "ziggy-js";
 
 // Pages/Cart/CartPage.tsx
 interface ShoppingCartPageMasterProps {
@@ -16,16 +17,7 @@ interface ShoppingCartPageMasterProps {
     tax : number
 }
 
-export  default function ShoppingCartMaster({ cartItems = [] , tax = 0 }: ShoppingCartPageMasterProps){
-
-    return (
-        <StoreConfigProvider>
-            <ShoppingCartCheckout {...{cartItems , tax}} />
-        </StoreConfigProvider>
-    )
-}
-
-function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMasterProps) {
+export default function ShoppingCartMaster({ cartItems = [] , tax = 0 }: ShoppingCartPageMasterProps) {
     const [step , setStep] = useState(0);
     const [backendErrors , setBackendErrors] = useState<any>({}) ;
     // const [zone , setZone] 
@@ -57,9 +49,39 @@ function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMast
     } = useStoreConfigCtx();
     
 
-    const onStepChange = (action : 'prev' | 'next') => {
-         setStep(prev => action === 'next' ? prev + 1 : prev - 1);
-    }
+       const stepUrls: Record<number, string> = {
+             0: '/cart',
+             1: '/checkout?step=shipping',
+             2: '/checkout?step=payment',
+        };
+
+        const urlSteps: Record<string, number> = {
+            '/cart':          0,
+            'shipping': 1,
+            'payment':  2,
+        };
+
+        // step → update URL
+        const onStepChange = (action: 'prev' | 'next') => {
+            const newStep = action === 'next' ? step + 1 : step - 1;
+            setStep(newStep);
+            window.history.pushState({}, '', stepUrls[newStep]);
+        };
+
+    useEffect(() => {
+        const syncStepFromUrl = () => {
+                const params = new URLSearchParams(window.location.search);
+                const step = params.get('step') ?? '';
+                setStep(urlSteps[step] ?? 0);
+        };
+
+        // sync on mount
+        syncStepFromUrl();
+
+        // sync on browser back/forward
+        window.addEventListener('popstate', syncStepFromUrl);
+        return () => window.removeEventListener('popstate', syncStepFromUrl);
+    }, []);
 
     const onResetShippingData = () => {
       setShippingData({
@@ -82,7 +104,7 @@ function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMast
     const stepsCompos : Record<string , React.ReactElement> = {
         '0' : <CartPage {...{cartItems  , onStepChange}} /> , 
         '1' : <ShippingPage {...{cartItems ,tax , shippingData, setShippingData , onStepChange , backendErrors  , onChangeBackendErrors }} /> , 
-        '2' : <CheckoutPage {...{ cartItems , shippingData , tax , zone , onStepChange , onChangeBackendErrors ,onResetShippingData}} /> , 
+        '2' : <CheckoutPage {...{ postUrl : "order.checkout" , cartItems , shippingData , tax , onStepChange , onChangeBackendErrors ,onResetShippingData}} /> , 
     };
 
 
@@ -93,10 +115,6 @@ function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMast
          <Layout currentPage={stepName} >
 
             <div>
-                                   
-                                        
-
-
                                             {/* Free Shipping Banner */}
                                         <div
                                             style={{
@@ -118,3 +136,5 @@ function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMast
        
     );
 }
+
+ShoppingCartMaster.layout = (page : any) => <StoreConfigProvider >{page}</StoreConfigProvider>

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTOs\Order\OrderItemDTO;
 use App\Exceptions\CheckoutException;
 use App\Exceptions\StockException;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Support\Collection;
@@ -19,16 +20,7 @@ class StockService
         //
     }
 
-    // public function decrement(OrderItemDTO $item): void
-    // {
-    //     if($item->product_variant_id !== null) {
-    //         ProductVariant::find($item->product_variant_id)
-    //             ->decrement('stock', $item->quantity);
-    //     } else {
-    //         Product::find($item->product_id)
-    //             ->decrement('stock', $item->quantity);
-    //     }
-    // }
+   
  
     public function getSingleOrderItems(array $itemsIds){
         return ProductVariant::whereIn('id', $itemsIds)
@@ -37,7 +29,12 @@ class StockService
                ->keyBy('id');
     }
 
-    public function validateFromCheckout(Collection $cartItems){
+
+     ##############################################################
+       // validate store availability section
+     ##############################################################
+
+    public function validateFromCheckout(Collection $cartItems){ 
 
         foreach ($cartItems as $item) {
             $stock = $item->productVariant->stock;
@@ -72,5 +69,35 @@ class StockService
          }
     
     }
+    //validate store availability section end
+   
+
+     ##############################################################
+    // after order is confirmation (updates)
+     ##############################################################
+
+      public function decrementFromOrder(Order $order): void
+      {
+        $order->load("items.productVariant");
+        ($order->items)->each(function($item){
+            $item->productVariant->decrement('stock',  $item->quantity);
+
+        });
+      
+      }
+
+      public function retrieveStock(Order $order): void
+      {
+          $order->load("items.productVariant");
+          ($order->items)->each(function($item){
+                $count = ($item->returned_quantity || $item->returned_quantity > 0 ) ?
+                        $item->returned_quantity :
+                        $item->quantity;
+
+                $item->productVariant->increment('stock',  $count);
+          });
+      }
+    // after order is confirmation (updates) end
+
 }
 

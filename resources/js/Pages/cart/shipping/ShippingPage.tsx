@@ -22,12 +22,12 @@ interface ShippingPageProps {
     onStepChange : (action : 'prev' | 'next' ) => void,
     setShippingData : React.Dispatch<React.SetStateAction<ShippingData>>
     onChangeBackendErrors : (errors : any) => void
-    backendErrors : any
+    backendErrors : any 
 }
 
 
 
-export default function ShippingPage({ cartItems, tax  , shippingData, setShippingData , onStepChange , backendErrors , onChangeBackendErrors }: ShippingPageProps) {
+export default function ShippingPage({cartItems, tax  , shippingData, setShippingData , onStepChange , backendErrors , onChangeBackendErrors }: ShippingPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
@@ -36,7 +36,7 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
     ) ; 
 
     const [shippingCities , setShippingCities] =  useState([]); 
-    const [zone , setZone] = useState(null) ; 
+    const [zone , setZone] = useState(undefined) ; 
     useEffect(()=>{
         console.log(backendErrors)
     },[backendErrors])
@@ -151,7 +151,6 @@ export default function ShippingPage({ cartItems, tax  , shippingData, setShippi
                                     <OrderSummaryCard
                                         zone={zone}
                                         subtotal={subtotal}
-                            
                                         tax={tax}
                                         total={total}
                                         theme={theme}

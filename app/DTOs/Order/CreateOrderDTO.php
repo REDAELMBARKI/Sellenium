@@ -115,14 +115,9 @@ class OrderAddressDTO
         public string $address_line1,
         public ?string $address_line2,
         public string $city,
-        public ?string $state,
-        public ?string $postal_code,
-        public ?string $country ,
         public string $phone ,
         public ?string $email = null,
-        public ?string $company = null,
     ) {
-           $this->country = $country ?? env('APP_COUNTRY', 'US');
     }
     
     public function toArray(): array
@@ -133,12 +128,8 @@ class OrderAddressDTO
             'address_line1'=> $this->address_line1,
             'address_line2'=> $this->address_line2,
             'city'=> $this->city,
-            'state'=> $this->state,
-            'postal_code'=> $this->postal_code,
-            'country'=> $this->country ,
             'phone' => $this->phone ,
             'email' => $this->email ,
-            'company' => $this->company
         
         ];
     }
@@ -150,12 +141,8 @@ class OrderAddressDTO
             address_line1: $data["address_line1"],
             address_line2: $data["address_line2"],
             city: $data["city"],
-            state: $data["state"],
-            postal_code: $data["postal_code"],
-            country: $data["country"] ?? env('APP_COUNTRY'),
             phone: $data["phone"],
             email: $data["email"],
-            company: $data["company"]
         );
     }
 }

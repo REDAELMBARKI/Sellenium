@@ -23,11 +23,11 @@ interface CheckoutPageProps {
     onStepChange : (action : 'prev' | 'next' ) => void , 
     onChangeBackendErrors : ( errors : any) => void
     onResetShippingData : () => void , 
-    zone : any
+    postUrl : string
 }
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
-export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChange , zone ,onChangeBackendErrors , onResetShippingData  }: CheckoutPageProps) {
+export default function CheckoutPage({ postUrl , cartItems, tax, shippingData ,onStepChange  ,onChangeBackendErrors , onResetShippingData  }: CheckoutPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
@@ -54,7 +54,7 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
             coupon_code: coupon_code || null,
         };
 
-        router.post(route("order.checkout"), orderData, {
+        router.post(route(postUrl), orderData, {
             onSuccess: (page : any) => {
                     const {client_secret , order_id} = page.props.flash ;
 
@@ -67,6 +67,7 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
                     onChangeBackendErrors([])
             },
             onError: (errors) => {
+                  window.history.pushState({}, '', '/checkout?step=payment');
                   if (errors?.submit) {
                         addToast({
                         type: "error",
@@ -153,7 +154,6 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
                                     <OrderSummaryCard
                                         applyCouponWithFeedback={applyCouponWithFeedback}
                                         subtotal={subtotal}
-                                        zone={zone}
                                         tax={tax}
                                         total={total}
                                         discount={discount}

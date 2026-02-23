@@ -20,12 +20,8 @@ class OrderAddressFactory extends Factory
             'address_line1' => $this->faker->streetAddress(),
             'address_line2' => $this->faker->boolean(30) ? $this->faker->secondaryAddress() : null,
             'city' => $this->faker->randomElement(['Casablanca', 'Rabat', 'Marrakech', 'Agadir']),
-            'state' => null,
-            'postal_code' => $this->faker->postcode(),
-            'country' => 'Morocco',
             'phone' => '06' . $this->faker->numberBetween(10000000, 99999999),
             'email' => $this->faker->email(),
-            'company' => $this->faker->company()
         ];
     }
 }

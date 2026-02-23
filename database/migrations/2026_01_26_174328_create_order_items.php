@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('price_snapshot', 10, 2); // snapshot
             $table->decimal('subtotal',10,2);
             $table->integer('quantity')->default(1);
+            $table->integer('returned_quantity')->nullable();
             $table->timestamps();
 
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
