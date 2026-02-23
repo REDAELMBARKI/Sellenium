@@ -96,7 +96,7 @@ Route::get('/products/create' , [ProductController::class, 'create']) ;
 Route::get('/products/drafts' , [ProductController::class, 'draft'])->name('drafts.index') ;
 Route::get('/products/{product}/edit' , [ProductController::class, 'edit'])->name('product.edit') ;
 Route::get('/products' , [ProductController::class, 'index'])->name('products') ;
-Route::get('/products/show' , [ProductController::class, 'show']) ;
+Route::get('/products/{product}' , [ProductController::class, 'show']) ;
 Route::post('/products' , [ProductController::class, 'createDraft'])->name('products.createDraft');
 Route::put('/products/drafts' , [ProductController::class, 'updateDraftOnSave'])->name('products.updateDraftOnSave');
 Route::patch('/products/{draft}/publish' , [ProductController::class, 'publish'])->name('products.publish');

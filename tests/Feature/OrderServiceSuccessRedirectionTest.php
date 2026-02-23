@@ -25,6 +25,7 @@ class OrderServiceSuccessRedirectionTest extends TestCase
     {
         parent::setUp();
         $this->withoutVite(); 
+        
         $this->mock(\App\Services\ShippingService::class, function ($mock) {
             $mock->shouldReceive('calculateShipping')->andReturn(20.0);
             $mock->shouldReceive('getZoneShippingInfo')->andReturn(null);
@@ -32,10 +33,16 @@ class OrderServiceSuccessRedirectionTest extends TestCase
 
         $this->mock(\App\Services\Discount\CouponService::class, function ($mock) {
             $mock->shouldReceive('getValidCoupon')->andReturn(null);
+            $mock->shouldReceive('couponApplicationResult')->andReturn(null); // ← add
         });
 
         $this->mock(\App\Services\TaxService::class, function ($mock) {
             $mock->shouldReceive('calculate')->andReturn(5.0);
+        });
+
+        // also need PromotionService mock
+        $this->mock(\App\Services\Discount\PromotionService::class, function ($mock) {
+            $mock->shouldReceive('getBestPromotion')->andReturn(null);
         });
 
         $this->orderService = app(OrderService::class);

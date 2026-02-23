@@ -11,8 +11,7 @@ class OrderAddress extends Model
     protected $hidden = [
     "id" ,
     "order_id" ,
-    "type" , 
-    "full_name" , 
+    "type" ,
     "created_at" ,
     "updated_at" ,
     ];

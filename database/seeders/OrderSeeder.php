@@ -9,7 +9,8 @@ use Illuminate\Database\Seeder;
 class OrderSeeder extends Seeder
 {
     public function run()
-    {
+    {        
+           
             Order::factory(12)->create()->each(function ($order) {
 
             // 1️⃣ Create items
@@ -24,7 +25,7 @@ class OrderSeeder extends Seeder
 
                 $subtotal += $item->price * $item->quantity;
             }
-
+    
             // 2️⃣ Create addresses
             OrderAddress::factory()->create([
                 'order_id' => $order->id,

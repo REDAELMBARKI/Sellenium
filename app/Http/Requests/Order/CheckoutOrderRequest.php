@@ -34,7 +34,7 @@ class CheckoutOrderRequest extends FormRequest
             'address.phone' => ['required', 'string', 'min:8', 'max:20'],
             'address.address_line1' => ['required', 'string', 'min:5', 'max:255'],
             'address.address_line2' => ['nullable', 'string', 'max:255'],
-            'address.city' => ['required', 'integer' , Rule::exists('shipping_zone_cities' , 'id')],
+            'address.city' => ['required', 'string' , Rule::exists('shipping_zone_cities' , 'city')],
             'address.state' => ['required', 'string', 'max:100'],
             'address.postal_code' => ['required', 'string', 'min:3', 'max:20'],
         ];

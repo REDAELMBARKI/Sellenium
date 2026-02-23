@@ -10,6 +10,7 @@ import AddToCart from "./A_sharedForAllNiches/components/showProductPage/AddToCa
 import Tabs from "./A_sharedForAllNiches/components/showProductPage/Tabs";
 import { Info, Star, User } from "lucide-react";
 import { AdminLayout } from "@/admin/components/layout/AdminLayout";
+import Layout from "@/Layouts/Layout";
 
 
 interface Color {
@@ -227,4 +228,4 @@ export const Show = () => {
 export default Show;
 
 
-Show.layout = (page: React.ReactNode) => <AdminLayout>{page}</AdminLayout>;
+Show.layout = (page: React.ReactNode) => <Layout>{page}</Layout>;

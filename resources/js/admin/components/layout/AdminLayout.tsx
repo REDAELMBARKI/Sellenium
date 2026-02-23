@@ -6,20 +6,20 @@ import { useAuth } from "../../hooks/useAuth";
 import { Header } from "./Header";
 import { AuthProvider } from "@/admin/context/AuthContext";
 import { Sidebar } from "./SideBar";
-import ToastContextProvider from "@/contextProvoders/ToastProvider";
 import StoreConfigProvider from "@/contextProvoders/StoreConfigProvider";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import { ToastProvider } from "@/contextProvoders/ToastProvider";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
 
   return<>
   <StoreConfigProvider >
  
-      <ToastContextProvider>
+      <ToastProvider>
         <AuthProvider>
             <AdminLayoutContent children={children} />
         </AuthProvider>
-        </ToastContextProvider>
+        </ToastProvider>
 
   </StoreConfigProvider>
   </>
@@ -67,5 +67,3 @@ const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
   );
 };
 export default AdminLayoutContent;
-
-AdminLayoutContent.layout = (page:any) => <AdminLayout children={page} />

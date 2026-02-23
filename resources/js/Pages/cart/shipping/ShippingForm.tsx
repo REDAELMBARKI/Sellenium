@@ -242,7 +242,7 @@ export default function ShippingForm({
                                     isSearchable={false}
                                     options={shippingCities.map((city) => ({
                                         label: city.city,
-                                        value: String(city.id),
+                                        value: String(city.city),
                                     }))}
                                     value={field.value ? { label: shippingCities.find(c => String(c.id) === String(field.value))?.city ?? '', value: String(field.value) } : null}
                                     onChange={(option) => {
