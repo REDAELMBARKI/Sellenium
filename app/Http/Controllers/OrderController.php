@@ -20,6 +20,7 @@ use App\Services\ShippingService;
 use App\Services\StockService;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
@@ -128,8 +129,8 @@ class OrderController extends Controller
                 $context = new CheckoutContext($dto , $user) ;
 
                 $result = $action->execute($context);
-
                 if(isset($result['client_secret'])){ // hes is auth already + payment 
+
                      return back()->with([
                         'client_secret' => $result['client_secret'],
                         'order_id'      => $result['order_id'],

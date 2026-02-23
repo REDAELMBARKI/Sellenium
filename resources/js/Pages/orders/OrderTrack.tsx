@@ -25,14 +25,22 @@ const stringToColor = (str: string) => {
   return palette[Math.abs(hash) % palette.length];
 };
 
+// ── fixed: schema uses 'cancelled' not 'canceled'
 const STATUS_COLOR: Record<string, string> = {
   pending:          "#E8A838",
   confirmed:        "#4C9EE8",
   out_for_delivery: "#A878E8",
   delivered:        "#4CAF7D",
-  canceled:         "#E85C5C",
+  cancelled:        "#E85C5C",   // ✅ was 'canceled'
   returned:         "#E85C5C",
   delivery_failed:  "#E85C5C",
+};
+
+// ── payment_status colors (new — from schema)
+const PAYMENT_STATUS_COLOR: Record<string, string> = {
+  pending: "#E8A838",
+  paid:    "#4CAF7D",
+  failed:  "#E85C5C",
 };
 
 const TIMELINE_STEPS = [
@@ -43,21 +51,22 @@ const TIMELINE_STEPS = [
 ];
 
 // ─────────────────────────────────────────────────────────────
-// ROOT EXPORTS
+// ROOT EXPORT
 // ─────────────────────────────────────────────────────────────
 export default function OrderTrackMaster({ order, shipping }: TrackOrderProps) {
   return (
     <StoreConfigProvider>
       <Layout>
-         <OrderTrack order={order} shipping={shipping} />
+        <OrderTrack order={order} shipping={shipping} />
       </Layout>
     </StoreConfigProvider>
   );
 }
+
 // ─────────────────────────────────────────────────────────────
 // SHARED TINY COMPONENTS
 // ─────────────────────────────────────────────────────────────
-export function Avatar({ src, name, size = 48 }: { src: string | null; name: string; size?: number }) {
+export function Avatar({ src, name, size = 48 }: { src?: string | null; name: string; size?: number }) {
   const [broken, setBroken] = useState(false);
   const initials = name.split(" ").filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("");
   const bg = stringToColor(name);
@@ -78,7 +87,7 @@ export function Avatar({ src, name, size = 48 }: { src: string | null; name: str
   );
 }
 
-export function ItemThumb({ src, name }: { src: string | null; name: string }) {
+export function ItemThumb({ src, name }: { src?: string | null; name: string }) {
   const [broken, setBroken] = useState(false);
   const bg = stringToColor(name);
   if (src && !broken) {
@@ -104,7 +113,10 @@ export function ItemThumb({ src, name }: { src: string | null; name: string }) {
 // ─────────────────────────────────────────────────────────────
 export function CustomerCard({ order, theme }: { order: Order; theme: ThemePalette }) {
   const [expanded, setExpanded] = useState(false);
-  const customerName = `${order.address.first_name} ${order.address.last_name}`;
+  // safe: address may be a relation, fall back gracefully
+  const firstName  = order.address?.first_name ?? "";
+  const lastName   = order.address?.last_name  ?? "";
+  const customerName = `${firstName} ${lastName}`.trim() || "Guest";
 
   const lbl: React.CSSProperties = { fontSize: "10px", fontWeight: 600, color: theme.textMuted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "3px" };
   const val: React.CSSProperties = { fontSize: "13px", color: theme.text, lineHeight: 1.55 };
@@ -114,25 +126,26 @@ export function CustomerCard({ order, theme }: { order: Order; theme: ThemePalet
     <div>
       {/* Avatar + name + phone */}
       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
-        <Avatar src={order.customer_avatar} name={customerName} size={46} />
+        {/* no customer_avatar column in schema — pass null, Avatar shows initials */}
+        <Avatar src={null} name={customerName} size={46} />
         <div>
           <div style={{ fontSize: "14px", fontWeight: 700, color: theme.text }}>{customerName}</div>
-          {order.address.phone && (
+          {order.address?.phone && (
             <div style={{ fontSize: "12px", color: theme.link, marginTop: "2px" }}>{order.address.phone}</div>
           )}
         </div>
       </div>
 
-      {/* Address — always visible */}
+      {/* Address */}
       <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
         <span style={{ fontSize: "14px", marginTop: "1px", flexShrink: 0 }}>📍</span>
         <div style={{ fontSize: "12px", color: theme.textSecondary, lineHeight: 1.65 }}>
-          {order.address.address_line1}
-          {order.address.address_line2 ? `, ${order.address.address_line2}` : ""}
+          {order.address?.address_line1}
+          {order.address?.address_line2 ? `, ${order.address.address_line2}` : ""}
           <br />
-          {order.address.city}{order.address.state ? `, ${order.address.state}` : ""}, {order.address.postal_code}
+          {order.address?.city}{order.address?.state ? `, ${order.address.state}` : ""}{order.address?.postal_code ? `, ${order.address.postal_code}` : ""}
           <br />
-          {order.address.country}
+          {order.address?.country}
         </div>
       </div>
 
@@ -140,22 +153,35 @@ export function CustomerCard({ order, theme }: { order: Order; theme: ThemePalet
       {expanded && (
         <div>
           <div style={divider} />
-          {order.address.email && (
+          {order.address?.email && (
             <div style={{ marginBottom: "10px" }}>
               <div style={lbl}>Email</div>
               <div style={{ ...val, color: theme.link }}>{order.address.email}</div>
             </div>
           )}
-          {order.address.company && (
+          {order.address?.company && (
             <div>
               <div style={lbl}>Company</div>
               <div style={val}>{order.address.company}</div>
             </div>
           )}
+          {/* paid_at — from schema */}
+          {order.paid_at && (
+            <div style={{ marginTop: "10px" }}>
+              <div style={lbl}>Paid At</div>
+              <div style={val}>{fmt(order.paid_at)}</div>
+            </div>
+          )}
+          {/* payment_id — from schema */}
+          {order.payment_id && (
+            <div style={{ marginTop: "10px" }}>
+              <div style={lbl}>Payment ID</div>
+              <div style={{ ...val, fontSize: "11px", color: theme.textMuted, wordBreak: "break-all" }}>{order.payment_id}</div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Toggle */}
       <button
         onClick={() => setExpanded(v => !v)}
         style={{
@@ -174,15 +200,22 @@ export function CustomerCard({ order, theme }: { order: Order; theme: ThemePalet
 // ORDER SUMMARY CARD
 // ─────────────────────────────────────────────────────────────
 export function OrderSummaryCard({ order, shipping, theme }: { order: Order; shipping: ShippingZone; theme: ThemePalette }) {
-  const totalQty = order.items.reduce((a, i) => a + toNum(i.quantity), 0);
-  const subtotal = order.items.reduce((a, i) => a + toNum(i.subtotal), 0);
+  const totalQty = order.items?.reduce((a, i) => a + toNum(i.quantity), 0) ?? 0;
+  const subtotal = order.items?.reduce((a, i) => a + toNum(i.subtotal), 0) ?? 0;
+
+  // ✅ shipping zone uses 'price' column, not a separate cost field
+  const shippingCost = toNum(order.shipping_cost);
+  const shippingLabel = shipping?.name ?? "Standard";
+
+  // payment_status badge color
+  const paymentStatusColor = PAYMENT_STATUS_COLOR[order.payment_status] ?? theme.textMuted;
 
   const rows = [
     { label: `Subtotal · ${totalQty} item${totalQty !== 1 ? "s" : ""}`, value: `${subtotal} ${order.currency}`, color: theme.text },
     order.discount_amount && toNum(order.discount_amount) > 0
-      ? { label: `Discount (${order.coupon?.code ?? "coupon"})`, value: `−${toNum(order.discount_amount)} ${order.currency}`, color: theme.success }
+      ? { label: `Discount${order.coupon?.code ? ` (${order.coupon.code})` : ""}`, value: `−${toNum(order.discount_amount)} ${order.currency}`, color: theme.success }
       : null,
-    { label: `Shipping · ${shipping.name}`, value: !toNum(order.shipping_cost) ? "Free" : `${order.shipping_cost} ${order.currency}`, color: theme.text },
+    { label: `Shipping · ${shippingLabel}`, value: !shippingCost ? "Free" : `${shippingCost} ${order.currency}`, color: theme.text },
     toNum(order.tax) > 0
       ? { label: "Tax", value: `${order.tax} ${order.currency}`, color: theme.text }
       : null,
@@ -207,15 +240,31 @@ export function OrderSummaryCard({ order, shipping, theme }: { order: Order; shi
 
       <div style={{ height: "1px", background: theme.border, margin: "12px 0 10px" }} />
 
-      {/* Payment method — moved here from customer card */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      {/* Payment method */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
         <span style={{ fontSize: "12px", color: theme.textSecondary }}>Payment</span>
         <span style={{
           fontSize: "11px", fontWeight: 600, color: theme.textMuted,
           background: theme.badge, border: `1px solid ${theme.border}`,
           padding: "3px 10px", borderRadius: "999px",
         }}>
-          {order.payment_method === "cod" ? "Cash on Delivery" : order.payment_method.toUpperCase()}
+          {order.payment_method === "cod"
+            ? "Cash on Delivery"
+            : order.payment_method?.toUpperCase() ?? "—"}
+        </span>
+      </div>
+
+      {/* payment_status — from schema, new */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: "12px", color: theme.textSecondary }}>Payment Status</span>
+        <span style={{
+          fontSize: "11px", fontWeight: 600, color: paymentStatusColor,
+          background: `${paymentStatusColor}18`, border: `1px solid ${paymentStatusColor}30`,
+          padding: "3px 10px", borderRadius: "999px", textTransform: "capitalize",
+          display: "flex", alignItems: "center", gap: "4px",
+        }}>
+          <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: paymentStatusColor }} />
+          {order.payment_status ?? "pending"}
         </span>
       </div>
 
@@ -251,8 +300,8 @@ export function OrderItemsTable({ order, theme }: { order: Order; theme: ThemePa
         </tr>
       </thead>
       <tbody>
-        {order.items.map((item, idx) => {
-          const last = idx === order.items.length - 1;
+        {(order.items ?? []).map((item, idx) => {
+          const last = idx === (order.items?.length ?? 0) - 1;
           const td: React.CSSProperties = {
             padding: "12px 14px",
             borderBottom: last ? "none" : `1px solid ${theme.border}`,
@@ -261,7 +310,7 @@ export function OrderItemsTable({ order, theme }: { order: Order; theme: ThemePa
           return (
             <tr key={item.id} className="tr-row">
               <td style={{ ...td, width: "52px" }}>
-                <ItemThumb src={item.thumbnail} name={item.product_name} />
+                <ItemThumb src={item.thumbnail ?? null} name={item.product_name} />
               </td>
               <td style={td}>
                 <div style={{ fontSize: "13px", fontWeight: 500, color: theme.text }}>{item.product_name}</div>
@@ -282,11 +331,13 @@ export function OrderItemsTable({ order, theme }: { order: Order; theme: ThemePa
 // TIMELINE + MAP (right panel)
 // ─────────────────────────────────────────────────────────────
 export function TrackingPanel({ order, shipping, theme }: { order: Order; shipping: ShippingZone; theme: ThemePalette }) {
-  const statusColor = STATUS_COLOR[order.status] ?? theme.primary;
-  const activeIdx   = TIMELINE_STEPS.findIndex(s => s.status === order.status);
+  const statusColor = STATUS_COLOR[order.order_status] ?? theme.primary;
+  const activeIdx   = TIMELINE_STEPS.findIndex(s => s.status === order.order_status);
   const progressPct = activeIdx <= 0 ? 0 : (activeIdx / (TIMELINE_STEPS.length - 1)) * 100;
+
+  // ✅ shipping zone uses 'estimated_days' — same name, safe
   const estimatedBy = (() => {
-    if (!shipping.estimated_days) return null;
+    if (!shipping?.estimated_days) return null;
     const d = new Date(order.created_at);
     d.setDate(d.getDate() + shipping.estimated_days);
     return fmtDateLong(d.toISOString());
@@ -307,7 +358,7 @@ export function TrackingPanel({ order, shipping, theme }: { order: Order; shippi
         }}>📦</div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: "13px", fontWeight: 700, color: theme.text, marginBottom: "2px" }}>
-            Delivery within {shipping.estimated_days} day{shipping.estimated_days !== 1 ? "s" : ""}
+            Delivery within {shipping?.estimated_days ?? "?"} day{shipping?.estimated_days !== 1 ? "s" : ""}
           </div>
           {estimatedBy && (
             <div style={{ fontSize: "11px", color: theme.textMuted }}>Expected by {estimatedBy}</div>
@@ -327,14 +378,12 @@ export function TrackingPanel({ order, shipping, theme }: { order: Order; shippi
       {/* Horizontal timeline */}
       <div style={{ padding: "20px 24px 18px", borderBottom: `1px solid ${theme.border}` }}>
         <div style={{ position: "relative", display: "flex" }}>
-          {/* Track bg */}
           <div style={{
             position: "absolute", top: "10px",
             left: `calc(100% / ${TIMELINE_STEPS.length * 2})`,
             right: `calc(100% / ${TIMELINE_STEPS.length * 2})`,
             height: "2px", background: theme.border, borderRadius: "99px", zIndex: 0,
           }} />
-          {/* Track fill */}
           <div style={{
             position: "absolute", top: "10px",
             left: `calc(100% / ${TIMELINE_STEPS.length * 2})`,
@@ -410,7 +459,7 @@ export function TrackingPanel({ order, shipping, theme }: { order: Order; shippi
 // ─────────────────────────────────────────────────────────────
 export function ShippingZoneCard({ order, shipping, theme }: { order: Order; shipping: ShippingZone; theme: ThemePalette }) {
   const estimatedBy = (() => {
-    if (!shipping.estimated_days) return null;
+    if (!shipping?.estimated_days) return null;
     const d = new Date(order.created_at);
     d.setDate(d.getDate() + shipping.estimated_days);
     return fmtDateLong(d.toISOString());
@@ -421,16 +470,23 @@ export function ShippingZoneCard({ order, shipping, theme }: { order: Order; shi
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
         <div>
           <div style={{ fontSize: "10px", fontWeight: 600, color: theme.textMuted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "3px" }}>Zone</div>
-          <div style={{ fontSize: "13px", color: theme.text }}>{shipping.name}</div>
+          <div style={{ fontSize: "13px", color: theme.text }}>{shipping?.name ?? "—"}</div>
+          {/* ✅ shipping zone 'type' field from schema */}
+          {shipping?.type && (
+            <div style={{ fontSize: "11px", color: theme.textMuted, marginTop: "2px", textTransform: "capitalize" }}>
+              {shipping.type} rate
+            </div>
+          )}
         </div>
         <div style={{ textAlign: "right" }}>
           <div style={{ fontSize: "10px", fontWeight: 600, color: theme.textMuted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "3px" }}>Cost</div>
+          {/* ✅ shipping zone uses 'price' column */}
           <div style={{ fontSize: "13px", fontWeight: 700, color: theme.primary }}>
             {!toNum(order.shipping_cost) ? "Free" : `${order.shipping_cost} ${order.currency}`}
           </div>
         </div>
       </div>
-      {shipping.estimated_days && (
+      {shipping?.estimated_days && (
         <div style={{
           background: `${theme.primary}0d`, border: `1px solid ${theme.primary}20`,
           borderRadius: "10px", padding: "8px 12px", fontSize: "12px", color: theme.textSecondary,
@@ -447,7 +503,7 @@ export function ShippingZoneCard({ order, shipping, theme }: { order: Order; shi
 // PAGE HEADER
 // ─────────────────────────────────────────────────────────────
 export function OrderHeader({ order, theme }: { order: Order; theme: ThemePalette }) {
-  const statusColor = STATUS_COLOR[order.status] ?? theme.primary;
+  const statusColor = STATUS_COLOR[order.order_status] ?? theme.primary;
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "22px", flexWrap: "wrap", gap: "10px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
@@ -466,7 +522,7 @@ export function OrderHeader({ order, theme }: { order: Order; theme: ThemePalett
           padding: "4px 11px", borderRadius: "999px", textTransform: "capitalize",
         }}>
           <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: statusColor }} />
-          {order.status.replace(/_/g, " ")}
+          {order.order_status}
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -481,12 +537,15 @@ export function OrderHeader({ order, theme }: { order: Order; theme: ThemePalett
   );
 }
 
-
-
+// ─────────────────────────────────────────────────────────────
+// PAGE
+// ─────────────────────────────────────────────────────────────
 function OrderTrack({ order, shipping }: TrackOrderProps) {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
-  const isFailed = ["canceled", "returned", "delivery_failed"].includes(order.status);
-  const statusColor = STATUS_COLOR[order.status] ?? theme.primary;
+
+  // ✅ fixed: schema uses 'cancelled' not 'canceled'
+  const isFailed = ["cancelled", "returned", "delivery_failed"].includes(order.order_status);
+  const statusColor = STATUS_COLOR[order.order_status] ?? theme.primary;
 
   const card: React.CSSProperties = {
     background: theme.card,
@@ -521,50 +580,48 @@ function OrderTrack({ order, shipping }: TrackOrderProps) {
       `}</style>
 
       <div style={{ maxWidth: "1240px", margin: "0 auto", padding: "28px 24px" }}>
-        {/*  login warning id guest */}
-        <div>
-             {!order.user_id && (
-                  <div style={{
-                    background: `${theme.warning}15`,
-                    border: `1px solid ${theme.warning}40`,
-                    borderRadius: "14px",
-                    padding: "14px 18px",
-                    marginBottom: "16px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                  }}>
-                    <span style={{ fontSize: "20px" }}>⚠️</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: "13px", fontWeight: 600, color: theme.text, marginBottom: "3px" }}>
-                        Save this page or you'll lose access
-                      </div>
-                      <div style={{ fontSize: "12px", color: theme.textMuted }}>
-                        You're tracking as a guest. If you close this tab, 
-                        you can recover your order using your phone number.
-                      </div>
-                    </div>
-                    <a href="/register" style={{
-                      fontSize: "12px", fontWeight: 600,
-                      background: theme.primary, color: theme.textInverse,
-                      padding: "6px 14px", borderRadius: "999px",
-                      textDecoration: "none", whiteSpace: "nowrap",
-                    }}>
-                      Create account
-                    </a>
-                  </div>
-                )}
-        </div>
+
+        {/* Guest warning — uses user_id from schema */}
+        {!order.user_id && (
+          <div style={{
+            background: `${theme.warning}15`,
+            border: `1px solid ${theme.warning}40`,
+            borderRadius: "14px",
+            padding: "14px 18px",
+            marginBottom: "16px",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+          }}>
+            <span style={{ fontSize: "20px" }}>⚠️</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: "13px", fontWeight: 600, color: theme.text, marginBottom: "3px" }}>
+                Save this page or you'll lose access
+              </div>
+              <div style={{ fontSize: "12px", color: theme.textMuted }}>
+                You're tracking as a guest. If you close this tab,
+                you can recover your order using your phone number.
+              </div>
+            </div>
+            <a href="/register" style={{
+              fontSize: "12px", fontWeight: 600,
+              background: theme.primary, color: theme.textInverse,
+              padding: "6px 14px", borderRadius: "999px",
+              textDecoration: "none", whiteSpace: "nowrap",
+            }}>
+              Create account
+            </a>
+          </div>
+        )}
+
         {/* Header */}
         <OrderHeader order={order} theme={theme} />
 
         {/* Two-column layout */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "18px", alignItems: "start" }}>
 
-          {/* ── LEFT ── */}
+          {/* LEFT */}
           <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-
-            {/* Row 1: Customer + Summary side by side */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
               <div style={card}>
                 <div style={cardHead}>Customer</div>
@@ -572,7 +629,6 @@ function OrderTrack({ order, shipping }: TrackOrderProps) {
                   <CustomerCard order={order} theme={theme} />
                 </div>
               </div>
-
               <div style={card}>
                 <div style={cardHead}>Order Summary</div>
                 <div style={{ padding: "16px 18px" }}>
@@ -581,17 +637,14 @@ function OrderTrack({ order, shipping }: TrackOrderProps) {
               </div>
             </div>
 
-            {/* Row 2: Items table */}
             <div style={card}>
               <div style={cardHead}>Order Items</div>
               <OrderItemsTable order={order} theme={theme} />
             </div>
           </div>
 
-          {/* ── RIGHT (sticky) ── */}
+          {/* RIGHT (sticky) */}
           <div style={{ position: "sticky", top: "24px", display: "flex", flexDirection: "column", gap: "14px" }}>
-
-            {/* Tracking card */}
             {!isFailed ? (
               <div style={card}>
                 <TrackingPanel order={order} shipping={shipping} theme={theme} />
@@ -600,7 +653,7 @@ function OrderTrack({ order, shipping }: TrackOrderProps) {
               <div style={{ ...card, padding: "28px 20px", textAlign: "center" }}>
                 <div style={{ fontSize: "32px", marginBottom: "10px" }}>⚠️</div>
                 <div style={{ fontSize: "14px", fontWeight: 700, color: statusColor, marginBottom: "6px" }}>
-                  Order {order.status.replace(/_/g, " ")}
+                  Order {order.order_status}
                 </div>
                 <div style={{ fontSize: "12px", color: theme.textMuted }}>
                   Contact support for assistance.
@@ -608,14 +661,12 @@ function OrderTrack({ order, shipping }: TrackOrderProps) {
               </div>
             )}
 
-            {/* Shipping zone */}
             <div style={card}>
               <div style={cardHead}>Shipping Zone</div>
               <div style={{ padding: "16px 18px" }}>
                 <ShippingZoneCard order={order} shipping={shipping} theme={theme} />
               </div>
             </div>
-
           </div>
         </div>
       </div>

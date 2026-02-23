@@ -31,12 +31,11 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
-    const [payment_method, setPayment_method] = useState<PaymentMethod>("COD");
+    const [payment_method, setPayment_method] = useState<PaymentMethod>("CARD");
     const [orderCreatedRespose, setOrderCreatedRespose] = useState({
         client_secret : undefined, 
         order_id : undefined
     });
-
     const [coupon_code, setCoupon_code] = useState("");
     const {addToast} = useToast()
     const subtotal = cartItems.reduce(
@@ -57,13 +56,14 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
 
         router.post(route("order.checkout"), orderData, {
             onSuccess: (page : any) => {
-                    const {client_secret , order_id} = page.props ;
+                    const {client_secret , order_id} = page.props.flash ;
+
                     setOrderCreatedRespose({
                         client_secret ,
                         order_id
                     })
                     setCoupon_code("")
-                    onResetShippingData()
+                    // onResetShippingData()
                     onChangeBackendErrors([])
             },
             onError: (errors) => {
@@ -180,12 +180,81 @@ export default function CheckoutPage({ cartItems, tax, shippingData ,onStepChang
                                         }
                                     />
                                         {/* stripe payment form  */}
-                                    {orderCreatedRespose.client_secret && (
-                                        <Elements stripe={stripePromise} options={{ clientSecret: orderCreatedRespose.client_secret }}>
-                                            <CardPaymentForm {...{ orderCreatedRespose }} />
-                                        </Elements>)
-                                     }
-                                            
+                                {orderCreatedRespose.client_secret && (
+                                        <>
+                                            <div
+                                                style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+                                                className="fixed inset-0 z-40"
+                                                onClick={() => setOrderCreatedRespose({ client_secret: undefined, order_id: undefined })}
+                                            />
+
+                                            {/* wrapper — same color as stripe form background */}
+                                            <div
+                                                className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl rounded-xl shadow-2xl p-6"
+                                                style={{ backgroundColor: '#27272a' }} // ← matches colorBackground
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                {/* header */}
+                                                <div className="flex justify-between items-center mb-6">
+                                                    <div>
+                                                        <h2 className="text-white text-lg font-semibold">Complete Payment</h2>
+                                                        <p className="text-zinc-400 text-sm mt-0.5">Secured by Stripe</p>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => setOrderCreatedRespose({ client_secret: undefined, order_id: undefined })}
+                                                        className="text-zinc-400 hover:text-white"
+                                                    >✕</button>
+                                                </div>
+
+                                                <Elements
+                                                    stripe={stripePromise}
+                                                    options={{
+                                                        clientSecret: orderCreatedRespose.client_secret,
+                                                        appearance: {
+                                                            theme: 'night',
+                                                            variables: {
+                                                                colorBackground: '#27272a', // same as wrapper
+                                                                colorText: '#ffffff',
+                                                                colorTextSecondary: '#a1a1aa',
+                                                                colorIconTab: '#ffffff',
+                                                                borderRadius: '8px',
+                                                                colorPrimary: '#6366f1',
+                                                            },
+                                                            rules: {
+                                                                '.Input': {
+                                                                    backgroundColor: '#3f3f46',
+                                                                    border: '1px solid #52525b',
+                                                                    color: '#ffffff',
+                                                                },
+                                                                '.Input:focus': {
+                                                                    border: '1px solid #6366f1',
+                                                                    boxShadow: 'none',
+                                                                },
+                                                                '.Label': {
+                                                                    color: '#a1a1aa',
+                                                                },
+                                                                // ← remove stripe form container border
+                                                                '.Block': {
+                                                                    border: 'none',
+                                                                    boxShadow: 'none',
+                                                                    backgroundColor: '#27272a',
+                                                                },
+                                                                '.Tab': {
+                                                                    border: '1px solid #52525b',
+                                                                    backgroundColor: '#3f3f46',
+                                                                },
+                                                                '.Tab--selected': {
+                                                                    border: '1px solid #6366f1',
+                                                                },
+                                                            }
+                                                        }
+                                                    }}
+                                                >
+                                                    <CardPaymentForm orderCreatedRespose={orderCreatedRespose} />
+                                                </Elements>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>

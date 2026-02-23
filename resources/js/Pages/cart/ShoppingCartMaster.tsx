@@ -28,7 +28,7 @@ export  default function ShoppingCartMaster({ cartItems = [] , tax = 0 }: Shoppi
 function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMasterProps) {
     const [step , setStep] = useState(0);
     const [backendErrors , setBackendErrors] = useState<any>({}) ;
-
+    // const [zone , setZone] 
 
     const [shippingData, setShippingData] = useState({
         address: {
@@ -82,7 +82,7 @@ function ShoppingCartCheckout({ cartItems = [] , tax = 0 }: ShoppingCartPageMast
     const stepsCompos : Record<string , React.ReactElement> = {
         '0' : <CartPage {...{cartItems  , onStepChange}} /> , 
         '1' : <ShippingPage {...{cartItems ,tax , shippingData, setShippingData , onStepChange , backendErrors  , onChangeBackendErrors }} /> , 
-        '2' : <CheckoutPage {...{ cartItems , shippingData , tax  , onStepChange , onChangeBackendErrors ,onResetShippingData}} /> , 
+        '2' : <CheckoutPage {...{ cartItems , shippingData , tax , zone , onStepChange , onChangeBackendErrors ,onResetShippingData}} /> , 
     };
 
 

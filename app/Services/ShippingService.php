@@ -9,6 +9,7 @@ use App\Models\ShippingSetting;
 use App\Models\ShippingZone;
 use App\Models\ShippingZoneCity;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class ShippingService
 {
@@ -54,21 +55,27 @@ class ShippingService
 
 
      private function checkFreeThresholdAmount(array $items , ShippingSetting $shipping_settings) : bool {
-       $items_subtotal = $this->cartService->calculateCartItemsSubtotal($items);
-        return $items_subtotal >= $shipping_settings->free_shipping_threshold_amount ;
+        $items_subtotal = $this->cartService->calculateCartItemsSubtotal($items);
+        return  $items_subtotal >= $shipping_settings->free_shipping_threshold_amount ;
      }
 
  
      private function checkFreeShippingByThreshold(array $items, ShippingSetting $settings): bool
      {
-          $byAmount   = $this->checkFreeThresholdAmount($items , $settings);
-          $byItems    = $this->checkFreeThresholdItems($items, $settings);
+          
+          $assertByAmount   = $settings->free_shipping_threshold_amount ?
+                         $this->checkFreeThresholdAmount($items , $settings)
+                         : false ;
 
+          $assertByItems    = $settings->free_shipping_threshold_items ?
+                              $this->checkFreeThresholdItems($items, $settings)
+                              : false;
+          
           return match($settings->free_shipping_type) {
-               'amount' => $byAmount,
-               'items'  => $byItems,
-               'both'   => $byAmount && $byItems,
-               'either' => $byAmount || $byItems,
+               'amount' => $assertByAmount,
+               'items'  => $assertByItems,
+               'both'   => $assertByAmount && $assertByItems,
+               'either' => $assertByAmount || $assertByItems,
                default  => false,
           };
      }
@@ -76,11 +83,9 @@ class ShippingService
     
     public function calculateShipping(array $items ,string $city , ?int $promotion_id = null): float
     {
-               
-
                $zoneShippingInfo = $this->getZoneShippingInfo($city);
                $settings = $this->getShippingSettings();
-
+               
                $this->checkAvailableShippingInZone($zoneShippingInfo);
                // if shipping is free initialy
                if($zoneShippingInfo &&( $zoneShippingInfo->price == 0)) {
@@ -130,12 +135,13 @@ class ShippingService
 
     private function checkAvailableShippingInZone(?ShippingZone $zone): void
      {
-     if (!$zone) {
-          throw new ShippingException('Shipping is not configured for this region.');
-     }
 
-     if (!$zone->is_active) {
-          throw new ShippingException('Shipping is currently unavailable for this region.');
-     }
+          if (!$zone) {
+               throw new ShippingException('Shipping is not configured for this region.');
+          }
+
+          if (!$zone->is_active) {
+               throw new ShippingException('Shipping is currently unavailable for this region.');
+          }
      }
 }

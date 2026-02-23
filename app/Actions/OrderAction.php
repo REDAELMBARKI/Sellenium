@@ -8,7 +8,6 @@ use App\DTOs\CreateOrderDTO;
 use App\Services\Factories\PaymentGatewayFactory;
 use App\Services\OrderService;
 use App\Services\Payment\StripePaymentGateway;
-use App\Services\PaymentGateway;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 

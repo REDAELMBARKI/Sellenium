@@ -4,6 +4,7 @@ namespace App\DTOs\Order;
 
 use App\Http\Requests\StoreOrderRequest;
 use App\Models\Product;
+use App\Models\ShippingZoneCity;
 use App\Models\User;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
@@ -148,7 +149,7 @@ class OrderAddressDTO
             last_name: $data["last_name"],
             address_line1: $data["address_line1"],
             address_line2: $data["address_line2"],
-            city: $data["city"],
+            city: ShippingZoneCity::where('id' , $data["city"])->value('city') ?? 'city not defined',
             state: $data["state"],
             postal_code: $data["postal_code"],
             country: $data["country"] ?? env('APP_COUNTRY'),

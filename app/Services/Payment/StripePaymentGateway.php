@@ -5,9 +5,10 @@ namespace App\Services\Payment;
 use App\DTOs\Order\CreateOrderDTO;
 use App\Exceptions\PaymentException;
 use App\Models\Order;
-use App\Services\PaymentGateway;
+use App\Services\Payment\PaymentGateway;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Stripe\PaymentIntent;
 use Stripe\Refund;
 use Stripe\Stripe;
@@ -24,13 +25,15 @@ class StripePaymentGateway extends PaymentGateway
     public function createPayment(Order $order) : array
     {
         // Create a PaymentIntent - this HOLDS the money but doesn't charge yet
+        $currency = 'MAD';
         $paymentIntent = PaymentIntent::create([
             'amount' => $order->total_amount * 100, // Stripe uses cents, so $50.00 = 5000
-            'currency' => $order->currency,
+            'currency' => $currency,
             'metadata' => ['order_id' => $order->id],
-            'capture_method' => 'manual', // CRITICAL: Don't auto-capture, we'll do it manually
-            'confirmation_method' => 'manual', // We'll confirm it ourselves
-            'confirm' => true, // Confirm immediately to authorize
+             'automatic_payment_methods' => [
+                'enabled'         => true,
+                'allow_redirects' => 'never', // ← fixes the error
+            ],
         ]);
         
          if (!$paymentIntent->id) {

@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        // exclude webhook from CSRF
+        $middleware->validateCsrfTokens(except: [
+            'api/webhook/stripe',
+        ]);
+
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
