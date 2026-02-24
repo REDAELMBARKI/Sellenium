@@ -261,89 +261,8 @@ export default function ShippingForm({
 
                 
                     </div>
-
-                    <div>
-                        <label
-                            style={{ color: theme.textSecondary }}
-                            className="block text-sm mb-2"
-                        >
-                            State *
-                        </label>
-                        <input
-                            type="text"
-                            
-                            {...register("address.state")}
-                            
-                            style={{
-                                borderColor: theme.border,
-                                backgroundColor: theme.bgSecondary,
-                                color: theme.text,
-                            }}
-                            className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
-                            placeholder="NY"
-                        />
-                       {(backendErrors['address.state']  || ZodErrors.address?.state?.message) && (
-                            <div className="text-red-500 text-sm mt-1">
-                                {backendErrors['address.state']  || ZodErrors.address?.state?.message}
-                            </div>
-                        )}
-                    </div>
-
-                    <div>
-                        <label
-                            style={{ color: theme.textSecondary }}
-                            className="block text-sm mb-2"
-                        >
-                            ZIP Code *
-                        </label>
-                        <input
-                            type="text"
-                            
-                            {...register("address.postal_code")}
-                            
-                            style={{
-                                borderColor: theme.border,
-                                backgroundColor: theme.bgSecondary,
-                                color: theme.text,
-                            }}
-                            className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
-                            placeholder="10001"
-                        />
-                        {(backendErrors['address.postal_code']  || ZodErrors.address?.postal_code?.message) && (
-                            <div className="text-red-500 text-sm mt-1">
-                                {backendErrors['address.postal_code']  || ZodErrors.address?.postal_code?.message}
-                            </div>
-                        )}
-                    </div>
                 </div>
-                {/* compant  */}
-                  <div>
-                        <label
-                            style={{ color: theme.textSecondary }}
-                            className="block text-sm mb-2"
-                        >
-                            Compnay (optional)
-                        </label>
-                        <input
-                            type="text"
-                            {...register("address.company")}
-                            
-                            style={{
-                                borderColor: theme.border,
-                                backgroundColor: theme.bgSecondary,
-                                color: theme.text,
-                            }}
-                            className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2"
-                            placeholder="New York"
-                        />
-                        {(backendErrors['address.company'] || ZodErrors.address?.company?.message) && (
-                            <div className="text-red-500 text-sm mt-1">
-                                {backendErrors['address.company'] || ZodErrors.address?.company?.message}
-                            </div>
-                        )}
-
                 
-                    </div>
                 {/* notes */}
                 <div>
                     <label

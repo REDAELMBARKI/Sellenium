@@ -13,12 +13,12 @@ import { useToast } from "@/contextHooks/useToasts";
 import axios from "axios";
 
 interface CartPageProps {
-    cartItems: any[];
+    items: any[];
     onStepChange : (action : 'prev' | 'next' ) => void
 }
 
 
-export default function CartPage({ cartItems , onStepChange }: CartPageProps) {
+export default function CartPage({ items = [], onStepChange }: CartPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
@@ -26,7 +26,7 @@ export default function CartPage({ cartItems , onStepChange }: CartPageProps) {
     const [coupon_code, setCoupon_code] = useState("");
     const {addToast} = useToast() ; 
     // Calculate totals
-    const subtotal = cartItems.reduce(
+    const subtotal = items.reduce(
         (sum, item) => sum + item.price_snapshot * item.quantity,
         0
     );
@@ -62,7 +62,6 @@ export default function CartPage({ cartItems , onStepChange }: CartPageProps) {
             }
 
         }catch(err : any){
-            console.log(err)
                const errorMessage = err.response?.data?.error || 'Failed to Delete Item ';
                 if(errorMessage){
                     addToast({
@@ -101,15 +100,15 @@ export default function CartPage({ cartItems , onStepChange }: CartPageProps) {
                             {/* Cart Header */}
                             <div className="mb-6">
                                 <h1 style={{ color: theme.text }} className="text-2xl font-bold">
-                                    Shopping Cart ({cartItems.length} Item
-                                    {cartItems.length !== 1 ? "s" : ""}): $
+                                    Shopping Cart ({items.length} Item
+                                    {items.length !== 1 ? "s" : ""}): $
                                     {(subtotal + shipping).toFixed(2)}
                                 </h1>
                             </div>
 
                             {/* Cart Items List */}
                             <CartItemsList
-                                cartItems={cartItems}
+                                items={items}
                                 theme={theme}
                                 coupon_code={coupon_code}
                                 onCouponChange={setCoupon_code}
@@ -123,7 +122,7 @@ export default function CartPage({ cartItems , onStepChange }: CartPageProps) {
                             <CartSummary
                                 subtotal={subtotal}
                                 shipping={shipping}
-                                itemCount={cartItems.length}
+                                itemCount={items.length}
                                 theme={theme}
                                 onProceedToCheckout={handleProceedToCheckout}
                             />

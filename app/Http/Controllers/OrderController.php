@@ -49,7 +49,8 @@ class OrderController extends Controller
 
    
     public function store(SingleOrderRequest $request , OrderAction $action)
-    {
+    {   
+            dd('store reached', $request->all()); 
          try {
          if ($request->payment_method === 'CARD' && !Auth::check()) {
             return back()->withErrors(['submit' => 'Login required for card payment']);

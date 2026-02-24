@@ -17,7 +17,7 @@ import { loadStripe } from "@stripe/stripe-js";
 type PaymentMethod = "COD" | "CARD";
 
 interface CheckoutPageProps {
-    cartItems: any[];
+    items: any[];
     tax: number;
     shippingData: any;
     onStepChange : (action : 'prev' | 'next' ) => void , 
@@ -27,7 +27,7 @@ interface CheckoutPageProps {
 }
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
-export default function CheckoutPage({ postUrl , cartItems, tax, shippingData ,onStepChange  ,onChangeBackendErrors , onResetShippingData  }: CheckoutPageProps) {
+export default function CheckoutPage({ postUrl , items = [], tax, shippingData ,onStepChange  ,onChangeBackendErrors , onResetShippingData  }: CheckoutPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
@@ -38,7 +38,7 @@ export default function CheckoutPage({ postUrl , cartItems, tax, shippingData ,o
     });
     const [coupon_code, setCoupon_code] = useState("");
     const {addToast} = useToast()
-    const subtotal = cartItems.reduce(
+    const subtotal = items.reduce(
         (sum, item) => sum + item.price_snapshot * item.quantity,
         0
     );
@@ -54,7 +54,7 @@ export default function CheckoutPage({ postUrl , cartItems, tax, shippingData ,o
             coupon_code: coupon_code || null,
         };
 
-        router.post(route(postUrl), orderData, {
+        router.post(route('order.checkout'), orderData, {
             onSuccess: (page : any) => {
                     const {client_secret , order_id} = page.props.flash ;
 
@@ -147,7 +147,7 @@ export default function CheckoutPage({ postUrl , cartItems, tax, shippingData ,o
                             <div className="lg:col-span-1">
                                 <div className="sticky top-4 space-y-4">
                                     <MiniCartPreview
-                                        cartItems={cartItems}
+                                        items={items}
                                         theme={theme}
                                     />
 
@@ -160,7 +160,7 @@ export default function CheckoutPage({ postUrl , cartItems, tax, shippingData ,o
                                         coupon_code={coupon_code}
                                         onPromoChange={setCoupon_code}
                                         theme={theme}
-                                        itemCount={cartItems.length}
+                                        itemCount={items.length}
                                         showPromoCode={true}
                                         showSecurityBadge={true}
                                         ctaButton={

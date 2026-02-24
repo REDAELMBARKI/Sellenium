@@ -65,6 +65,14 @@ Route::get('/blog', function () {
 })->name('blog');
 
 
+//payment section
+// checkout 
+Route::post('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
+// single product by now 
+Route::post('/order/buy-now/now', [OrderController::class , 'store'])->name('order.buynow');
+//payment section end
+
+
 
 // cart
 Route::get('/cart', [CartController::class , 'index'])->name('shoppingCart.index');
@@ -151,10 +159,12 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 
 
 
+
+
+
 // oderes
 // OrderManager
 Route::get('/orders' , [OrderController::class, 'index'])->middleware('auth')->name('orders.index') ;
-Route::post('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
 // after checkout sucess 
 Route::get("orders/{order}/track" , [OrderController::class, 'authTrack'])->middleware('auth')->name('track.auth') ;
 Route::get('/track/{token}', [OrderController::class, 'guestTrack'])

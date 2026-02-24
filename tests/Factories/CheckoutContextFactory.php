@@ -107,12 +107,8 @@ class CheckoutContextFactory
             address_line1: '123 Test Street',
             address_line2: null,
             city:          'Casablanca',
-            state:         null,
-            postal_code:   '20000',
-            country:       'MA',
             phone:         '0612345678',
             email:         'john@example.com',
-            company:       null,
         );
     }
 }

@@ -16,7 +16,7 @@ import { route } from "ziggy-js";
 import axios from "axios";
 
 interface ShippingPageProps {
-    cartItems: any[];
+    items: any[];
     tax: number;
     shippingData : ShippingData ,
     onStepChange : (action : 'prev' | 'next' ) => void,
@@ -27,12 +27,12 @@ interface ShippingPageProps {
 
 
 
-export default function ShippingPage({cartItems, tax  , shippingData, setShippingData , onStepChange , backendErrors , onChangeBackendErrors }: ShippingPageProps) {
+export default function ShippingPage({items = [], tax  , shippingData, setShippingData , onStepChange , backendErrors , onChangeBackendErrors }: ShippingPageProps) {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
     const {register  , control, handleSubmit , formState : {errors : ZodErrors , isDirty}} = useForm<any>(
-        {resolver : zodResolver(shippingSchema) , mode : "onChange" , defaultValues : shippingData}
+        // {resolver : zodResolver(shippingSchema) , mode : "onChange" , defaultValues : shippingData}
     ) ; 
 
     const [shippingCities , setShippingCities] =  useState([]); 
@@ -62,7 +62,7 @@ export default function ShippingPage({cartItems, tax  , shippingData, setShippin
           return () => ctrl.abort()
     },[])
 
-    const subtotal = cartItems.reduce(
+    const subtotal = items.reduce(
         (sum, item) => sum + item.price_snapshot * item.quantity,
         0
     );
@@ -144,7 +144,7 @@ export default function ShippingPage({cartItems, tax  , shippingData, setShippin
                             <div className="lg:col-span-1">
                                 <div className="sticky top-4 space-y-4">
                                     <MiniCartPreview
-                                        cartItems={cartItems}
+                                        items={items}
                                         theme={theme}
                                     />
 
@@ -154,7 +154,7 @@ export default function ShippingPage({cartItems, tax  , shippingData, setShippin
                                         tax={tax}
                                         total={total}
                                         theme={theme}
-                                        itemCount={cartItems.length}
+                                        itemCount={items.length}
                                         ctaButton={
                                             <button
                                                 type="submit"

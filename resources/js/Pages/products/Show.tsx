@@ -1,25 +1,25 @@
 import StoreConfigProvider from "@/contextProvoders/StoreConfigProvider";
-import CartPage from "./cartlisting/CartPage";
 import { useEffect, useState } from "react";
-import CheckoutPage from "./checkout/CheckoutPage";
-import ShippingPage from "./shipping/ShippingPage";
 import { isEmpty, set } from "lodash";
 import { router, useForm, usePage } from "@inertiajs/react";
-import StepIndicator from "./shared/StepIndicator";
 import Layout from "@/Layouts/Layout";
 import { ArrowLeft } from "lucide-react";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { route } from "ziggy-js";
+import CheckoutPage from "../cart/checkout/CheckoutPage";
+import ShippingPage from "../cart/shipping/ShippingPage";
+import ProductDetails from "./ProductDetails";
+import StepIndicator from "../cart/shared/StepIndicator";
 
 // Pages/Cart/CartPage.tsx
-interface ShoppingCartPageMasterProps {
-    items: any[];
-    tax : number
+interface ShowPageMasterProps {
+   tax : number
 }
 
-export default function ShoppingCartMaster({ items = [] , tax = 0 }: ShoppingCartPageMasterProps) {
+export default function Show({tax =  2}: ShowPageMasterProps) {
     const [step , setStep] = useState(0);
     const [backendErrors , setBackendErrors] = useState<any>({}) ;
+    const [items , setItems]= useState([]) ; 
     // const [zone , setZone] 
 
     const [shippingData, setShippingData] = useState({
@@ -34,7 +34,7 @@ export default function ShoppingCartMaster({ items = [] , tax = 0 }: ShoppingCar
         },
         notes: "",
     });
-
+    const [productUrl] = useState(() => window.location.pathname);
     
     const onChangeBackendErrors = (errors : any) => {
         setBackendErrors(errors) ;
@@ -45,25 +45,21 @@ export default function ShoppingCartMaster({ items = [] , tax = 0 }: ShoppingCar
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
     
-        
-       const stepUrls: Record<number, string> = {
-             0: '/cart',
-             1: '/checkout?step=shipping',
-             2: '/checkout?step=payment',
+
+    const stepUrls: Record<number, string> = {
+             0: `${productUrl}`,
+             1: `/checkout?step=shipping`,
+             2: `/checkout?step=payment`,
         };
 
         const urlSteps: Record<string, number> = {
-            '/cart':          0,
+            '':          0,
             'shipping': 1,
             'payment':  2,
         };
 
         // step → update URL
-        const onStepChange = (action: 'prev' | 'next') => {
-            const newStep = action === 'next' ? step + 1 : step - 1;
-            setStep(newStep);
-            window.history.pushState({}, '', stepUrls[newStep]);
-        };
+ 
 
     useEffect(() => {
         const syncStepFromUrl = () => {
@@ -80,6 +76,13 @@ export default function ShoppingCartMaster({ items = [] , tax = 0 }: ShoppingCar
         return () => window.removeEventListener('popstate', syncStepFromUrl);
     }, []);
 
+
+       const onStepChange = (action: 'prev' | 'next') => {
+            const newStep = action === 'next' ? step + 1 : step - 1;
+            setStep(newStep);
+            //  ineed to empty this history in each decrement bro when iplay iwht increment decrement it gets accumulated
+            window.history.pushState({}, '', stepUrls[newStep]);
+        };
     const onResetShippingData = () => {
       setShippingData({
         address: {
@@ -96,12 +99,12 @@ export default function ShoppingCartMaster({ items = [] , tax = 0 }: ShoppingCar
         },
         notes: "",
     })
-    }
+    } 
 
     const stepsCompos : Record<string , React.ReactElement> = {
-        '0' : <CartPage {...{items  , onStepChange}} /> , 
+        '0' : <ProductDetails  {...{ onStepChange }} /> , 
         '1' : <ShippingPage {...{items ,tax , shippingData, setShippingData , onStepChange , backendErrors  , onChangeBackendErrors }} /> , 
-        '2' : <CheckoutPage {...{ postUrl : "order.checkout" , items , shippingData , tax , onStepChange , onChangeBackendErrors ,onResetShippingData}} /> , 
+        '2' : <CheckoutPage {...{ postUrl : "order.buynow" , items , shippingData , tax , onStepChange , onChangeBackendErrors ,onResetShippingData}} /> , 
     };
 
 
@@ -109,10 +112,12 @@ export default function ShoppingCartMaster({ items = [] , tax = 0 }: ShoppingCar
    const stepName = step === 0 ? "cart" : step === 1 ? "shipping" : "checkout" ;
     
     return (
-         <Layout seo={{ 
+         <Layout 
+            seo={{ 
              title : '' , 
              description : ''
-          }} currentPage={stepName} >
+          }}
+          currentPage={stepName} >
 
             <div>
                                             {/* Free Shipping Banner */}
@@ -137,4 +142,4 @@ export default function ShoppingCartMaster({ items = [] , tax = 0 }: ShoppingCar
     );
 }
 
-ShoppingCartMaster.layout = (page : any) => <StoreConfigProvider >{page}</StoreConfigProvider>
+Show.layout = (page : any) => <StoreConfigProvider >{page}</StoreConfigProvider>

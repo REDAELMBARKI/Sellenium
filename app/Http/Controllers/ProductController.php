@@ -191,8 +191,6 @@ class ProductController extends Controller
 
 
     public function show(){
-
-       
-       return inertia::render('admin/pages/products/Show');
+       return inertia::render('products/Show');
     }
 }

@@ -4,7 +4,7 @@ import CartItemRow from "./CartItemRow";
 import CouponCodeInput from "../checkout/CouponCodeInput";
 
 interface CartItemsListProps {
-    cartItems: any[];
+    items: any[];
     theme: ThemePalette;
     coupon_code: string;
     onCouponChange: (code: string) => void;
@@ -13,7 +13,7 @@ interface CartItemsListProps {
 }
 
 export default function CartItemsList({
-    cartItems,
+    items,
     theme,
     coupon_code,
     onCouponChange,
@@ -52,7 +52,7 @@ export default function CartItemsList({
             </div>
 
             {/* Cart Items */}
-            {cartItems.length === 0 ? (
+            {items.length === 0 ? (
                 <div className="p-12 text-center">
                     <p style={{ color: theme.textMuted }} className="text-lg">
                         Your cart is empty
@@ -60,7 +60,7 @@ export default function CartItemsList({
                 </div>
             ) : (
                 <>
-                    {cartItems.map((item) => (
+                    {items.map((item) => (
                         <CartItemRow
                             key={item.id}
                             item={item}

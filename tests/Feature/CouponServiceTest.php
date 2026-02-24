@@ -23,7 +23,7 @@ class CouponServiceTest extends TestCase
     private OrderService $orderService ;
 
     protected function setUp(): void
-    {
+    { 
         parent::setUp();
         $this->service = app(CouponService::class);
         $this->orderService = app(OrderService::class);

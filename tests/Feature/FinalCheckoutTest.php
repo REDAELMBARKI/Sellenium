@@ -79,12 +79,8 @@ class FinalCheckoutTest extends TestCase
                 'address_line1' => '123 Main St',
                 'address_line2' => null,
                 'city'          => $city->city, // ← ID — DTO does the lookup
-                'state'         => null,
-                'postal_code'   => '20000',
-                'country'       => 'MA',
                 'phone'         => '0600000000',
                 'email'         => 'john@example.com',
-                'company'       => null,
             ],
             'items' => [
                 [
@@ -137,7 +133,6 @@ class FinalCheckoutTest extends TestCase
         $this->assertEquals('123 Main St',  $order->address->address_line1);
         $this->assertEquals('Casablanca',   $order->address->city); // stored as name not ID
         $this->assertEquals('0600000000',   $order->address->phone);
-        $this->assertEquals('MA',           $order->address->country);
     }
 
     // ========================================================

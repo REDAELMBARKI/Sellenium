@@ -63,19 +63,6 @@ export const shippingSchema = z.object({
       .optional()
     ,
 
-    state: z
-      .string()
-      .max(100, "State must be at most 100 characters")
-      .regex(/^[A-Za-zÀ-ÿ\s'-]+$/, "State contains invalid characters"),
-
-    postal_code: z
-      .string()
-      .min(3, "Postal code must have at least 3 characters")
-      .max(20, "Postal code must have at most 20 characters")
-      .regex(/^[A-Za-z0-9\s-]+$/, "Postal code contains invalid characters")
-     
-    ,
-
      email: z
       .string()
       .email("Invalid email format")
@@ -84,13 +71,7 @@ export const shippingSchema = z.object({
       or(z.literal(""))
       ,
 
-    company: z
-      .string()
-      .max(150, "Company must be at most 150 characters")
-      .optional()
-      .or(z.literal(""))
-    
-    
+  
     
     }),
 

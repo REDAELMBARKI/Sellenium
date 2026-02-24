@@ -2,12 +2,12 @@
 import { ThemePalette } from "@/types/ThemeTypes";
 
 interface MiniCartPreviewProps {
-    cartItems: any[];
+    items: any[];
     theme: ThemePalette;
 }
 
 export default function MiniCartPreview({
-    cartItems,
+    items = [],
     theme,
 }: MiniCartPreviewProps) {
     return (
@@ -23,11 +23,11 @@ export default function MiniCartPreview({
                 style={{ color: theme.text }}
                 className="font-semibold mb-4 text-sm"
             >
-                Shopping Cart ({cartItems.length} Item{cartItems.length !== 1 ? "s" : ""})
+                Shopping Cart ({items.length} Item{items.length !== 1 ? "s" : ""})
             </h3>
 
             <div className="space-y-3 max-h-64 overflow-y-auto">
-                {cartItems.map((item) => (
+                {items.map((item) => (
                     <div
                         key={item.id}
                         className="flex gap-3 pb-3"

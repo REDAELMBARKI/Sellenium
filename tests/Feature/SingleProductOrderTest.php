@@ -281,12 +281,8 @@ class SingleProductOrderTest extends TestCase
                     'address_line1' => '123 Test St',
                     'address_line2' => null,
                     'city'          => 'Casablanca',
-                    'state'         => 'Casablanca',
-                    'postal_code'   => '20000',
-                    'country'       => 'MA',
                     'phone'         => '0600000000',
                     'email'         => null,
-                    'company'       => null,
                 ]
                 ]
             ),

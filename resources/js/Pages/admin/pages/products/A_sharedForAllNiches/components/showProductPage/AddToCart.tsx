@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { ShoppingCart, Plus, Minus } from "lucide-react";
+import { ShoppingCart, Plus, Minus, Banknote } from "lucide-react";
 
 interface AddToCartProps {
   stock: number | string;
+  onBuyNow : () => void,
+  onAddToCart: () => void
 }
 
-const AddToCart: React.FC<AddToCartProps> = ({ stock }) => {
+const CheckoutButtons : React.FC<AddToCartProps> = ({ stock , onBuyNow , onAddToCart}) => {
   const [quantity, setQuantity] = useState(1);
   const stockNumber = typeof stock === "string" ? parseInt(stock) : stock;
   const isOutOfStock = stockNumber === 0;
@@ -45,7 +47,8 @@ const AddToCart: React.FC<AddToCartProps> = ({ stock }) => {
           </button>
         </div>
 
-        <button
+        <button 
+          onClick={onAddToCart}
           disabled={isOutOfStock}
           className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-lg font-semibold text-white transition-all ${
             isOutOfStock
@@ -56,9 +59,24 @@ const AddToCart: React.FC<AddToCartProps> = ({ stock }) => {
           <ShoppingCart className="w-5 h-5" />
           <span>{isOutOfStock ? "Out of Stock" : "Add to Cart"}</span>
         </button>
+
+        {/* // buy now */}
+        <button 
+          onClick={onBuyNow}
+          disabled={isOutOfStock}
+          className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-lg font-semibold text-white transition-all ${
+            isOutOfStock
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-black shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+          }`}
+        >
+          <Banknote  className="w-5 h-5" />
+          <span>{isOutOfStock ? "Out of Stock" : "Buy Now"}</span>
+        </button>
+
       </div>
     </div>
   );
 };
 
-export default AddToCart;
+export default CheckoutButtons;

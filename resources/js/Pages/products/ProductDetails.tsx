@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import Reviews from "./A_sharedForAllNiches/components/showProductPage/Reviews";
-import ProductMoreDetailsTabMaster from "./A_sharedForAllNiches/components/showProductPage/ProductMoreDetailsTabMaster";
-import Specs from "./A_sharedForAllNiches/components/showProductPage/Specs";
-import MediaGallery from "./A_sharedForAllNiches/components/showProductPage/MediaGallery";
-import { ProductInfo } from "./A_sharedForAllNiches/components/showProductPage/ProductInfo";
-import ColorSelector from "./A_sharedForAllNiches/components/showProductPage/ColorSection";
-import SizeSelector from "./A_sharedForAllNiches/components/showProductPage/SizeSelector";
-import AddToCart from "./A_sharedForAllNiches/components/showProductPage/AddToCart";
-import Tabs from "./A_sharedForAllNiches/components/showProductPage/Tabs";
+import Reviews from "../admin/pages/products/A_sharedForAllNiches/components/showProductPage/Reviews";
+import ProductMoreDetailsTabMaster from "../admin/pages/products/A_sharedForAllNiches/components/showProductPage/ProductMoreDetailsTabMaster";
+import Specs from "../admin/pages/products/A_sharedForAllNiches/components/showProductPage/Specs";
+import MediaGallery from "../admin/pages/products/A_sharedForAllNiches/components/showProductPage/MediaGallery";
+import { ProductInfo } from "../admin/pages/products/A_sharedForAllNiches/components/showProductPage/ProductInfo";
+import ColorSelector from "../admin/pages/products/A_sharedForAllNiches/components/showProductPage/ColorSection";
+import SizeSelector from "../admin/pages/products/A_sharedForAllNiches/components/showProductPage/SizeSelector";
+import AddToCart from "../admin/pages/products/A_sharedForAllNiches/components/showProductPage/AddToCart";
+import Tabs from "../admin/pages/products/A_sharedForAllNiches/components/showProductPage/Tabs";
 import { Info, Star, User } from "lucide-react";
 import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import Layout from "@/Layouts/Layout";
+import { router } from "@inertiajs/react";
+import { route } from "ziggy-js";
 
 
 interface Color {
@@ -80,7 +82,11 @@ interface Product {
   madeCountry?: Country;
 }
 
-export const Show = () => {
+interface ProductDetailProps {
+  onStepChange : (action : "next" | "prev") => void 
+}
+
+const ProductDetails = ({onStepChange}:ProductDetailProps) => {
 
   const [selectedMedia, setSelectedMedia] = useState<number>(0);
 
@@ -174,6 +180,11 @@ export const Show = () => {
       ),
     },
   ];
+  
+
+  const handleAddToCard = async (id : string ) => {
+        router.post(route('cart.store') , {id}) ;
+  }
 
 
   return (
@@ -211,7 +222,10 @@ export const Show = () => {
 
                 
                 <div className="pt-4">
-                  <AddToCart stock={product.stockQuantity} />
+                  <AddToCart 
+                   onAddToCart={() => handleAddToCard(product.id)}
+                   onBuyNow={() => onStepChange("next")}
+                   stock={product.stockQuantity} />
                 </div>
               </div>
             </div>
@@ -225,7 +239,4 @@ export const Show = () => {
     </div>
   );
 };
-export default Show;
-
-
-Show.layout = (page: React.ReactNode) => <Layout>{page}</Layout>;
+export default ProductDetails;
