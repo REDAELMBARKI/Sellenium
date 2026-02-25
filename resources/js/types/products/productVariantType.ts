@@ -1,37 +1,16 @@
-import { Color, Cover, Size } from "../inventoryTypes";
+import { Color, Size } from "../inventoryTypes";
 
-
-export interface ProductVariant<C extends CategoryCode = CategoryCode> {
-  category : C
+export interface Variant {
   id: string;
-  productId?: string;
-  sku?: string;
-  price?: number;
-  oldPrice?: number;
-  stockQuantity?: number;
-  option: VariantOptionsByCategory[C]
-}
-
-type CategoryCode = keyof VariantOptionsByCategory;
-
-
-type VariantOptionsByCategory = {
-  fashion: FashionVariant;
-  perfumes: PerfumesVariant;
-  electronics: ElectronicsVariant;
-};
-export interface FashionVariant {
-   size : Size
-   color : Color
-   covers : (Cover)[]
+  price: number | string;
+  stock: string;
+  sku: string;
+  imageUrl: string | null;       // manual override per variant
+  isOpen: boolean;               // tracks if card is expanded/unsaved
+  attrs: VariantAttr | null;
 }
 
 
-export interface PerfumesVariant {
-
-}
-
-export interface ElectronicsVariant {
-  storage?: string;
-  color?: Color;
-}
+type VariantAttr = {
+    color : Color , 
+  } & Record<string, string >

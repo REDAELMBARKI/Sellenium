@@ -2,8 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Edit2, X, Package } from "lucide-react";
 import ProductInfoForm from './ProductFormMaster';
-import { useToasts } from '@/contextHooks/useToasts';
-import { ToasterNative } from '@/components/ui/ToasterNative';
 import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import {  ProductDataGlobal } from '@/types/productsTypes';
 import { useProductUICtx } from '@/contextHooks/product/useProductUICtx';
@@ -12,6 +10,7 @@ import { useBasicinfoActions } from '@/functions/product/useBasicinfoActions';
 import { getEditedData } from '@/data/initialProductData';
 import ProductInfoDisplayMaster from './ProductInfoDisplayMaster';
 import GoCreateProduct from '@/components/partials/GoCreateProduct';
+import { useToast } from '@/contextHooks/useToasts';
 
 
 
@@ -31,7 +30,7 @@ const ProductBasicInfoRouter: React.FC = () => {
   const {isEditingBasicInfo , setIsEditingBasicInfo , setHasUnsavedChanges  , hasUnsavedChanges} =  useProductUICtx() 
   const toastChangedUnsavedMoundRef =  useRef<boolean>(false) ;
   const {handleCancelBasicInfo} = useBasicinfoActions()
-  const {addToast} =  useToasts()
+  const {addToast} =  useToast()
 
 
   useEffect(() => {
@@ -50,7 +49,7 @@ const ProductBasicInfoRouter: React.FC = () => {
     if(!productData) return ;
      // destrictor basic info form data from prroduct data 
     const {...rest} = productData ;
-     const basicInfoData : ProductBasicInfoData = rest ;
+     const basicInfoData : any = rest ;
 
      const hasChanges  = JSON.stringify(basicInfoData) !== JSON.stringify(basicInfoForm) 
      setHasUnsavedChanges(hasChanges)
@@ -173,8 +172,6 @@ const ProductBasicInfoRouter: React.FC = () => {
           </div>
         )}
       </div>
-      <ToasterNative />
-      {/* Conditional rendering based on editing state */}
       {
       modeForm === "edit" ? (
         isEditingBasicInfo ? (

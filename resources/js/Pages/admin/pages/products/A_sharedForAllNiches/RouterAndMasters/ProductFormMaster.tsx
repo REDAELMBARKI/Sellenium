@@ -8,13 +8,16 @@ import { useForm } from '@inertiajs/react'
 import { route } from 'ziggy-js';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import ProductCrEdForm from './ProductCrEdForm';
-import { Save } from 'lucide-react';
+import { Pyramid, Save } from 'lucide-react';
+import { SubmitHandler, useForm as useHookForm } from "react-hook-form";
 import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
 import { ProductDataGlobal } from '@/types/productsTypes';
 import { CATEGORY_CONFIG } from '@/data/categoryConfigurations';
 import { forEach } from 'lodash';
 import adapters from '@/functions/product/adapters';
 import { Inertia } from '@inertiajs/inertia'
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createProductSchema } from '@/shemas/productCreateform';
 
 
 
@@ -25,21 +28,16 @@ const ProductFormMaster: React.FC = () => {
   
   const {state :{ currentTheme}} = useStoreConfigCtx()
   
-  const  { productData = {} , modeForm , basicInfoForm } = useProductDataCtx()
+  const  { productData = {} , modeForm , basicInfoForm , draftId } = useProductDataCtx()
   const form = useForm<ProductDataGlobal>(basicInfoForm) // setData 
-const {toBackendAttribute}  = adapters()
+  const {toBackendAttribute}  = adapters() ;
+  const {register  , control, handleSubmit , formState : {errors : ZodErrors , isDirty}} = useHookForm<any>(
+          {resolver : zodResolver(createProductSchema) ,
+           mode : "onChange" , defaultValues : basicInfoForm}
+  );
+  
 
   const  {setShowToast , setHasUnsavedChanges  } = useProductUICtx()
-
-
-
-
-
-  const handleSaveAllChanges = () => {
-    alert("Changes saved successfully!");
-    setHasUnsavedChanges(false);
-    setShowToast(false);
-  };
   
  function cleanAttributesForBackend(
   attributes: Record<string, any>
@@ -69,15 +67,12 @@ const {toBackendAttribute}  = adapters()
   
  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault()
-
-
    const payload = {
     ...form.data,
     attributes: cleanAttributesForBackend(form.data.attributes),
   }
-
-    // 2️⃣ Send payload directly
-    Inertia.post(route('products.store'), payload as any, {
+  console.log('draftId:', draftId.current) 
+    Inertia.put(route('products.updateDraftOnSave' , {product : draftId.current}), payload as any, {
       onError: (errors) => form.setError(errors),
       onSuccess: () => console.log('Success'),
     })
@@ -90,8 +85,8 @@ const {toBackendAttribute}  = adapters()
    {/* edit and create form  */}
    <div className='flex'>
 
-    <ProductCrEdForm />
-    <RightSectionComponent />
+    <ProductCrEdForm {...{register}} />
+    <RightSectionComponent {...{register}} />
 
    </div>
    {/* save product */}

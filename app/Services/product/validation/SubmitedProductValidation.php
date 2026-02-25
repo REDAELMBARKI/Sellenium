@@ -16,7 +16,7 @@ class SubmitedProductValidation
 
 
      private function product_base_rules()
-    {
+     {
         return [
             "name" => [
                 'bail',
@@ -55,7 +55,12 @@ class SubmitedProductValidation
     private function product_variants_rules()
     {
         return [
-        
+            'variants' => ['required', 'array', 'max:100'],
+            'variants.*.price' => ['required', 'numeric', 'min:0'],
+            'variants.*.stock' => ['required', 'integer', 'min:0'],
+            'variants.*.media_id' => ['nullable', 'exists:media,id'],
+            'variants.*.*' => ['sometimes' , 'string', 'min:0'],
+
         ];
     }
 

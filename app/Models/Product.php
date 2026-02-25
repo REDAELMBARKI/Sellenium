@@ -55,7 +55,7 @@ class Product extends Model
 
 
     public function variants(){
-        $this->hasMany(ProductVariant::class , 'product_id' , 'id') ;
+      return   $this->hasMany(ProductVariant::class , 'product_id' , 'id') ;
     }
 
     public function thumbnail(){

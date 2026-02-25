@@ -5,13 +5,16 @@ namespace App\Services\product;
 
 use App\Models\Product;
 use App\Models\Tag;
+use App\Services\MediaService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ProductService {
-   
+
+    
+   public function __construct(private MediaService $mediaService) {}
     public function storeTags(Collection $tags) : Collection
     {
         
@@ -57,25 +60,7 @@ class ProductService {
         $product->tags()->sync($tagsIds) ;
     }
 
-    private function storeIframeVideo(Product $product , Collection $video){
-        
-        if($video->isEmpty()){
-            return ;
-        }
-        
-        $filteredIframes = $video->filter(fn($v)=> $v['media_type']  === 'iframe') ;
-        $filteredIframes->map(fn($v) =>  $product->media()->updateOrCreate(
-          [
-               'media_type' => 'iframe',
-               'collection' => 'gallery',
-            ],
-     [
-              'url' => $v['url'],
-            ]
-        )) ;
-    }
-
-    public function saveDraft($payload , ?Product $draft) {
+    public function saveDraft($payload , Product $draft) {
         $draft = $draft ?? new Product();
         // draft is created (not null anymore ) ;
         return DB::transaction(function() use ($draft , $payload){
@@ -89,7 +74,9 @@ class ProductService {
             $this ->syncTags($draft , $ids); // sync tags to the product/draft
             $this ->syncSubCategories($draft , collect($payload['subCategories'])) ;
             //store vedio iframe url if exists
-            $this->storeIframeVideo($draft , collect($payload['video']));
+            $this->mediaService->storeIframeVideo($draft , $payload['video']);
+            // store variants
+            $this-> storeVariants($draft , $payload['variants']);
             return $draft->fresh();
         });
     }
@@ -104,6 +91,18 @@ class ProductService {
               $product->ready_to_publish ;
     }
 
+
+    public function storeVariants(Product $product , array $variants){
+         collect($variants)->each(function ($variant) use ($product){
+                 $product->variants()->create([
+                        'price'       => $variant['price'],
+                        'stock'      => $variant['stock'],
+                        'sku'      => $variant['sku'],
+                        'compare_price' => $variant['compare_price'],
+                        'attrs'      => $variant['attrs'],
+                 ]);
+         });
+    }
     public function checkReadiness() : void {}
 
 

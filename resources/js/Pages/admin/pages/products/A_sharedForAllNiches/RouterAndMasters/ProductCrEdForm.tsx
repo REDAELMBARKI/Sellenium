@@ -16,7 +16,6 @@ import BaseSharedForm from "../components/editAndCreate/BaseSharedForm";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import {
     ATTRIBUTES_FORM_SECTIONS,
-    VARIANTS_FORM_SECTIONS,
 } from "@/data/formSectionConfigurations";
 import NotifyUser from "@/components/ui/NotifyUser";
 import PricingSection from "../components/editAndCreate/PricingSection";
@@ -24,17 +23,20 @@ import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
 import adapters from "@/functions/product/adapters";
 import CustomSelectForObjectNative from "@/components/ui/CustomSelectForObjectNative";
 import { Button } from "@/components/ui/button";
+import VariantBuilder from "../variantBuilder/VariantBuilder";
 
 
-const ProductCrEdForm = () => {
+interface ProductCrEdFormFormProps {
+    register : any
+}
+
+const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
     const { basicInfoForm, setBasicInfoForm , category , setCategory , options } = useProductDataCtx();
     const {toSelectOptionAdapter } = adapters()
     const {
         state: { currentTheme },
     } = useStoreConfigCtx();
    
-
-    
     const isOpenShowMedia =
         basicInfoForm.covers.length > 0 ||
         !!(basicInfoForm.video && Object.keys(basicInfoForm.video).length > 0); // check if media is set
@@ -119,43 +121,7 @@ const ProductCrEdForm = () => {
         }
     };
 
-    const validateField = (field: string, value: any) => {
-        const newFrontEndErrors = { ...frontEndErrors };
 
-        if (field === "name" && !value?.trim()) {
-            newFrontEndErrors.name = "Product name is required";
-        } else if (field === "name") {
-            delete newFrontEndErrors.name;
-        }
-
-        if (field === "brand" && !value?.trim()) {
-            newFrontEndErrors.brand = "Brand is required";
-        } else if (field === "brand") {
-            delete newFrontEndErrors.brand;
-        }
-
-        if (field === "price" && (!value || parseFloat(value) <= 0)) {
-            newFrontEndErrors.price = "Valid price is required";
-        } else if (field === "price") {
-            delete newFrontEndErrors.price;
-        }
-
-        if (field === "description" && !value?.trim()) {
-            newFrontEndErrors.description = "Description is required";
-        } else if (field === "description") {
-            delete newFrontEndErrors.description;
-        }
-
-        if (field === "thumbnail" && !value && !thumbnailPreviewRef.current) {
-            newFrontEndErrors.thumbnail = "Product thumbnail is required";
-        } else if (field === "thumbnail") {
-            delete newFrontEndErrors.thumbnail;
-        }
-
-        setFrontEndErrors(newFrontEndErrors);
-    };
-
-    const VariantBuilder = category ? VARIANTS_FORM_SECTIONS[category.name as CategoryCode ] : null;
     const AttibutesBuilder = category ? ATTRIBUTES_FORM_SECTIONS[category.name  as CategoryCode] : null;
     return (
         <div className="w-full h-full overflow-y-auto ">
@@ -203,7 +169,7 @@ const ProductCrEdForm = () => {
                 >
                     {/* Base Shared Info */}
                     <BaseSharedForm
-                        {...{ frontEndErrors, validateField }}
+                        {...{ frontEndErrors }}
                         getThumbnailPreview={(thumbnail) =>
                             (thumbnailPreviewRef.current = thumbnail)
                         }
@@ -217,7 +183,7 @@ const ProductCrEdForm = () => {
                         borderColor: currentTheme.border,
                     }}
                 >
-                    <PricingSection {...{ frontEndErrors, validateField }} />
+                    <PricingSection {...{ frontEndErrors }} />
                 </section>
 
                 <section
@@ -253,9 +219,8 @@ const ProductCrEdForm = () => {
                 </section>
 
                 {/* Variant Builder */}
-                {VariantBuilder && (
                     <section
-                        className="p-4 border border-1"
+                        className="border border-1 "
                         style={{
                             background: currentTheme.card,
                             borderColor: currentTheme.border,
@@ -280,7 +245,6 @@ const ProductCrEdForm = () => {
                             </CollapsibleSection>
                         </div>
                     </section>
-                )}
 
                 
                 {/* Attributes */}

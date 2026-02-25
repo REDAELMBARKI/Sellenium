@@ -5,7 +5,7 @@ import { route } from "ziggy-js";
 
 export  const productFilesUploaderCleaner = () => {
 
-      const uploadProductFiles = async (file: File, collection: FlagMedia  , model_type : ModelType , toDraftId? : string) => {
+      const uploadProductFiles = async (file: File, collection: FlagMedia  , model_type : ModelType  , routeUrl : string, toDraftId? : string) => {
           
           const formData = new FormData();
           formData.append('file', file);
@@ -14,12 +14,11 @@ export  const productFilesUploaderCleaner = () => {
           formData.append('model_id', toDraftId ?? '');
           
           try 
-          {  const response = await axios.post(route('media.store'), formData, {
+          {  const response = await axios.post(route(routeUrl), formData, {
               headers: {
                   'Content-Type': 'multipart/form-data',
               }, }
             );
-            console.log(response.data.message)
             return response.data;
 
           }catch (error : any) {
@@ -28,17 +27,10 @@ export  const productFilesUploaderCleaner = () => {
         };
 
 
-      const cleanDeletedProductMedia = async (draftId : string  , mediaId : string) => {
+      const deleteMedia = async (mediaId : string) => {
           
           try {
-            const r =  await axios.delete(route('media.destroy' , mediaId) , {
-                      data : {
-                          draft_id : draftId 
-                      }
-                  } )
-
-            console.log(r.data)
-              
+            const r =  await axios.delete(route('media.destroy' , mediaId))
           }catch(error){
               throw new Error("Failed to remove the image. Please try again.") ;
           }
@@ -78,7 +70,7 @@ export  const productFilesUploaderCleaner = () => {
       }
 
 
- return { cleanProductTempMediaOnDistroy , uploadProductFiles , cleanDeletedProductMedia}
+ return { cleanProductTempMediaOnDistroy , uploadProductFiles , deleteMedia}
  
 }
 

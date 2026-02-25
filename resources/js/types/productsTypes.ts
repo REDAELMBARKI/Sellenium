@@ -1,9 +1,9 @@
-import { ProductVariant } from "./products/productVariantType";
 import { ProductBase } from "./products/baseProductTypes";
 import { FashionAttributes } from "./products/fashionTypes";
 import { PerfumesAttributes } from "./products/perfumesTypes";
 import { ElectronicsAttributes } from "./products/electronicsTypes";
 import { Category } from "./inventoryTypes";
+import { Variant } from "./products/productVariantType";
 export interface ProductBackendProps {
     children : React.ReactNode ;
     data : {product?: ProductDataGlobal , categoryObject? : Category  , options : any}
@@ -14,7 +14,7 @@ export interface ProductBackendProps {
 
 
 export type ProductDataGlobal =  
-  | FashionProduct
+  |  FashionProduct
   |  PerfumesProduct 
   |  ElectronicsProduct 
 
@@ -25,24 +25,24 @@ export type ProductDataGlobal =
 export type FashionProduct =
   ProductBase & {
     attributes: FashionAttributes;
-    variants: ProductVariant[];
+    variants: Variant[];
   };
 
 export type PerfumesProduct =
   ProductBase & {
     attributes: PerfumesAttributes;
-    variants: ProductVariant[];
+    variants: Variant[];
   };
 
 export type ElectronicsProduct =
   ProductBase & {
     attributes: ElectronicsAttributes;
-    variants: ProductVariant[];
+    variants: Variant[];
   };
 
 
 export interface VariantDisplayProps {
-    variant: ProductVariant
+    variant: Variant
 }
 
 

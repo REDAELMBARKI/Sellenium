@@ -32,7 +32,7 @@ export default function ShippingPage({items = [], tax  , shippingData, setShippi
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
     const {register  , control, handleSubmit , formState : {errors : ZodErrors , isDirty}} = useForm<any>(
-        // {resolver : zodResolver(shippingSchema) , mode : "onChange" , defaultValues : shippingData}
+        {resolver : zodResolver(shippingSchema) , mode : "onChange" , defaultValues : shippingData}
     ) ; 
 
     const [shippingCities , setShippingCities] =  useState([]); 

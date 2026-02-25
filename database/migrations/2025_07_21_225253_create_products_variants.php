@@ -16,16 +16,16 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Product::class)->constrained()->onDelete('cascade');
             $table->decimal('price', 10, 2);
-            $table->decimal('oldPrice', 10, 2)->nullable();
+            $table->decimal('compare_price', 10, 2)->nullable();
             $table->integer('stock')->default(0);
             $table->string('sku')->unique()->nullable();
             
             // Store all attributes as JSON
-            $table->json('attributes')->nullable(); // {"color": "red", "storage": "32GB"}
+            $table->json('attrs')->nullable(); // {"color": "red", "storage": "32GB"}
             
             // Virtual columns for common searchable attributes (optional, for performance)
-            $table->string('color')->nullable()->virtualAs("JSON_UNQUOTE(JSON_EXTRACT(attributes, '$.color'))");
-            $table->string('size')->nullable()->virtualAs("JSON_UNQUOTE(JSON_EXTRACT(attributes, '$.size'))");
+            $table->string('color')->nullable()->virtualAs("JSON_UNQUOTE(JSON_EXTRACT(attrs, '$.color'))");
+            $table->string('size')->nullable()->virtualAs("JSON_UNQUOTE(JSON_EXTRACT(attrs, '$.size'))");
             
             $table->boolean('is_default')->default(false);
             $table->timestamps();

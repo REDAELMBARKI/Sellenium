@@ -3,10 +3,8 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import React from 'react';
 
 function PricingSection({
-  validateField,
   frontEndErrors,
 }: {
-  validateField: (field: string, value: any) => void;
   frontEndErrors: Record<string, string>;
 }) {
   const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
@@ -38,9 +36,7 @@ function PricingSection({
               ...basicInfoForm,
               price: Number(e.target.value),
             });
-            validateField('price', e.target.value);
           }}
-          onBlur={(e) => validateField('price', e.target.value)}
           className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
           style={{
             backgroundColor: currentTheme.bg,

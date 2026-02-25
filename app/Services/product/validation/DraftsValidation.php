@@ -95,7 +95,7 @@ class DraftsValidation
     private function draft_variants_rules()
     {
         return [
-        
+            
         ];
     }
 

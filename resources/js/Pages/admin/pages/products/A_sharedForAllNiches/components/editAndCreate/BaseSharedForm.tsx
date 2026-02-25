@@ -15,18 +15,15 @@ import "react-quill/dist/quill.snow.css";
 
 
 
-const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} : {getThumbnailPreview : (thumbnail:string) => void , validateField : (field: string, value: any) => void , frontEndErrors : Record<string , string>}) => {
-    
+const BaseSharedForm = ({getThumbnailPreview  , frontEndErrors} : {getThumbnailPreview : (thumbnail:string) => void , frontEndErrors : Record<string , string>}) => {
     const { basicInfoForm, setBasicInfoForm , draftId } = useProductDataCtx();
     const {state :{currentTheme}} = useStoreConfigCtx()
     const  thumbnailInputRef = useRef<HTMLInputElement>(null);
     const [uploadError , setUploadError] = useState<string | null>(null)
     const [thumbnailUploading , setThumbnailUploading] = useState(false)
     const [thumbnailPreview, setThumbnailPreview] = useState<Cover | null>(basicInfoForm.thumbnail);
-    const {cleanDeletedProductMedia , uploadProductFiles} = productFilesUploaderCleaner()
+    const {deleteMedia , uploadProductFiles} = productFilesUploaderCleaner()
     const {createDraft} = useBackendInteraction()
-
-    
     
     const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       try{   
@@ -35,8 +32,7 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
             if (!file) return;
             setUploadError(null)
             setThumbnailUploading(true)
-            // validateField('thumbnail', url);
-            const data =  await uploadProductFiles(file , 'thumbnail' , 'Product', draftId.current);
+            const data =  await uploadProductFiles(file , 'thumbnail' , 'Product', 'media.store.forProduct',  draftId.current);
             setThumbnailPreview({url : data.media.url , id : data.media.id});
             if(!draftId.current) draftId.current = data.draft_id
           }catch(err : any){
@@ -50,9 +46,9 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
 
    
     const handleThumnailRemove = async (mediaId : string) => {
-      if(!draftId.current || !mediaId) return ;
+      if(!mediaId) return ;
       try{ 
-          await  cleanDeletedProductMedia(draftId.current , mediaId);
+          await  deleteMedia(mediaId);
           setThumbnailPreview(null);
         }catch(err : any){
           setUploadError(err.message)
@@ -137,9 +133,7 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
                 value={basicInfoForm.name}
                 onChange={(e) => {
                   setBasicInfoForm({ ...basicInfoForm, name: e.target.value });
-                  validateField('name', e.target.value);
                 }}
-                onBlur={(e) => validateField('name', e.target.value)}
                 className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
                 style={{
                   backgroundColor: currentTheme.bg,
@@ -159,9 +153,7 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
                 value={basicInfoForm.brand}
                 onChange={(e) => {
                   setBasicInfoForm({ ...basicInfoForm, brand: e.target.value });
-                  validateField('brand', e.target.value);
                 }}
-                onBlur={(e) => validateField('brand', e.target.value)}
                 className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
                 style={{
                   backgroundColor: currentTheme.bg,
@@ -187,12 +179,10 @@ const BaseSharedForm = ({getThumbnailPreview , validateField , frontEndErrors} :
               theme="snow"
                onBlur={(previousRange, source, editor) => {
                 const content = editor.getText(); // plain text version
-                validateField('description', content);
               }}
               value={basicInfoForm.description}
               onChange={(value) => {
                 setBasicInfoForm({ ...basicInfoForm, description: value });
-                validateField('description',value);
               }}
               className="rounded-xl overflow-hidden shadow-sm border border-gray-300"
 

@@ -1,4 +1,5 @@
 import { Category , Cover , Video } from "../inventoryTypes";
+import { Variant } from "./productVariantType";
 
 
 export interface ProductBase { 
@@ -18,12 +19,15 @@ export interface ProductBase {
   madeCountry : string
   thumbnail:  Cover | null ;
   video: Video[] ,
-
   covers : Cover[] , 
   inventory: InventoryAttributes | null;
   shipping: ShippingAttributes | null;
   meta: MetaAttributes | null;
   vendor: VendorAttributes | null;
+
+  // 
+  variants: Variant[];
+  
 }
 
 interface DimensionType {

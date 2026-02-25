@@ -17,7 +17,7 @@ return new class extends Migration
     Schema::create('media', function (Blueprint $table) {
         $table->id();
 
-        $table->enum('collection' , ['cover' , 'thumbnail', 'video' ,  'avatar', 'variant_cover', 'banner'])->nullable();
+        $table->enum('collection' , ['galery' , 'thumbnail' ,  'avatar', 'banner'])->nullable();
         // thumbnail, gallery, avatar, variant_cover, banner
         $table->string('url');
         

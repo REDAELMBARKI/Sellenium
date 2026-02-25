@@ -22,7 +22,7 @@ const CollapsibleSection = ({
 
     
   return(
-  <div className="space-y-4" ref={ref}>
+  <div className="space-y-0" ref={ref}>
     <div
       className="w-full flex items-center justify-between px-6 py-4 rounded-xl font-bold uppercase tracking-wide transition-all duration-200"
       style={{
