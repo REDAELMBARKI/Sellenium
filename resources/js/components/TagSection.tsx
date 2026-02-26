@@ -4,6 +4,7 @@ import SelectedChip from './ui/SelectedChip';
 import { Button } from './ui/button';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
+import { Input } from './ui/input';
 
 interface TagInputProps {
   tags: string[];
@@ -100,7 +101,7 @@ const TagSection: React.FC<TagInputProps> = ({ tags }) => {
 
       <div className="relative">
         <div className="search-box">
-          <input
+          <Input
             ref={inputRef}
             type="text"
             value={inputValue}

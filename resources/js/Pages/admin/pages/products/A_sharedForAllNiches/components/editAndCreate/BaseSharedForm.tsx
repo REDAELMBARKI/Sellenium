@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import NotifyUser from "@/components/ui/NotifyUser";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
@@ -128,7 +129,8 @@ const BaseSharedForm = ({getThumbnailPreview  , frontEndErrors} : {getThumbnailP
               <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
                 Product Name <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
+                placeholder='Product Name'
                 type="text"
                 value={basicInfoForm.name}
                 onChange={(e) => {
@@ -148,7 +150,9 @@ const BaseSharedForm = ({getThumbnailPreview  , frontEndErrors} : {getThumbnailP
               <label className="block text-sm font-bold mb-4 uppercase tracking-wide" style={{ color: currentTheme.text }}>
                 Brand <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
+                placeholder='Brand'
+                
                 type="text"
                 value={basicInfoForm.brand}
                 onChange={(e) => {

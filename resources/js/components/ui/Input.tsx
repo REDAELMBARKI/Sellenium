@@ -36,18 +36,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         
      
         >
-
+      
         <input
           ref={ref}
           type={type}
           style={{...mergedStyle ,  ...{backgroundColor: currentTheme.bg,
                   color: currentTheme.text,
                   borderWidth: '2px',}}}
-          className={cn(
-            "w-full h-full bg-transparent px-5 py-4 rounded-md font-medium shadow-sm",
-            "outline-none focus:outline-none focus:ring-0 focus-visible:outline-none",
-            "appearance-none [-webkit-appearance:none]"
-          )}
+          className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
 
           {...props}
         />

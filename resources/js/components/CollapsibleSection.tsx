@@ -24,7 +24,7 @@ const CollapsibleSection = ({
   return(
   <div className="space-y-0" ref={ref}>
     <div
-      className="w-full flex items-center justify-between px-6 py-4 rounded-xl font-bold uppercase tracking-wide transition-all duration-200"
+      className="w-full flex items-center justify-between px-6 py-4 font-bold uppercase tracking-wide transition-all duration-200"
       style={{
         backgroundColor: isOpen ? currentTheme.secondary : currentTheme.bg,
         borderWidth: '2px',
@@ -44,7 +44,7 @@ const CollapsibleSection = ({
      
     </div>
     {isOpen && (
-      <div className="space-y-6 p-6 rounded-xl border-2 animate-slideDown" style={{ borderColor: currentTheme.border, backgroundColor: currentTheme.bg + '20' }}>
+      <div className="space-y-6  border-2 animate-slideDown" style={{ borderColor: currentTheme.border, backgroundColor: currentTheme.bg + '20' }}>
         {children}
       </div>
     )}

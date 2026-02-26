@@ -3,6 +3,7 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { Search, X, Link2, PackageSearch } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { Input } from '@/components/ui/input';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type SearchProduct = {
@@ -242,7 +243,7 @@ function RelatedProductsSection() {
   const removeProduct = (id: number) => {
     setBasicInfoForm({
       ...basicInfoForm,
-      related_products: selected.filter((p) => p.id !== id),
+      related_products : selected.filter((p) => p.id !== id).map(s => s.id),
     });
   };
 
@@ -251,7 +252,7 @@ function RelatedProductsSection() {
       {/* Search Input */}
       <div className="relative" ref={dropdownRef}>
         <div
-          className="flex items-center gap-2 px-4 py-3 rounded-lg"
+          className="flex items-center gap-2 px-4 py-3"
           style={{
             backgroundColor: currentTheme.bg,
             border: `1px solid ${currentTheme.border}`,
@@ -262,13 +263,13 @@ function RelatedProductsSection() {
             className={loading ? 'animate-pulse' : ''}
             style={{ color: currentTheme.textMuted }}
           />
-          <input
+          <Input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => results.length > 0 && setShowDropdown(true)}
             placeholder="Search products by name..."
-            className="flex-1 text-sm bg-transparent outline-none"
+           
             style={{ color: currentTheme.text }}
           />
           {query && (

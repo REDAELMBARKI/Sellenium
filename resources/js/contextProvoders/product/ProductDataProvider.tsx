@@ -7,6 +7,7 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import {  ProductBackendProps } from '@/types/productsTypes';
 import { CategoriesList } from './../../Pages/admin/pages/categories/CategoriesList';
 import { ProductBase } from '@/types/products/baseProductTypes';
+import { useForm } from 'react-hook-form';
 
 
 
@@ -32,11 +33,13 @@ const ProductDataProvider = ({children , data : {product , categoryObject , opti
    
     const initialData = getInitialData(modeForm, product , categoryObject);
     const [productData ,   setProductData] = useState<ProductBase | undefined>(() => product)
-    const [basicInfoForm , setBasicInfoForm] = useState<ProductBase>(() => initialData);
     const [category , setCategory] = useState(categoryObject) ;
     const [categoryList , setCategoryList] = useState<Category[]>(backendOptions.categories) ; 
-    const draftId = useRef<string | undefined>(basicInfoForm.id ?? undefined);
-    
+    const {register , handleSubmit , setValue , getValues ,formState : {isDirty , isValid }} = useForm({
+        defaultValues :  () => initialData , 
+        mode : 'onChange'
+    })
+    const draftId = useRef<string | undefined>(product?.id ?? undefined);
     const [options] = useState(backendOptions);
 
     return (
@@ -44,8 +47,9 @@ const ProductDataProvider = ({children , data : {product , categoryObject , opti
         modeForm , 
         categoryList , setCategoryList , 
         category , setCategory  , 
-        productData ,   setProductData , 
-        basicInfoForm , setBasicInfoForm , 
+        productData ,   setProductData ,
+        register , handleSubmit , setValue , getValues , 
+        isDirty , isValid,
         options , 
         draftId
     }}>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Zap } from "lucide-react";
+import { X, Zap, Plus } from "lucide-react";
 import { Variant } from "@/types/products/productVariantType";
 import { ThemePalette } from "@/types/ThemeTypes";
 
@@ -41,7 +41,9 @@ interface GenerateModalProps {
   theme: ThemePalette;
 }
 
-export default function GenerateModal({ activeOptions, existingVariants, productPrice, onAdd, onClose, theme }: GenerateModalProps) {
+export default function GenerateModal({
+  activeOptions, existingVariants, productPrice, onAdd, onClose, theme
+}: GenerateModalProps) {
   const [modalValues, setModalValues] = useState<Record<string, string[]>>(
     Object.fromEntries(activeOptions.map((o) => [o, []]))
   );
@@ -58,9 +60,16 @@ export default function GenerateModal({ activeOptions, existingVariants, product
 
   const comboKey = (combo: Record<string, string>) => Object.values(combo).join(" / ");
 
+  // ✅ fixed: color now lives in attrs.color as { hex, name }
   const alreadyAdded = (combo: Record<string, string>) =>
     existingVariants.some((v) => {
-      const vKey = activeOptions.map((o) => o === "Color" ? v.colorName : v.attrs[o]).join(" / ");
+      const vKey = activeOptions.map((o) => {
+        if (o === "Color") {
+          const c = v.attrs?.color as { name: string } | undefined;
+          return c?.name ?? "";
+        }
+        return v.attrs?.[o] as string ?? "";
+      }).join(" / ");
       return vKey === comboKey(combo);
     });
 
@@ -70,63 +79,137 @@ export default function GenerateModal({ activeOptions, existingVariants, product
   const handleAdd = () => {
     const toAdd: Variant[] = generated
       .filter((c) => selected.has(comboKey(c)) && !alreadyAdded(c))
-      .map((c, i) => ({
-        id: `gen-${Date.now()}-${i}`,
-        colorHex: c["Color"] ? (COLOR_HEX[c["Color"]] || "#888") : null,
-        colorName: c["Color"] || null,
-        attrs: Object.fromEntries(Object.entries(c).filter(([k]) => k !== "Color")),
-        price: productPrice, stock: "",
-        sku: `SKU-${String(existingVariants.length + i + 1).padStart(3, "0")}`,
-        imageUrl: null,
-        isOpen: true,
-      }));
-    onAdd(toAdd); onClose();
+      .map((c, i) => {
+        // ✅ build attrs: color goes in as { hex, name }, rest as strings
+        const attrs: Record<string, any> = {};
+        Object.entries(c).forEach(([k, v]) => {
+          if (k === "Color") {
+            attrs.color = { hex: COLOR_HEX[v] || "#888", name: v };
+          } else {
+            attrs[k.toLowerCase()] = v;
+          }
+        });
+
+        return {
+          id: `gen-${Date.now()}-${i}`,
+          attrs,
+          price: productPrice,
+          stock: "",
+          sku: `SKU-${String(existingVariants.length + i + 1).padStart(3, "0")}`,
+          imageUrl: null,
+          isOpen: true,
+        };
+      });
+
+    onAdd(toAdd);
+    onClose();
+  };
+
+  const inputStyle = {
+    backgroundColor: theme.bg,
+    color: theme.text,
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: theme.border,
   };
 
   return (
     <>
-      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: theme.overlay, zIndex: 40 }} />
-      <div style={{ position: "fixed", zIndex: 50, top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "90%", maxWidth: 520, maxHeight: "80vh", overflowY: "auto", background: theme.modal, border: `1px solid ${theme.border}`, borderRadius: theme.borderRadius, boxShadow: theme.shadowLg }}>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{ position: "fixed", inset: 0, background: theme.overlay, zIndex: 40 }}
+      />
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: `1px solid ${theme.border}`, position: "sticky", top: 0, background: theme.modal, zIndex: 1 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Zap size={16} color={theme.primary} />
-            <span style={{ fontSize: 14, fontWeight: 600, color: theme.text }}>Generate Variants</span>
+      {/* Modal */}
+      <div
+        style={{
+          position: "fixed", zIndex: 50,
+          top: "50%", left: "50%",
+          transform: "translate(-50%,-50%)",
+          width: "90%", maxWidth: 520,
+          maxHeight: "80vh", overflowY: "auto",
+          background: theme.modal,
+          border: `1px solid ${theme.border}`,
+          borderRadius: theme.borderRadius,
+          boxShadow: theme.shadowLg,
+        }}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-5 py-4"
+          style={{
+            borderBottom: `1px solid ${theme.border}`,
+            position: "sticky", top: 0,
+            background: theme.modal, zIndex: 1,
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <Zap size={15} style={{ color: theme.primary }} />
+            <span className="text-sm font-semibold" style={{ color: theme.text }}>
+              Generate Variants
+            </span>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted }}><X size={16} /></button>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted }}
+          >
+            <X size={16} />
+          </button>
         </div>
 
-        <div style={{ padding: 20 }}>
-          <p style={{ fontSize: 12, color: theme.textMuted, marginBottom: 20 }}>
+        {/* Body */}
+        <div className="p-5">
+          <p className="text-xs mb-5" style={{ color: theme.textMuted }}>
             Select values for each option — combinations will be generated automatically. Then pick which ones you want.
           </p>
 
+          {/* Option selectors */}
           {activeOptions.map((opt) => (
-            <div key={opt} style={{ marginBottom: 20 }}>
-              <p style={{ fontSize: 11, letterSpacing: "0.1em", color: theme.textMuted, marginBottom: 8 }}>{opt.toUpperCase()}</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            <div key={opt} className="mb-5">
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-3"
+                style={{ color: theme.textMuted }}
+              >
+                {opt}
+              </p>
+              <div className="flex flex-wrap gap-2">
                 {opt === "Color"
                   ? DB_COLORS.map((c) => {
                       const active = (modalValues[opt] || []).includes(c.name);
                       return (
-                        <button key={c.name} onClick={() => toggleValue(opt, c.name)} title={c.name} style={{
-                          width: 28, height: 28, borderRadius: "50%", background: c.hex, cursor: "pointer", flexShrink: 0,
-                          border: active ? `3px solid ${theme.primary}` : `2px solid ${theme.border}`,
-                          boxShadow: active ? `0 0 0 2px ${theme.modal}, 0 0 0 4px ${theme.primary}` : "none",
-                          transition: "all 0.12s",
-                        }} />
+                        <button
+                          key={c.name}
+                          type="button"
+                          onClick={() => toggleValue(opt, c.name)}
+                          title={c.name}
+                          style={{
+                            width: 28, height: 28, borderRadius: "50%",
+                            background: c.hex, cursor: "pointer", flexShrink: 0,
+                            border: active ? `3px solid ${theme.primary}` : `2px solid ${theme.border}`,
+                            transition: "all 0.12s",
+                          }}
+                        />
                       );
                     })
                   : (OPTION_SUGGESTIONS[opt] || []).map((s) => {
                       const active = (modalValues[opt] || []).includes(s);
                       return (
-                        <button key={s} onClick={() => toggleValue(opt, s)} style={{
-                          padding: "5px 12px", borderRadius: theme.borderRadius, fontSize: 12,
-                          border: `1px solid ${active ? theme.primary : theme.border}`,
-                          background: active ? theme.primary + "22" : "transparent",
-                          color: active ? theme.primary : theme.textSecondary,
-                          cursor: "pointer", transition: "all 0.12s",
-                        }}>{s}</button>
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => toggleValue(opt, s)}
+                          className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-100"
+                          style={{
+                            border: `1.5px solid ${active ? theme.primary : theme.border}`,
+                            background: active ? theme.primary + "18" : "transparent",
+                            color: active ? theme.primary : theme.textSecondary,
+                            cursor: "pointer",
+                          }}
+                        >
+                          {s}
+                        </button>
                       );
                     })
                 }
@@ -134,52 +217,99 @@ export default function GenerateModal({ activeOptions, existingVariants, product
             </div>
           ))}
 
+          {/* Generate button */}
           <button
+            type="button"
             onClick={() => { setGenerated(generateCombinations(modalValues)); setSelected(new Set()); }}
-            style={{ width: "100%", padding: 10, borderRadius: theme.borderRadius, background: theme.primary, border: "none", color: theme.textInverse, fontSize: 13, cursor: "pointer", fontWeight: 600, marginBottom: 20 }}
+            className="w-full py-3 rounded-xl text-sm font-semibold mb-5 flex items-center justify-center gap-2"
+            style={{ background: theme.primary, border: "none", color: theme.textInverse, cursor: "pointer" }}
           >
-            Generate Combinations →
+            <Zap size={14} /> Generate Combinations
           </button>
 
+          {/* Results */}
           {generated.length > 0 && (
             <>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                <span style={{ fontSize: 12, color: theme.textMuted }}>{generated.length} combinations</span>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs" style={{ color: theme.textMuted }}>
+                  {generated.length} combinations
+                </span>
                 <button
+                  type="button"
                   onClick={() => setSelected(new Set(generated.filter((c) => !alreadyAdded(c)).map(comboKey)))}
-                  style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: theme.primary }}
+                  className="text-xs font-semibold"
+                  style={{ background: "none", border: "none", cursor: "pointer", color: theme.primary }}
                 >
                   Select all available
                 </button>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 16 }}>
+              <div className="flex flex-col gap-2 mb-4">
                 {generated.map((combo) => {
-                  const key = comboKey(combo); const added = alreadyAdded(combo); const isSel = selected.has(key);
+                  const key = comboKey(combo);
+                  const added = alreadyAdded(combo);
+                  const isSel = selected.has(key);
+                  const colorEntry = combo["Color"]
+                    ? DB_COLORS.find((c) => c.name === combo["Color"])
+                    : null;
+
                   return (
-                    <div key={key} onClick={() => !added && toggleSelect(key)} style={{
-                      display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
-                      borderRadius: theme.borderRadius,
-                      border: `1px solid ${isSel ? theme.primary : theme.border}`,
-                      background: added ? "#ffffff06" : isSel ? theme.primary + "11" : "transparent",
-                      cursor: added ? "default" : "pointer", opacity: added ? 0.5 : 1, transition: "all 0.12s",
-                    }}>
-                      <div style={{ width: 16, height: 16, borderRadius: 4, flexShrink: 0, border: `1px solid ${isSel ? theme.primary : theme.border}`, background: isSel ? theme.primary : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div
+                      key={key}
+                      onClick={() => !added && toggleSelect(key)}
+                      className="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-100"
+                      style={{
+                        border: `1.5px solid ${isSel ? theme.primary : theme.border}`,
+                        background: added ? theme.bgSecondary : isSel ? theme.primary + "10" : "transparent",
+                        cursor: added ? "default" : "pointer",
+                        opacity: added ? 0.5 : 1,
+                      }}
+                    >
+                      {/* Checkbox */}
+                      <div
+                        className="flex items-center justify-center flex-shrink-0"
+                        style={{
+                          width: 16, height: 16, borderRadius: 4,
+                          border: `1.5px solid ${isSel ? theme.primary : theme.border}`,
+                          background: isSel ? theme.primary : "transparent",
+                        }}
+                      >
                         {isSel && <span style={{ fontSize: 10, color: "#fff" }}>✓</span>}
                       </div>
-                      {combo["Color"] && (
-                        <span style={{ width: 12, height: 12, borderRadius: "50%", flexShrink: 0, background: COLOR_HEX[combo["Color"]] || "#888", border: `1px solid ${theme.border}` }} />
+
+                      {/* Color dot */}
+                      {colorEntry && (
+                        <span
+                          style={{
+                            width: 12, height: 12, borderRadius: "50%", flexShrink: 0,
+                            background: colorEntry.hex,
+                            border: `1px solid ${theme.border}`,
+                          }}
+                        />
                       )}
-                      <span style={{ flex: 1, fontSize: 13, color: added ? theme.textMuted : theme.text }}>{key}</span>
-                      {added && <span style={{ fontSize: 11, color: theme.textMuted }}>already added</span>}
+
+                      <span className="flex-1 text-sm" style={{ color: added ? theme.textMuted : theme.text }}>
+                        {key}
+                      </span>
+
+                      {added && (
+                        <span className="text-xs" style={{ color: theme.textMuted }}>
+                          already added
+                        </span>
+                      )}
                     </div>
                   );
                 })}
               </div>
 
               {selected.size > 0 && (
-                <button onClick={handleAdd} style={{ width: "100%", padding: 10, borderRadius: theme.borderRadius, background: theme.primary, border: "none", color: theme.textInverse, fontSize: 13, cursor: "pointer", fontWeight: 600 }}>
-                  Add selected ({selected.size}) →
+                <button
+                  type="button"
+                  onClick={handleAdd}
+                  className="w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2"
+                  style={{ background: theme.primary, border: "none", color: theme.textInverse, cursor: "pointer" }}
+                >
+                  <Plus size={14} /> Add selected ({selected.size})
                 </button>
               )}
             </>

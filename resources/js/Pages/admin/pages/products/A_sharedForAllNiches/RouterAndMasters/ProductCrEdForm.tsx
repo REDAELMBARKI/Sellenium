@@ -7,6 +7,8 @@ import {
     HelpCircle,
     Tag,
     Layers,
+    DollarSign,
+    Palette,
 } from "lucide-react";
 import { useState, useRef } from "react";
 import MediaSection from "../components/editAndCreate/MediaSection";
@@ -21,7 +23,7 @@ import {
     ATTRIBUTES_FORM_SECTIONS,
 } from "@/data/formSectionConfigurations";
 import NotifyUser from "@/components/ui/NotifyUser";
-import PricingSection from "../components/editAndCreate/PricingSection";
+import PricingSection from "../components/editAndCreate/SingleProductPricingSection";
 import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
 import adapters from "@/functions/product/adapters";
 import CustomSelectForObjectNative from "@/components/ui/CustomSelectForObjectNative";
@@ -32,6 +34,7 @@ import ProductSettingsSection from "../components/editAndCreate/VisibilitySettin
 import BadgePicker from "../components/editAndCreate/BadgePicker";
 import VisibilitySettings from "../components/editAndCreate/VisibilitySettings";
 import RelatedProductsSection from "../components/editAndCreate/RelatedProductsSection";
+import PricingOrVariants from "../components/editAndCreate/PricingOrVariants";
 
 
 interface ProductCrEdFormFormProps {
@@ -49,10 +52,6 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
         basicInfoForm.covers.length > 0 ||
         !!(basicInfoForm.video && Object.keys(basicInfoForm.video).length > 0); // check if media is set
     const isOpenShowVariantBuilder = basicInfoForm.variants.length > 0; // check if the variants are set
-    const [showVariantBuilder, setShowVariantBuilder] = useState<boolean>(
-        isOpenShowVariantBuilder
-    );
-
 
     // check if at least one of  the attributes is set
     const isOpenShowAttributes = true;
@@ -84,7 +83,8 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
     const [showFaqs, setShowFaqs] = useState(false)
     const [showVisibility, setShowVisibility] = useState(false) ;
     const [showRelated, setShowRelated] = useState(false) ;
-    
+    const [showInventory, setShowInventory] = useState(false) ; 
+    const hasVariants = basicInfoForm.variants.length > 0;
     //refs
     const isMountedRef = useRef<boolean>(false);
     const mediaRef = useRef<HTMLDivElement | null>(null);
@@ -187,7 +187,7 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
                     />
                 </section>
 
-               
+                
 
                 <section
                     className="p-4 border border-1"
@@ -220,7 +220,24 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
                         </CollapsibleFrendlySection>
                     </div>
                 </section>
-
+                {/* single product / variants builder */}
+                <section
+                    className="border border-1"
+                    style={{
+                        background: currentTheme.card,
+                        borderColor: currentTheme.border,
+                    }}
+                >
+                    <section
+                        className="border border-1"
+                        style={{
+                            background: currentTheme.card,
+                            borderColor: currentTheme.border,
+                        }}
+                    >
+                        <PricingOrVariants frontEndErrors={frontEndErrors} />
+                    </section>
+                </section>
                 {/* faqs */}
                 <section
                     className="border border-1"

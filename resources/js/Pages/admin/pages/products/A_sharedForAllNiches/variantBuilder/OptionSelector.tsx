@@ -31,7 +31,7 @@ export default function OptionSelector({ selected, colorImages, onChange, onColo
     onChange(selected.includes(opt) ? selected.filter((o) => o !== opt) : [...selected, opt]);
 
   return (
-    <div style={{ background: theme.bgSecondary, border: `1px solid ${theme.border}`, borderRadius: theme.borderRadius, padding: "20px 24px" }}>
+    <div style={{ background: theme.bgSecondary, border: `1px solid ${theme.border}`, padding: "20px 24px" }}>
       <p style={{ fontSize: 11, letterSpacing: "0.12em", color: theme.textMuted, marginBottom: 6 }}>STEP 1 — OPTIONS</p>
       <p style={{ fontSize: 12, color: theme.textMuted, marginBottom: 16 }}>
         What makes this product different? e.g. a t-shirt has <strong style={{ color: theme.textSecondary }}>Color</strong> + <strong style={{ color: theme.textSecondary }}>Size</strong>, a phone has <strong style={{ color: theme.textSecondary }}>Storage</strong> + <strong style={{ color: theme.textSecondary }}>Color</strong>
@@ -56,26 +56,7 @@ export default function OptionSelector({ selected, colorImages, onChange, onColo
         })}
       </div>
 
-      {/* Color image uploads — only shown when Color is selected */}
-      {selected.includes("Color") && (
-        <div style={{ borderTop: `1px solid ${theme.border}`, paddingTop: 16, marginTop: 4 }}>
-          <p style={{ fontSize: 11, color: theme.textMuted, letterSpacing: "0.1em", marginBottom: 12 }}>
-            COLOR IMAGES — upload one image per color, all variants with that color will inherit it
-          </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-            {DB_COLORS.map((color) => (
-              <ColorImageSlot
-                key={color.hex}
-                color={color}
-                imageUrl={colorImages[color.hex]}
-                onUpload={(url) => onColorImageUpload(color.hex, url)}
-                onRemove={() => onColorImageRemove(color.hex)}
-                theme={theme}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+ 
     </div>
   );
 }

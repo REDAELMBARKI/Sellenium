@@ -7,13 +7,17 @@ export interface ProductBase {
   id?: string | null;
   name: string;
   brand: string;
+  //single product specific nnullable 
+  stock : number | null ;
+  sku : string |null,
+  compare_price?: number | null;
+  price: number | null;
+  //single product specific nnullable  end
+
   sub_categories: Category[];
   description: string;
   rating_average?: number;
   tags: string[] ;
-  stock : number | null ;
-  compare_price?: number | null;
-  price: number | null;
   isFeatured?: boolean;
   isFreeShipping : boolean ;
   releaseDate?: string;
@@ -29,7 +33,7 @@ export interface ProductBase {
   // 
   variants: Variant[];
   product_attributes : any[]
-
+  related_products : number[] ,
   // settings
   badge_text: string | null;
   allow_backorder: boolean;
