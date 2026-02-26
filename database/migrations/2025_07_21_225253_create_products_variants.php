@@ -24,9 +24,7 @@ return new class extends Migration
             $table->json('attrs')->nullable(); // {"color": "red", "storage": "32GB"}
             $table->timestamps();
             
-            // Index virtual columns for fast filtering
-            $table->index('color');
-            $table->index('size');
+    
         });
     }
 

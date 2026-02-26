@@ -113,11 +113,10 @@ Route::get('/products/{product}/edit' , [ProductController::class, 'edit'])->nam
 Route::get('/products/{product}' , [ProductController::class, 'show']) ;
 
 // drafts
-Route::post('/products' , [ProductController::class, 'store'])->name('products.store');
+Route::post('/products' , [ProductController::class, 'storeDraft'])->name('products.storeDraft');
 Route::patch('/products/{product}/publish' , [ProductController::class, 'publish'])->name('products.publish');
 Route::delete('/products/{product}' , [ProductController::class, 'destroy']) ;
 Route::put('/products/{product}' , [ProductController::class, 'update'])->name('product.update');
-
 
 // media section
 // store media route

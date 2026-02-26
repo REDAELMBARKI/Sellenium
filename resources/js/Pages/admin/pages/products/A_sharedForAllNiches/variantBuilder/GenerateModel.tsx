@@ -35,14 +35,14 @@ function generateCombinations(optionValues: Record<string, string[]>): Array<Rec
 interface GenerateModalProps {
   activeOptions: string[];
   existingVariants: Variant[];
-  productPrice: number;
   onAdd: (variants: Variant[]) => void;
   onClose: () => void;
   theme: ThemePalette;
+  defaultVariantsPrice? : number
 }
 
 export default function GenerateModal({
-  activeOptions, existingVariants, productPrice, onAdd, onClose, theme
+  activeOptions, existingVariants, defaultVariantsPrice, onAdd, onClose, theme
 }: GenerateModalProps) {
   const [modalValues, setModalValues] = useState<Record<string, string[]>>(
     Object.fromEntries(activeOptions.map((o) => [o, []]))
@@ -93,9 +93,10 @@ export default function GenerateModal({
         return {
           id: `gen-${Date.now()}-${i}`,
           attrs,
-          price: productPrice,
+          price: defaultVariantsPrice,
+          compare_price : defaultVariantsPrice , 
           stock: "",
-          sku: `SKU-${String(existingVariants.length + i + 1).padStart(3, "0")}`,
+          sku: null,
           imageUrl: null,
           isOpen: true,
         };

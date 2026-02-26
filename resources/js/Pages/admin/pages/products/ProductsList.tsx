@@ -15,7 +15,6 @@ import {
 import { Search, Plus, Pencil, Trash2, Image as ImageIcon, Star, ChevronLeft, ChevronRight, Package } from "lucide-react";
 import { formatCurrency } from "@/admin/utils/helpers";
 import { AdminLayout } from "@/admin/components/layout/AdminLayout";
-import { ImagePreviewItem } from "@/types/mediaTypes";
 import { Cover } from "@/types/inventoryTypes";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";

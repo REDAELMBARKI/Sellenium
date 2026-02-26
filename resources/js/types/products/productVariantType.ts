@@ -7,7 +7,7 @@ export interface Variant {
   stock: string;
   sku: string | null;
   imageUrl: string | null;       // manual override per variant
-  isOpen: boolean;               // tracks if card is expanded/unsaved
+  isOpen: boolean;    
   attrs: VariantAttr | null;
 }
 

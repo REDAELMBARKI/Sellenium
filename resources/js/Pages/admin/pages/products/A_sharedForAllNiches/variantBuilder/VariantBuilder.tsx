@@ -6,17 +6,16 @@ import OptionSelector from "./OptionSelector";
 import VariantCard from "./VariantCard";
 import GenerateModal from "./GenerateModel";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
-
-const PRODUCT_PRICE = 100;
+import { variantSchema } from "@/shemas/productCreateform";
 
 export default function VariantBuilder() {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
   const [activeOptions, setActiveOptions] = useState<string[]>([]);
   const [colorImages, setColorImages] = useState<Record<string, string>>({});
-  const { getValues } = useProductDataCtx();
+  const { basicInfoForm: { variants }, setBasicInfoForm } = useProductDataCtx();
   const [showModal, setShowModal] = useState(false);
   const newCardRef = useRef<HTMLDivElement>(null);
-  const [defaultVariantsPrice , setDefaultVariantsPrice] = useState<number | undefined>(undefined)
+  const [defaultVariantsPrice , setDefaultVariantsPrice] = useState<number | null>(null)
   const hasOpenCard = variants.some((v) => v.isOpen);
   
   const addEmpty = useCallback(() => {
@@ -24,7 +23,7 @@ export default function VariantBuilder() {
     const newVariant: Variant = {
       id: `v-${Date.now()}`,
       attrs: null,
-      price: defaultVariantsPrice ?? PRODUCT_PRICE,
+      price: defaultVariantsPrice ??  null ,
       stock: "",
       compare_price : 0 ,
       sku: null,
@@ -35,7 +34,7 @@ export default function VariantBuilder() {
     setTimeout(() => {
       newCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 50);
-  }, [hasOpenCard, variants.length]);
+  }, [hasOpenCard, variants.length , defaultVariantsPrice]);
 
   const updateVariant = (id: string, field: string, value: any) =>
     setBasicInfoForm((prev) => ({
@@ -53,8 +52,17 @@ export default function VariantBuilder() {
   const removeVariant = (id: string) =>
     setBasicInfoForm(prev => ({ ...prev, variants: prev.variants.filter((v) => v.id !== id) }));
 
-  const markDone = (id: string) =>
-    setBasicInfoForm(prev => ({ ...prev, variants: prev.variants.map((v) => v.id === id ? { ...v, isOpen: false } : v) }));
+  const markDone = (id: string) => {
+        const variant = variants.find(v => v.id === id);
+        if (!variant) return;
+
+        const result = variantSchema.safeParse(variant);
+        if (!result.success) {
+          updateVariant(id, "errors", result.error.flatten().fieldErrors);
+          return;
+        }
+      setBasicInfoForm(prev => ({ ...prev, variants: prev.variants.map((v) => v.id === id ? { ...v, isOpen: false ,  errors: null  } : v) }));
+  }
 
   const addGeneratedVariants = (generated: Variant[]) => {
     setBasicInfoForm(prev => ({ ...prev, variants: [...prev.variants, ...generated] }));
@@ -114,8 +122,8 @@ export default function VariantBuilder() {
               </label>
               <input
                 type="number"
-                value={defaultVariantsPrice}
-                onChange={(e) => setDefaultVariantsPrice(Number(e.target.value))}
+                value={defaultVariantsPrice === null ? '' : defaultVariantsPrice}
+                onChange={(e) => setDefaultVariantsPrice(e.target.value === '' ? null : Number(e.target.value))}
                 className="px-3 py-2 rounded-xl text-sm font-medium w-24"
                 style={{
                   background: theme.bg,
@@ -220,7 +228,7 @@ export default function VariantBuilder() {
                 <VariantCard
                   variant={v}
                   activeOptions={activeOptions}
-                  productPrice={PRODUCT_PRICE}
+                  defaultVariantsPrice={defaultVariantsPrice}
                   colorImages={colorImages}
                   onChange={updateVariant}
                   onRemove={removeVariant}
@@ -256,9 +264,9 @@ export default function VariantBuilder() {
       {/* Generate modal */}
       {showModal && (
         <GenerateModal
+          defaultVariantsPrice={defaultVariantsPrice}
           activeOptions={activeOptions}
           existingVariants={variants}
-          productPrice={PRODUCT_PRICE}
           onAdd={addGeneratedVariants}
           onClose={() => setShowModal(false)}
           theme={theme}

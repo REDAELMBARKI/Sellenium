@@ -1,9 +1,7 @@
 
-import { ProductSchemaType } from "@/shemas/productCreateform"
 import { Category } from "@/types/inventoryTypes"
 import { ProductBase } from "@/types/products/baseProductTypes"
 import { createContext, Dispatch, RefObject, SetStateAction } from "react"
-import { UseFormGetValues, UseFormHandleSubmit, UseFormRegister, UseFormSetValue } from "react-hook-form"
 
 
 
@@ -17,12 +15,8 @@ interface ProductDataContextProps {
     setCategory: Dispatch<Category>
     categoryList : Category[] ;
     setCategoryList :Dispatch<Category[]>
-    register: UseFormRegister<ProductSchemaType>;
-    handleSubmit: UseFormHandleSubmit<ProductSchemaType>;
-    setValue: UseFormSetValue<ProductSchemaType>;
-    getValues: UseFormGetValues<ProductSchemaType>;
-    isDirty: boolean;
-    isValid: boolean;
+    basicInfoForm: ProductBase
+    setBasicInfoForm: Dispatch<SetStateAction<ProductBase>>
     draftId: RefObject<string | undefined>
    
     }

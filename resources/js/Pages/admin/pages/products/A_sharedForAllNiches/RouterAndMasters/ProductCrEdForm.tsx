@@ -19,9 +19,7 @@ import {
 import BaseSharedForm from "../components/editAndCreate/BaseSharedForm";
 
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
-import {
-    ATTRIBUTES_FORM_SECTIONS,
-} from "@/data/formSectionConfigurations";
+
 import NotifyUser from "@/components/ui/NotifyUser";
 import PricingSection from "../components/editAndCreate/SingleProductPricingSection";
 import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
@@ -38,10 +36,9 @@ import PricingOrVariants from "../components/editAndCreate/PricingOrVariants";
 
 
 interface ProductCrEdFormFormProps {
-    register : any
 }
 
-const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
+const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
     const { basicInfoForm, setBasicInfoForm , category , setCategory , options } = useProductDataCtx();
     const {toSelectOptionAdapter } = adapters()
     const {
@@ -91,7 +88,7 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
     const attributesRef = useRef<HTMLDivElement | null>(null);
     const variantRef = useRef<HTMLDivElement | null>(null);
     const thumbnailPreviewRef = useRef<any | null>(null);
-
+    
 
     // useEffect(() => {
     //     if (!isMountedRef.current) {
@@ -133,7 +130,7 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
     };
 
 
-    const AttibutesBuilder = category ? ATTRIBUTES_FORM_SECTIONS[category.name  as CategoryCode] : null;
+    const AttibutesBuilder = null;
     return (
         <div className="w-full h-full overflow-y-auto ">
             <div
@@ -261,7 +258,7 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
 
                 {AttibutesBuilder && (
                     <section
-                        className="p-4 border border-1"
+                        className=" border border-1"
                         style={{
                             background: currentTheme.card,
                             borderColor: currentTheme.border,
@@ -280,7 +277,8 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
                                     )
                                 }
                             >
-                                <AttibutesBuilder />
+                                <></>
+                                {/* <AttibutesBuilder /> */}
                             </CollapsibleSection>
                         </div>
                     </section>

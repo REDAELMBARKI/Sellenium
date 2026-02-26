@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Media;
 use App\Models\Product;
 use Illuminate\Auth\Access\Gate;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -77,16 +78,14 @@ class ProductController extends Controller
             ]);
     }
    
-    public function store(StoreDraftProductRequest $request , ProductService $service)
+    public function storeDraft()
     {
-        
-        $validated = $request->validated() ;
-        // store product data
-        $draft = $service->saveDraft($validated  , null);
-        return response()->json([
-            'id'   => $draft->id,
-            'slug' => $draft->slug,
+        $product = Product::create([
+            'name'     => null,
+            'status' => "draft",
         ]);
+
+        return response()->json(['id' => $product->id]);
 
     }
 
@@ -149,8 +148,9 @@ class ProductController extends Controller
         
     }
 
-    public function update(StoreDraftProductRequest $request , ProductService $service, Product $product)
+    public function update(Request $request , ProductService $service, Product $product)
     {
+        dd($request->all());
         $validated = $request->validated() ;
         $service->updateDraft($validated , $product );
         return redirect()->route('drafts.index');

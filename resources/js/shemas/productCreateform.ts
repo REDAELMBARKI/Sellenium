@@ -20,7 +20,6 @@ export const variantSchema = z.object({
   sku: z.string().nullable().optional(),
   imageUrl: z.string().nullable().optional(),
   isOpen: z.boolean().optional(),
-  errors: z.record(z.string(), z.array(z.string())).nullable().optional(),
   attrs: z
     .record(z.string(), z.union([z.string(), colorSchema]))
     .nullable()
