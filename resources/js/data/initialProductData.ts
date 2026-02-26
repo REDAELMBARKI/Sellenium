@@ -1,10 +1,7 @@
 import { Category, CategoryCode, Color, Country, Cover, Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
 import { ProductBase } from "@/types/products/baseProductTypes";
-import { ProductDataGlobal } from "@/types/productsTypes";
 import { Tag } from "@/types/tagsTypes";
 import { video } from "framer-motion/client";
-import { CATEGORY_CONFIG } from "./categoryConfigurations";
-import { ProductVariant } from "@/types/products/productVariantType";
 
 
 export const getEmptyInitialProductData = (category? : Category) => { // for create new product
@@ -17,8 +14,9 @@ const baseProductData : ProductBase = {
   sub_categories: [] as Category[],
   description: "",
   rating_average: undefined,
-  price : 0, 
-  oldPrice : 0 , 
+  price : null, 
+  compare_price : null , 
+  stock : null ,
   madeCountry :  '' , 
   releaseDate : '' ,
   thumbnail: null as Cover  | null,
@@ -31,24 +29,23 @@ const baseProductData : ProductBase = {
   shipping: null,
   meta: null,
   vendor: null,
-
-};
+  variants : [] , 
+  product_attributes : [] ,
+  faqs : [] ,
+  badge_text : '' ,
+  show_countdown : true ,
+  show_related_products : true ,
+  show_reviews : true ,
+  show_social_share : true ,
+  allow_backorder : false ,
+  };
  
-  const variants = []  as ProductVariant[]
- 
-  const productAttributesDefaults = category ?  CATEGORY_CONFIG[category.name as CategoryCode].attributes ?? null : {}
-  
-  return {
-     ...baseProductData , 
-     variants , 
-     attributes: { ...productAttributesDefaults }
-  }
-        
+  return baseProductData ; 
 }
 
 
 export const getEditedData = (
-  product: ProductDataGlobal,
+  product: ProductBase,
   category?: Category
 ) => {
   const baseData : ProductBase = {
@@ -57,8 +54,9 @@ export const getEditedData = (
     brand: product.brand ?? "",
     sub_categories: product.sub_categories   ?? [],
     description: product.description ?? "",
-    price : product.price ?? 0 , 
-    oldPrice : product.price ?? 0 , 
+    price : product.price ?? null , 
+    compare_price : product.price ?? null ,
+    stock : product.stock ?? null , 
     madeCountry : product.madeCountry ?? '' , 
     releaseDate : product.releaseDate ,
     thumbnail: product.thumbnail ?? null,
@@ -72,16 +70,15 @@ export const getEditedData = (
     shipping: product.shipping,
     meta: product.meta,
     vendor: product.vendor,
+    variants : product.variants ?? [] , 
+    product_attributes : product.product_attributes ?? [] ,
+    faqs : product.faqs ?? [] ,
+    badge_text : product.badge_text ?? '' ,
+    show_countdown : product.show_countdown ?? true ,
+    show_related_products : product.show_related_products ?? true ,
+    show_reviews : product.show_reviews ?? true,
+    show_social_share : product.show_social_share ?? true ,
+    allow_backorder : product.allow_backorder ?? false,
   };
-
-  const variants = product.variants ?? [] as ProductVariant[]
-
-  const productAttributesDefaults = category ? CATEGORY_CONFIG[category.name as CategoryCode]?.attributes ?? null : {};
-
-  return {
-    ...baseData,
-    ...product,          // overides the fields 
-    variants ,
-    attributes: { ...productAttributesDefaults }, // provide coorect  fields for each category
-  };
+  return baseData ;
 };

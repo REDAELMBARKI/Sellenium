@@ -1,6 +1,6 @@
 
 import { Category } from "@/types/inventoryTypes"
-import { ProductDataGlobal } from "@/types/productsTypes"
+import { ProductBase } from "@/types/products/baseProductTypes"
 import { createContext, Dispatch, RefObject, SetStateAction } from "react"
 
 
@@ -8,15 +8,15 @@ import { createContext, Dispatch, RefObject, SetStateAction } from "react"
 export type ModeForm = "edit" | "create"
 interface ProductDataContextProps {
     modeForm : ModeForm
-    productData?: ProductDataGlobal | undefined
-    setProductData:Dispatch<SetStateAction<ProductDataGlobal | undefined>>
+    productData?: ProductBase | undefined
+    setProductData:Dispatch<SetStateAction<ProductBase | undefined>>
     options: any
     category? : Category
     setCategory: Dispatch<Category>
     categoryList : Category[] ;
     setCategoryList :Dispatch<Category[]>
-    basicInfoForm: ProductDataGlobal
-    setBasicInfoForm: Dispatch<SetStateAction<ProductDataGlobal>>
+    basicInfoForm: ProductBase
+    setBasicInfoForm: Dispatch<SetStateAction<ProductBase>>
     draftId: RefObject<string | undefined>
    
     }

@@ -6,17 +6,20 @@ use Carbon\Cli\Invoker;
 use Faker\Core\File;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
+    use SoftDeletes;
     // protected $fillable = [
     //     'name',
+    //     'slug',
     //     'brand',
     //     'description',
     //     'price',
-    //     'oldPrice',
+    //     'compare_price',
     //     'isFeatured',
     //     'isFreeShipping',
     //     'status',
@@ -27,6 +30,7 @@ class Product extends Model
     //     'vendor',
     //     'madeCountry',
     //     'releaseDate',
+     
     //     'category_niche_id',    // foreign key
     //  ];
     protected $guarded = [];
@@ -40,7 +44,7 @@ class Product extends Model
         'price' => 'float' ,
         'oldPrice' => 'float' , 
         'video' => 'array',
-
+         'related_products'=> 'array',
         'isFeatured' => 'boolean',
         'isFreeShipping' => 'boolean',
         'ready_to_publish' => 'boolean',

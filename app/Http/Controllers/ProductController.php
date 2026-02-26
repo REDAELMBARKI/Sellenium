@@ -8,6 +8,7 @@ use App\Services\product\ProductService;
 use App\Models\Category;
 use App\Models\Media;
 use App\Models\Product;
+use Illuminate\Auth\Access\Gate;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -21,10 +22,10 @@ class ProductController extends Controller
 
 
 
-    public function draft() {
+    public function drafts() {
         $drafts = Product::with(['thumbnail'])
         ->where('status' , 'draft')
-        ->select(['id' , 'name' , 'brand' , 'price'  , 'oldPrice', 'quality_score' , 'ready_to_publish' , 'updated_at'])->get() ;
+        ->select(['id' , 'name' , 'brand' , 'price'  , 'compare_price', 'quality_score' , 'ready_to_publish' , 'updated_at'])->get() ;
         return Inertia::render("admin/pages/products/Drafts" , ['drafts' => $drafts] ) ;
     }
 
@@ -76,53 +77,27 @@ class ProductController extends Controller
             ]);
     }
    
-    public function createDraft(StoreDraftProductRequest $request , ProductService $service)
+    public function store(StoreDraftProductRequest $request , ProductService $service)
     {
         
         $validated = $request->validated() ;
-        $draft = $service->saveDraft($validated  , null);
         // store product data
-        return response()->json(
-               [
-                "id" => $draft->id ,
-               ]
-        ) ;
+        $draft = $service->saveDraft($validated  , null);
+        return response()->json([
+            'id'   => $draft->id,
+            'slug' => $draft->slug,
+        ]);
 
     }
 
-    public function updateDraftOnSave(StoreDraftProductRequest $request , ProductService $service)
-    {
-        $draft_id = $request->validated('draft_id') ;
-        $draft = Product::find($draft_id) ;
-        $validated = $request->validated() ;
-        $service->saveDraft($validated , $draft );
-        // return redirect()->route('drafts.index');
-    }
-    
     public function publish(ProductService $service , Product $product)
     {
-        
         if(!$service->isPublishable($product)){
             return response()->json(['message' =>  'some fileds are missing ']) ;
         }
-
-        $product->update([
-            'status' => 'published'
-        ]);
-
-        Media::where('mediaable_id' , $product->id)
-                         ->each(function($media){
-                             $media->update([
-                                 'is_temporary' => false
-                             ]) ;
-        });
-        
+        $service->publish($product);
         // store product data
-        return response()->json(
-               [
-                "message" => "the product is created " ,
-               ]
-        ) ;
+        return redirect()->back()->with('success', 'Product published successfully');
 
     }
 
@@ -182,7 +157,7 @@ class ProductController extends Controller
     }
 
     public function destroy($id){
-         
+        //  Gate::authorize('manage_products') ;
          Product::findOrFail($id)->delete() ;
          return response()->json([
             'message' => 'Product deleted successfully'

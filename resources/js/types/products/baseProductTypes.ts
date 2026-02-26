@@ -11,8 +11,9 @@ export interface ProductBase {
   description: string;
   rating_average?: number;
   tags: string[] ;
-  price: number;
-  oldPrice?: number;
+  stock : number | null ;
+  compare_price?: number | null;
+  price: number | null;
   isFeatured?: boolean;
   isFreeShipping : boolean ;
   releaseDate?: string;
@@ -24,10 +25,18 @@ export interface ProductBase {
   shipping: ShippingAttributes | null;
   meta: MetaAttributes | null;
   vendor: VendorAttributes | null;
-
+  faqs: { question: string; answer: string }[];
   // 
   variants: Variant[];
-  
+  product_attributes : any[]
+
+  // settings
+  badge_text: string | null;
+  allow_backorder: boolean;
+  show_countdown: boolean;
+  show_reviews: boolean;
+  show_related_products: boolean;
+  show_social_share: boolean;
 }
 
 interface DimensionType {

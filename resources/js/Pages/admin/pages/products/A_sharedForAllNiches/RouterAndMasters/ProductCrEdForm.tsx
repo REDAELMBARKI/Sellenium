@@ -4,6 +4,9 @@ import {
     Video as VideoIcon,
     Droplet,
     Settings,
+    HelpCircle,
+    Tag,
+    Layers,
 } from "lucide-react";
 import { useState, useRef } from "react";
 import MediaSection from "../components/editAndCreate/MediaSection";
@@ -24,6 +27,11 @@ import adapters from "@/functions/product/adapters";
 import CustomSelectForObjectNative from "@/components/ui/CustomSelectForObjectNative";
 import { Button } from "@/components/ui/button";
 import VariantBuilder from "../variantBuilder/VariantBuilder";
+import FaqsSection from "../components/editAndCreate/FAQS";
+import ProductSettingsSection from "../components/editAndCreate/VisibilitySettings";
+import BadgePicker from "../components/editAndCreate/BadgePicker";
+import VisibilitySettings from "../components/editAndCreate/VisibilitySettings";
+import RelatedProductsSection from "../components/editAndCreate/RelatedProductsSection";
 
 
 interface ProductCrEdFormFormProps {
@@ -73,7 +81,10 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
         Record<string, string>
     >({});
     const [showMedia, setShowMedia] = useState<boolean>(isOpenShowMedia);
-
+    const [showFaqs, setShowFaqs] = useState(false)
+    const [showVisibility, setShowVisibility] = useState(false) ;
+    const [showRelated, setShowRelated] = useState(false) ;
+    
     //refs
     const isMountedRef = useRef<boolean>(false);
     const mediaRef = useRef<HTMLDivElement | null>(null);
@@ -176,15 +187,7 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
                     />
                 </section>
 
-                <section
-                    className="p-4 border border-1"
-                    style={{
-                        background: currentTheme.card,
-                        borderColor: currentTheme.border,
-                    }}
-                >
-                    <PricingSection {...{ frontEndErrors }} />
-                </section>
+               
 
                 <section
                     className="p-4 border border-1"
@@ -218,34 +221,24 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
                     </div>
                 </section>
 
-                {/* Variant Builder */}
-                    <section
-                        className="border border-1 "
-                        style={{
-                            background: currentTheme.card,
-                            borderColor: currentTheme.border,
-                        }}
+                {/* faqs */}
+                <section
+                    className="border border-1"
+                    style={{
+                        background: currentTheme.card,
+                        borderColor: currentTheme.border,
+                    }}
+                >
+                    <CollapsibleSection
+                        title="FAQs"
+                        icon={HelpCircle}
+                        isOpen={showFaqs}
+                        onToggle={() => handleToggleSection("FAQs", showFaqs, setShowFaqs)}
                     >
-                        <div ref={variantRef}>
-                            <CollapsibleSection
-                                title="Variant Builder"
-                                icon={Droplet}
-                                isOpen={showVariantBuilder}
-                                onToggle={() =>
-                                    handleToggleSection(
-                                        "Variant Builder",
-                                        showVariantBuilder,
-                                        setShowVariantBuilder
-                                    )
-                                }
-                            >
-                                {/* // ------------------ VARIANT BUILDER SECTION ------------------ */}
-
-                                <VariantBuilder />
-                            </CollapsibleSection>
-                        </div>
-                    </section>
-
+                        <FaqsSection />
+                    </CollapsibleSection>
+                </section>
+               
                 
                 {/* Attributes */}
 
@@ -275,8 +268,29 @@ const ProductCrEdForm = ({register} : ProductCrEdFormFormProps) => {
                         </div>
                     </section>
                 )}
-
-
+ 
+            {/* related products */}
+            <CollapsibleSection title="Related Products" icon={Layers} isOpen={showRelated}
+              onToggle={() => handleToggleSection("Related Products", showRelated, setShowRelated)}>
+              <RelatedProductsSection />
+            </CollapsibleSection>
+            {/* visibility*/}
+            <section
+                className="border border-1"
+                style={{
+                    background: currentTheme.card,
+                    borderColor: currentTheme.border,
+                }}
+            >
+                <CollapsibleSection
+                    title="Visibilily Settings"
+                    icon={Settings}
+                    isOpen={showVisibility}
+                    onToggle={() => handleToggleSection("Product Settings", showVisibility, setShowVisibility)}
+                >
+                    <VisibilitySettings />
+                </CollapsibleSection>
+            </section>
              
             </div>
         </div>

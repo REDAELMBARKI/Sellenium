@@ -19,15 +19,9 @@ return new class extends Migration
             $table->decimal('compare_price', 10, 2)->nullable();
             $table->integer('stock')->default(0);
             $table->string('sku')->unique()->nullable();
-            
+            $table->boolean('is_default')->default(false);
             // Store all attributes as JSON
             $table->json('attrs')->nullable(); // {"color": "red", "storage": "32GB"}
-            
-            // Virtual columns for common searchable attributes (optional, for performance)
-            $table->string('color')->nullable()->virtualAs("JSON_UNQUOTE(JSON_EXTRACT(attrs, '$.color'))");
-            $table->string('size')->nullable()->virtualAs("JSON_UNQUOTE(JSON_EXTRACT(attrs, '$.size'))");
-            
-            $table->boolean('is_default')->default(false);
             $table->timestamps();
             
             // Index virtual columns for fast filtering

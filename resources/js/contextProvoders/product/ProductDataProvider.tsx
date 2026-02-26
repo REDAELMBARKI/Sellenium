@@ -4,8 +4,9 @@ import { ModeForm, ProductDataContext } from '@/context/product/ProductDataConte
 import {  Category, Cover } from '@/types/inventoryTypes';
 import { getEditedData, getEmptyInitialProductData } from '@/data/initialProductData';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import {  ProductBackendProps, ProductDataGlobal } from '@/types/productsTypes';
+import {  ProductBackendProps } from '@/types/productsTypes';
 import { CategoriesList } from './../../Pages/admin/pages/categories/CategoriesList';
+import { ProductBase } from '@/types/products/baseProductTypes';
 
 
 
@@ -21,7 +22,7 @@ const ProductDataProvider = ({children , data : {product , categoryObject , opti
         setCategory(categoryObject)
     }, [categoryObject]); 
   
-    const getInitialData = (mode: ModeForm, product?: ProductDataGlobal ,category?: Category ) => {
+    const getInitialData = (mode: ModeForm, product?: ProductBase ,category?: Category ) => {
       if (mode === "create") return getEmptyInitialProductData(category);
       if (mode === "edit" && product) return getEditedData(product, category);
       throw new Error("Invalid state");
@@ -30,8 +31,8 @@ const ProductDataProvider = ({children , data : {product , categoryObject , opti
     const modeForm : ModeForm = product ? "edit" : "create" ; 
    
     const initialData = getInitialData(modeForm, product , categoryObject);
-    const [productData ,   setProductData] = useState<ProductDataGlobal | undefined>(() => product)
-    const [basicInfoForm , setBasicInfoForm] = useState<ProductDataGlobal>(() => initialData);
+    const [productData ,   setProductData] = useState<ProductBase | undefined>(() => product)
+    const [basicInfoForm , setBasicInfoForm] = useState<ProductBase>(() => initialData);
     const [category , setCategory] = useState(categoryObject) ;
     const [categoryList , setCategoryList] = useState<Category[]>(backendOptions.categories) ; 
     const draftId = useRef<string | undefined>(basicInfoForm.id ?? undefined);

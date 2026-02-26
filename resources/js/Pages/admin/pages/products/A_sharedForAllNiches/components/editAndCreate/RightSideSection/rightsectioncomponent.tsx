@@ -26,6 +26,7 @@ import adapters from '@/functions/product/adapters';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { route } from 'ziggy-js';
+import BadgePicker from '../BadgePicker';
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
   code,
@@ -67,6 +68,11 @@ export function RightSectionComponent() {
   const {toSelectOptionAdapter , toSetterAdapter} = adapters()
   return (
     <div className="w-full lg:w-[35%] space-y-6 py-8 pr-4">
+
+      <SectionWrapper icon={Tag}  title='Pick A Gadge'>
+         {/* badge and slug */}
+                <BadgePicker currentTheme={currentTheme} />
+      </SectionWrapper>
       <SectionWrapper title="Subcategories" icon={FolderTree}>
         <div>
           <HoverInfoLabel

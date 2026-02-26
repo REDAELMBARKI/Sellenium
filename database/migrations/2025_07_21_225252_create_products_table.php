@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();        // user might not fill yet
+            $table->string('slug')->unique();        // user might not fill yet
             $table->string('brand')->nullable();       // optional in draft
             $table->text('description')->nullable();   // optional in draft
           
@@ -41,6 +42,16 @@ return new class extends Migration
             ->default(null)
             ->constrained('categories')
             ->nullOnDelete();
+            $table->string('badge_text')->nullable();      // "New", "Hot", "Sale"
+            $table->boolean('allow_backorder')->default(false); // sell when out of stock?
+            $table->boolean('show_countdown')->default(true);  // has active promotion timer?
+            $table->boolean('show_reviews')->default(true);  // has active promotion timer?
+            $table->boolean('show_related_products')->default(true);  // has active promotion timer?
+            $table->boolean('show_social_share')->default(true);  // has active promotion timer?
+
+            $table->json('faqs')->nullable();              // product specific Q&A
+            $table->json('related_product_ids')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
 

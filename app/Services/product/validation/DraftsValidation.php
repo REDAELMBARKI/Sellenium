@@ -42,7 +42,7 @@ class DraftsValidation
         'covers' => ['nullable', 'array'],
         'covers.*' => ['nullable','numeric'],
         "price" => ['nullable', 'numeric', 'min:0'],
-        "oldPrice" => ['nullable', 'numeric', 'min:0'],
+        "compare_price" => ['nullable', 'numeric', 'min:0'],
         'subCategories' => ['array'] ,
         'subCategories.*' => ['numeric'] ,
         "isFeatured" => ['boolean'],

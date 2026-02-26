@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class ProductFactory extends Factory
 {
@@ -13,6 +14,7 @@ class ProductFactory extends Factory
 
         return [
             'name' => $this->faker->name(),
+            'slug' => $this->faker->slug,
             'brand' => $this->faker->randomElement([
                 'Apple', 'Samsung', 'Dell', 'HP', 'Lenovo', 'Xiaomi', 'Sony'
             ]),

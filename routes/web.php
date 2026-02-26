@@ -106,15 +106,14 @@ Route::post('/sheets', [DriveController::class, 'auth'])
 
 // products
 // Route::resource('/products', ProductController::class );
-Route::get('/products/create' , [ProductController::class, 'create']) ;
-Route::get('/products/drafts' , [ProductController::class, 'draft'])->name('drafts.index') ;
-Route::get('/products/{product}/edit' , [ProductController::class, 'edit'])->name('product.edit') ;
+Route::get('/products/drafts' , [ProductController::class, 'drafts'])->name('drafts.index') ;
 Route::get('/products' , [ProductController::class, 'index'])->name('products') ;
+Route::get('/products/create' , [ProductController::class, 'create']) ;
+Route::get('/products/{product}/edit' , [ProductController::class, 'edit'])->name('product.edit') ;
 Route::get('/products/{product}' , [ProductController::class, 'show']) ;
 
 // drafts
-Route::post('/products' , [ProductController::class, 'createDraft'])->name('products.createDraft');
-Route::put('/products/{product}/draft/save' , [ProductController::class, 'updateDraftOnSave'])->name('products.updateDraftOnSave');
+Route::post('/products' , [ProductController::class, 'store'])->name('products.store');
 Route::patch('/products/{product}/publish' , [ProductController::class, 'publish'])->name('products.publish');
 Route::delete('/products/{product}' , [ProductController::class, 'destroy']) ;
 Route::put('/products/{product}' , [ProductController::class, 'update'])->name('product.update');

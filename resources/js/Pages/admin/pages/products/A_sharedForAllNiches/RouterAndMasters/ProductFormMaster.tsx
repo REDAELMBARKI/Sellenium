@@ -11,13 +11,13 @@ import ProductCrEdForm from './ProductCrEdForm';
 import { Pyramid, Save } from 'lucide-react';
 import { SubmitHandler, useForm as useHookForm } from "react-hook-form";
 import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
-import { ProductDataGlobal } from '@/types/productsTypes';
 import { CATEGORY_CONFIG } from '@/data/categoryConfigurations';
 import { forEach } from 'lodash';
 import adapters from '@/functions/product/adapters';
 import { Inertia } from '@inertiajs/inertia'
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createProductSchema } from '@/shemas/productCreateform';
+import { ProductBase } from '@/types/products/baseProductTypes';
 
 
 
@@ -29,9 +29,9 @@ const ProductFormMaster: React.FC = () => {
   const {state :{ currentTheme}} = useStoreConfigCtx()
   
   const  { productData = {} , modeForm , basicInfoForm , draftId } = useProductDataCtx()
-  const form = useForm<ProductDataGlobal>(basicInfoForm) // setData 
+  const form = useForm<ProductBase>(basicInfoForm) // setData 
   const {toBackendAttribute}  = adapters() ;
-  const {register  , control, handleSubmit , formState : {errors : ZodErrors , isDirty}} = useHookForm<any>(
+  const {register  , control , formState : {errors : ZodErrors , isDirty}} = useHookForm<any>(
           {resolver : zodResolver(createProductSchema) ,
            mode : "onChange" , defaultValues : basicInfoForm}
   );
@@ -69,7 +69,7 @@ const ProductFormMaster: React.FC = () => {
   e.preventDefault()
    const payload = {
     ...form.data,
-    attributes: cleanAttributesForBackend(form.data.attributes),
+    product_attributes: cleanAttributesForBackend(form.data.product_attributes),
   }
   console.log('draftId:', draftId.current) 
     Inertia.put(route('products.updateDraftOnSave' , {product : draftId.current}), payload as any, {
@@ -86,7 +86,7 @@ const ProductFormMaster: React.FC = () => {
    <div className='flex'>
 
     <ProductCrEdForm {...{register}} />
-    <RightSectionComponent {...{register}} />
+    <RightSectionComponent  />
 
    </div>
    {/* save product */}

@@ -20,7 +20,7 @@ class ProductVariantFactory extends Factory
         return [
             'product_id' => Product::factory()->create()->id,
             'price' => $this->faker->numberBetween(0,0),
-            'oldPrice' => $this->faker->numberBetween(0,1),
+            'compare_price' => $this->faker->numberBetween(0,1),
             'stock' => $this->faker->numberBetween(0,100),
              
         ];
