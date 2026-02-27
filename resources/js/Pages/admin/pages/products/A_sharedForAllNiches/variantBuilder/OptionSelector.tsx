@@ -1,6 +1,8 @@
 import { useRef } from "react";
 import { Upload, X } from "lucide-react";
 import { ThemePalette } from "@/types/ThemeTypes";
+import { Button as MaterialUIButton } from "@mui/material";
+import { Button } from "@/components/ui/button";
 
 const AVAILABLE_OPTIONS = ["Color", "Size", "Storage", "RAM", "Style", "Width", "Connectivity", "Flavor"];
 
@@ -41,7 +43,7 @@ export default function OptionSelector({ selected, colorImages, onChange, onColo
         {AVAILABLE_OPTIONS.map((opt) => {
           const active = selected.includes(opt);
           return (
-            <button type="button" key={opt} onClick={() => toggle(opt)} style={{
+            <Button type="button" key={opt} onClick={() => toggle(opt)} style={{
               padding: "7px 16px", borderRadius: theme.borderRadius, fontSize: 13, cursor: "pointer",
               border: `1px solid ${active ? theme.primary : theme.border}`,
               background: active ? theme.primary + "22" : "transparent",
@@ -51,10 +53,18 @@ export default function OptionSelector({ selected, colorImages, onChange, onColo
             }}>
               {active && <span style={{ fontSize: 10 }}>✓</span>}
               {opt}
-            </button>
+            </Button>
           );
         })}
+        <div>
+          
+            <Button variant="outline" >
+                 Manage Options
+            </Button>
+          
+        </div>
       </div>
+
 
  
     </div>

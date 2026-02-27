@@ -10,18 +10,13 @@ import {
 import { SectionWrapper } from './sectionwrapper';
 import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import { HoverInfoLabel } from './HoverInfoLabel';
-import { ThemedInput, ThemedSelect, ThemedTextarea } from './ThemedInput';
+import { ThemedInput, ThemedTextarea } from './ThemedInput';
 import { Category } from '@/types/inventoryTypes';
-import { SUBCATEGORIES } from '@/data/listOfSubCategories';
-import MultiSelectDropdownForObject from '@/components/ui/MultiSelectDropdownForObject';
-import CustomSelectForObject from '@/components/ui/CustomSelectForObject';
+import MultiSelectDropdownForObject, { AllowedObjectsType } from '@/components/ui/MultiSelectDropdownForObject';
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
-import CustomSelectForObjectNative from '@/components/ui/CustomSelectForObjectNative';
 import TagSection from '@/components/TagSection';
-import { v4 } from 'uuid';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import CustomSelectNative from '@/components/ui/CustomSelectNative';
 import adapters from '@/functions/product/adapters';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -29,22 +24,31 @@ import { route } from 'ziggy-js';
 import BadgePicker from '../BadgePicker';
 import SwitchToggler from '@/components/ui/SwitchToggler';
 import { Input } from '@/components/ui/input';
+
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
   code,
   name,
 }));
 
-
-// year
 const currentYear = new Date().getFullYear();
-const years = Array.from({ length: 50 }, (_, i) => currentYear - i); // last 50 years
- 
+const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
+
+// Helper: get first selected value as string
+const firstVal = (selected: AllowedObjectsType[]) => selected[0]?.value ?? '';
 
 export function RightSectionComponent() {
   const { watch, register, control, setValue, formState: { errors } } = useProductDataCtx();
   const { state: { currentTheme } } = useStoreConfigCtx()
-  const [subCategories, setSubCategories] = useState<Category[]>([])
+  const [subCategories, setSubCategories] = useState<Category[]>([
+    { id: '1', name: 'Smartphones' },
+    { id: '2', name: 'Laptops' },
+    { id: '3', name: 'Tablets' },
+    { id: '4', name: 'Headphones' },
+    { id: '5', name: 'Smartwatches' },
+    { id: '6', name: 'Cameras' },
+    { id: '7', name: 'Gaming Consoles' },
+  ]);
 
   const category = watch('category_niche_id');
   const sub_categories = watch('sub_categories');
@@ -125,11 +129,12 @@ export function RightSectionComponent() {
           label="country of origin"
           tooltip="made origin country of the product (optional)"
         />
-        <CustomSelectNative
-          placeholder="Select country of origin"
-          value={madeCountry ?? ""}
-          onChange={(v) => setValue('madeCountry', v.toString(), { shouldValidate: true })}
+        <MultiSelectDropdownForObject
+          multiple={false}
+          label="country of origin"
           options={countryList.map((c) => ({ label: c.name, value: c.code }))}
+          selectedValues={madeCountry ? [{ label: countryList.find(c => c.code === madeCountry)?.name ?? madeCountry, value: madeCountry }] : []}
+          onChange={(selected) => setValue('madeCountry', firstVal(selected) as string, { shouldValidate: true })}
         />
         {errors.madeCountry && (
           <p className="text-red-500 text-xs mt-1">{errors.madeCountry.message as string}</p>
@@ -140,11 +145,12 @@ export function RightSectionComponent() {
           label="Release Date"
           tooltip="add a release year for this product (optional)"
         />
-        <CustomSelectNative
-          placeholder='select release year'
-          options={years.map(y => ({ label: y, value: y }))}
-          value={releaseDate ?? ''}
-          onChange={(value) => setValue('releaseDate', value.toString(), { shouldValidate: true })}
+        <MultiSelectDropdownForObject
+          multiple={false}
+          label="release year"
+          options={years.map(y => ({ label: String(y), value: y }))}
+          selectedValues={releaseDate ? [{ label: String(releaseDate), value: releaseDate }] : []}
+          onChange={(selected) => setValue('releaseDate', firstVal(selected) as string, { shouldValidate: true })}
         />
         {errors.releaseDate && (
           <p className="text-red-500 text-xs mt-1">{errors.releaseDate.message as string}</p>
@@ -152,10 +158,9 @@ export function RightSectionComponent() {
       </SectionWrapper>
 
       {/* Inventory */}
-      {/* Inventory */}
-<SectionWrapper title="Inventory / Stock" icon={Package}>
+      <SectionWrapper title="Inventory / Stock" icon={Package}>
 
-  {/* Track Inventory */}
+        {/* Track Inventory */}
         <div className="flex items-center justify-between">
           <HoverInfoLabel
             htmlFor="trackInventory"
@@ -176,15 +181,19 @@ export function RightSectionComponent() {
             label="Backorder Options"
             tooltip="Allow customers to buy even when out of stock"
           />
-          <ThemedSelect
-            id="backorderOptions"
-            value={inventory?.backorderOptions || ''}
-            onChange={(e) => setValue('inventory', { ...inventory, backorderOptions: e.target.value  as "notify" | "allow" }, { shouldValidate: true })}
-          >
-            <option value="">Do not allow</option>
-            <option value="notify">Allow, but notify customer</option>
-            <option value="allow">Allow</option>
-          </ThemedSelect>
+          <MultiSelectDropdownForObject
+            multiple={false}
+            label="backorder options"
+            options={[
+              { label: 'Do not allow', value: '' },
+              { label: 'Allow, but notify customer', value: 'notify' },
+              { label: 'Allow', value: 'allow' },
+            ]}
+            selectedValues={inventory?.backorderOptions
+              ? [{ label: inventory.backorderOptions === 'notify' ? 'Allow, but notify customer' : 'Allow', value: inventory.backorderOptions }]
+              : [{ label: 'Do not allow', value: '' }]}
+            onChange={(selected) => setValue('inventory', { ...inventory, backorderOptions: firstVal(selected) as 'notify' | 'allow' }, { shouldValidate: true })}
+          />
           {errors.inventory?.backorderOptions && (
             <p className="text-red-500 text-xs mt-1">{errors.inventory.backorderOptions.message as string}</p>
           )}
@@ -215,50 +224,56 @@ export function RightSectionComponent() {
             label="Stock Status"
             tooltip="Override the stock status manually"
           />
-          <ThemedSelect
-            id="stockStatus"
-            value={inventory?.stockStatus || ''}
-            onChange={(e) => setValue('inventory', { ...inventory, stockStatus: e.target.value as |"in_stock" | "out_of_stock" | "discontinued" }, { shouldValidate: true })}
-          >
-            <option value="">Auto (based on stock)</option>
-            <option value="in_stock">In Stock</option>
-            <option value="out_of_stock">Out of Stock</option>
-            <option value="discontinued">Discontinued</option>
-          </ThemedSelect>
+          <MultiSelectDropdownForObject
+            multiple={false}
+            label="stock status"
+            options={[
+              { label: 'Auto (based on stock)', value: '' },
+              { label: 'In Stock', value: 'in_stock' },
+              { label: 'Out of Stock', value: 'out_of_stock' },
+              { label: 'Discontinued', value: 'discontinued' },
+            ]}
+            selectedValues={inventory?.stockStatus
+              ? [{ label: inventory.stockStatus.replace('_', ' '), value: inventory.stockStatus }]
+              : [{ label: 'Auto (based on stock)', value: '' }]}
+            onChange={(selected) => setValue('inventory', { ...inventory, stockStatus: firstVal(selected) as 'in_stock' | 'out_of_stock' | 'discontinued' }, { shouldValidate: true })}
+          />
         </div>
 
-          {/* Weight */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <HoverInfoLabel
-                htmlFor="weight"
-                label="Weight"
-                tooltip="Used for shipping cost calculation"
-              />
-              <Input
-                id="weight"
-                type="number"
-                placeholder="e.g. 1.5"
-                value={inventory?.weight ?? ''}
-                onChange={(e) => setValue('inventory', { ...inventory, weight: e.target.value === '' ? null : Number(e.target.value) }, { shouldValidate: true })}
-                className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
-                style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
-              />
-            </div>
-            <div>
-              <HoverInfoLabel htmlFor="weightUnit" label="Unit" tooltip="" />
-              <ThemedSelect
-                id="weightUnit"
-                value={inventory?.weightUnit || 'kg'}
-                onChange={(e) => setValue('inventory', { ...inventory, weightUnit: e.target.value  as 'kg' | 'g' | 'lb' | 'oz' }, { shouldValidate: true })}
-              >
-                <option value="kg">kg</option>
-                <option value="g">g</option>
-                <option value="lb">lb</option>
-                <option value="oz">oz</option>
-              </ThemedSelect>
-            </div>
+        {/* Weight */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <HoverInfoLabel
+              htmlFor="weight"
+              label="Weight"
+              tooltip="Used for shipping cost calculation"
+            />
+            <Input
+              id="weight"
+              type="number"
+              placeholder="e.g. 1.5"
+              value={inventory?.weight ?? ''}
+              onChange={(e) => setValue('inventory', { ...inventory, weight: e.target.value === '' ? null : Number(e.target.value) }, { shouldValidate: true })}
+              className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
+              style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
+            />
           </div>
+          <div>
+            <HoverInfoLabel htmlFor="weightUnit" label="Unit" tooltip="" />
+            <MultiSelectDropdownForObject
+              multiple={false}
+              label="unit"
+              options={[
+                { label: 'kg', value: 'kg' },
+                { label: 'g', value: 'g' },
+                { label: 'lb', value: 'lb' },
+                { label: 'oz', value: 'oz' },
+              ]}
+              selectedValues={[{ label: inventory?.weightUnit ?? 'kg', value: inventory?.weightUnit ?? 'kg' }]}
+              onChange={(selected) => setValue('inventory', { ...inventory, weightUnit: firstVal(selected) as 'kg' | 'g' | 'lb' | 'oz' }, { shouldValidate: true })}
+            />
+          </div>
+        </div>
 
         {/* Dimensions */}
         <div>
@@ -287,17 +302,20 @@ export function RightSectionComponent() {
             ))}
           </div>
           <div className="mt-2">
-            <ThemedSelect
-              value={inventory?.dimensions?.unit || 'cm'}
-              onChange={(e) => setValue('inventory', {
+            <MultiSelectDropdownForObject
+              multiple={false}
+              label="unit"
+              options={[
+                { label: 'cm', value: 'cm' },
+                { label: 'in', value: 'in' },
+                { label: 'mm', value: 'mm' },
+              ]}
+              selectedValues={[{ label: inventory?.dimensions?.unit ?? 'cm', value: inventory?.dimensions?.unit ?? 'cm' }]}
+              onChange={(selected) => setValue('inventory', {
                 ...inventory,
-                dimensions: { ...inventory?.dimensions, unit: e.target.value as "cm" | "in" | "mm" }
+                dimensions: { ...inventory?.dimensions, unit: firstVal(selected) as 'cm' | 'in' | 'mm' }
               }, { shouldValidate: true })}
-            >
-              <option value="cm">cm</option>
-              <option value="in">in</option>
-              <option value="mm">mm</option>
-            </ThemedSelect>
+            />
           </div>
         </div>
 
@@ -326,136 +344,147 @@ export function RightSectionComponent() {
             label="Fulfillment Type"
             tooltip="How this product will be fulfilled"
           />
-          <ThemedSelect
-            id="fulfillmentType"
-            value={inventory?.fulfillmentType || ''}
-            onChange={(e) => setValue('inventory', { ...inventory, fulfillmentType: e.target.value as "dropship" | "third_party" }, { shouldValidate: true })}
-          >
-            <option value="">Self fulfilled</option>
-            <option value="dropship">Dropship</option>
-            <option value="third_party">Third Party (3PL)</option>
-          </ThemedSelect>
+          <MultiSelectDropdownForObject
+            multiple={false}
+            label="fulfillment type"
+            options={[
+              { label: 'Self fulfilled', value: '' },
+              { label: 'Dropship', value: 'dropship' },
+              { label: 'Third Party (3PL)', value: 'third_party' },
+            ]}
+            selectedValues={inventory?.fulfillmentType
+              ? [{ label: inventory.fulfillmentType === 'dropship' ? 'Dropship' : 'Third Party (3PL)', value: inventory.fulfillmentType }]
+              : [{ label: 'Self fulfilled', value: '' }]}
+            onChange={(selected) => setValue('inventory', { ...inventory, fulfillmentType: firstVal(selected) as 'dropship' | 'third_party' }, { shouldValidate: true })}
+          />
         </div>
 
       </SectionWrapper>
 
-       {/* Shipping */}
-    <SectionWrapper title="Shipping" icon={Truck}>
+      {/* Shipping */}
+      <SectionWrapper title="Shipping" icon={Truck}>
 
-    {/* Shipping Class */}
-    <div>
-      <HoverInfoLabel
-        htmlFor="shippingClass"
-        label="Shipping Class"
-        tooltip="Delivery speed for this product"
-      />
-      <ThemedSelect
-        id="shippingClass"
-        value={shipping?.shippingClass || ''}
-        onChange={(e) => setValue('shipping', { ...shipping, shippingClass: e.target.value }, { shouldValidate: true })}
-      >
-        <option value="">Standard</option>
-        <option value="express">Express</option>
-        <option value="pickup">Pickup Only</option>
-      </ThemedSelect>
-    </div>
+        {/* Shipping Class */}
+        <div>
+          <HoverInfoLabel
+            htmlFor="shippingClass"
+            label="Shipping Class"
+            tooltip="Delivery speed for this product"
+          />
+          <MultiSelectDropdownForObject
+            multiple={false}
+            label="shipping class"
+            options={[
+              { label: 'Standard', value: '' },
+              { label: 'Express', value: 'express' },
+              { label: 'Pickup Only', value: 'pickup' },
+            ]}
+            selectedValues={shipping?.shippingClass
+              ? [{ label: shipping.shippingClass, value: shipping.shippingClass }]
+              : [{ label: 'Standard', value: '' }]}
+            onChange={(selected) => setValue('shipping', { ...shipping, shippingClass: firstVal(selected) as string }, { shouldValidate: true })}
+          />
+        </div>
 
-      {/* Handling Time */}
-      <div>
-        <HoverInfoLabel
-          htmlFor="handlingTime"
-          label="Handling Time (days)"
-          tooltip="How many days to prepare this product before shipping"
-        />
-        <ThemedInput
-          type="number"
-          id="handlingTime"
-          value={shipping?.handlingTime ?? ''}
-          onChange={(e) => setValue('shipping', {
-            ...shipping,
-            handlingTime: e.target.value === '' ? null : Number(e.target.value)
-          }, { shouldValidate: true })}
-          placeholder="e.g. 2"
-        />
-      </div>
+        {/* Handling Time */}
+        <div>
+          <HoverInfoLabel
+            htmlFor="handlingTime"
+            label="Handling Time (days)"
+            tooltip="How many days to prepare this product before shipping"
+          />
+          <ThemedInput
+            type="number"
+            id="handlingTime"
+            value={shipping?.handlingTime ?? ''}
+            onChange={(e) => setValue('shipping', {
+              ...shipping,
+              handlingTime: e.target.value === '' ? null : Number(e.target.value)
+            }, { shouldValidate: true })}
+            placeholder="e.g. 2"
+          />
+        </div>
 
-      {/* Shipping Cost Override */}
-      <div>
-        <HoverInfoLabel
-          htmlFor="shippingCostOverride"
-          label="Shipping Cost Override"
-          tooltip="Set a fixed shipping price for this product, leave empty to use global rules"
-        />
-        <ThemedInput
-          type="number"
-          id="shippingCostOverride"
-          value={shipping?.shippingCostOverride ?? ''}
-          onChange={(e) => setValue('shipping', {
-            ...shipping,
-            shippingCostOverride: e.target.value === '' ? null : Number(e.target.value)
-          }, { shouldValidate: true })}
-          placeholder="Leave empty for default"
-        />
-      </div>
+        {/* Shipping Cost Override */}
+        <div>
+          <HoverInfoLabel
+            htmlFor="shippingCostOverride"
+            label="Shipping Cost Override"
+            tooltip="Set a fixed shipping price for this product, leave empty to use global rules"
+          />
+          <ThemedInput
+            type="number"
+            id="shippingCostOverride"
+            value={shipping?.shippingCostOverride ?? ''}
+            onChange={(e) => setValue('shipping', {
+              ...shipping,
+              shippingCostOverride: e.target.value === '' ? null : Number(e.target.value)
+            }, { shouldValidate: true })}
+            placeholder="Leave empty for default"
+          />
+        </div>
 
-      {/* Is Returnable */}
-      <div className="flex items-center justify-between">
-        <HoverInfoLabel
-          htmlFor="isReturnable"
-          label="Returnable"
-          tooltip="Can this product be returned"
-        />
-        <SwitchToggler
-          id="isReturnable"
-          checked={shipping?.isReturnable ?? true}
-          onChange={(val) => setValue('shipping', { ...shipping, isReturnable: val }, { shouldValidate: true })}
-        />
-      </div>
+        {/* Is Returnable */}
+        <div className="flex items-center justify-between">
+          <HoverInfoLabel
+            htmlFor="isReturnable"
+            label="Returnable"
+            tooltip="Can this product be returned"
+          />
+          <SwitchToggler
+            id="isReturnable"
+            checked={shipping?.isReturnable ?? true}
+            onChange={(val) => setValue('shipping', { ...shipping, isReturnable: val }, { shouldValidate: true })}
+          />
+        </div>
 
-      {/* Return Window + Policy — only show if returnable */}
-      {shipping?.isReturnable && (
-        <>
-          <div>
-            <HoverInfoLabel
-              htmlFor="returnWindow"
-              label="Return Window (days)"
-              tooltip="How many days the customer has to return the product"
-            />
-            <ThemedSelect
-              id="returnWindow"
-              value={shipping?.returnWindow ?? ''}
-              onChange={(e) => setValue('shipping', {
-                ...shipping,
-                returnWindow: Number(e.target.value)
-              }, { shouldValidate: true })}
-            >
-              <option value="">Select window</option>
-              <option value={7}>7 days</option>
-              <option value={14}>14 days</option>
-              <option value={30}>30 days</option>
-            </ThemedSelect>
-          </div>
+        {/* Return Window + Policy — only show if returnable */}
+        {shipping?.isReturnable && (
+          <>
+            <div>
+              <HoverInfoLabel
+                htmlFor="returnWindow"
+                label="Return Window (days)"
+                tooltip="How many days the customer has to return the product"
+              />
+              <MultiSelectDropdownForObject
+                multiple={false}
+                label="return window"
+                options={[
+                  { label: '7 days', value: 7 },
+                  { label: '14 days', value: 14 },
+                  { label: '30 days', value: 30 },
+                ]}
+                selectedValues={shipping?.returnWindow
+                  ? [{ label: `${shipping.returnWindow} days`, value: shipping.returnWindow }]
+                  : []}
+                onChange={(selected) => setValue('shipping', { ...shipping, returnWindow: Number(firstVal(selected)) }, { shouldValidate: true })}
+              />
+            </div>
 
-          <div>
-            <HoverInfoLabel
-              htmlFor="returnPolicy"
-              label="Return Policy"
-              tooltip="Who pays for the return shipping"
-            />
-            <ThemedSelect
-              id="returnPolicy"
-              value={shipping?.returnPolicy || ''}
-              onChange={(e) => setValue('shipping', { ...shipping, returnPolicy: e.target.value }, { shouldValidate: true })}
-            >
-              <option value="">Select policy</option>
-              <option value="free_return">Free Return</option>
-              <option value="customer_pays">Customer Pays</option>
-            </ThemedSelect>
-          </div>
-        </>
-      )}
+            <div>
+              <HoverInfoLabel
+                htmlFor="returnPolicy"
+                label="Return Policy"
+                tooltip="Who pays for the return shipping"
+              />
+              <MultiSelectDropdownForObject
+                multiple={false}
+                label="return policy"
+                options={[
+                  { label: 'Free Return', value: 'free_return' },
+                  { label: 'Customer Pays', value: 'customer_pays' },
+                ]}
+                selectedValues={shipping?.returnPolicy
+                  ? [{ label: shipping.returnPolicy === 'free_return' ? 'Free Return' : 'Customer Pays', value: shipping.returnPolicy }]
+                  : []}
+                onChange={(selected) => setValue('shipping', { ...shipping, returnPolicy: firstVal(selected) as string }, { shouldValidate: true })}
+              />
+            </div>
+          </>
+        )}
 
-    </SectionWrapper>
+      </SectionWrapper>
 
       {/* SEO */}
       <SectionWrapper title="SEO" icon={Search}>

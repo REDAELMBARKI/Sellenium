@@ -5,7 +5,7 @@ const NotifyUser = ({Icon  = InfoIcon  ,  message = "" }) => {
 const {state : {currentTheme}} = useStoreConfigCtx()
   return (
     <div className="flex items-center gap-2 rounded-xl overflow-hidden shadow-lg mt-3"
-    style={{background : currentTheme.warning}}
+    style={{background : `${currentTheme.badge}30`}}
     >
       {/* Left wave SVG */}
        <svg width="16" height="50" xmlns="http://www.w3.org/2000/svg">

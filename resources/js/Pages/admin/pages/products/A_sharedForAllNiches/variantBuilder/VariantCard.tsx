@@ -6,6 +6,7 @@ import ColorPicker from "./ColorPicker";
 import PricePreview from "../components/editAndCreate/PricePreview";
 import { Input } from "@/components/ui/input";
 import { variantSchema } from "@/shemas/productCreateform";
+import { Button } from "@/components/ui/button";
 
 const OPTION_VALUES: Record<string, string[]> = {
   Size:         ["XS", "S", "M", "L", "XL", "XXL"],
@@ -255,18 +256,18 @@ function CreateVariantForm({
               </p>
               <p className="text-xs mt-0.5" style={{ color: theme.textMuted }}>All {colorName} variants share this image</p>
             </div>
-            <button type="button" onClick={() => setOverrideImage(true)} className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ border: `1px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}>
+            <Button type="button" onClick={() => setOverrideImage(true)} className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ border: `1px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}>
               Override
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="flex items-center gap-4">
             {variant.imageUrl ? (
               <div style={{ position: "relative", width: 64, height: 64, flexShrink: 0 }}>
                 <img src={variant.imageUrl} alt="" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 10, border: `2px solid ${theme.border}` }} />
-                <button type="button" onClick={() => { onChange(variant.id, "imageUrl", null); setOverrideImage(false); }} style={{ position: "absolute", top: -6, right: -6, background: theme.error, border: "none", borderRadius: "50%", width: 18, height: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Button type="button" onClick={() => { onChange(variant.id, "imageUrl", null); setOverrideImage(false); }} style={{ position: "absolute", top: -6, right: -6, background: theme.error, border: "none", borderRadius: "50%", width: 18, height: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <X size={10} color="#fff" />
-                </button>
+                </Button>
               </div>
             ) : (
               <div onClick={() => imgRef.current?.click()} className="flex flex-col items-center justify-center gap-1 cursor-pointer" style={{ width: 64, height: 64, borderRadius: 10, border: `2px dashed ${theme.border}`, background: theme.bg, flexShrink: 0 }}>
@@ -280,9 +281,9 @@ function CreateVariantForm({
                 {variant.imageUrl ? "Custom image for this variant" : "Upload a specific image for this variant"}
               </p>
               {inheritedImage && (
-                <button type="button" onClick={() => { onChange(variant.id, "imageUrl", null); setOverrideImage(false); }} className="text-xs mt-1" style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 0 }}>
+                <Button type="button" onClick={() => { onChange(variant.id, "imageUrl", null); setOverrideImage(false); }} className="text-xs mt-1" style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 0 }}>
                   ← Use inherited image
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -291,12 +292,12 @@ function CreateVariantForm({
 
       {/* Actions */}
       <div className="flex justify-end gap-3 mt-6">
-        <button type="button" onClick={() => onRemove(variant.id)} className="px-4 py-2 rounded-xl text-sm font-medium" style={{ border: `2px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}>
+        <Button type="button" onClick={() => onRemove(variant.id)} className="px-4 py-2 rounded-xl text-sm font-medium" style={{ border: `2px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}>
           Remove
-        </button>
-        <button type="button" onClick={onDone} className="px-6 py-2 rounded-xl text-sm font-semibold" style={{ background: theme.primary, border: "none", color: theme.textInverse, cursor: "pointer" }}>
+        </Button>
+        <Button type="button" onClick={onDone} className="px-6 py-2 rounded-xl text-sm font-semibold" style={{ background: theme.primary, border: "none", color: theme.textInverse, cursor: "pointer" }}>
           ✓ Save Variant
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -400,12 +401,12 @@ export default function VariantCard({
           </span>
         )}
 
-        <button type="button" onClick={() => onChange(variant.id, "isOpen", !variant.isOpen)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
+        <Button type="button" onClick={() => onChange(variant.id, "isOpen", !variant.isOpen)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
           <ChevronDown size={14} style={{ transform: variant.isOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }} />
-        </button>
-        <button type="button" onClick={() => onRemove(variant.id)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
+        </Button>
+        <Button type="button" onClick={() => onRemove(variant.id)} style={{ background: "none",  border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
           <X size={14} />
-        </button>
+        </Button>
       </div>
 
       {/* Body */}

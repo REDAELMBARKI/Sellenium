@@ -25,10 +25,11 @@ function CollapsibleFriendlySection({
 
   return (
     <div
-      className="rounded-xl shadow-sm overflow-hidden"
+      className="shadow-sm overflow-hidden"
       style={{
-        background: theme.card,
-        border: `1px solid ${theme.border}`,
+         backgroundColor: isOpen ? theme.card : theme.bg,
+        borderWidth: '2px',
+        borderColor: theme.border ,
         borderRadius: theme.borderRadius,
         boxShadow: theme.shadow,
       }}

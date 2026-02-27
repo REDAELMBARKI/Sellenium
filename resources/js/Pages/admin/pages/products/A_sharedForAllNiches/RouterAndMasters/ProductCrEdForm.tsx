@@ -7,14 +7,11 @@ import {
     HelpCircle,
     Tag,
     Layers,
-    DollarSign,
-    Palette,
     Megaphone,
 } from "lucide-react";
 import { useState, useRef } from "react";
 import MediaSection from "../components/editAndCreate/MediaSection";
 import {
-    CategoryCode,
     Video,
 } from "@/types/inventoryTypes";
 import BaseSharedForm from "../components/editAndCreate/BaseSharedForm";
@@ -22,19 +19,17 @@ import BaseSharedForm from "../components/editAndCreate/BaseSharedForm";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 import NotifyUser from "@/components/ui/NotifyUser";
-import PricingSection from "../components/editAndCreate/SingleProductPricingSection";
 import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
 import adapters from "@/functions/product/adapters";
 import CustomSelectForObjectNative from "@/components/ui/CustomSelectForObjectNative";
 import { Button } from "@/components/ui/button";
-import VariantBuilder from "../variantBuilder/VariantBuilder";
-import FaqsSection from "../components/editAndCreate/FAQS";
-import ProductSettingsSection from "../components/editAndCreate/VisibilitySettings";
-import BadgePicker from "../components/editAndCreate/BadgePicker";
 import VisibilitySettings from "../components/editAndCreate/VisibilitySettings";
 import RelatedProductsSection from "../components/editAndCreate/RelatedProductsSection";
 import PricingOrVariants from "../components/editAndCreate/PricingOrVariants";
 import MarketingSection from "../components/editAndCreate/MarketingSection";
+import FaqsSection from "../components/editAndCreate/FAQS";
+import { ThemedSelect } from "../components/editAndCreate/RightSideSection/ThemedInput";
+import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
 
 
 interface ProductCrEdFormFormProps {
@@ -110,12 +105,14 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
                     >
                         What You are going to sell ??
                     </h2>
-                    <CustomSelectForObjectNative
-                        register={register}
+                    <MultiSelectDropdownForObject
+                        multiple={false}
+                        label="select niche "
                         options={options?.categories?.map(toSelectOptionAdapter)}
-                        value={{ value: category?.id ?? "", label: category?.name ?? '' }}
+                        selectedValues={{ value: category?.id ?? "", label: category?.name ?? '' }}
                         onChange={(value) => {
-                            setCategory({ id: value.value as string, name: value.label })
+                        const opt = value as any;
+                        setValue('category_niche_id', opt.value, { shouldValidate: true });
                         }}
                     />
                     {errors.category_niche_id && (
@@ -139,7 +136,7 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
 
                 {/* Media */}
                 <section
-                    className="p-4 border border-1"
+                    className="border border-1"
                     style={{ background: currentTheme.card, borderColor: currentTheme.border }}
                 >
                     <div ref={mediaRef}>

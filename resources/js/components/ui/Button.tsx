@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
-import { cn } from "@/lib/utils";
+import { Button as MaterialUIButton, ButtonProps as MuiButtonProps } from "@mui/material";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 export type ButtonVariant =
@@ -12,87 +11,143 @@ export type ButtonVariant =
   | "ghost"
   | "link";
 
-const sizeClasses = {
-  default: "h-9 px-4 py-2",
-  sm: "h-8 rounded-md px-3 text-xs",
-  lg: "h-10 rounded-md px-8",
-  icon: "h-9 w-9",
-};
-
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends Omit<MuiButtonProps, "variant" | "color"> {
   variant?: ButtonVariant;
-  size?: keyof typeof sizeClasses;
+  size?: "sm" | "default" | "lg" | "icon";
   asChild?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
-      className,
       variant = "default",
       size = "default",
-      asChild = false,
       children,
+      sx,
       ...props
     },
     ref
   ) => {
-    const Comp = asChild ? Slot : "button";
     const {
       state: { currentTheme: theme },
     } = useStoreConfigCtx();
 
-    const base =
-      "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
+    const muiVariant: MuiButtonProps["variant"] = (() => {
+      switch (variant) {
+        case "outline":
+          return "outlined";
+        case "ghost":
+        case "link":
+          return "text";
+        default:
+          return "contained";
+      }
+    })();
 
-    const variantStyle: React.CSSProperties = (() => {
+    const sizeMap: Record<string, MuiButtonProps["size"]> = {
+      sm: "small",
+      default: "medium",
+      lg: "large",
+      icon: "medium",
+    };
+
+    const variantSx: object = (() => {
+      const base = {
+        textTransform: "none",
+        fontWeight: 500,
+        letterSpacing: "0.01em",
+        borderRadius: "8px",
+        transition: "all 0.2s ease",
+        boxShadow: "none",
+        "&:hover": { boxShadow: "none" },
+      };
+
       switch (variant) {
         case "secondary":
           return {
-            background: theme.secondary,
+            ...base,
+            backgroundColor: theme.secondary,
             color: theme.text,
+            "&:hover": {
+              ...base["&:hover"],
+              backgroundColor: theme.secondary,
+              filter: "brightness(0.93)",
+            },
           };
         case "destructive":
         case "danger":
           return {
-            background: theme.error,
+            ...base,
+            backgroundColor: theme.error,
             color: theme.textInverse,
+            "&:hover": {
+              ...base["&:hover"],
+              backgroundColor: theme.error,
+              filter: "brightness(0.88)",
+            },
           };
         case "outline":
           return {
-            background: "transparent",
+            ...base,
+            borderColor: theme.border,
             color: theme.text,
-            border: `1px solid ${theme.border}`,
+            backgroundColor: "transparent",
+            "&:hover": {
+              ...base["&:hover"],
+              backgroundColor: `${theme.primary}10`,
+              borderColor: theme.primary,
+            },
           };
         case "ghost":
           return {
-            background: "transparent",
+            ...base,
             color: theme.text,
+            backgroundColor: "transparent",
+            "&:hover": {
+              ...base["&:hover"],
+              backgroundColor: `${theme.primary}12`,
+            },
           };
         case "link":
           return {
-            background: "transparent",
+            ...base,
             color: theme.link,
+            backgroundColor: "transparent",
             padding: 0,
+            minWidth: "unset",
+            textDecoration: "underline",
+            textUnderlineOffset: "3px",
+            "&:hover": {
+              ...base["&:hover"],
+              backgroundColor: "transparent",
+              opacity: 0.75,
+            },
           };
         default:
           return {
-            background: theme.primary,
+            ...base,
+            backgroundColor: theme.primary,
             color: theme.textInverse,
+            "&:hover": {
+              ...base["&:hover"],
+              backgroundColor: theme.primary,
+              filter: "brightness(0.88)",
+            },
           };
       }
     })();
 
     return (
-      <Comp
+      <MaterialUIButton
         ref={ref}
-        className={cn(base, sizeClasses[size], className)}
-        style={variantStyle}
+        variant={muiVariant}
+        size={sizeMap[size]}
+        disableElevation
+        sx={{ ...variantSx, ...sx }}
         {...props}
       >
         {children}
-      </Comp>
+      </MaterialUIButton>
     );
   }
 );

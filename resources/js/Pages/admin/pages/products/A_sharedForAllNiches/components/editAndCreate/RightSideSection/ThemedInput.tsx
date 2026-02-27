@@ -24,34 +24,68 @@ export function ThemedInput({ className = '', ...props }: ThemedInputProps) {
   );
 }
 
-interface ThemedSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {}
 
-export function ThemedSelect({ className = '', children, ...props }: ThemedSelectProps) {
-  const {
-    state: { currentTheme },
-  } = useStoreConfigCtx();
+type SelectOption = {
+  label: string | number;
+  value: string | number;
+};
+
+type SelectValue = string | number | SelectOption;
+
+interface ThemedSelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'value' | 'onChange'> {
+  options: SelectOption[];
+  placeholder?: string;
+  value?: SelectValue;
+  onChange?: (value: SelectValue) => void;
+}
+
+export function ThemedSelect({
+  className = '',
+  options,
+  placeholder,
+  value,
+  onChange,
+  ...props
+}: ThemedSelectProps) {
+  const { state: { currentTheme } } = useStoreConfigCtx();
+
+  // Detect if we're in object mode
+  const isObjectMode = value !== null && typeof value === 'object';
+
+  const rawValue = isObjectMode ? (value as SelectOption).value : (value ?? '');
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selected = options.find(o => String(o.value) === e.target.value);
+    if (!selected) return;
+    onChange?.(isObjectMode ? selected : selected.value);
+  };
 
   return (
     <select
       {...props}
+      value={String(rawValue)}
+      onChange={handleChange}
       className={`w-full px-3 py-2 text-sm transition-colors ${className}`}
       style={{
         backgroundColor: currentTheme.bgSecondary,
         border: `1px solid ${currentTheme.border}`,
         borderRadius: currentTheme.borderRadius,
         color: currentTheme.text,
-        boxShadow: currentTheme.shadow,
+        outline: 'none',
       }}
       onFocus={(e) => {
-        e.currentTarget.style.outline = `2px solid ${currentTheme.border}`;
-        e.currentTarget.style.borderColor = currentTheme.accent;
+        e.currentTarget.style.border = `1px solid ${currentTheme.accent}`;
       }}
       onBlur={(e) => {
-        e.currentTarget.style.outline = 'none';
-        e.currentTarget.style.borderColor = currentTheme.border;
+        e.currentTarget.style.border = `1px solid ${currentTheme.border}`;
       }}
     >
-      {children}
+      {placeholder && <option value="">{placeholder}</option>}
+      {options.map((opt) => (
+        <option key={opt.value} value={String(opt.value)}>
+          {opt.label}
+        </option>
+      ))}
     </select>
   );
 }

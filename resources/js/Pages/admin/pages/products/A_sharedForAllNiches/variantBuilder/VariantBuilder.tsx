@@ -10,6 +10,7 @@ import { variantSchema } from "@/shemas/productCreateform";
 import { useFieldArray } from "react-hook-form";
 import { ProductBase } from "@/types/products/baseProductTypes";
 import { useToast } from "@/contextHooks/useToasts";
+import { Button } from "@/components/ui/button";
 
 export default function VariantBuilder() {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
@@ -36,7 +37,7 @@ export default function VariantBuilder() {
       id: `v-${Date.now()}`,
       attrs: null,
       price: defaultVariantsPrice ??  0 ,
-      stock: "",
+      stock: 0,
       compare_price : 0 ,
       sku: null,
       imageUrl: null,
@@ -191,6 +192,7 @@ export default function VariantBuilder() {
                 Default Price
               </label>
               <input
+                placeholder="0"
                 type="number"
                 value={defaultVariantsPrice === null ? '' : defaultVariantsPrice}
                 onChange={(e) => setDefaultVariantsPrice(e.target.value === '' ? undefined : Number(e.target.value))}
@@ -204,7 +206,7 @@ export default function VariantBuilder() {
             </div>
 
               {/* Generate */}
-              <button
+              <Button
                 type="button"
                 onClick={() => setShowModal(true)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150"
@@ -217,10 +219,10 @@ export default function VariantBuilder() {
               >
                 <Zap size={14} />
                 Generate
-              </button>
+              </Button>
 
               {/* Add manually */}
-              <button
+              <Button
                 type="button"
                 onClick={addEmpty}
                 disabled={hasOpenCard}
@@ -235,7 +237,7 @@ export default function VariantBuilder() {
               >
                 <Plus size={14} />
                 Add manually
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -271,22 +273,22 @@ export default function VariantBuilder() {
                 Example: a Red T-shirt in size M with 10 units at 150 MAD
               </p>
               <div className="flex items-center gap-3">
-                <button
+                <Button
                   type="button"
                   onClick={addEmpty}
                   className="px-5 py-2 rounded-xl text-sm font-semibold"
                   style={{ background: theme.primary, border: "none", color: theme.textInverse, cursor: "pointer" }}
                 >
                   <span className="flex items-center gap-2"><Plus size={14} /> Add first variant</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => setShowModal(true)}
                   className="px-5 py-2 rounded-xl text-sm font-medium"
                   style={{ border: `2px solid ${theme.primary}`, background: 'transparent', color: theme.primary, cursor: "pointer" }}
                 >
                   <span className="flex items-center gap-2"><Zap size={14} /> Generate</span>
-                </button>
+                </Button>
               </div>
             </div>
           )}

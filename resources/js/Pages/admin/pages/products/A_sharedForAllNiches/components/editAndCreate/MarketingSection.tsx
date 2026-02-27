@@ -54,6 +54,9 @@ export default function MarketingSection() {
   const [promoLoading,  setPromoLoading]  = useState(false);
   const [couponLoading, setCouponLoading] = useState(false);
 
+
+  // get promotions fro backend 
+  
 //   useEffect(() => {
 //     setPromoLoading(true);
 //     axios.get(route('promotion.suggest'))
