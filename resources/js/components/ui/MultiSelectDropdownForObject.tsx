@@ -1,36 +1,41 @@
-import { Check, ChevronDown } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import SelectedChip from "./SelectedChip";
+import { Check, ChevronDown, Trash2 } from "lucide-react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import { isObject } from "lodash";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
-export type AllowedObjectsType = { value: string | number; label: string }; // simplified
+export type AllowedObjectsType = { value: string | number; label: string };
 
 interface MultiSelectDropdownForObjectProps {
-  label: string;
-  options: AllowedObjectsType[];
-  selectedValues: AllowedObjectsType[];
+  label?: string;
+  options?: AllowedObjectsType[];
+  selectedValues?: AllowedObjectsType[];
   onChange: (selected: AllowedObjectsType[]) => void;
+  multiple?: boolean;
 }
 
 const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> = ({
-  label,
-  options,
-  selectedValues,
-  onChange
+  label = 'option',
+  options = [],
+  selectedValues = [],
+  onChange,
+  multiple = true,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-
   const { state: { currentTheme } } = useStoreConfigCtx();
 
-  // Click outside closes dropdown
+  const handleToggle = () => {
+    if (!isOpen && triggerRef.current) {
+      setRect(triggerRef.current.getBoundingClientRect());
+    }
+    setIsOpen(prev => !prev);
+  };
+
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
-          triggerRef.current && !triggerRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -39,120 +44,148 @@ const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> 
   }, []);
 
   useEffect(() => {
-  const handleScroll = (e: Event) => {
-    if (!dropdownRef.current) return;
-
-    const target = e.target as HTMLElement;
-
-    // If scrolling inside the dropdown itself
-    if (dropdownRef.current.contains(target)) {
-    
-       return; // ignore scroll inside dropdown if it can scroll
-    }
-
-    // Otherwise, close dropdown
-    setIsOpen(false);
-  };
-
-  window.addEventListener('scroll', handleScroll, true); // capture phase
-  return () => window.removeEventListener('scroll', handleScroll, true);
-}, []);
-
-
-  // Update dropdown position
-  useEffect(() => {
-    if (isOpen && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      setDropdownStyle({
-        position: "fixed",
-        top: rect.bottom,
-        left: rect.left,
-        width: rect.width,
-        zIndex: 99999
-      });
-    }
-  }, [isOpen]);
+    const handleScroll = (e: Event) => {
+      if (containerRef.current?.contains(e.target as HTMLElement)) return;
+      setIsOpen(false);
+    };
+    window.addEventListener("scroll", handleScroll, true);
+    return () => window.removeEventListener("scroll", handleScroll, true);
+  }, []);
 
   const toggleOption = (option: AllowedObjectsType) => {
     if (!isObject(option)) return;
-    const exists = selectedValues.map(v => v.value).includes(option.value);
-    const newSelected = exists
-      ? selectedValues.filter(v => v.value !== option.value)
-      : [...selectedValues, option];
-    onChange(newSelected);
+
+    if (multiple) {
+      const exists = selectedValues.some(v => v.value === option.value);
+      const next = exists
+        ? selectedValues.filter(v => v.value !== option.value)
+        : [...selectedValues, option];
+      onChange(next);
+    } else {
+      const alreadySelected = selectedValues.some(v => v.value === option.value);
+      onChange(alreadySelected ? [] : [option]);
+      setIsOpen(false);
+    }
+  };
+
+  const triggerLabel = () => {
+    if (selectedValues.length === 0) return `Select ${label.toLowerCase()}`;
+    if (!multiple) return selectedValues[0]?.label ?? `Select ${label.toLowerCase()}`;
+    return `${selectedValues.length} selected`;
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative w-full" ref={containerRef}>
+
+      {/* Trigger */}
       <button
         ref={triggerRef}
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-5 py-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-between focus:outline-none shadow-sm"
+        onClick={handleToggle}
+        className="w-full px-3 py-2 text-sm flex items-center justify-between transition-colors focus:outline-none"
         style={{
-          backgroundColor: currentTheme.bg,
-          color: currentTheme.text,
-          borderWidth: "2px",
-          borderColor: isOpen ? currentTheme.accent : currentTheme.border
+          backgroundColor: currentTheme.bgSecondary,
+          border: `1px solid ${isOpen ? currentTheme.accent : currentTheme.border}`,
+          borderRadius: currentTheme.borderRadius,
+          color: selectedValues.length === 0 ? '#9ca3af' : currentTheme.text,
         }}
       >
-        <span className={selectedValues.length === 0 ? "text-gray-400" : ""}>
-          {selectedValues.length === 0
-            ? `Select ${label.toLowerCase()}`
-            : `${selectedValues.length} selected`}
-        </span>
+        <span className="capitalize">{triggerLabel()}</span>
         <ChevronDown
-          className={`w-5 h-5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           style={{ color: currentTheme.text }}
         />
       </button>
 
-      {isOpen && (
+      {/* Dropdown */}
+      {isOpen && rect && (
         <div
-          className="rounded-xl shadow-lg overflow-y-auto"
+          className="overflow-y-auto shadow-lg themed-scroll"
           style={{
-            ...dropdownStyle,
-            maxHeight: "250px",
-            backgroundColor: currentTheme.bg,
-            borderWidth: "2px",
-            borderColor: currentTheme.border,
-          }}
+            position: "fixed",
+            top: rect.bottom + 2,
+            left: rect.left,
+            width: rect.width,
+            maxHeight: "220px",
+            backgroundColor: currentTheme.bgSecondary,
+            border: `1px solid ${currentTheme.border}`,
+            borderRadius: currentTheme.borderRadius,
+            zIndex: 99999,
+            "--scroll-color": currentTheme.primary,
+          } as CSSProperties}
         >
+          {options.length === 0 && (
+            <div className="px-3 py-2 text-sm" style={{ color: '#9ca3af' }}>
+              No options available
+            </div>
+          )}
           {options.map(option => {
-            const isSelected = selectedValues.map(v => v.value).includes(option.value);
+            const isSelected = selectedValues.some(v => v.value === option.value);
             return (
               <button
                 key={option.value}
                 type="button"
                 onClick={() => toggleOption(option)}
-                className="w-full px-5 py-3 flex items-center gap-3 hover:bg-opacity-50 transition-all duration-150"
+                className="w-full px-3 py-2 text-sm flex items-center gap-2 transition-colors"
                 style={{
-                  backgroundColor: isSelected ? `${currentTheme.accent}10` : "transparent",
-                  color: currentTheme.text
+                  backgroundColor: isSelected ? `${currentTheme.accent}18` : "transparent",
+                  color: currentTheme.text,
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = `${currentTheme.accent}20`;
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = isSelected
+                    ? `${currentTheme.accent}18`
+                    : "transparent";
                 }}
               >
+                {/* Square checkbox for multi, circle radio for single */}
                 <div
-                  className="w-5 h-5 rounded flex items-center justify-center transition-all"
+                  className="w-4 h-4 flex items-center justify-center flex-shrink-0 transition-all"
                   style={{
                     backgroundColor: isSelected ? currentTheme.accent : "transparent",
-                    borderWidth: "2px",
-                    borderColor: isSelected ? currentTheme.accent : currentTheme.border
+                    border: `1.5px solid ${isSelected ? currentTheme.accent : currentTheme.border}`,
+                    borderRadius: multiple ? '4px' : '50%',
                   }}
                 >
-                  {isSelected && <Check className="w-3 h-3 text-white" />}
+                  {isSelected && (
+                    multiple
+                      ? <Check className="w-2.5 h-2.5 text-white" />
+                      : <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                  )}
                 </div>
-                <span className="font-medium capitalize">{option.label}</span>
+                <span className="capitalize">{option.label}</span>
               </button>
             );
           })}
         </div>
       )}
 
-      {/* Selected chips */}
-      {selectedValues.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-3">
-          {selectedValues.map(value => (
-            <SelectedChip key={value.value} label={value.label} onRemove={() => toggleOption(value)} />
+      {/* Selected list — only in multi mode */}
+      {multiple && selectedValues.length > 0 && (
+        <div className="flex flex-col gap-1 mt-2">
+          {selectedValues.map(item => (
+            <div
+              key={item.value}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm"
+              style={{
+                backgroundColor: `${currentTheme.accent}12`,
+                border: `1px solid ${currentTheme.accent}40`,
+                borderRadius: currentTheme.borderRadius,
+                color: currentTheme.text,
+              }}
+            >
+              <span className="capitalize">{item.label}</span>
+              <button
+                type="button"
+                onClick={() => toggleOption(item)}
+                className="hover:opacity-70 transition-opacity"
+                style={{ color: currentTheme.error ?? '#ef4444' }}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
           ))}
         </div>
       )}

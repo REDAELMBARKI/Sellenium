@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { Flame, Sparkles, Tag, Zap, Rocket, Ban } from 'lucide-react';
 
@@ -59,7 +60,7 @@ export default function BadgePicker({ currentTheme }: { currentTheme: any }) {
           const isSelected = isNone ? !value : value === badge.label;
 
           return (
-            <button
+            <Button
               key={badge.label}
               type="button"
               onClick={() =>
@@ -82,7 +83,7 @@ export default function BadgePicker({ currentTheme }: { currentTheme: any }) {
             >
               <badge.icon size={12} />
               {badge.label}
-            </button>
+            </Button>
           );
         })}
       </div>
