@@ -4,6 +4,7 @@ import { Wand2 } from 'lucide-react';
 import React from 'react';
 import PricePreview from './PricePreview';
 import { Input } from '@/components/ui/input';
+import { useWatch } from 'react-hook-form';
 
 
 
@@ -13,10 +14,13 @@ function SingleProductPricingSection({
 }: {
   frontEndErrors: Record<string, string>;
 }) {
-  const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
+  const {  control ,  register } = useProductDataCtx();
   const {
     state: { currentTheme },
   } = useStoreConfigCtx();
+  const price = useWatch({ control, name: 'price' });
+  const compare_price = useWatch({ control, name: 'compare_price' });
+  const sku = useWatch({ control, name: 'sku' });
 
   const inputStyle = (errorKey?: string) => ({
     backgroundColor: currentTheme.bg,
@@ -41,17 +45,11 @@ function SingleProductPricingSection({
             Price <span className="text-red-500">*</span>
           </label>
           <Input
+            {...register('price' , { valueAsNumber: true })}
+            
             type="number"
             step="0.01"
             placeholder='Price'
-
-            value={basicInfoForm.price ?? ''}
-            onChange={(e) =>
-              setBasicInfoForm({
-                ...basicInfoForm,
-                price: e.target.value === '' ? null : Number(e.target.value),
-              })
-            }
             className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
             style={inputStyle('price')}
           />
@@ -73,13 +71,7 @@ function SingleProductPricingSection({
             type="number"
             step="0.01"
             placeholder='Compare price'
-            value={basicInfoForm.compare_price ?? ''}
-            onChange={(e) =>
-              setBasicInfoForm({
-                ...basicInfoForm,
-                compare_price: e.target.value === '' ? null : Number(e.target.value),
-              })
-            }
+            {...register('compare_price' , { valueAsNumber: true })}
             className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
             style={inputStyle()}
           />
@@ -87,8 +79,8 @@ function SingleProductPricingSection({
 
         {/* Price Preview */}
         <PricePreview
-          price={basicInfoForm.price}
-          comparePrice={basicInfoForm.compare_price ?? null}
+          price={Number(price)}
+          comparePrice={Number(compare_price) ?? null}
           currentTheme={currentTheme}
         />
       </div>
@@ -119,13 +111,8 @@ function SingleProductPricingSection({
           <Input
             type="number"
             placeholder='Stock'
-            value={basicInfoForm.stock ?? ''}
-            onChange={(e) =>
-              setBasicInfoForm({
-                ...basicInfoForm,
-                stock: e.target.value === '' ? null : Number(e.target.value),
-              })
-            }
+            {...register('stock' , { valueAsNumber: true })}
+           
             className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
             style={inputStyle('stock')}
           />
@@ -141,7 +128,7 @@ function SingleProductPricingSection({
             style={{ color: currentTheme.text }}
           >
             SKU
-            {!basicInfoForm.sku && (
+            {!sku && (
               <span
                 className="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full normal-case tracking-normal"
                 style={{
@@ -157,10 +144,8 @@ function SingleProductPricingSection({
           </label>
           <Input
             type="text"
-            value={basicInfoForm.sku ?? ''}
-            onChange={(e) =>
-              setBasicInfoForm({ ...basicInfoForm, sku: e.target.value })
-            }
+            {...register('sku')}
+           
             placeholder="Leave empty to auto-generate"
             className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
             style={inputStyle('sku')}

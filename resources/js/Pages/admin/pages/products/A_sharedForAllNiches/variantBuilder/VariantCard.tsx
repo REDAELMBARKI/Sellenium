@@ -22,7 +22,7 @@ type FormErrors = Record<string, string[]> | null;
 interface VariantCardProps {
   variant: Variant;
   activeOptions: string[];
-  productPrice: number;
+  defaultVariantsPrice?: number;
   colorImages: Record<string, string>;
   onChange: (id: string, field: string, value: any) => void;
   onRemove: (id: string) => void;
@@ -41,9 +41,9 @@ interface CreateVariantFormProps {
   imgRef: React.RefObject<HTMLInputElement>;
   onChange: (id: string, field: string, value: any) => void;
   onRemove: (id: string) => void;
-  onDone: () => void;       // ← no id, VariantCard handles it
+  onDone: () => void;
   theme: ThemePalette;
-  errors: FormErrors;       // ← from VariantCard local state
+  errors: any;
 }
 
 // ── small reusable error line ─────────────────────────────────────────────────
@@ -58,7 +58,7 @@ function CreateVariantForm({
   colorHex, colorName,
   inheritedImage, overrideImage, setOverrideImage, imgRef,
   onChange, onRemove, onDone, theme,
-  errors,                   // ← received from VariantCard
+  errors
 }: CreateVariantFormProps) {
 
   const inputClassName = "w-full px-5 py-4 rounded-xl font-medium shadow-sm";
@@ -72,8 +72,28 @@ function CreateVariantForm({
   const labelClassName = "block text-sm font-bold mb-4 uppercase tracking-wide";
   const sectionLabelClassName = "text-xs font-bold uppercase tracking-widest mb-3";
 
-  // ── get first error message for a field ──────────────────────────────────
   const err = (field: string) => errors?.[field]?.[0];
+
+  // ── local state to prevent focus loss on every keystroke ─────────────────
+  const [local, setLocal] = useState({
+    price:         variant.price         ?? '',
+    compare_price: variant.compare_price ?? '',
+    stock:         variant.stock         ?? '',
+    sku:           variant.sku           ?? '',
+  });
+
+  const handleLocalChange = (field: string, value: string) => {
+    setLocal(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleBlur = (field: string) => {
+    const value = local[field as keyof typeof local];
+    if (field === 'sku') {
+      onChange(variant.id, field, value);
+    } else {
+      onChange(variant.id, field, value === '' ? null : Number(value));
+    }
+  };
 
   return (
     <div style={{ padding: "0 16px 20px", borderTop: `1px solid ${theme.border}` }}>
@@ -90,9 +110,9 @@ function CreateVariantForm({
             theme={theme}
           />
           {err("color")
-              ? <FieldError message={err("color")} />
-              : <p className="text-xs mt-2" style={{ color: theme.textMuted }}>pre-filled from product</p>
-            }
+            ? <FieldError message={err("color")} />
+            : <p className="text-xs mt-2" style={{ color: theme.textMuted }}>pre-filled from product</p>
+          }
         </div>
       )}
 
@@ -132,9 +152,10 @@ function CreateVariantForm({
             <label className={labelClassName} style={{ color: theme.text }}>Price</label>
             <Input
               type="number"
-              value={variant.price ?? ''}
+              value={local.price}
               placeholder="e.g. 299"
-              onChange={(e) => onChange(variant.id, "price", e.target.value === '' ? null : Number(e.target.value))}
+              onChange={(e) => handleLocalChange('price', e.target.value)}
+              onBlur={() => handleBlur('price')}
               className={inputClassName}
               style={inputStyle(!!err("price"))}
             />
@@ -148,9 +169,10 @@ function CreateVariantForm({
             <label className={labelClassName} style={{ color: theme.text }}>Compare Price</label>
             <Input
               type="number"
-              value={variant.compare_price ?? ''}
+              value={local.compare_price}
               placeholder="e.g. 399"
-              onChange={(e) => onChange(variant.id, "compare_price", e.target.value === '' ? null : Number(e.target.value))}
+              onChange={(e) => handleLocalChange('compare_price', e.target.value)}
+              onBlur={() => handleBlur('compare_price')}
               className={inputClassName}
               style={inputStyle(!!err("compare_price"))}
             />
@@ -185,9 +207,10 @@ function CreateVariantForm({
             </label>
             <Input
               type="number"
-              value={variant.stock ?? ''}
+              value={local.stock}
               placeholder="e.g. 50"
-              onChange={(e) => onChange(variant.id, "stock", e.target.value === '' ? null : Number(e.target.value))}
+              onChange={(e) => handleLocalChange('stock', e.target.value)}
+              onBlur={() => handleBlur('stock')}
               className={inputClassName}
               style={inputStyle(!!err("stock"))}
             />
@@ -208,9 +231,10 @@ function CreateVariantForm({
             </label>
             <Input
               type="text"
-              value={variant.sku ?? ''}
+              value={local.sku}
               placeholder="Leave empty to auto-generate"
-              onChange={(e) => onChange(variant.id, "sku", e.target.value)}
+              onChange={(e) => handleLocalChange('sku', e.target.value)}
+              onBlur={() => handleBlur('sku')}
               className={inputClassName}
               style={inputStyle(!!err("sku"))}
             />
@@ -280,11 +304,11 @@ function CreateVariantForm({
 
 // ─── Card ─────────────────────────────────────────────────────────────────────
 export default function VariantCard({
-  variant, activeOptions, productPrice, colorImages,
+  variant, activeOptions, defaultVariantsPrice, colorImages,
   onChange, onRemove, onDone, theme
 }: VariantCardProps) {
   const [overrideImage, setOverrideImage] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>(null);  // ← local errors
+  const [errors, setErrors] = useState<FormErrors>(null);
   const imgRef = useRef<HTMLInputElement>(null);
 
   const color = variant.attrs?.color as { hex: string; name: string } | undefined;
@@ -299,40 +323,35 @@ export default function VariantCard({
   const displayImage   = variant.imageUrl || inheritedImage;
   const isInherited    = !variant.imageUrl && !!inheritedImage;
 
-  // ── validate → set errors or close card ──────────────────────────────────
   const handleDone = () => {
     const result = variantSchema.safeParse(variant);
-     const attrErrors: Record<string, string[]> = {};
-      activeOptions.forEach((opt) => {
-        if (opt === "Color") {
-          if (!variant.attrs?.color) {
-            attrErrors["color"] = ["Color is required"];
-          }
-        } else {
-          const key = opt.toLowerCase();
-          if (!variant.attrs?.[key]) {
-            attrErrors[key] = [`${opt} is required`];
-          }
-        }
-      });
 
-      if (Object.keys(attrErrors).length > 0) {
-        setErrors(attrErrors);
-        return;
+    const attrErrors: Record<string, string[]> = {};
+    activeOptions.forEach((opt) => {
+      if (opt === "Color") {
+        if (!variant.attrs?.color) attrErrors["color"] = ["Color is required"];
+      } else {
+        const key = opt.toLowerCase();
+        if (!variant.attrs?.[key]) attrErrors[key] = [`${opt} is required`];
       }
-    if (!result.success) {
-      setErrors(result.error.flatten().fieldErrors);  // ← populate errors
-      return;                                          // ← stay open
+    });
+
+    const zodErrors = !result.success ? result.error.flatten().fieldErrors : {};
+    const allErrors = { ...zodErrors, ...attrErrors };
+
+    if (Object.keys(allErrors).length > 0) {
+      setErrors(allErrors);
+      return;
     }
 
-    setErrors(null);       // ← clear errors
-    onDone(variant.id);    // ← close card
+    setErrors(null);
+    onDone(variant.id);
   };
 
   return (
     <div style={{
       background: theme.bgSecondary,
-      border: `1px solid ${errors ? '#ef4444' : theme.border}`,  // ← red if has errors
+      border: `1px solid ${errors ? '#ef4444' : theme.border}`,
       borderRadius: theme.borderRadius,
       overflow: "hidden",
     }}>
@@ -359,9 +378,24 @@ export default function VariantCard({
 
         <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: theme.text }}>{label}</span>
 
+        {errors && Object.keys(errors).length > 0 && (
+          <span style={{
+            fontSize: 11,
+            color: '#ef4444',
+            background: '#ef444415',
+            border: '1px solid #ef444440',
+            padding: '2px 8px',
+            borderRadius: 6,
+            fontWeight: 600,
+            flexShrink: 0
+          }}>
+            ⚠ {Object.keys(errors).length} error{Object.keys(errors).length > 1 ? 's' : ''}
+          </span>
+        )}
+
         {!variant.isOpen && (
           <span style={{ fontSize: 12, color: theme.textMuted }}>
-            {variant.price || productPrice} MAD &nbsp;·&nbsp;
+            {variant.price || defaultVariantsPrice} MAD &nbsp;·&nbsp;
             {variant.stock ? `${variant.stock} units` : <span style={{ color: theme.error + "cc" }}>no stock</span>}
           </span>
         )}
@@ -387,9 +421,9 @@ export default function VariantCard({
           imgRef={imgRef}
           onChange={onChange}
           onRemove={onRemove}
-          onDone={handleDone}   // ← validates first
+          onDone={handleDone}
           theme={theme}
-          errors={errors}       // ← pass errors down to form
+          errors={errors}
         />
       )}
     </div>

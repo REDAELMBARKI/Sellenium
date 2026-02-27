@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Plus, Zap, AlertCircle, PackageSearch, MousePointerClick } from "lucide-react";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { Variant } from "@/types/products/productVariantType";
@@ -7,65 +7,135 @@ import VariantCard from "./VariantCard";
 import GenerateModal from "./GenerateModel";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { variantSchema } from "@/shemas/productCreateform";
+import { useFieldArray } from "react-hook-form";
+import { ProductBase } from "@/types/products/baseProductTypes";
+import { useToast } from "@/contextHooks/useToasts";
 
 export default function VariantBuilder() {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
   const [activeOptions, setActiveOptions] = useState<string[]>([]);
   const [colorImages, setColorImages] = useState<Record<string, string>>({});
-  const { basicInfoForm: { variants }, setBasicInfoForm } = useProductDataCtx();
   const [showModal, setShowModal] = useState(false);
   const newCardRef = useRef<HTMLDivElement>(null);
-  const [defaultVariantsPrice , setDefaultVariantsPrice] = useState<number | null>(null)
+  const {  control } = useProductDataCtx();
+  const {addToast} = useToast()
+  const { fields : variants, append, remove , update} = useFieldArray<ProductBase , 'variants'>({
+    control,
+    name: 'variants'
+  });
   const hasOpenCard = variants.some((v) => v.isOpen);
+  const [defaultVariantsPrice , setDefaultVariantsPrice] = useState<number>()
+  
+  // 2. holds the validation errors for those inputs
+  const [variantErrors, setVariantErrors] = useState<Record<string, any>>({});
+  
   
   const addEmpty = useCallback(() => {
     if (hasOpenCard) return;
     const newVariant: Variant = {
       id: `v-${Date.now()}`,
       attrs: null,
-      price: defaultVariantsPrice ??  null ,
+      price: defaultVariantsPrice ??  0 ,
       stock: "",
       compare_price : 0 ,
       sku: null,
       imageUrl: null,
       isOpen: true,
     };
-    setBasicInfoForm(prev => ({ ...prev, variants: [...prev.variants, newVariant] }));
+    append(newVariant);
     setTimeout(() => {
       newCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 50);
-  }, [hasOpenCard, variants.length , defaultVariantsPrice]);
+  }, [hasOpenCard, append , defaultVariantsPrice]);
 
-  const updateVariant = (id: string, field: string, value: any) =>
-    setBasicInfoForm((prev) => ({
-      ...prev,
-      variants: prev.variants.map(v => {
-        if (v.id !== id) return v;
-        if (field.startsWith("attrs.")) {
-          const attrKey = field.replace("attrs.", "");
-          return { ...v, attrs: { ...(v.attrs ?? {}), [attrKey]: value } };
-        }
-        return { ...v, [field]: value };
-      })
-    }));
+  const updateVariant = (id: string, field: string, value: any) => {
+    const index = variants.findIndex(f => f.id === id); // ← find index by id
+    if (index === -1) return;
 
-  const removeVariant = (id: string) =>
-    setBasicInfoForm(prev => ({ ...prev, variants: prev.variants.filter((v) => v.id !== id) }));
+    const current = variants[index];
 
-  const markDone = (id: string) => {
-        const variant = variants.find(v => v.id === id);
-        if (!variant) return;
+    if (field.startsWith("attrs.")) {
+      const attrKey = field.replace("attrs.", "");
+      update(index, { ...current, attrs: { ...(current.attrs ?? {}), [attrKey]: value } });
+      return;
+    }
 
-        const result = variantSchema.safeParse(variant);
-        if (!result.success) {
-          updateVariant(id, "errors", result.error.flatten().fieldErrors);
-          return;
-        }
-      setBasicInfoForm(prev => ({ ...prev, variants: prev.variants.map((v) => v.id === id ? { ...v, isOpen: false ,  errors: null  } : v) }));
+    update(index, { ...current, [field]: value });
+  };
+
+  const removeVariant = (id: string) =>{
+       const index = variants.findIndex(f => f.id === id)
+       if (index === -1) return;
+
+       remove(index)
+
   }
 
+  const markDone = (id: string) => {
+        const index = variants.findIndex(v => v.id === id);
+        if (index === -1) return;
+
+        const variant = variants[index] ; 
+        const result = variantSchema.safeParse(variant);
+        if (!result.success) {
+        setVariantErrors(prev => ({
+             ...prev , 
+               [id]: result.error.flatten().fieldErrors
+          }))
+          return;
+        }
+
+        const isExists = checkIfExists(variant , variants) ;
+        if(isExists){
+           addToast({
+             title : "Duplicate" , 
+             description : 'this variant exists' , 
+             duration : 2000 , 
+             
+           }) ; 
+           return ;
+        }
+        setVariantErrors(prev => {
+          const updated = { ...prev };
+          delete updated[id];
+          return updated;
+        });
+  
+       update(index , { ...variant, isOpen: false })
+       addToast({
+            title : 'new variant added' , 
+            type : 'success' , 
+            duration : 1000
+       })
+  }
+
+  const checkIfExists = (variant: Variant, variants: Variant[]): boolean => {
+  return variants.some(v => {
+    // skip comparing with itself
+    if (v.id === variant.id) return false;
+
+    // must have same number of attr keys
+    const variantKeys  = Object.keys(variant.attrs  || {});
+    const existingKeys = Object.keys(v.attrs || {});
+    if (variantKeys.length !== existingKeys.length) return false;
+
+    // every attr value must match
+    return variantKeys.every(key => {
+      const a = variant.attrs?.[key];
+      const b = v.attrs?.[key];
+
+      // color is an object { hex, name } — compare by hex
+      if (typeof a === 'object' && a !== null && 'hex' in a) {
+        return typeof b === 'object' && b !== null && 'hex' in b && a.hex === b.hex;
+      }
+
+      return a === b;
+    });
+  });
+};
+
   const addGeneratedVariants = (generated: Variant[]) => {
-    setBasicInfoForm(prev => ({ ...prev, variants: [...prev.variants, ...generated] }));
+    append(generated)
     setTimeout(() => {
       newCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 50);
@@ -123,7 +193,7 @@ export default function VariantBuilder() {
               <input
                 type="number"
                 value={defaultVariantsPrice === null ? '' : defaultVariantsPrice}
-                onChange={(e) => setDefaultVariantsPrice(e.target.value === '' ? null : Number(e.target.value))}
+                onChange={(e) => setDefaultVariantsPrice(e.target.value === '' ? undefined : Number(e.target.value))}
                 className="px-3 py-2 rounded-xl text-sm font-medium w-24"
                 style={{
                   background: theme.bg,

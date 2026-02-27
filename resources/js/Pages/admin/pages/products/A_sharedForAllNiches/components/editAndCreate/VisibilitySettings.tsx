@@ -11,6 +11,8 @@ import {
 import React from 'react';
 import SwitchToggler from '@/components/ui/SwitchToggler'; // adjust path to yours
 import { ProductBase } from '@/types/products/baseProductTypes';
+import { Controller } from 'react-hook-form';
+import { ProductSchemaType } from '@/shemas/productCreateform';
 
 
 
@@ -25,11 +27,11 @@ function ToggleSetting({
   label: string;
   description: string;
   icon: React.ElementType;
-  settingKey: keyof ProductBase;
+  settingKey:  keyof ProductSchemaType;
   currentTheme: any;
 }) {
-  const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
-  const value: boolean = basicInfoForm[settingKey] ;
+  const { control , watch} = useProductDataCtx(); // ← remove watch
+  const value: boolean = !!watch(settingKey) ;
 
   return (
     <div
@@ -40,7 +42,7 @@ function ToggleSetting({
       }}
     >
       <div className="flex items-center gap-3">
-        <Icon size={15} style={{ color: value ? currentTheme.primary : currentTheme.textMuted }} />
+           <Icon size={15} style={{ color: value ? currentTheme.badge : currentTheme.textMuted }} />
         <div>
           <p className="text-sm font-medium leading-tight" style={{ color: currentTheme.text }}>
             {label}
@@ -51,12 +53,16 @@ function ToggleSetting({
         </div>
       </div>
 
-      <SwitchToggler
-        checked={value}
-        onChange={(val: boolean) =>
-          setBasicInfoForm({ ...basicInfoForm, [settingKey]: val })
-        }
-        id={`switch-${settingKey}`}
+      <Controller
+        name={settingKey}
+        control={control}  // ← add this
+        render={({ field }) => (
+          <SwitchToggler
+            checked={!!field.value}
+            onChange={field.onChange}
+            id={`switch-${settingKey}`}
+          />
+        )}
       />
     </div>
   );
@@ -102,7 +108,7 @@ function VisibilitySettings() {
   const {
     state: { currentTheme },
   } = useStoreConfigCtx();
-
+ 
   return (
     <div className="p-5 space-y-3">
       

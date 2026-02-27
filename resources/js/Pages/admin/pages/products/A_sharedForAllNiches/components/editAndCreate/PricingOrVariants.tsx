@@ -1,6 +1,6 @@
 import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import React, { useState } from 'react';
+import React from 'react';
 import SwitchToggler from '@/components/ui/SwitchToggler';
 import SingleProductPricingSection from './SingleProductPricingSection';
 import VariantBuilder from '../../variantBuilder/VariantBuilder';
@@ -10,31 +10,26 @@ function PricingOrVariants({
 }: {
   frontEndErrors: Record<string, string>;
 }) {
-  const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
   const {
     state: { currentTheme },
   } = useStoreConfigCtx();
 
-  const [variantsEnabled, setVariantsEnabled] = useState(
-    () => basicInfoForm.variants.length > 0
-  );
+  const { watch, setValue } = useProductDataCtx();
 
-    const toggle = (val: boolean) => {
-      if (!val && basicInfoForm.variants.length > 0) {
-          // turning OFF with existing variants → confirm first
-          const confirmed = window.confirm(
-              `You have ${basicInfoForm.variants.length} variant${basicInfoForm.variants.length !== 1 ? 's' : ''} that will be permanently deleted. Are you sure?`
-          );
-          if (!confirmed) return; // user cancelled → do nothing
-      }
+  const variants = watch('variants') || [];
 
-      setVariantsEnabled(val);
-      if (!val) {
-          setBasicInfoForm({ ...basicInfoForm, variants: [] });
-      }
-      // turning ON → VariantBuilder handles creation
+  const [variantsEnabled, setVariantsEnabled] = React.useState(variants.length > 0);
+
+  const toggle = (val: boolean) => {
+    if (!val && variants.length > 0) {
+      const confirmed = window.confirm(
+        `You have ${variants.length} variant${variants.length !== 1 ? 's' : ''} that will be permanently deleted. Are you sure?`
+      );
+      if (!confirmed) return;
+      setValue('variants', [], { shouldValidate: true });
+    }
+    setVariantsEnabled(val);
   };
-
   return (
     <div className="p-0">
 
@@ -82,7 +77,6 @@ function PricingOrVariants({
         ? <SingleProductPricingSection frontEndErrors={frontEndErrors} />
         : <VariantBuilder />
       }
-
     </div>
   );
 }

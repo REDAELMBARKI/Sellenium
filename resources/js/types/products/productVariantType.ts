@@ -2,7 +2,7 @@ import { Color, Size } from "../inventoryTypes";
 
 export interface Variant {
   id: string;
-  price: number;
+  price: number | null ;
   compare_price : number ; 
   stock: string;
   sku: string | null;

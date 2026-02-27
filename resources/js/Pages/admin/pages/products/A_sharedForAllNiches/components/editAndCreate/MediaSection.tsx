@@ -30,45 +30,35 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
     const {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
-    const { basicInfoForm, setBasicInfoForm, draftId } = useProductDataCtx();
+    const { watch, setValue, draftId } = useProductDataCtx();
 
-    const [coversPreview, setCoversPreview] = useState<Cover[]>(
-        (basicInfoForm.covers as Cover[]) || [],
-    );
+    const covers = watch('covers') as Cover[] || [];
+    const video = watch('video') || [];
+
+    const [coversPreview, setCoversPreview] = useState<Cover[]>(covers);
     const [isDragging, setIsDragging] = useState(false);
     const imageInputRef = useRef<HTMLInputElement>(null);
     const videoInputRef = useRef<HTMLInputElement>(null);
     const [imageUploading, setImageUploading] = useState(false);
     const [videoUploading, setVideoUploading] = useState(false);
-    const [uploadError, setUploadError] = useState<{coverErr?: string  , videoErr?: string } | null>(null);
+    const [uploadError, setUploadError] = useState<{ coverErr?: string; videoErr?: string } | null>(null);
     const [showIframeModal, setShowIframeModal] = useState(false);
     const [newIframeUrl, setNewIframeUrl] = useState("");
-    const { cleanDeletedProductMedia, uploadProductFiles } =
-        productFilesUploaderCleaner();
+    const { deleteMedia , uploadProductFiles } = productFilesUploaderCleaner();
 
-    const handleCoversUpload = async (
-        e: React.ChangeEvent<HTMLInputElement>,
-    ) => {
+    const handleCoversUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
         try {
             setUploadError(null);
             setImageUploading(true);
-            const data = await uploadProductFiles(
-                file,
-                "cover",
-                "Product",
-                draftId.current,
-            );
+            const data = await uploadProductFiles(file, "cover", "Product", draftId.current);
             if (!draftId.current) draftId.current = data.draft_id;
-            setCoversPreview((prev) => [
-                ...(prev || []),
-                { url: data.media.url, id: data.media.id },
-            ]);
+            const updated = [...covers, { url: data.media.url, id: data.media.id }];
+            setCoversPreview(updated);
+            setValue('covers', updated, { shouldValidate: true }); // ← tell useForm
         } catch (err: any) {
-            setUploadError({...uploadError , coverErr :  err instanceof Error ? err.message : ''});
-
+            setUploadError({ ...uploadError, coverErr: err instanceof Error ? err.message : '' });
         } finally {
             if (imageInputRef.current) imageInputRef.current.value = "";
             setImageUploading(false);
@@ -78,12 +68,12 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
     const handleRemoveCover = async (mediaId: string) => {
         if (!draftId.current || !mediaId) return;
         try {
-            await cleanDeletedProductMedia(draftId.current, mediaId);
-            setCoversPreview((prev) =>
-                (prev || []).filter((media) => media.id != mediaId),
-            );
+            await deleteMedia (draftId.current, mediaId);
+            const updated = covers.filter((media) => media.id != mediaId);
+            setCoversPreview(updated);
+            setValue('covers', updated, { shouldValidate: true }); // ← tell useForm
         } catch (err: any) {
-             setUploadError({...uploadError , coverErr :  err instanceof Error ? err.message : ''});
+            setUploadError({ ...uploadError, coverErr: err instanceof Error ? err.message : '' });
         } finally {
             if (imageInputRef.current) imageInputRef.current.value = "";
         }
@@ -92,23 +82,14 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
     const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
         try {
             setUploadError(null);
             setVideoUploading(true);
-            const data = await uploadProductFiles(
-                file,
-                "video",
-                "Product",
-                draftId.current,
-            );
+            const data = await uploadProductFiles(file, "video", "Product", draftId.current);
             if (!draftId.current) draftId.current = data.draft_id;
-            setBasicInfoForm((prev) => ({
-                ...(prev || []),
-                video : [...prev.video , { url: data.media.url, id: data.media.id  , media_type : 'video'}],
-            }));
+            setValue('video', [...video, { url: data.media.url, id: data.media.id, media_type: 'video' }], { shouldValidate: true });
         } catch (err: any) {
-            setUploadError({...uploadError , videoErr :  err instanceof Error ? err.message : ''});
+            setUploadError({ ...uploadError, videoErr: err instanceof Error ? err.message : '' });
         } finally {
             if (imageInputRef.current) imageInputRef.current.value = "";
             setVideoUploading(false);
@@ -116,214 +97,86 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
     };
 
     const handleRemoveVideo = async (mediaId: string | null) => {
-
         if (!draftId.current || !mediaId) return;
-
-        
-        try{
-            await cleanDeletedProductMedia(draftId.current, mediaId);
-            setBasicInfoForm((prev) =>
-                 (
-                    {
-                        ...prev, 
-                        video :  (prev.video || []).filter((media) => media?.id != mediaId),
-                    }
-                 )
-            );
-
-        }catch(err : any){
-            setUploadError({...uploadError ,videoErr:  err instanceof Error ? err.message : ''});
-        } 
-        finally{
-            if (videoInputRef.current)  videoInputRef.current.value = "";
-        }    
-        
+        try {
+            await deleteMedia (draftId.current, mediaId);
+            setValue('video', video.filter((media) => media?.id != mediaId), { shouldValidate: true });
+        } catch (err: any) {
+            setUploadError({ ...uploadError, videoErr: err instanceof Error ? err.message : '' });
+        } finally {
+            if (videoInputRef.current) videoInputRef.current.value = "";
+        }
     };
 
-    const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(true);
-    };
+    const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
+    const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); };
+    const handleDrop = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); };
 
-    const handleDragLeave = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-    };
-
-    const handleDrop = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-        // drag logic
-    };
-
-    const hasVideo = basicInfoForm.video.length > 0;
-
-    const headerActions = (
-        <>
-            <Button
-                variant="danger"
-                onClick={() => imageInputRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all"
-                style={{
-                    background: theme.bgSecondary,
-                    color: theme.text,
-                    border: `1px solid ${theme.border}`,
-                }}
-            >
-                <ImageIcon
-                    className="w-4 h-4"
-                    style={{ color: theme.textSecondary }}
-                />
-                Add Images
-            </Button>
-
-            <Button
-                onClick={() => videoInputRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all"
-                style={{
-                    background: theme.bgSecondary,
-                    color: theme.text,
-                    border: `1px solid ${theme.border}`,
-                }}
-            >
-                <Film
-                    className="w-4 h-4"
-                    style={{ color: theme.textSecondary }}
-                />
-                Add Video
-            </Button>
-        </>
-    );
-
+    const hasVideo = video.length > 0;
 
     return (
         <>
-            <input
-                ref={imageInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                className="hidden"
-                onChange={handleCoversUpload}
-            />
-            <input
-                ref={videoInputRef}
-                type="file"
-                accept="video/*"
-                className="hidden"
-                onChange={handleVideoUpload}
-            />
+            <input ref={imageInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleCoversUpload} />
+            <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} />
 
             <div className="space-y-6">
                 {/* IMAGES */}
                 <div
-                    className="bg-black bg-opacity-50 rounded-lg border-2 border-dashed transition-all  p-4 "
+                    className="bg-black bg-opacity-50 rounded-lg border-2 border-dashed transition-all p-4"
                     style={{
                         borderColor: isDragging ? theme.accent : theme.border,
                         background: isDragging ? theme.bgSecondary : theme.bg,
                     }}
                 >
-                    <h4
-                        className="text-sm font-semibold mb-3"
-                        style={{ color: theme.textSecondary }}
-                    >
-                        Images
-                    </h4>
-
+                    <h4 className="text-sm font-semibold mb-3" style={{ color: theme.textSecondary }}>Images</h4>
                     <div
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
-                        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 "
+                        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4"
                     >
-                        {(coversPreview || basicInfoForm.covers || []).map(
-                            (media, i) => (
-                                <div
-                                    key={i}
-                                    className="relative aspect-square group animate-in fade-in zoom-in duration-200"
-                                >
-                                    <img
-                                        src={getMediaSrcOrDefault(
-                                            media,
-                                            "image",
-                                        )}
-                                        alt={`cover-${i}`}
-                                        className="w-full h-full object-cover rounded-lg shadow-sm transition-all"
-                                        style={{ boxShadow: theme.shadow }}
-                                    />
-
-                                    <div
-                                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
-                                        style={{ background: theme.overlay }}
-                                    />
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleRemoveCover(String(media.id))
-                                        }
-                                        className="absolute top-2 right-2 p-1 rounded-full shadow-lg transition-all"
-                                        style={{ background: theme.card }}
-                                        aria-label="Remove image"
-                                    >
-                                        <X
-                                            className="w-4 h-4"
-                                            style={{ color: theme.error }}
-                                        />
-                                    </button>
-                                </div>
-                            ),
-                        )}
-                        {/* // image upload loding skelepton */}
-                        {imageUploading && (
-                            <div
-                                className="w-full h-full animate-pulse rounded-lg border-2 border-dashed transition-all"
-                                style={{ background: theme.bgSecondary }}
-                            >
-                                <Oval
-                                    height={30}
-                                    width={30}
-                                    color="#fff"
-                                    visible={imageUploading}
+                        {(coversPreview || covers || []).map((media, i) => (
+                            <div key={i} className="relative aspect-square group animate-in fade-in zoom-in duration-200">
+                                <img
+                                    src={getMediaSrcOrDefault(media, "image")}
+                                    alt={`cover-${i}`}
+                                    className="w-full h-full object-cover rounded-lg shadow-sm transition-all"
+                                    style={{ boxShadow: theme.shadow }}
                                 />
+                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" style={{ background: theme.overlay }} />
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveCover(String(media.id))}
+                                    className="absolute top-2 right-2 p-1 rounded-full shadow-lg transition-all"
+                                    style={{ background: theme.card }}
+                                >
+                                    <X className="w-4 h-4" style={{ color: theme.error }} />
+                                </button>
+                            </div>
+                        ))}
+
+                        {imageUploading && (
+                            <div className="w-full h-full animate-pulse rounded-lg border-2 border-dashed transition-all" style={{ background: theme.bgSecondary }}>
+                                <Oval height={30} width={30} color="#fff" visible={imageUploading} />
                             </div>
                         )}
 
-                        {/* ADD IMAGE */}
                         <button
                             type="button"
                             onClick={() => imageInputRef.current?.click()}
                             className="aspect-square flex flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all cursor-pointer"
-                            style={{
-                                borderColor: theme.border,
-                                background: theme.bgSecondary,
-                            }}
+                            style={{ borderColor: theme.border, background: theme.bgSecondary }}
                         >
-                            <Upload
-                                className="w-8 h-8 mb-2"
-                                style={{ color: theme.textMuted }}
-                            />
-                            <p
-                                className="text-xs font-medium"
-                                style={{ color: theme.textSecondary }}
-                            >
-                                Add Images
-                            </p>
+                            <Upload className="w-8 h-8 mb-2" style={{ color: theme.textMuted }} />
+                            <p className="text-xs font-medium" style={{ color: theme.textSecondary }}>Add Images</p>
                         </button>
                     </div>
-
-                    {/* // upload errors  */}
                     {uploadError?.coverErr && <NotifyUser message={uploadError.coverErr} />}
                 </div>
+
                 {/* VIDEO SECTION */}
                 <div>
-                    <h4
-                        className="text-sm font-semibold mb-3"
-                        style={{ color: theme.textSecondary }}
-                    >
-                        Video
-                    </h4>
-
+                    <h4 className="text-sm font-semibold mb-3" style={{ color: theme.textSecondary }}>Video</h4>
                     <Tabs
                         tabs={[
                             {
@@ -331,110 +184,63 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                 label: (
                                     <div className="flex items-center space-x-2">
                                         <span>iFrame</span>
-                                        {/* Badge: green if at least 1 iframe, gray otherwise */}
-                                        <span
-                                            className={`w-3 h-3 rounded-full ${
-                                                basicInfoForm.video.some(
-                                                    (v) => v?.media_type === "iframe",
-                                                )
-                                                    ? "bg-green-500"
-                                                    : "bg-gray-400"
-                                            }`}
-                                        />
+                                        <span className={`w-3 h-3 rounded-full ${video.some((v) => v?.media_type === "iframe") ? "bg-green-500" : "bg-gray-400"}`} />
                                     </div>
                                 ),
                                 Icon: Plus,
                                 content: (
                                     <div className="space-y-4">
-                                        {/* Add iFrame Button — always on top */}
                                         <div className="flex justify-end mb-4">
-                                        <Button
-                                            onClick={() => setShowIframeModal(true)}
-                                            className="px-4 py-2 m-4 rounded-md"
-                                        >
-                                            Add iFrame
-                                        </Button>
+                                            <Button onClick={() => setShowIframeModal(true)} className="px-4 py-2 m-4 rounded-md">
+                                                Add iFrame
+                                            </Button>
                                         </div>
 
-                                        {/* List of iFrames */}
                                         <div className="flex flex-col md:flex-row md:flex-wrap md:gap-4 gap-4">
-                                        {basicInfoForm.video
-                                            .filter((v) => v?.media_type === "iframe")
-                                            .map((v, idx) => (
-                                            <div key={idx} className="relative group flex-1 min-w-[250px]">
-                                                <iframe
-                                                title={`iframe-${idx}`}
-                                                src={convertYoutubeToEmbed(v.url ?? "") ?? ""}
-                                                className="w-full rounded-lg aspect-video"
-                                                allowFullScreen
-                                                />
-                                                <button
-                                                type="button"
-                                                onClick={() =>
-                                                    setBasicInfoForm((prev) => ({
-                                                    ...prev,
-                                                    video: prev.video.filter(
-                                                        (_, i) => i !== prev.video.findIndex((x) => x === v),
-                                                    ),
-                                                    }))
-                                                }
-                                                className="absolute top-2 right-2 p-2 rounded-full shadow-lg  opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
-                                                style={{color :theme.text  , background :theme.error}}
-                                                
-                                                >
-                                                <X className="w-5 h-5 "
-                                                style={{color :theme.text }}
-                                                
-                                                />
-                                                </button>
-                                            </div>
+                                            {video.filter((v) => v?.media_type === "iframe").map((v, idx) => (
+                                                <div key={idx} className="relative group flex-1 min-w-[250px]">
+                                                    <iframe
+                                                        title={`iframe-${idx}`}
+                                                        src={convertYoutubeToEmbed(v.url ?? "") ?? ""}
+                                                        className="w-full rounded-lg aspect-video"
+                                                        allowFullScreen
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setValue('video', video.filter((x) => x !== v), { shouldValidate: true })}
+                                                        className="absolute top-2 right-2 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                                                        style={{ color: theme.text, background: theme.error }}
+                                                    >
+                                                        <X className="w-5 h-5" style={{ color: theme.text }} />
+                                                    </button>
+                                                </div>
                                             ))}
                                         </div>
 
-                                        {/* iFrame Modal */}
                                         {showIframeModal && (
                                             <IframeEntryModel
                                                 newIframeUrl={newIframeUrl}
-                                                onChangeIframeUrl={(newUrl) =>
-                                                    setNewIframeUrl(newUrl)
-                                                }
+                                                onChangeIframeUrl={(newUrl) => setNewIframeUrl(newUrl)}
                                                 onValidateUrl={() => {
                                                     if (newIframeUrl.trim()) {
-                                                        const exists = basicInfoForm.video
+                                                        const exists = video
                                                             .filter(v => v?.media_type !== 'video')
                                                             .find(v => v?.url == convertToYoutubeId(newIframeUrl.trim()))
-                                                        if(exists) {
+                                                        if (exists) {
                                                             alert('iframe is already in your list')
                                                             setNewIframeUrl("");
-                                                            setShowIframeModal(
-                                                                false,
-                                                            );
-                                                            return ;
+                                                            setShowIframeModal(false);
+                                                            return;
                                                         }
-                                                        setBasicInfoForm(
-                                                            (prev) => ({
-                                                                ...prev,
-                                                                video: [
-                                                                    ...prev.video,
-                                                                    {
-                                                                        media_type: "iframe",
-                                                                        url: convertToYoutubeId(
-                                                                            newIframeUrl,
-                                                                        ),
-                                                                    },
-                                                                ],
-                                                            }),
-                                                        );
+                                                        setValue('video', [
+                                                            ...video,
+                                                            { media_type: "iframe", url: convertToYoutubeId(newIframeUrl) }
+                                                        ], { shouldValidate: true });
                                                         setNewIframeUrl("");
-                                                        setShowIframeModal(
-                                                            false,
-                                                        );
+                                                        setShowIframeModal(false);
                                                     }
                                                 }}
-                                                onCancelUrl={() => {
-                                                    setShowIframeModal(false);
-                                                    setNewIframeUrl("");
-                                                }}
+                                                onCancelUrl={() => { setShowIframeModal(false); setNewIframeUrl(""); }}
                                             />
                                         )}
                                     </div>
@@ -445,49 +251,24 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                 label: (
                                     <div className="flex items-center space-x-2">
                                         <span>Device Upload</span>
-                                        {/* Badge: green if a video exists, gray otherwise */}
-                                        <span
-                                            className={`w-3 h-3 rounded-full ${
-                                                basicInfoForm.video.some(
-                                                    (v) =>
-                                                        v?.media_type ===
-                                                        "video",
-                                                )
-                                                    ? "bg-green-500"
-                                                    : "bg-gray-400"
-                                            }`}
-                                        />
+                                        <span className={`w-3 h-3 rounded-full ${video.some((v) => v?.media_type === "video") ? "bg-green-500" : "bg-gray-400"}`} />
                                     </div>
                                 ),
                                 Icon: Upload,
                                 content: (
                                     <div className="space-y-4">
-                                        {basicInfoForm.video.some(
-                                            (v) => v?.media_type === "video",
-                                        ) && (
+                                        {video.some((v) => v?.media_type === "video") && (
                                             <div className="relative group">
                                                 <video
-                                                    src={getMediaSrcOrDefault(
-                                                        basicInfoForm.video.find(
-                                                            (v) =>
-                                                                v?.media_type ===
-                                                                "video",
-                                                        ) ?? null,
-                                                        "video",
-                                                    )}
+                                                    src={getMediaSrcOrDefault(video.find((v) => v?.media_type === "video") ?? null, "video")}
                                                     controls
                                                     className="w-full max-w-2xl rounded-lg"
                                                 />
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleRemoveVideo(basicInfoForm.video.find(
-                                                            (v) =>
-                                                                v?.media_type ===
-                                                                "video",
-                                                        )?.id ?? null
-                                                    )}
-                                                    style={{color :theme.text  , background :theme.error}}
-                                                    className="absolute top-2 right-2 p-2 rounded-full shadow-lg  opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                                                    onClick={() => handleRemoveVideo(video.find((v) => v?.media_type === "video")?.id ?? null)}
+                                                    style={{ color: theme.text, background: theme.error }}
+                                                    className="absolute top-2 right-2 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
                                                 >
                                                     <X className="w-5 h-5" />
                                                 </button>
@@ -495,22 +276,15 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                         )}
 
                                         <button
-                                            onClick={() =>
-                                                videoInputRef.current?.click()
-                                            }
+                                            onClick={() => videoInputRef.current?.click()}
                                             className="w-full flex flex-col items-center justify-center p-12 transition-all"
-                                            disabled={basicInfoForm.video.some(
-                                                (el) =>
-                                                    el?.media_type === "video",
-                                            )}
+                                            disabled={video.some((el) => el?.media_type === "video")}
                                         >
                                             <Upload className="w-12 h-12 mb-3" />
                                             Upload Video
                                         </button>
 
-
                                         {uploadError?.videoErr && <NotifyUser message={uploadError.videoErr} />}
-
                                     </div>
                                 ),
                             },
@@ -530,6 +304,8 @@ interface IframeEntryModelProps {
   onValidateUrl: () => void;
   onCancelUrl: () => void;
 }
+
+
 
 const IframeEntryModel = ({
   newIframeUrl,

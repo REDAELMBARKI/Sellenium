@@ -49,15 +49,29 @@ const dimensionSchema = z.object({
 });
 
 const inventorySchema = z.object({
-  quantity: z.number().optional(),
-  sku: z.string().optional(),
-  backorderOptions: z.string().optional(),
+  backorderOptions: z.enum(['', 'notify', 'allow']).optional(),
+  trackInventory: z.boolean().optional(),
+  lowStockThreshold: z.number().min(0).nullable().optional(),
+  stockStatus: z.enum(['', 'in_stock', 'out_of_stock', 'discontinued']).optional(),
+  weight: z.number().min(0).nullable().optional(),
+  weightUnit: z.enum(['kg', 'g', 'lb', 'oz']).optional(),
+  dimensions: z.object({
+    length: z.number().min(0).nullable().optional(),
+    width:  z.number().min(0).nullable().optional(),
+    height: z.number().min(0).nullable().optional(),
+    unit:   z.enum(['cm', 'in', 'mm']).optional(),
+  }).optional(),
+  warehouseLocation: z.string().optional(),
+  fulfillmentType: z.enum(['', 'dropship', 'third_party']).optional(),
 }).nullable();
 
 const shippingSchema = z.object({
-  weight: z.number().optional(),
-  dimensions: dimensionSchema.optional(),
-  shippingClass: z.string().optional(),
+  shippingClass: z.enum(['', 'express', 'pickup']).optional(),
+  handlingTime: z.number().min(0).nullable().optional(),
+  shippingCostOverride: z.number().min(0).nullable().optional(),
+  isReturnable: z.boolean().optional(),
+  returnWindow: z.number().optional(),
+  returnPolicy: z.enum(['free_return', 'customer_pays']).optional(),
 }).nullable();
 
 const metaSchema = z.object({
@@ -118,6 +132,10 @@ export const productSchema = z.object({
   show_reviews: z.boolean(),
   show_related_products: z.boolean(),
   show_social_share: z.boolean(),
+
+  // marketing
+  promotion_ids: z.array(z.number()).default([]),
+  coupon_ids: z.array(z.number()).default([]),
 });
 
 export type ProductSchemaType = z.infer<typeof productSchema>;

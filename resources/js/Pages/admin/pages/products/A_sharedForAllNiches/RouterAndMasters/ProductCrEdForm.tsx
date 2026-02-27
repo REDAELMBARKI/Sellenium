@@ -9,6 +9,7 @@ import {
     Layers,
     DollarSign,
     Palette,
+    Megaphone,
 } from "lucide-react";
 import { useState, useRef } from "react";
 import MediaSection from "../components/editAndCreate/MediaSection";
@@ -33,82 +34,43 @@ import BadgePicker from "../components/editAndCreate/BadgePicker";
 import VisibilitySettings from "../components/editAndCreate/VisibilitySettings";
 import RelatedProductsSection from "../components/editAndCreate/RelatedProductsSection";
 import PricingOrVariants from "../components/editAndCreate/PricingOrVariants";
+import MarketingSection from "../components/editAndCreate/MarketingSection";
 
 
 interface ProductCrEdFormFormProps {
 }
 
 const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
-    const { basicInfoForm, setBasicInfoForm , category , setCategory , options } = useProductDataCtx();
-    const {toSelectOptionAdapter } = adapters()
+    const { register, control, watch, setValue, formState: { errors }, category, setCategory, options } = useProductDataCtx();
+    const { toSelectOptionAdapter } = adapters()
     const {
         state: { currentTheme },
     } = useStoreConfigCtx();
-   
-    const isOpenShowMedia =
-        basicInfoForm.covers.length > 0 ||
-        !!(basicInfoForm.video && Object.keys(basicInfoForm.video).length > 0); // check if media is set
-    const isOpenShowVariantBuilder = basicInfoForm.variants.length > 0; // check if the variants are set
 
-    // check if at least one of  the attributes is set
+    // ✅ call watch() as a function not object access
+    const covers = watch('covers');
+    const video = watch('video');
+    const variants = watch('variants');
+
+    const isOpenShowMedia = covers?.length > 0 || !!(video && Object.keys(video).length > 0);
+    const isOpenShowVariantBuilder = variants?.length > 0;
     const isOpenShowAttributes = true;
-    //   const isOpenShowAttributes = keys.some(key => {
-    //   const value : FashionAttributes[keyof FashionAttributes] = basicInfoForm[key];
+    const hasVariants = variants?.length > 0;
 
-    //   // If array: must have at least 1 element
-    //   if (Array.isArray(value)) {
-    //     return value.length > 0;
-    //   }
-
-    //   // If object (like madeCountry)
-    //   if (typeof value === "object" && value !== undefined) {
-    //      if(!value) return ;
-    //      return  Object.keys(value).length > 0;
-    //   }
-
-    //   return false;
-    // });
-    //  states
-    const [showAttributes, setShowAttributes] =
-        useState<boolean>(isOpenShowAttributes);
-    const [videoPreview, setVideoPreview] = useState<Video | null>(basicInfoForm.video);
-    
-    const [frontEndErrors, setFrontEndErrors] = useState<
-        Record<string, string>
-    >({});
+    const [showAttributes, setShowAttributes] = useState<boolean>(isOpenShowAttributes);
+    const [videoPreview, setVideoPreview] = useState<Video | null>(video ?? null);
+    const [frontEndErrors, setFrontEndErrors] = useState<Record<string, string>>({});
     const [showMedia, setShowMedia] = useState<boolean>(isOpenShowMedia);
-    const [showFaqs, setShowFaqs] = useState(false)
-    const [showVisibility, setShowVisibility] = useState(false) ;
-    const [showRelated, setShowRelated] = useState(false) ;
-    const [showInventory, setShowInventory] = useState(false) ; 
-    const hasVariants = basicInfoForm.variants.length > 0;
-    //refs
+    const [showFaqs, setShowFaqs] = useState(false);
+    const [showVisibility, setShowVisibility] = useState(false);
+    const [showRelated, setShowRelated] = useState(false);
+    const [showMarketing, setShowMarketing] = useState(false);
+
     const isMountedRef = useRef<boolean>(false);
     const mediaRef = useRef<HTMLDivElement | null>(null);
     const attributesRef = useRef<HTMLDivElement | null>(null);
     const variantRef = useRef<HTMLDivElement | null>(null);
     const thumbnailPreviewRef = useRef<any | null>(null);
-    
-
-    // useEffect(() => {
-    //     if (!isMountedRef.current) {
-    //         isMountedRef.current = true;
-    //         return;
-    //     }
-
-    //     if (showMedia && mediaRef.current) {
-    //         mediaRef.current.scrollIntoView({ behavior: "smooth" });
-    //     }
-
-    //     // Scroll based on which section is visible
-    //     if (showAttributes && attributesRef.current) {
-    //         attributesRef.current.scrollIntoView({ behavior: "smooth" });
-    //     } else if (showVariantBuilder && variantRef.current) {
-    //         variantRef.current.scrollIntoView({ behavior: "smooth" });
-    //     } else if (showAdvanced && advancedRef.current) {
-    //         advancedRef.current.scrollIntoView({ behavior: "smooth" });
-    //     }
-    // }, [showAttributes, showVariantBuilder, showAdvanced, showMedia]);
 
     const handleToggleSection = (
         sectionName: string,
@@ -129,22 +91,18 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
         }
     };
 
-
     const AttibutesBuilder = null;
+
     return (
-        <div className="w-full h-full overflow-y-auto ">
+        <div className="w-full h-full overflow-y-auto">
             <div
-                className="space-y-8 py-8 px-4 rounded-xl shadow-2xl "
+                className="space-y-8 py-8 px-4 rounded-xl shadow-2xl"
                 style={{ background: "transparent", color: currentTheme.text }}
             >
-                {/* category selectin here */}
-
+                {/* Category selection */}
                 <section
                     className="p-4 border border-1"
-                    style={{
-                        background: currentTheme.card,
-                        borderColor: currentTheme.border,
-                    }}
+                    style={{ background: currentTheme.card, borderColor: currentTheme.border }}
                 >
                     <h2
                         className="text-xl font-bold uppercase tracking-wide mb-4"
@@ -153,95 +111,74 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
                         What You are going to sell ??
                     </h2>
                     <CustomSelectForObjectNative
+                        register={register}
                         options={options?.categories?.map(toSelectOptionAdapter)}
-                        value={{value : category?.id ?? "" , label : category?.name ?? ''}}
+                        value={{ value: category?.id ?? "", label: category?.name ?? '' }}
                         onChange={(value) => {
-                            setCategory({id :  value.value as string , name :value.label})
-                            setBasicInfoForm({
-                                ...basicInfoForm,
-                                category_niche_id: Number(value.value),
-                            });
+                            setCategory({ id: value.value as string, name: value.label })
                         }}
                     />
-
-                    <NotifyUser message="choose hte category so realted category sections would apear " />
+                    {errors.category_niche_id && (
+                        <p className="text-red-500 text-xs mt-1">{errors.category_niche_id.message as string}</p>
+                    )}
+                    <NotifyUser message="choose the category so related category sections would appear" />
                 </section>
 
-                {/* base form */}
+                {/* Base form */}
                 <section
                     className="p-4 border border-1"
-                    style={{
-                        background: currentTheme.card,
-                        borderColor: currentTheme.border,
-                    }}
+                    style={{ background: currentTheme.card, borderColor: currentTheme.border }}
                 >
-                    {/* Base Shared Info */}
-                    <BaseSharedForm
-                        {...{ frontEndErrors }}
+                    <BaseSharedForm 
+                        
                         getThumbnailPreview={(thumbnail) =>
                             (thumbnailPreviewRef.current = thumbnail)
                         }
                     />
                 </section>
 
-                
-
+                {/* Media */}
                 <section
                     className="p-4 border border-1"
-                    style={{
-                        background: currentTheme.card,
-                        borderColor: currentTheme.border,
-                    }}
+                    style={{ background: currentTheme.card, borderColor: currentTheme.border }}
                 >
-                    {/* Media */}
                     <div ref={mediaRef}>
                         <CollapsibleFrendlySection
                             title="Add Media"
                             icon={VideoIcon}
-                            isOpen={showMedia} 
+                            isOpen={showMedia}
                             onToggle={() => setShowMedia((prev) => !prev)}
                             headerActions={
-                              <>
-                                <Button type="button" className="px-3 py-1.5 text-sm rounded-lg border">
-                                  Add images
-                                </Button>
-                                <Button type="button" className="px-3 py-1.5 text-sm rounded-lg border">
-                                  Add video
-                                </Button>
-                              </>
+                                <>
+                                    <Button type="button" className="px-3 py-1.5 text-sm rounded-lg border">
+                                        Add images
+                                    </Button>
+                                    <Button type="button" className="px-3 py-1.5 text-sm rounded-lg border">
+                                        Add video
+                                    </Button>
+                                </>
                             }
                         >
-                            <MediaSection
-                                {...{ videoPreview, setVideoPreview }}
-                            />
+                            <MediaSection {...{ videoPreview, setVideoPreview }} />
                         </CollapsibleFrendlySection>
+                        {errors.covers && (
+                            <p className="text-red-500 text-xs mt-1">{errors.covers.message as string}</p>
+                        )}
                     </div>
                 </section>
-                {/* single product / variants builder */}
+
+                {/* Pricing or variants */}
                 <section
                     className="border border-1"
-                    style={{
-                        background: currentTheme.card,
-                        borderColor: currentTheme.border,
-                    }}
+                    style={{ background: currentTheme.card, borderColor: currentTheme.border }}
                 >
-                    <section
-                        className="border border-1"
-                        style={{
-                            background: currentTheme.card,
-                            borderColor: currentTheme.border,
-                        }}
-                    >
-                        <PricingOrVariants frontEndErrors={frontEndErrors} />
-                    </section>
+                    <PricingOrVariants frontEndErrors={frontEndErrors} />
                 </section>
-                {/* faqs */}
+
+                {/* FAQs */}
                 <section
                     className="border border-1"
-                    style={{
-                        background: currentTheme.card,
-                        borderColor: currentTheme.border,
-                    }}
+                    style={{ background: currentTheme.card, borderColor: currentTheme.border }}
                 >
                     <CollapsibleSection
                         title="FAQs"
@@ -252,61 +189,67 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
                         <FaqsSection />
                     </CollapsibleSection>
                 </section>
-               
-                
-                {/* Attributes */}
 
+                {/* Attributes */}
                 {AttibutesBuilder && (
                     <section
-                        className=" border border-1"
-                        style={{
-                            background: currentTheme.card,
-                            borderColor: currentTheme.border,
-                        }}
+                        className="border border-1"
+                        style={{ background: currentTheme.card, borderColor: currentTheme.border }}
                     >
                         <div ref={attributesRef}>
-                            <CollapsibleSection 
+                            <CollapsibleSection
                                 title="Product Attributes"
                                 icon={Settings}
                                 isOpen={showAttributes}
                                 onToggle={() =>
-                                    handleToggleSection(
-                                        "Product Attributes",
-                                        showAttributes,
-                                        setShowAttributes
-                                    )
+                                    handleToggleSection("Product Attributes", showAttributes, setShowAttributes)
                                 }
                             >
                                 <></>
-                                {/* <AttibutesBuilder /> */}
                             </CollapsibleSection>
                         </div>
                     </section>
                 )}
- 
-            {/* related products */}
-            <CollapsibleSection title="Related Products" icon={Layers} isOpen={showRelated}
-              onToggle={() => handleToggleSection("Related Products", showRelated, setShowRelated)}>
-              <RelatedProductsSection />
-            </CollapsibleSection>
-            {/* visibility*/}
-            <section
+
+                {/* Marketing */}
+                <section
                 className="border border-1"
-                style={{
-                    background: currentTheme.card,
-                    borderColor: currentTheme.border,
-                }}
-            >
-                <CollapsibleSection
-                    title="Visibilily Settings"
-                    icon={Settings}
-                    isOpen={showVisibility}
-                    onToggle={() => handleToggleSection("Product Settings", showVisibility, setShowVisibility)}
+                style={{ background: currentTheme.card, borderColor: currentTheme.border }}
                 >
-                    <VisibilitySettings />
+                <CollapsibleSection
+                    title="Marketing"
+                    icon={Megaphone}
+                    isOpen={showMarketing}
+                    onToggle={() => handleToggleSection("Marketing", showMarketing, setShowMarketing)}
+                >
+                    <MarketingSection />
                 </CollapsibleSection>
-            </section>
-             
+                </section>
+
+                {/* Related products */}
+                <CollapsibleSection
+                    title="Related Products"
+                    icon={Layers}
+                    isOpen={showRelated}
+                    onToggle={() => handleToggleSection("Related Products", showRelated, setShowRelated)}
+                >
+                    <RelatedProductsSection />
+                </CollapsibleSection>
+
+                {/* Visibility */}
+                <section
+                    className="border border-1"
+                    style={{ background: currentTheme.card, borderColor: currentTheme.border }}
+                >
+                    <CollapsibleSection
+                        title="Visibility Settings"
+                        icon={Settings}
+                        isOpen={showVisibility}
+                        onToggle={() => handleToggleSection("Product Settings", showVisibility, setShowVisibility)}
+                    >
+                        <VisibilitySettings />
+                    </CollapsibleSection>
+                </section>
             </div>
         </div>
     );

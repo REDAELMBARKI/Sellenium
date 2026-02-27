@@ -41,6 +41,8 @@ export interface ProductBase {
   show_reviews: boolean;
   show_related_products: boolean;
   show_social_share: boolean;
+  promotion_ids: number[],
+  coupon_ids: number[],
 }
 
 interface DimensionType {
@@ -49,15 +51,25 @@ interface DimensionType {
   length?: number
 }
 interface InventoryAttributes {
-  quantity?: number;
-  sku?: string;
   backorderOptions?: string;
+  trackInventory?: boolean;
+  lowStockThreshold?: number | null;
+  stockStatus?: string;
+  weight?: number | null;
+  weightUnit?: string;
+  dimensions?: { length?: number | null; width?: number | null; height?: number | null; unit?: string };
+  warehouseLocation?: string;
+  fulfillmentType?: string;
 }
 
 interface ShippingAttributes {
-  weight?: number;
-  dimensions?: DimensionType;
-  shippingClass?: string;
+  shippingClass: 'standard' | 'express' | 'pickup'  // delivery speed
+  handlingTime: number                               // days to prepare
+  shippingCostOverride: number | null                // override global shipping price for this product
+  isReturnable: boolean                             
+  returnWindow: number                               // e.g. 7 / 14 / 30 days
+  returnPolicy: 'free_return' | 'customer_pays'     
+
 }
 
 interface MetaAttributes {

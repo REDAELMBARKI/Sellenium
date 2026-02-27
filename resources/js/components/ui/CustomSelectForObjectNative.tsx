@@ -12,6 +12,7 @@ interface CustomSelectForObjectNativeProps {
   options: OptionObject[];
   placeholder?: string;
   isSearchable?: boolean;
+  register : any
 }
 
 const CustomSelectForObjectNative: React.FC<CustomSelectForObjectNativeProps> = ({
@@ -20,6 +21,7 @@ const CustomSelectForObjectNative: React.FC<CustomSelectForObjectNativeProps> = 
   options,
   placeholder = 'Select...',
   isSearchable = false,
+  register
 }) => {
   const { state: { currentTheme } } = useStoreConfigCtx();
   const [search, setSearch] = React.useState('');
@@ -30,7 +32,8 @@ const CustomSelectForObjectNative: React.FC<CustomSelectForObjectNativeProps> = 
       <div className="relative w-full">
         {/* Input with datalist */}
         <input
-          list="select-options"
+          list="select-options" 
+          {...register('category_niche_id')}
           value={search || (typeof value === 'string' ? value : '')}
           onChange={(e) => {
             setSearch(e.target.value);

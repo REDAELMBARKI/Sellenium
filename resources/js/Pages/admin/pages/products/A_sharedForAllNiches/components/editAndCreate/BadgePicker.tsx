@@ -1,11 +1,6 @@
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
-import {  Flame,
-  Sparkles,
-  Tag,
-  Zap,
-  Rocket,
-  Ban} from 'lucide-react' ;
-// ─── Badge Options with icons ─────────────────────────────────────────────────
+import { Flame, Sparkles, Tag, Zap, Rocket, Ban } from 'lucide-react';
+
 const BADGE_OPTIONS = [
   { label: 'None',     color: 'transparent', icon: Ban      },
   { label: 'New',      color: '#22c55e',     icon: Sparkles },
@@ -15,10 +10,10 @@ const BADGE_OPTIONS = [
   { label: 'Featured', color: '#3b82f6',     icon: Rocket   },
 ];
 
-// ─── Badge Picker ─────────────────────────────────────────────────────────────
 export default function BadgePicker({ currentTheme }: { currentTheme: any }) {
-  const { basicInfoForm, setBasicInfoForm } = useProductDataCtx();
-  const value: string | null = basicInfoForm.badge_text ?? null;
+  const { watch, setValue } = useProductDataCtx();
+  
+  const value: string | null = watch('badge_text') ?? null;
 
   const selected = BADGE_OPTIONS.find((b) =>
     b.label === 'None' ? !value : b.label === value
@@ -68,10 +63,7 @@ export default function BadgePicker({ currentTheme }: { currentTheme: any }) {
               key={badge.label}
               type="button"
               onClick={() =>
-                setBasicInfoForm({
-                  ...basicInfoForm,
-                  badge_text: isNone ? null : badge.label,
-                })
+                setValue('badge_text', isNone ? null : badge.label, { shouldValidate: true })
               }
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-100"
               style={{
