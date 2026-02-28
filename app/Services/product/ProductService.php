@@ -77,8 +77,8 @@ class ProductService {
             $this-> syncVariants($product ,$updatedVariants );
             $this->evaluateProductScore($product);
             // coupons and promotions related to this product
-            $this->attachApplicableProducts($product, $payload['promotions'] ?? [], Promotion::class);
-            $this->attachApplicableProducts($product, $payload['coupons'] ?? [], Coupon::class);
+            $this->attachApplicableProducts($product, $payload['promotion_ids'] ?? [], Promotion::class);
+            $this->attachApplicableProducts($product, $payload['coupon_ids'] ?? [], Coupon::class);
         
             return $product->fresh();
         });

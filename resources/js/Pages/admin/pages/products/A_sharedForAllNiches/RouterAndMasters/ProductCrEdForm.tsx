@@ -9,7 +9,7 @@ import {
     Layers,
     Megaphone,
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import MediaSection from "../components/editAndCreate/MediaSection";
 import {
     Video,
@@ -27,7 +27,6 @@ import RelatedProductsSection from "../components/editAndCreate/RelatedProductsS
 import PricingOrVariants from "../components/editAndCreate/PricingOrVariants";
 import MarketingSection from "../components/editAndCreate/MarketingSection";
 import FaqsSection from "../components/editAndCreate/FAQS";
-import { ThemedSelect } from "../components/editAndCreate/RightSideSection/ThemedInput";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
 
 
@@ -35,7 +34,7 @@ interface ProductCrEdFormFormProps {
 }
 
 const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
-    const { register, control, watch, setValue, formState: { errors }, category, setCategory, options } = useProductDataCtx();
+    const { register, control, watch, setValue, formState: { errors } ,  options : {nich_cats }  } = useProductDataCtx();
     const { toSelectOptionAdapter } = adapters()
     const {
         state: { currentTheme },
@@ -65,7 +64,7 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
     const attributesRef = useRef<HTMLDivElement | null>(null);
     const variantRef = useRef<HTMLDivElement | null>(null);
     const thumbnailPreviewRef = useRef<any | null>(null);
-
+   
     const handleToggleSection = (
         sectionName: string,
         currentState: boolean,
@@ -104,16 +103,19 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
                     >
                         What You are going to sell ??
                     </h2>
-                    <MultiSelectDropdownForObject
-                        multiple={false}
-                        label="select niche "
-                        options={options?.categories?.map(toSelectOptionAdapter)}
-                        selectedValues={{ value: category?.id ?? "", label: category?.name ?? '' }}
-                        onChange={(value) => {
-                        const opt = value as any;
-                        setValue('category_niche_id', opt.value, { shouldValidate: true });
-                        }}
-                    />
+                 <MultiSelectDropdownForObject
+                            multiple={false}
+                            label="select niche"
+                            options={nich_cats?.map(toSelectOptionAdapter)}
+                            selectedValues={
+                                watch('category_niche_id')
+                                ? [{ value: watch('category_niche_id'), label: nich_cats?.find(c => c.id === watch('category_niche_id'))?.name ?? '' }]
+                                : []
+                            }
+                            onChange={(selected) => {
+                                setValue('category_niche_id', selected[0]?.value ?? '', { shouldValidate: true });
+                            }}
+                            />
                     {errors.category_niche_id && (
                         <p className="text-red-500 text-xs mt-1">{errors.category_niche_id.message as string}</p>
                     )}

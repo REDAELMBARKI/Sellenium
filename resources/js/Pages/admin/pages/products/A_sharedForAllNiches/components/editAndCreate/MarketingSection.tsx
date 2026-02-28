@@ -4,6 +4,7 @@ import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { Search, Loader2, Tag, Ticket, Check, Plus, X, Megaphone } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { route } from "ziggy-js";
 
 interface Promotion {
   id: number;
@@ -18,27 +19,7 @@ interface Coupon {
   discount: string;
   expiry: string | null;
 }
-  const AllPromos = [
-    { id: 1, name: 'Summer Sale',  discount: '20% off',    expiry: '30 Jun' },
-    { id: 2, name: 'Flash Deal',   discount: '50% off',    expiry: '15 Feb' },
-    { id: 3, name: 'Bundle Deal',  discount: 'Buy 2 get 1',expiry: null     },
-    { id: 4, name: 'Clearance',    discount: '30% off',    expiry: '01 Mar' },
-  ];
-
-  const AllCoupons = [
-    { id: 1, code: 'SAVE10',   discount: '10% off', expiry: '20 Mar' },
-    { id: 2, code: 'WELCOME20',discount: '20% off', expiry: null     },
-    { id: 3, code: 'VIP50',    discount: '50% off', expiry: '01 Apr' },
-    { id: 4, code: 'FLASH30',  discount: '30% off', expiry: '05 Feb' },
-    { id: 4, code: 'FLASH30',  discount: '30% off', expiry: '05 Feb' },
-    { id: 4, code: 'FLASH30',  discount: '30% off', expiry: '05 Feb' },
-    { id: 4, code: 'FLASH30',  discount: '30% off', expiry: '05 Feb' },
-    { id: 4, code: 'FLASH30',  discount: '30% off', expiry: '05 Feb' },
-    { id: 4, code: 'FLASH30',  discount: '30% off', expiry: '05 Feb' },
-    { id: 4, code: 'FLASH30',  discount: '30% off', expiry: '05 Feb' },
-    { id: 5, code: 'LOYAL15',  discount: '15% off', expiry: null     },
-  ];
-
+ 
 export default function MarketingSection() {
   const { watch, setValue } = useProductDataCtx();
   const { state: { currentTheme } } = useStoreConfigCtx();
@@ -49,29 +30,29 @@ export default function MarketingSection() {
   const [promoSearch,  setPromoSearch]  = useState('');
   const [couponSearch, setCouponSearch] = useState('');
 
-  const [allPromotions, setAllPromotions] = useState<Promotion[]>(AllPromos);
-  const [allCoupons,    setAllCoupons]    = useState<Coupon[]>(AllCoupons);
-  const [promoLoading,  setPromoLoading]  = useState(false);
-  const [couponLoading, setCouponLoading] = useState(false);
+  const [allPromotions, setAllPromotions] = useState<Promotion[]>([]);
+  const [allCoupons,    setAllCoupons]    = useState<Coupon[]>([]);
+  const [promoLoading,  setPromoLoading]  = useState(true);
+  const [couponLoading, setCouponLoading] = useState(true);
 
 
   // get promotions fro backend 
   
-//   useEffect(() => {
-//     setPromoLoading(true);
-//     axios.get(route('promotion.suggest'))
-//       .then(res => setAllPromotions(res.data))
-//       .catch(() => setAllPromotions([]))
-//       .finally(() => setPromoLoading(false));
-//   }, []);
+  useEffect(() => {
+    setPromoLoading(true);
+    axios.get(route('get.promotions'))
+      .then(res => setAllPromotions(res.data))
+      .catch(() => setAllPromotions([]))
+      .finally(() => setPromoLoading(false));
+  }, []);
 
-//   useEffect(() => {
-//     setCouponLoading(true);
-//     axios.get(route('coupon.suggest'))
-//       .then(res => setAllCoupons(res.data))
-//       .catch(() => setAllCoupons([]))
-//       .finally(() => setCouponLoading(false));
-//   }, []);
+  useEffect(() => {
+    setCouponLoading(true);
+    axios.get(route('get.coupons'))
+      .then(res => setAllCoupons(res.data))
+      .catch(() => setAllCoupons([]))
+      .finally(() => setCouponLoading(false));
+  }, []);
 
   const togglePromo = (id: number) => {
     setValue('promotion_ids',
@@ -168,11 +149,11 @@ export default function MarketingSection() {
    
           >
             {promoLoading ? <LoadingState /> : filteredPromos.length === 0 ? <EmptyState label="promotions" /> : (
-              filteredPromos.map((promo, i) => {
+              (filteredPromos || []).map((promo, i) => {
                 const applied = promotionIds.includes(promo.id);
                 return (
                   <div
-                    key={promo.id}
+                    key={promo?.id}
                     className="flex items-center justify-between px-3 py-2.5"
                     style={{
                       borderTop: i !== 0 ? `1px solid ${currentTheme.border}` : 'none',
@@ -189,17 +170,32 @@ export default function MarketingSection() {
                       >
                         <Tag size={12} style={{ color: applied ? currentTheme.primary : currentTheme.textMuted }} />
                       </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-semibold truncate" style={{ color: currentTheme.text }}>{promo.name}</span>
-                        <span className="text-xs" style={{ color: currentTheme.textMuted }}>
-                          {promo.discount} · {promo.expiry ? `Ends ${promo.expiry}` : 'No expiry'}
+                     <div className="flex flex-col min-w-0">
+                        <span
+                          className="text-xs font-bold truncate"
+                          style={{ color: currentTheme.text }}
+                        >
+                          {promo?.name}
+                        </span>
+                        <span className="text-[11px] truncate" style={{ color: currentTheme.accent }}>
+                          {promo?.type === 'percentage'
+                            ? `${promo?.value}% off`
+                            : promo?.type === 'fixed'
+                              ? `${promo?.value} MAD off`
+                              : 'Free Shipping'}
+                          <span style={{ color: currentTheme.textMuted }}>
+                            {' · '}
+                            {promo?.valid_until
+                              ? `Ends ${new Date(promo?.valid_until).toLocaleDateString('en', { day: '2-digit', month: 'short' })}`
+                              : 'No expiry'}
+                          </span>
                         </span>
                       </div>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => togglePromo(promo.id)}
+                      onClick={() => togglePromo(promo?.id)}
                       className="flex items-center justify-center w-7 h-7 shrink-0 ml-2"
                       style={{
                         background: applied ? currentTheme.primary : 'transparent',
@@ -260,11 +256,11 @@ export default function MarketingSection() {
             style={{ border: `1px solid ${currentTheme.border}`, borderRadius: br  , '--scroll-color': currentTheme.primary } as React.CSSProperties}
           >
             {couponLoading ? <LoadingState /> : filteredCoupons.length === 0 ? <EmptyState label="coupons" /> : (
-              filteredCoupons.map((coupon, i) => {
+              (filteredCoupons || [] ).map((coupon, i) => {
                 const applied = couponIds.includes(coupon.id);
                 return (
                   <div
-                    key={`${coupon.id}-${i}`}
+                    key={`${coupon?.id}-${i}`}
                     className="flex items-center justify-between px-3 py-2.5"
                     style={{
                       borderTop: i !== 0 ? `1px solid ${currentTheme.border}` : 'none',
@@ -282,16 +278,27 @@ export default function MarketingSection() {
                         <Ticket size={12} style={{ color: applied ? currentTheme.success : currentTheme.textMuted }} />
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-semibold font-mono truncate" style={{ color: currentTheme.text }}>{coupon.code}</span>
-                        <span className="text-xs" style={{ color: currentTheme.textMuted }}>
-                          {coupon.discount} · {coupon.expiry ? `Exp ${coupon.expiry}` : '∞'}
-                        </span>
-                      </div>
+                          <span
+                            className="text-xs font-black font-mono tracking-wider truncate"
+                            style={{ color: currentTheme.text }}
+                          >
+                            {coupon?.code}
+                          </span>
+                          <span className="text-[11px] truncate" style={{ color: currentTheme.accent }}>
+                            {coupon?.type === 'percentage' ? `${coupon?.value}% off` : `${coupon?.value} MAD off`}
+                            <span style={{ color: currentTheme.textMuted }}>
+                              {' · '}
+                              {coupon?.valid_until
+                                ? `Exp ${new Date(coupon?.valid_until).toLocaleDateString('en', { day: '2-digit', month: 'short' })}`
+                                : 'No expiry'}
+                            </span>
+                          </span>
+                        </div>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => toggleCoupon(coupon.id)}
+                      onClick={() => toggleCoupon(coupon?.id)}
                       className="flex items-center justify-center w-7 h-7 shrink-0 ml-2"
                       style={{
                         background: applied ? currentTheme.success : 'transparent',
@@ -325,7 +332,7 @@ export default function MarketingSection() {
 
           {appliedPromos.map(p => (
             <span
-              key={p.id}
+              key={p?.id}
               className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1"
               style={{
                 background: currentTheme.primary + '15',
@@ -335,10 +342,10 @@ export default function MarketingSection() {
               }}
             >
               <Tag size={10} />
-              {p.name}
+              {p?.name}
               <button
                 type="button"
-                onClick={() => togglePromo(p.id)}
+                onClick={() => togglePromo(p?.id)}
                 className="flex items-center justify-center"
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: currentTheme.primary, padding: 0 }}
               >
@@ -349,7 +356,7 @@ export default function MarketingSection() {
 
           {appliedCoupons.map(c => (
             <span
-              key={c.id}
+              key={c?.id}
               className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 font-mono"
               style={{
                 background: currentTheme.success + '15',
@@ -359,10 +366,10 @@ export default function MarketingSection() {
               }}
             >
               <Ticket size={10} />
-              {c.code}
+              {c?.code}
               <button
                 type="button"
-                onClick={() => toggleCoupon(c.id)}
+                onClick={() => toggleCoupon(c?.id)}
                 className="flex items-center justify-center"
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: currentTheme.success, padding: 0 }}
               >

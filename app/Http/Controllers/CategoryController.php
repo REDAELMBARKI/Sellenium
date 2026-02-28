@@ -9,10 +9,12 @@ class CategoryController extends Controller
 {
 
     public function subCategories(Request $request){
-        // $request->validate([
-        //     'parent_id' => ['required' , 'string'] ,
-        // ]) ;
+        $request->validate([
+            'parent_id' => ['required' , 'string'] ,
+        ]) ;
         $subCategories = Category::where('parent_id' ,$request->parent_id )->get(['id' , 'name']) ;
         return response()->json($subCategories);
     }
+
+  
 }

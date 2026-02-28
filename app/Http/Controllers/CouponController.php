@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\CouponException;
 use App\Models\Coupon;
 use App\Services\CartService;
-use App\Services\CouponService;
+use App\Services\Discount\CouponService ;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,6 +15,16 @@ class CouponController extends Controller
     {
     }
     
+
+     public function index()
+    {
+        $coupons = Coupon::where('is_active', true)
+            ->whereNull('valid_until')
+            ->orWhere('valid_until', '>', now())
+            ->get();
+
+        return response()->json($coupons);
+    }
 
     public function coupon_feedback(Request $request){
             

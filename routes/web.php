@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CurstomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\StoreConfigController;
 use App\Http\Controllers\VariantsController;
@@ -131,8 +132,9 @@ Route::delete('/media', [MediaController::class, 'destroyBulk'])
 
 
 // catgeories secion
-// Route::get('/categories' , [CategoryController::class, 'index']) ;
-Route::get('/subcatgeories' , [CategoryController::class, 'subCategories'])->name('get.subCategories');
+
+Route::get('/subCategories' , [CategoryController::class,'subCategories'])->name('get.sub_categories');
+
 //end categories section
 
 
@@ -148,8 +150,6 @@ Route::get("/store" , [StoreConfigController::class ,  'index'])->name("store") 
 // admin
 Route::get('/admins' , [AdminController::class, 'index']) ;
 
-// categories
-
 
 
 // variants managment
@@ -159,7 +159,12 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 
 
 
+//marketing 
+// coupons 
+Route::get('/coupons' , [CouponController::class,'index'])->name('get.coupons') ; 
 
+// promotions
+Route::get('/promotions' , [PromotionController::class,'index'])->name('get.promotions') ; 
 
 
 // oderes

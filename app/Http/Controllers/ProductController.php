@@ -8,6 +8,7 @@ use App\Services\product\ProductService;
 use App\Models\Category;
 use App\Models\Media;
 use App\Models\Product;
+use App\Services\CategoryService;
 use Illuminate\Auth\Access\Gate;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,12 +16,16 @@ use Inertia\Inertia;
 class ProductController extends Controller
 {
   
-
+     public function __construct(private CategoryService $categoryService)
+     {
+    
+     }
+     
     public function index(){
         // $products = Product::with('tags')->paginate(10) ;
         return Inertia::render("admin/pages/products/ProductsList" ) ;
     }
-
+   
 
 
     public function drafts() {
@@ -37,41 +42,7 @@ class ProductController extends Controller
         return inertia::render("admin/pages/products/Create" ,[
                 "data" => [
                     'options' => [
-                    'categories' => Category::whereNull('parent_id')->select(['id' , 'name'])->get() ,
-                    'fits' => collect([
-                        ['id' => 1, 'name' => 'Slim'],
-                        ['id' => 2, 'name' => 'Regular'],
-                        ['id' => 3, 'name' => 'Oversized'],
-                    ]),
-
-                    'materials' => collect([
-                        ['id' => 1, 'name' => 'Cotton'],
-                        ['id' => 2, 'name' => 'Polyester'],
-                        ['id' => 3, 'name' => 'Wool'],
-                        ['id' => 4, 'name' => 'Denim'],
-                    ]),
-                    // Static (enum-like)
-                    'styles' => collect([
-                        ['id' => 1, 'name' => 'Casual'],
-                        ['id' => 2, 'name' => 'Formal'],
-                        ['id' => 3, 'name' => 'Streetwear'],
-                        ['id' => 4, 'name' => 'Sport'],
-                        ['id' => 5, 'name' => 'Luxury'],
-                    ]),
-
-                    'genders' => collect([
-                        ['id' => 1, 'name' => 'Men'],
-                        ['id' => 2, 'name' => 'Women'],
-                        ['id' => 3, 'name' => 'Unisex'],
-                    ]),
-
-                    'seasons' => collect([
-                        ['id' => 1, 'name' => 'Spring'],
-                        ['id' => 2, 'name' => 'Summer'],
-                        ['id' => 3, 'name' => 'Autumn'],
-                        ['id' => 4, 'name' => 'Winter'],
-                        ['id' => 5, 'name' => 'All Seasons'],
-                    ]),
+                    'nich_cats' =>  $this->categoryService->get_niche_cats(),
                 ],
                 ]
                
@@ -150,7 +121,6 @@ class ProductController extends Controller
 
     public function update(Request $request , ProductService $service, Product $product)
     {
-        dd($request->all());
         $validated = $request->validated() ;
         $service->updateDraft($validated , $product );
         return redirect()->route('drafts.index');

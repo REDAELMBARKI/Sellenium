@@ -18,7 +18,7 @@ import { productSchema } from '@/shemas/productCreateform';
 
 
 
-const ProductDataProvider = ({children , data : {product , categoryObject , options : backendOptions } }:ProductBackendProps) => {
+const ProductDataProvider = ({children , data : {product , categoryObject , options  } }:ProductBackendProps) => {
 
 
      useEffect(() => {
@@ -36,21 +36,18 @@ const ProductDataProvider = ({children , data : {product , categoryObject , opti
     const initialData = getInitialData(modeForm, product , categoryObject);
     const [productData ,   setProductData] = useState<ProductBase | undefined>(() => product)
     const [category , setCategory] = useState(categoryObject) ;
-    const [categoryList , setCategoryList] = useState<Category[]>(backendOptions.categories) ; 
+    const [nicheCategory , setNicheCategory] = useState<Category[]>() ; 
     const draftId = useRef<string | undefined>(product?.id ?? null);
     const { register, handleSubmit, getValues, control, formState, watch, setValue } = useForm<ProductBase>({
         defaultValues: initialData,  // ← just pass the object directly
         resolver: zodResolver(productSchema), // ← add this if you have a schema
         mode: "onChange"
         })
-    const [options] = useState(backendOptions);
 
     return (
     <ProductDataContext.Provider value={{
         modeForm , 
-        categoryList , setCategoryList , 
-        category , setCategory  , 
-        productData ,   setProductData , 
+        nicheCategory , setNicheCategory , 
         setValue , getValues , 
         register , handleSubmit , watch , 
         control , formState , 

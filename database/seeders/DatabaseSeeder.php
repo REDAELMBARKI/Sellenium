@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
            AttributeValuesSeeder::class ,
            ProductVariantSeeder::class ,
            CouponSeeder::class ,
+           PromotionSeeder::class ,
            OrderSeeder::class ,
             CartSeeder::class,
             MediaSeeder::class ,
