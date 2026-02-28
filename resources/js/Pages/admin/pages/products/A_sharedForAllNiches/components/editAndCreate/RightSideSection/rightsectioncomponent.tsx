@@ -10,7 +10,6 @@ import {
 import { SectionWrapper } from './sectionwrapper';
 import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import { HoverInfoLabel } from './HoverInfoLabel';
-import { ThemedInput, ThemedTextarea } from './ThemedInput';
 import { Category } from '@/types/inventoryTypes';
 import MultiSelectDropdownForObject, { AllowedObjectsType } from '@/components/ui/MultiSelectDropdownForObject';
 import countries from "i18n-iso-countries";
@@ -24,6 +23,7 @@ import { route } from 'ziggy-js';
 import BadgePicker from '../BadgePicker';
 import SwitchToggler from '@/components/ui/SwitchToggler';
 import { Input } from '@/components/ui/input';
+import { ThemedTextarea } from './ThemedInput';
 
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
@@ -59,6 +59,20 @@ export function RightSectionComponent() {
   const shipping = watch('shipping');
   const meta = watch('meta');
   const vendor = watch('vendor');
+
+  useEffect(() => {
+  register('sub_categories');
+  register('madeCountry');
+  register('releaseDate');
+  register('inventory.backorderOptions');
+  register('inventory.stockStatus');
+  register('inventory.weightUnit');
+  register('inventory.dimensions.unit');
+  register('inventory.fulfillmentType');
+  register('shipping.shippingClass');
+  register('shipping.returnWindow');
+  register('shipping.returnPolicy');
+}, [register]);
 
   useEffect(() => {
     if (!category) return;
@@ -393,7 +407,7 @@ export function RightSectionComponent() {
             label="Handling Time (days)"
             tooltip="How many days to prepare this product before shipping"
           />
-          <ThemedInput
+          <Input
             type="number"
             id="handlingTime"
             value={shipping?.handlingTime ?? ''}
@@ -412,7 +426,7 @@ export function RightSectionComponent() {
             label="Shipping Cost Override"
             tooltip="Set a fixed shipping price for this product, leave empty to use global rules"
           />
-          <ThemedInput
+          <Input
             type="number"
             id="shippingCostOverride"
             value={shipping?.shippingCostOverride ?? ''}
@@ -490,7 +504,7 @@ export function RightSectionComponent() {
       <SectionWrapper title="SEO" icon={Search}>
         <div>
           <HoverInfoLabel htmlFor="metaTitle" label="Meta Title" tooltip="Title used in search engines" />
-          <ThemedInput
+          <Input
             type="text"
             id="metaTitle"
             value={meta?.metaTitle || ''}
@@ -523,7 +537,7 @@ export function RightSectionComponent() {
       <SectionWrapper title="Vendor / Supplier Info" icon={Users}>
         <div>
           <HoverInfoLabel htmlFor="vendorName" label="Vendor Name" tooltip="Supplier or vendor of this product " />
-          <ThemedInput
+          <Input
             type="text"
             id="vendorName"
             value={vendor?.vendorName || ''}

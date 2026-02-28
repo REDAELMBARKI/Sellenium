@@ -21,7 +21,6 @@ import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import NotifyUser from "@/components/ui/NotifyUser";
 import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
 import adapters from "@/functions/product/adapters";
-import CustomSelectForObjectNative from "@/components/ui/CustomSelectForObjectNative";
 import { Button } from "@/components/ui/button";
 import VisibilitySettings from "../components/editAndCreate/VisibilitySettings";
 import RelatedProductsSection from "../components/editAndCreate/RelatedProductsSection";
