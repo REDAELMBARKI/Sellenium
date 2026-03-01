@@ -34,7 +34,6 @@ const countryList = Object.entries(countries.getNames("en")).map(([code, name]) 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
-// Helper: get first selected value as string
 const firstVal = (selected: AllowedObjectsType[]) => selected[0]?.value ?? '';
 
 export function RightSectionComponent() {
@@ -61,18 +60,18 @@ export function RightSectionComponent() {
   const vendor = watch('vendor');
 
   useEffect(() => {
-  register('sub_categories');
-  register('madeCountry');
-  register('releaseDate');
-  register('inventory.backorderOptions');
-  register('inventory.stockStatus');
-  register('inventory.weightUnit');
-  register('inventory.dimensions.unit');
-  register('inventory.fulfillmentType');
-  register('shipping.shippingClass');
-  register('shipping.returnWindow');
-  register('shipping.returnPolicy');
-}, [register]);
+    register('sub_categories');
+    register('madeCountry');
+    register('releaseDate');
+    register('inventory.backorderOptions');
+    register('inventory.stockStatus');
+    register('inventory.weightUnit');
+    register('inventory.dimensions.unit');
+    register('inventory.fulfillmentType');
+    register('shipping.shippingClass');
+    register('shipping.returnWindow');
+    register('shipping.returnPolicy');
+  }, [register]);
 
   useEffect(() => {
     if (!category) return;
@@ -183,9 +182,12 @@ export function RightSectionComponent() {
           />
           <SwitchToggler
             id="trackInventory"
-            checked={inventory?.trackInventory ?? true}
-            onChange={(val) => setValue('inventory', { ...inventory, trackInventory: val }, { shouldValidate: true })}
+            checked={inventory?.trackInventory ?? false}
+            onChange={(val : boolean) => setValue('inventory', { ...inventory, trackInventory: !!val }, { shouldValidate: true })}
           />
+          {errors.inventory?.trackInventory && (
+            <p className="text-red-500 text-xs mt-1">{errors.inventory.trackInventory.message as string}</p>
+          )}
         </div>
 
         {/* Backorder Options */}
@@ -199,7 +201,7 @@ export function RightSectionComponent() {
             multiple={false}
             label="backorder options"
             options={[
-              { label: 'Do not allow', value: 'deny' },
+              { label: 'Only if stock available', value: 'deny' },
               { label: 'Allow, but notify customer', value: 'notify' },
               { label: 'Allow', value: 'allow' },
             ]}
@@ -229,6 +231,9 @@ export function RightSectionComponent() {
             className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
             style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
           />
+          {errors.inventory?.lowStockThreshold && (
+            <p className="text-red-500 text-xs mt-1">{errors.inventory.lowStockThreshold.message as string}</p>
+          )}
         </div>
 
         {/* Stock Status */}
@@ -242,7 +247,6 @@ export function RightSectionComponent() {
             multiple={false}
             label="stock status"
             options={[
-              { label: 'Auto (based on stock)', value: '' },
               { label: 'In Stock', value: 'in_stock' },
               { label: 'Out of Stock', value: 'out_of_stock' },
               { label: 'Discontinued', value: 'discontinued' },
@@ -252,6 +256,9 @@ export function RightSectionComponent() {
               : [{ label: 'Auto (based on stock)', value: '' }]}
             onChange={(selected) => setValue('inventory', { ...inventory, stockStatus: firstVal(selected) as 'in_stock' | 'out_of_stock' | 'discontinued' }, { shouldValidate: true })}
           />
+          {errors.inventory?.stockStatus && (
+            <p className="text-red-500 text-xs mt-1">{errors.inventory.stockStatus.message as string}</p>
+          )}
         </div>
 
         {/* Weight */}
@@ -271,6 +278,9 @@ export function RightSectionComponent() {
               className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
               style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
             />
+            {errors.inventory?.weight && (
+              <p className="text-red-500 text-xs mt-1">{errors.inventory.weight.message as string}</p>
+            )}
           </div>
           <div>
             <HoverInfoLabel htmlFor="weightUnit" label="Unit" tooltip="" />
@@ -286,6 +296,9 @@ export function RightSectionComponent() {
               selectedValues={[{ label: inventory?.weightUnit ?? 'kg', value: inventory?.weightUnit ?? 'kg' }]}
               onChange={(selected) => setValue('inventory', { ...inventory, weightUnit: firstVal(selected) as 'kg' | 'g' | 'lb' | 'oz' }, { shouldValidate: true })}
             />
+            {errors.inventory?.weightUnit && (
+              <p className="text-red-500 text-xs mt-1">{errors.inventory.weightUnit.message as string}</p>
+            )}
           </div>
         </div>
 
@@ -298,21 +311,25 @@ export function RightSectionComponent() {
           />
           <div className="grid grid-cols-3 gap-3">
             {(['length', 'width', 'height'] as const).map((dim) => (
-              <Input
-                key={dim}
-                type="number"
-                placeholder={dim.charAt(0).toUpperCase() + dim.slice(1)}
-                value={inventory?.dimensions?.[dim] ?? ''}
-                onChange={(e) => setValue('inventory', {
-                  ...inventory,
-                  dimensions: {
-                    ...inventory?.dimensions,
-                    [dim]: e.target.value === '' ? null : Number(e.target.value),
-                  }
-                }, { shouldValidate: true })}
-                className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
-                style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
-              />
+              <div key={dim}>
+                <Input
+                  type="number"
+                  placeholder={dim.charAt(0).toUpperCase() + dim.slice(1)}
+                  value={inventory?.dimensions?.[dim] ?? ''}
+                  onChange={(e) => setValue('inventory', {
+                    ...inventory,
+                    dimensions: {
+                      ...inventory?.dimensions,
+                      [dim]: e.target.value === '' ? null : Number(e.target.value),
+                    }
+                  }, { shouldValidate: true })}
+                  className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
+                  style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
+                />
+                {errors.inventory?.dimensions?.[dim] && (
+                  <p className="text-red-500 text-xs mt-1">{errors.inventory.dimensions[dim]?.message as string}</p>
+                )}
+              </div>
             ))}
           </div>
           <div className="mt-2">
@@ -330,6 +347,9 @@ export function RightSectionComponent() {
                 dimensions: { ...inventory?.dimensions, unit: firstVal(selected) as 'cm' | 'in' | 'mm' }
               }, { shouldValidate: true })}
             />
+            {errors.inventory?.dimensions?.unit && (
+              <p className="text-red-500 text-xs mt-1">{errors.inventory.dimensions.unit.message as string}</p>
+            )}
           </div>
         </div>
 
@@ -349,6 +369,9 @@ export function RightSectionComponent() {
             className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
             style={{ backgroundColor: currentTheme.bg, color: currentTheme.text, borderWidth: '2px', borderColor: currentTheme.border }}
           />
+          {errors.inventory?.warehouseLocation && (
+            <p className="text-red-500 text-xs mt-1">{errors.inventory.warehouseLocation.message as string}</p>
+          )}
         </div>
 
         {/* Fulfillment Type */}
@@ -356,21 +379,24 @@ export function RightSectionComponent() {
           <HoverInfoLabel
             htmlFor="fulfillmentType"
             label="Fulfillment Type"
-            tooltip="How this product will be fulfilled"
+            tooltip="Who handles the storage and shipping of this product"
           />
           <MultiSelectDropdownForObject
             multiple={false}
             label="fulfillment type"
             options={[
-              { label: 'Self fulfilled', value: '' },
-              { label: 'Dropship', value: 'dropship' },
-              { label: 'Third Party (3PL)', value: 'third_party' },
+              { label: 'In-House (Own Stock)', value: 'in_house' },
+              { label: 'Dropship',             value: 'dropship' },
+              { label: 'Third Party (3PL)',     value: 'third_party' },
             ]}
             selectedValues={inventory?.fulfillmentType
-              ? [{ label: inventory.fulfillmentType === 'dropship' ? 'Dropship' : 'Third Party (3PL)', value: inventory.fulfillmentType }]
-              : [{ label: 'Self fulfilled', value: '' }]}
-            onChange={(selected) => setValue('inventory', { ...inventory, fulfillmentType: firstVal(selected) as 'dropship' | 'third_party' }, { shouldValidate: true })}
+              ? [{ label: inventory.fulfillmentType, value: inventory.fulfillmentType }]
+              : []}
+            onChange={(selected) => setValue('inventory', { ...inventory, fulfillmentType: firstVal(selected) as string }, { shouldValidate: true })}
           />
+          {errors.inventory?.fulfillmentType && (
+            <p className="text-red-500 text-xs mt-1">{errors.inventory.fulfillmentType.message as string}</p>
+          )}
         </div>
 
       </SectionWrapper>
@@ -389,15 +415,19 @@ export function RightSectionComponent() {
             multiple={false}
             label="shipping class"
             options={[
-              { label: 'Standard', value: '' },
-              { label: 'Express', value: 'express' },
-              { label: 'Pickup Only', value: 'pickup' },
+              { label: 'Livraison Standard (3-5 jours)', value: 'standard' },
+              { label: 'Livraison Express (24-48h)',      value: 'express' },
+              { label: 'Retrait en Magasin',              value: 'pickup' },
+              { label: 'Point Relais',                    value: 'relay' },
             ]}
             selectedValues={shipping?.shippingClass
               ? [{ label: shipping.shippingClass, value: shipping.shippingClass }]
               : [{ label: 'Standard', value: '' }]}
             onChange={(selected) => setValue('shipping', { ...shipping, shippingClass: firstVal(selected) as string }, { shouldValidate: true })}
           />
+          {errors.shipping?.shippingClass && (
+            <p className="text-red-500 text-xs mt-1">{errors.shipping.shippingClass.message as string}</p>
+          )}
         </div>
 
         {/* Handling Time */}
@@ -417,6 +447,9 @@ export function RightSectionComponent() {
             }, { shouldValidate: true })}
             placeholder="e.g. 2"
           />
+          {errors.shipping?.handlingTime && (
+            <p className="text-red-500 text-xs mt-1">{errors.shipping.handlingTime.message as string}</p>
+          )}
         </div>
 
         {/* Shipping Cost Override */}
@@ -436,6 +469,9 @@ export function RightSectionComponent() {
             }, { shouldValidate: true })}
             placeholder="Leave empty for default"
           />
+          {errors.shipping?.shippingCostOverride && (
+            <p className="text-red-500 text-xs mt-1">{errors.shipping.shippingCostOverride.message as string}</p>
+          )}
         </div>
 
         {/* Is Returnable */}
@@ -450,6 +486,9 @@ export function RightSectionComponent() {
             checked={shipping?.isReturnable ?? true}
             onChange={(val) => setValue('shipping', { ...shipping, isReturnable: val }, { shouldValidate: true })}
           />
+          {errors.shipping?.isReturnable && (
+            <p className="text-red-500 text-xs mt-1">{errors.shipping.isReturnable.message as string}</p>
+          )}
         </div>
 
         {/* Return Window + Policy — only show if returnable */}
@@ -474,6 +513,9 @@ export function RightSectionComponent() {
                   : []}
                 onChange={(selected) => setValue('shipping', { ...shipping, returnWindow: Number(firstVal(selected)) }, { shouldValidate: true })}
               />
+              {errors.shipping?.returnWindow && (
+                <p className="text-red-500 text-xs mt-1">{errors.shipping.returnWindow.message as string}</p>
+              )}
             </div>
 
             <div>
@@ -494,6 +536,9 @@ export function RightSectionComponent() {
                   : []}
                 onChange={(selected) => setValue('shipping', { ...shipping, returnPolicy: firstVal(selected) as string }, { shouldValidate: true })}
               />
+              {errors.shipping?.returnPolicy && (
+                <p className="text-red-500 text-xs mt-1">{errors.shipping.returnPolicy.message as string}</p>
+              )}
             </div>
           </>
         )}
@@ -536,7 +581,7 @@ export function RightSectionComponent() {
       {/* Vendor */}
       <SectionWrapper title="Vendor / Supplier Info" icon={Users}>
         <div>
-          <HoverInfoLabel htmlFor="vendorName" label="Vendor Name" tooltip="Supplier or vendor of this product " />
+          <HoverInfoLabel htmlFor="vendorName" label="Vendor Name" tooltip="Supplier or vendor of this product" />
           <Input
             type="text"
             id="vendorName"
@@ -546,6 +591,21 @@ export function RightSectionComponent() {
           />
           {errors.vendor?.vendorName && (
             <p className="text-red-500 text-xs mt-1">{errors.vendor.vendorName.message as string}</p>
+          )}
+        </div>
+
+        {/* Vendor SKU — was missing entirely, added from schema */}
+        <div>
+          <HoverInfoLabel htmlFor="vendorSku" label="Vendor SKU" tooltip="The SKU reference from your supplier" />
+          <Input
+            type="text"
+            id="vendorSku"
+            value={vendor?.vendorSku || ''}
+            onChange={(e) => setValue('vendor', { ...vendor, vendorSku: e.target.value }, { shouldValidate: true })}
+            placeholder="e.g. SUP-12345"
+          />
+          {errors.vendor?.vendorSku && (
+            <p className="text-red-500 text-xs mt-1">{errors.vendor.vendorSku.message as string}</p>
           )}
         </div>
 

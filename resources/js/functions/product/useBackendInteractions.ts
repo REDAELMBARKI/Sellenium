@@ -16,10 +16,10 @@ export const useBackendInteraction = () => {
         }
     }
 
-    const save = async (url : "onLeave"|"onSubmit" , payload : any  , onError : (errors : any) => void , id? : string) => {
+    const save = async (url : "draft.save.leave"|"draft.save.submit" , payload : any  , onError : (errors : any) => void , id? : string) => {
         try{
 
-            const res = await axios.put(route(`product.update.`+ url , {product : id }), {...payload}) ;
+            const res = await axios.put(route(url , {product : id }), {...payload}) ;
             if(res.status == 200) {
             }
         }

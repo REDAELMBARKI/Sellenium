@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Plus, Zap, AlertCircle, PackageSearch, MousePointerClick } from "lucide-react";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { Variant } from "@/types/products/productVariantType";
@@ -6,7 +6,7 @@ import OptionSelector from "./OptionSelector";
 import VariantCard from "./VariantCard";
 import GenerateModal from "./GenerateModel";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
-import { variantSchema } from "@/shemas/productCreateform";
+import { variantSchema } from "@/shemas/productSchema";
 import { useFieldArray } from "react-hook-form";
 import { ProductBase } from "@/types/products/ProductTypes";
 import { useToast } from "@/contextHooks/useToasts";
@@ -30,17 +30,20 @@ export default function VariantBuilder() {
   // 2. holds the validation errors for those inputs
   const [variantErrors, setVariantErrors] = useState<Record<string, any>>({});
   
-  
+
   const addEmpty = useCallback(() => {
     if (hasOpenCard) return;
     const newVariant: Variant = {
-      id: `v-${Date.now()}`,
+      variant_id: `v-${Date.now()}`,
       attrs: null,
       price: defaultVariantsPrice ??  0 ,
       stock: 0,
       compare_price : 0 ,
       sku: null,
-      imageUrl: null,
+      image: {
+         url : '' , 
+         id : null
+      },
       isOpen: true,
     };
     append(newVariant);
@@ -50,7 +53,7 @@ export default function VariantBuilder() {
   }, [hasOpenCard, append , defaultVariantsPrice]);
 
   const updateVariant = (id: string, field: string, value: any) => {
-    const index = variants.findIndex(f => f.id === id); // ← find index by id
+    const index = variants.findIndex(f => f.variant_id === id); // ← find index by id
     if (index === -1) return;
 
     const current = variants[index];
@@ -65,7 +68,7 @@ export default function VariantBuilder() {
   };
 
   const removeVariant = (id: string) =>{
-       const index = variants.findIndex(f => f.id === id)
+       const index = variants.findIndex(f => f.variant_id === id)
        if (index === -1) return;
 
        remove(index)
@@ -73,7 +76,7 @@ export default function VariantBuilder() {
   }
 
   const markDone = (id: string) => {
-        const index = variants.findIndex(v => v.id === id);
+        const index = variants.findIndex(v => v.variant_id === id);
         if (index === -1) return;
 
         const variant = variants[index] ; 
@@ -113,7 +116,7 @@ export default function VariantBuilder() {
   const checkIfExists = (variant: Variant, variants: Variant[]): boolean => {
   return variants.some(v => {
     // skip comparing with itself
-    if (v.id === variant.id) return false;
+    if (v.variant_id === variant.variant_id) return false;
 
     // must have same number of attr keys
     const variantKeys  = Object.keys(variant.attrs  || {});
@@ -296,7 +299,7 @@ export default function VariantBuilder() {
           {/* Variant cards */}
           <div className="flex flex-col gap-3">
             {variants.map((v, i) => (
-              <div key={v.id} ref={i === variants.length - 1 ? newCardRef : undefined}>
+              <div key={v.variant_id} ref={i === variants.length - 1 ? newCardRef : undefined}>
                 <VariantCard
                   variant={v}
                   activeOptions={activeOptions}

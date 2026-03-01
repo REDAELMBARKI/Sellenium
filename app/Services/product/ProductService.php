@@ -136,25 +136,33 @@ class ProductService {
         $existingSkus = collect($variants)->pluck('sku')->filter();
         $product->variants()->whereNotIn('sku', $existingSkus)->delete(); 
         
+        DB::transaction(function () use ($product , $variants) {
+            collect($variants)->map(function($variant) use ($product) {
+                $sku  =  $variant['sku'] ?? $this->generateSku($product , $variant['attrs'] ) ;
+                $created =  ProductVariant::updateOrCreate(
+                           ['sku' => $sku , 'product_id' => $product->id] ,
+                           [
+                                'price' => Arr::get($variant,'price'),
+                                'compare_price'=> Arr::get($variant,'compare_price'),
+                                'stock'=> Arr::get($variant,'stock'),
+                                'attrs' =>json_encode(Arr::get($variant, 'attrs')),
+                                'is_default'    => $variant['is_default'] ?? false,
+                                'created_at'    => now(),
+                                'updated_at'    => now(),
+               ]) ;
+                
+               //asing the variant to its morph media
 
-        ProductVariant::upsert(
-                    collect($variants)->map(function($variant) use ($product) {
-                         $uniqueSku  =  $variant['sku'] ?? $this->generateSku($product , $variant['attrs'] ) ;
-                         return [
-                            'product_id' => $product->id ,
-                            'price' => Arr::get($variant,'price'),
-                            'compare_price'=> Arr::get($variant,'compare_price'),
-                            'stock'=> Arr::get($variant,'stock'),
-                            'sku'=>  $uniqueSku,
-                            'attrs' =>json_encode(Arr::get($variant, 'attrs')),
-                            'is_default'    => $variant['is_default'] ?? false,
-                            'created_at'    => now(),
-                            'updated_at'    => now(),
-                        ] ;
-                    })->toArray(),
-                    ['sku'] ,
-                    ['price', 'compare_price', 'is_default',  'stock', 'attrs', 'updated_at']
-                  );
+                $imageId = Arr::get($variant, 'image.id');
+                if ($imageId) {
+                    Media::where('id', $imageId)->update([
+                        'mediaable_type' => ProductVariant::class,
+                        'mediaable_id'   => $created->id,
+                    ]);
+                }
+             });
+
+        });
     }
 
     private function resolveVariants(array $payload) : array{

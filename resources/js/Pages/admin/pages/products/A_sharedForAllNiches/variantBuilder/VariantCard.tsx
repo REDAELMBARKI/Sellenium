@@ -1,12 +1,16 @@
 import { useRef, useState } from "react";
-import { X, Upload, ChevronDown, Image, Wand2 } from "lucide-react";
+import { X, Upload, ChevronDown, Image, Wand2, Trash2 } from "lucide-react";
 import { ThemePalette } from "@/types/ThemeTypes";
 import { Variant } from "@/types/products/productVariantType";
 import ColorPicker from "./ColorPicker";
 import PricePreview from "../components/editAndCreate/PricePreview";
 import { Input } from "@/components/ui/input";
-import { variantSchema } from "@/shemas/productCreateform";
+import { variantSchema } from "@/shemas/productSchema";
 import { Button } from "@/components/ui/button";
+import { useBackendInteraction } from "@/functions/product/useBackendInteractions";
+import { productFilesUploaderCleaner } from "@/functions/product/productFilesUploaderCleaner";
+import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
+import { string } from "zod";
 
 const OPTION_VALUES: Record<string, string[]> = {
   Size:         ["XS", "S", "M", "L", "XL", "XXL"],
@@ -62,6 +66,8 @@ function CreateVariantForm({
   errors
 }: CreateVariantFormProps) {
 
+  const { uploadProductFiles , deleteMedia} = productFilesUploaderCleaner();
+  const { setValue, getValues } = useProductDataCtx();
   const inputClassName = "w-full px-5 py-4 rounded-xl font-medium shadow-sm";
   const inputStyle = (hasError?: boolean) => ({
     backgroundColor: theme.bg,
@@ -90,11 +96,44 @@ function CreateVariantForm({
   const handleBlur = (field: string) => {
     const value = local[field as keyof typeof local];
     if (field === 'sku') {
-      onChange(variant.id, field, value);
+      onChange(variant.variant_id, field, value); // ✅
     } else {
-      onChange(variant.id, field, value === '' ? null : Number(value));
+      onChange(variant.variant_id, field, value === '' ? null : Number(value)); // ✅
     }
   };
+
+  const handleVariantImageUpload = async (variantId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target?.files![0] ;
+      if (file) {
+        const variantIdSnapshot = variantId; // ✅ capture before await
+        const {media} = await uploadProductFiles(file, 'gallery', 'variant');
+        if (media) {
+          const freshVariants = getValues('variants');
+          const newVariants = freshVariants.map(v => v.variant_id === variantIdSnapshot ? { // ✅
+            ...v,
+            image: {
+              url: media.url,
+              id: media.id
+            }
+          } : v);
+          setValue('variants', newVariants);
+        }
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const handleRemoveVariantImage = (variant: Variant, imgId: string) => {
+    deleteMedia(imgId)
+    const updated = getValues('variants').map(v => 
+      v.variant_id === variant.variant_id 
+        ? { ...v, image: { url: '', id: undefined } } 
+        : v
+    )
+    setValue('variants', updated)
+  }
 
   return (
     <div style={{ padding: "0 16px 20px", borderTop: `1px solid ${theme.border}` }}>
@@ -105,7 +144,7 @@ function CreateVariantForm({
           <ColorPicker
             value={colorHex}
             onChange={(hex, name) => {
-              onChange(variant.id, "attrs.color", { hex, name });
+              onChange(variant.variant_id, "attrs.color", { hex, name }); // ✅
               setOverrideImage(false);
             }}
             theme={theme}
@@ -126,7 +165,7 @@ function CreateVariantForm({
               <div style={{ position: "relative" }}>
                 <select
                   value={(variant.attrs?.[opt.toLowerCase()] as string) || ""}
-                  onChange={(e) => onChange(variant.id, `attrs.${opt.toLowerCase()}`, e.target.value)}
+                  onChange={(e) => onChange(variant.variant_id, `attrs.${opt.toLowerCase()}`, e.target.value)} // ✅
                   className={inputClassName}
                   style={{ ...inputStyle(!!err(opt.toLowerCase())), cursor: "pointer", appearance: "none" as any }}
                 >
@@ -262,26 +301,56 @@ function CreateVariantForm({
           </div>
         ) : (
           <div className="flex items-center gap-4">
-            {variant.imageUrl ? (
-              <div style={{ position: "relative", width: 64, height: 64, flexShrink: 0 }}>
-                <img src={variant.imageUrl} alt="" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 10, border: `2px solid ${theme.border}` }} />
-                <Button type="button" onClick={() => { onChange(variant.id, "imageUrl", null); setOverrideImage(false); }} style={{ position: "absolute", top: -6, right: -6, background: theme.error, border: "none", borderRadius: "50%", width: 18, height: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <X size={10} color="#fff" />
-                </Button>
-              </div>
+            {variant.image?.url ? (
+             <div style={{ position: "relative", width: 64, height: 64, flexShrink: 0 }}>
+              <img 
+                src={variant.image?.url} 
+                alt="" 
+                style={{ 
+                  width: 64, 
+                  height: 64, 
+                  objectFit: "cover", 
+                  borderRadius: 12, 
+                  border: `2px solid ${theme.border}`,
+                  display: "block"
+                }} 
+              />
+              <button 
+                type="button" 
+                onClick={() => handleRemoveVariantImage(variant , String(variant.image?.id) ?? '')} 
+                style={{ 
+                  position: "absolute", 
+                  top: -6, 
+                  right: -6, 
+                  background: theme.error, 
+                  border: "none", 
+                  borderRadius: "50%", 
+                  width: 20, 
+                  height: 20, 
+                  cursor: "pointer", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  padding: 0
+                }}
+              >
+                <Trash2 size={10} color="#fff" />
+              </button>
+            </div>
             ) : (
               <div onClick={() => imgRef.current?.click()} className="flex flex-col items-center justify-center gap-1 cursor-pointer" style={{ width: 64, height: 64, borderRadius: 10, border: `2px dashed ${theme.border}`, background: theme.bg, flexShrink: 0 }}>
                 <Upload size={16} color={theme.textMuted} />
                 <span style={{ fontSize: 9, color: theme.textMuted }}>upload</span>
               </div>
             )}
-            <Input ref={imgRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onChange(variant.id, "imageUrl", URL.createObjectURL(f)); }} />
+            <Input ref={imgRef} type="file" accept="image/*" hidden onChange={(e) => handleVariantImageUpload(variant.variant_id, e)} /> {/* ✅ */}
             <div>
               <p className="text-sm" style={{ color: theme.textSecondary }}>
-                {variant.imageUrl ? "Custom image for this variant" : "Upload a specific image for this variant"}
+                {variant.image?.url ? "Custom image for this variant" : "Upload a specific image for this variant"}
               </p>
               {inheritedImage && (
-                <Button type="button" onClick={() => { onChange(variant.id, "imageUrl", null); setOverrideImage(false); }} className="text-xs mt-1" style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 0 }}>
+                <Button type="button" onClick={() => { onChange(variant.variant_id, "imageUrl", null); setOverrideImage(false); }} className="text-xs mt-1" style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 0 }}> {/* ✅ */}
                   ← Use inherited image
                 </Button>
               )}
@@ -292,7 +361,7 @@ function CreateVariantForm({
 
       {/* Actions */}
       <div className="flex justify-end gap-3 mt-6">
-        <Button type="button" onClick={() => onRemove(variant.id)} className="px-4 py-2 rounded-xl text-sm font-medium" style={{ border: `2px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}>
+        <Button type="button" onClick={() => onRemove(variant.variant_id)} className="px-4 py-2 rounded-xl text-sm font-medium" style={{ border: `2px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}> {/* ✅ */}
           Remove
         </Button>
         <Button type="button" onClick={onDone} className="px-6 py-2 rounded-xl text-sm font-semibold" style={{ background: theme.primary, border: "none", color: theme.textInverse, cursor: "pointer" }}>
@@ -308,6 +377,7 @@ export default function VariantCard({
   variant, activeOptions, defaultVariantsPrice, colorImages,
   onChange, onRemove, onDone, theme
 }: VariantCardProps) {
+
   const [overrideImage, setOverrideImage] = useState(false);
   const [errors, setErrors] = useState<FormErrors>(null);
   const imgRef = useRef<HTMLInputElement>(null);
@@ -321,8 +391,8 @@ export default function VariantCard({
     .filter(Boolean).join(" / ") || "New Variant";
 
   const inheritedImage = colorHex ? colorImages[colorHex] : null;
-  const displayImage   = variant.imageUrl || inheritedImage;
-  const isInherited    = !variant.imageUrl && !!inheritedImage;
+  const displayImage   = variant.image.url || inheritedImage;
+  const isInherited    = !variant.image.url && !!inheritedImage;
 
   const handleDone = () => {
     const result = variantSchema.safeParse(variant);
@@ -346,7 +416,7 @@ export default function VariantCard({
     }
 
     setErrors(null);
-    onDone(variant.id);
+    onDone(variant.variant_id); // ✅
   };
 
   return (
@@ -401,10 +471,10 @@ export default function VariantCard({
           </span>
         )}
 
-        <Button type="button" onClick={() => onChange(variant.id, "isOpen", !variant.isOpen)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
+        <Button type="button" onClick={() => onChange(variant.variant_id, "isOpen", !variant.isOpen)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}> {/* ✅ */}
           <ChevronDown size={14} style={{ transform: variant.isOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }} />
         </Button>
-        <Button type="button" onClick={() => onRemove(variant.id)} style={{ background: "none",  border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
+        <Button type="button" onClick={() => onRemove(variant.variant_id)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}> {/* ✅ */}
           <X size={14} />
         </Button>
       </div>

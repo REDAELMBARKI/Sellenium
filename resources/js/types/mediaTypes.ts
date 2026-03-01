@@ -27,10 +27,7 @@ export interface MediaContextType {
 
 export type FlagMedia = 
   | 'thumbnail'       // main product image
-  | 'cover'           // gallery or variant cover images
+  | 'gallery'           // gallery or variant cover images
   | 'video'           // product video
-  | 'avatar_user'     // customer or user avatar
-  | 'avatar_admin'    // admin avatar
-  | 'brand_logo'      // brand logos
-  | 'general';        // anything else / fallback
-
+  | 'avatar'     // customer or user avatar
+  | 'baner'    

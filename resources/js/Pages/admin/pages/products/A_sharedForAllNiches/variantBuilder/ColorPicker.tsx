@@ -31,7 +31,7 @@ export default function ColorPicker({ value, onChange, theme }: ColorPickerProps
         {DB_COLORS.map((color) => {
           const sel = value === color.hex;
           return (
-            <button key={color.hex} title={color.name} onClick={() => onChange(color.hex, color.name)} style={{
+            <button type="button" key={color.hex} title={color.name} onClick={() => onChange(color.hex, color.name)} style={{
               width: 30, height: 30, borderRadius: "50%", background: color.hex, cursor: "pointer",
               border: sel ? `3px solid ${theme.primary}` : `2px solid ${theme.border}`,
               boxShadow: sel ? `0 0 0 2px ${theme.bgSecondary}, 0 0 0 4px ${theme.primary}` : "none",

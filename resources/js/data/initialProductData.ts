@@ -4,7 +4,7 @@ import { Tag } from "@/types/tagsTypes";
 import { video } from "framer-motion/client";
 
 
-export const getEmptyInitialProductData = (category? : Category) => { // for create new product
+export const getEmptyInitialProductData = () => { // for create new product
    // Base attributes shared by all niches
 const baseProductData : ProductBase = {
   category_niche_id : undefined, 
@@ -40,6 +40,8 @@ const baseProductData : ProductBase = {
   show_reviews : true ,
   show_social_share : true ,
   allow_backorder : false ,
+  promotion_ids : [] , 
+   coupon_ids : []
   };
  
   return baseProductData ; 
@@ -48,7 +50,6 @@ const baseProductData : ProductBase = {
 
 export const getEditedData = (
   product: ProductBase,
-  category?: Category
 ) => {
   const baseData : ProductBase = {
     id: product.id ?? undefined,
@@ -83,6 +84,8 @@ export const getEditedData = (
     show_reviews : product.show_reviews ?? true,
     show_social_share : product.show_social_share ?? true ,
     allow_backorder : product.allow_backorder ?? false,
+    coupon_ids : product.coupon_ids ,
+     promotion_ids : product.promotion_ids
   };
   return baseData ;
 };

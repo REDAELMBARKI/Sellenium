@@ -18,7 +18,7 @@ use Inertia\Inertia;
 class ProductController extends Controller
 {
   
-     public function __construct(private CategoryService $categoryService)
+     public function __construct(private CategoryService $categoryService , private ProductService $productService)
      {
     
      }
@@ -71,12 +71,12 @@ class ProductController extends Controller
     /*
         publiches the draft afeter validation
     */
-    public function publish(PublishProductRequest $publishProductRequest  , ProductService $service , Product $product)
+    public function publish(PublishProductRequest $publishProductRequest , Product $product)
     {
-        if(!$service->isPublishable($product)){
+        if(!$this->productService->isPublishable($product)){
             return response()->json(['message' =>  'some fileds are missing ']) ;
         }
-        $service->publish($product);
+        $this-> productService->publish($product);
         // store product data
         return redirect()->back()->with('success', 'Product published successfully');
 
@@ -88,7 +88,9 @@ class ProductController extends Controller
     */
 
     public function  updateOnSubmit(PublishProductRequest $publishProductRequest , Product $product){
-
+            $payload = $publishProductRequest->validated();
+            $this->productService->saveDraft($payload , $product);
+            return redirect()->route('drafts.index')->with('success','product saved ');
     }
 
 
@@ -97,8 +99,9 @@ class ProductController extends Controller
 
     */
 
-    public function updateOnPageLeave(StoreDraftProductRequest $request , Product $product){
-
+    public function updateOnPageLeave(StoreDraftProductRequest $draftRequest , Product $product){
+            $payload = $draftRequest->validated();
+            $this->productService->saveDraft($payload , $product );
     }
 
 

@@ -1,6 +1,8 @@
 <?php
 namespace App\Services\product\validation;
 
+use Illuminate\Validation\Rule;
+
 class DraftsValidation
 {
     public static function rules(): array
@@ -150,7 +152,9 @@ class DraftsValidation
             'variants.*.compare_price'          => ['nullable', 'numeric', 'min:0'],
             'variants.*.stock'                  => ['nullable', 'integer', 'min:0'],
             'variants.*.sku'                    => ['nullable', 'string'],
-            'variants.*.imageUrl'               => ['nullable', 'string', 'url'],
+            'variants.*.image'               => ['nullable', 'array'],
+            'variants.*.image.id'               => ['nullable', 'integer' , Rule::exists('media' , 'id')],
+            'variants.*.image.url'               => ['nullable', 'string' , Rule::exists('media' , 'url')], // this i sjust to optional 
             'variants.*.isOpen'                 => ['nullable', 'boolean'],
             'variants.*.attrs'                  => ['nullable', 'array'],
             // attrs values can be a plain string or a color object {hex, name}

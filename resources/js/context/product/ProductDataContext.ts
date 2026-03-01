@@ -1,5 +1,5 @@
 
-import { ProductSchemaType } from "@/shemas/productCreateform"
+import { ProductSchemaType } from "@/shemas/productSchema"
 import { Category } from "@/types/inventoryTypes"
 import { ProductBase } from "@/types/products/ProductTypes"
 import { createContext, Dispatch, RefObject, SetStateAction } from "react"

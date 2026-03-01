@@ -60,7 +60,6 @@ export default function GenerateModal({
 
   const comboKey = (combo: Record<string, string>) => Object.values(combo).join(" / ");
 
-  // ✅ fixed: color now lives in attrs.color as { hex, name }
   const alreadyAdded = (combo: Record<string, string>) =>
     existingVariants.some((v) => {
       const vKey = activeOptions.map((o) => {
@@ -91,13 +90,16 @@ export default function GenerateModal({
         });
 
         return {
-          id: `gen-${Date.now()}-${i}`,
+          variant_id: `gen-${Date.now()}-${i}`,
           attrs,
           price: defaultVariantsPrice,
           compare_price : defaultVariantsPrice , 
           stock: "",
           sku: null,
-          imageUrl: null,
+          image : {
+            id : null , 
+            url : ''
+          },
           isOpen: true,
         };
       });

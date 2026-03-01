@@ -12,7 +12,7 @@ import React from 'react';
 import SwitchToggler from '@/components/ui/SwitchToggler'; // adjust path to yours
 import { ProductBase } from '@/types/products/ProductTypes';
 import { Controller } from 'react-hook-form';
-import { ProductSchemaType } from '@/shemas/productCreateform';
+import { ProductSchemaType } from '@/shemas/productSchema';
 
 
 

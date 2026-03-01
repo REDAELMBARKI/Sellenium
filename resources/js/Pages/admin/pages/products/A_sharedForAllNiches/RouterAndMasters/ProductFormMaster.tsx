@@ -10,32 +10,19 @@ import adapters from '@/functions/product/adapters';
 import { Inertia } from '@inertiajs/inertia'
 import { route } from 'ziggy-js';
 import axios from 'axios';
-import { ProductSchemaType } from '@/shemas/productCreateform';
+import { ProductSchemaType } from '@/shemas/productSchema';
 import { router } from '@inertiajs/react';
 import LeaveModal from '@/components/ui/LeaveModel';
 import { useBackendInteraction } from '@/functions/product/useBackendInteractions';
+import { toBackendDataCleaners } from '@/functions/product/toBackendDataCleaners';
 
 const ProductFormMaster: React.FC = () => {
   const { state: { currentTheme } } = useStoreConfigCtx()
-  const { modeForm, draftId, handleSubmit: formHandleSubmit  ,getValues , formState : {isSubmitting ,isDirty} } = useProductDataCtx()
+  const { modeForm, draftId, handleSubmit: formHandleSubmit , watch  ,getValues , formState : {isSubmitting ,isDirty  ,errors} } = useProductDataCtx()
   const [showLeaveModal  ,setShowLeaveModal] = useState(false)
   const [pendingVisit , setPendingVisit] = useState<string>('')
-  function cleanAttributesForBackend(attributes: Record<string, any>) {
-    const cleaned: Record<string, any> = {}
-    Object.entries(attributes).forEach(([key, value]) => {
-      if (
-        Array.isArray(value) &&
-        value.length &&
-        typeof value[0] === 'object' &&
-        'id' in value[0]
-      ) {
-        cleaned[key] = value.map((v: { id: number }) => v.id)
-      } else {
-        cleaned[key] = value
-      }
-    })
-    return cleaned
-  }
+
+  const {cleanObjectToIids , cleanAttributesForBackend} = toBackendDataCleaners()
   const {save , destroyDraftProduct} =useBackendInteraction();
   const isLeavingRef = useRef(false);
   useEffect(() => {
@@ -53,6 +40,11 @@ const ProductFormMaster: React.FC = () => {
   }, []);
 
 
+  // errors 
+  useEffect(() => {
+    console.log(errors)
+  }, [errors]);
+
   const onSubmit = (data: ProductSchemaType) => {
     const payload = {
       ...data,
@@ -67,6 +59,7 @@ const ProductFormMaster: React.FC = () => {
 
 
   useEffect(() => {
+  // if(isLeavingRef.current) return ;
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = ''; // required for Chrome
@@ -98,7 +91,7 @@ const ProductFormMaster: React.FC = () => {
       product_attributes: cleanAttributesForBackend(data.product_attributes),
     }
     // save the proudct 
-    save("onLeave" , payload , 
+    save("draft.save.leave" , payload , 
        (errors) => console.log(errors)
       ,
       draftId.current) ; 
@@ -122,8 +115,13 @@ const ProductFormMaster: React.FC = () => {
     setPendingVisit(null);
   };
 
+
+
   return (
-    <form onSubmit={formHandleSubmit(onSubmit)}>
+    <form onSubmit={(e) => {
+        e.preventDefault()
+        formHandleSubmit(onSubmit)()
+    }}>
       {showLeaveModal && 
       <LeaveModal
           theme={currentTheme} 
@@ -160,9 +158,7 @@ const ProductFormMaster: React.FC = () => {
         >
           <Save />
             {
-            isSubmitting ? 
-              (modeForm === "create" ? "Create Product" : "Update Product")
-             : "submiting"
+                isSubmitting ? "Submitting..." : (modeForm === "create" ? "Create Product" : "Update Product")
             }
         </Button>
       </div>

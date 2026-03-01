@@ -9,7 +9,7 @@ const colorSchema = z.object({
 });
 
 export const variantSchema = z.object({
-  id: z.string().optional(),
+  variant_id: z.string().optional(),
   price: z
     .number({ required_error: "Price is required", invalid_type_error: "Price must be a number" })
     .min(0, "Price must be positive"),
@@ -22,7 +22,10 @@ export const variantSchema = z.object({
     .number({ required_error: "Stock is required", invalid_type_error: "Stock must be a number" })
     .min(0, "Stock must be 0 or more"),
   sku: z.string().min(1, "SKU is required"),
-  imageUrl: z.string().url("Image URL must be a valid URL"),
+  image: z.object({
+       url: z.string().optional(),
+    id: z.number().nullable().optional(),
+  }).optional(),
   isOpen: z.boolean({ required_error: "isOpen is required" }),
   attrs: z
     .record(z.string(), z.union([z.string(), colorSchema]))

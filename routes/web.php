@@ -117,9 +117,8 @@ Route::get('/products/{product}' , [ProductController::class, 'show']) ;
 Route::post('/products' , [ProductController::class, 'storeDraft'])->name('products.storeDraft');
 Route::patch('/products/{product}/publish' , [ProductController::class, 'publish'])->name('product.publish');
 Route::delete('/products/{product}' , [ProductController::class, 'destroy'])->name("product.destroy") ;
-Route::put('/products/{product}' , [ProductController::class, 'updateOnPageLeave'])->name('product.update.onLeave');
-Route::put('/products/{product}' , [ProductController::class, 'updateOnSubmit'])->name('product.update.onSubmit');
-
+Route::put('/products/{product}/leave',  [ProductController::class, 'updateOnPageLeave'])->name('draft.save.leave');
+Route::put('/products/{product}/submit', [ProductController::class, 'updateOnSubmit'])->name('draft.save.submit');
 // media section
 // store media route
 Route::post('/media' , [MediaController::class, 'store'])->name('media.store') ;

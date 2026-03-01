@@ -9,7 +9,7 @@ import { CategoriesList } from './../../Pages/admin/pages/categories/CategoriesL
 import { ProductBase } from '@/types/products/ProductTypes';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { productSchema } from '@/shemas/productCreateform';
+import { productSchema } from '@/shemas/productSchema';
 
 
 
@@ -18,24 +18,16 @@ import { productSchema } from '@/shemas/productCreateform';
 
 
 
-const ProductDataProvider = ({children , data : {product , categoryObject , options  } }:ProductBackendProps) => {
-
-
-     useEffect(() => {
-        setCategory(categoryObject)
-    }, [categoryObject]); 
-  
+const ProductDataProvider = ({children , data : {product , options  } }:ProductBackendProps) => {
     const getInitialData = (mode: ModeForm, product?: ProductBase ,category?: Category ) => {
-      if (mode === "create") return getEmptyInitialProductData(category);
-      if (mode === "edit" && product) return getEditedData(product, category);
+      if (mode === "create") return getEmptyInitialProductData();
+      if (mode === "edit" && product) return getEditedData(product);
       throw new Error("Invalid state");
       };
       
     const modeForm : ModeForm = product ? "edit" : "create" ; 
    
-    const initialData = getInitialData(modeForm, product , categoryObject);
-    const [productData ,   setProductData] = useState<ProductBase | undefined>(() => product)
-    const [category , setCategory] = useState(categoryObject) ;
+    const initialData = getInitialData(modeForm, product);
     const [nicheCategory , setNicheCategory] = useState<Category[]>() ; 
     const draftId = useRef<string | undefined>(product?.id ?? null);
     const { register, handleSubmit, getValues, control, formState  , setError, watch, setValue } = useForm<ProductBase>({

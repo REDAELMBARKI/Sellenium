@@ -33,7 +33,7 @@ class MediaController extends Controller
     public function store(MediaRequest $request){
         $exists = array_key_exists(strtolower($request->model_type), $this->mediables) ;
         if(! $exists){
-             return response()->json(['message' => 'this model type is not exists'],404);
+            return response()->json(['message' => 'this model type is not exists'],404);
         }
         $mediableInstance = $this->mediables[$request->model_type];
         $mediable = $mediableInstance::find($request->model_id) ?? null;

@@ -15,7 +15,12 @@ class ProductVariant extends Model
 
 
 
-    protected $guarded = ["id"];
+    protected $fillable = ['product_id' , 'price','sku' ,  'compare_price', 'is_default',  'stock', 'attrs'];
     protected $casts = ['attributes' => 'array'] ;
+
+
+    public function media(){
+        return $this->morphOne(Media::class , 'mediaable');
+    }
 
 }

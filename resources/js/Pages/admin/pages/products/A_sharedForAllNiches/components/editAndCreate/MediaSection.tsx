@@ -52,8 +52,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
         try {
             setUploadError(null);
             setImageUploading(true);
-            const data = await uploadProductFiles(file, "cover", "Product", draftId.current);
-            if (!draftId.current) draftId.current = data.draft_id;
+            const data = await uploadProductFiles(file, "gallery", "product", draftId.current);
             const updated = [...covers, { url: data.media.url, id: data.media.id }];
             setCoversPreview(updated);
             setValue('covers', updated, { shouldValidate: true }); // ← tell useForm
