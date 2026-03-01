@@ -57,7 +57,6 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
     const [showRelated, setShowRelated] = useState(false);
     const [showMarketing, setShowMarketing] = useState(false);
 
-    const isMountedRef = useRef<boolean>(false);
     const mediaRef = useRef<HTMLDivElement | null>(null);
     const attributesRef = useRef<HTMLDivElement | null>(null);
     const variantRef = useRef<HTMLDivElement | null>(null);
@@ -117,7 +116,6 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
                     {errors.category_niche_id && (
                         <p className="text-red-500 text-xs mt-1">{errors.category_niche_id.message as string}</p>
                     )}
-                    <NotifyUser message="choose the category so related category sections would appear" />
                 </section>
 
                 {/* Base form */}

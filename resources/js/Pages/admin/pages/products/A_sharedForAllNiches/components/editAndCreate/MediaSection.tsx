@@ -33,7 +33,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
     const { watch, setValue, draftId } = useProductDataCtx();
 
     const covers = watch('covers') as Cover[] || [];
-    const video = watch('video') || [];
+    const video = Array.isArray(watch('video')) ? watch('video') : [];
 
     const [coversPreview, setCoversPreview] = useState<Cover[]>(covers);
     const [isDragging, setIsDragging] = useState(false);
@@ -183,7 +183,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                 label: (
                                     <div className="flex items-center space-x-2">
                                         <span>iFrame</span>
-                                        <span className={`w-3 h-3 rounded-full ${video.some((v) => v?.media_type === "iframe") ? "bg-green-500" : "bg-gray-400"}`} />
+                                        <span className={`w-3 h-3 rounded-full ${video?.some((v) => v?.media_type === "iframe") ? "bg-green-500" : "bg-gray-400"}`} />
                                     </div>
                                 ),
                                 Icon: Plus,

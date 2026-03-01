@@ -24,6 +24,7 @@ import BadgePicker from '../BadgePicker';
 import SwitchToggler from '@/components/ui/SwitchToggler';
 import { Input } from '@/components/ui/input';
 import { ThemedTextarea } from './ThemedInput';
+import NotifyUser from '@/components/ui/NotifyUser';
 
 countries.registerLocale(enLocale);
 const countryList = Object.entries(countries.getNames("en")).map(([code, name]) => ({
@@ -108,6 +109,12 @@ export function RightSectionComponent() {
           {errors.sub_categories && (
             <p className="text-red-500 text-xs mt-1">{errors.sub_categories.message as string}</p>
           )}
+          {
+            (!category && sub_categories.length < 1) ? 
+            <NotifyUser message="choose a niche category first" />
+            :
+            null 
+          }
         </div>
       </SectionWrapper>
 

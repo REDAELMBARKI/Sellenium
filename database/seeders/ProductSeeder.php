@@ -12,6 +12,23 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        Product::factory()->count(  10)->create();
+            // ProductSeeder.php
+           Product::factory(10)->create()->each(function ($product) {
+
+            // thumbnail
+            $product->thumbnail()->create([
+                'url' => '/storage/products/1.jpg',
+            ]);
+
+            // covers
+            $product->covers()->createMany([
+                ['url' =>  '/storage/products/2.jpg'],
+                ['url' =>  '/storage/products/3.jpg'],
+            ]);
+
+           
+
+          
+        });
     }
 }

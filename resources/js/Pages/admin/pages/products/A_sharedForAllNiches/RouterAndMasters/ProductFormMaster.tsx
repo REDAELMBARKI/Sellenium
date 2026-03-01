@@ -15,6 +15,7 @@ import { router } from '@inertiajs/react';
 import LeaveModal from '@/components/ui/LeaveModel';
 import { useBackendInteraction } from '@/functions/product/useBackendInteractions';
 import { toBackendDataCleaners } from '@/functions/product/toBackendDataCleaners';
+import { json } from 'zod';
 
 const ProductFormMaster: React.FC = () => {
   const { state: { currentTheme } } = useStoreConfigCtx()
@@ -131,7 +132,7 @@ const ProductFormMaster: React.FC = () => {
       /> }
       {/* edit and create form */}
       <div className='flex'>
-
+       
         <ProductCrEdForm />
         <RightSectionComponent />
       </div>

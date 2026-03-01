@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { Plus, Tag, TagIcon, Trash2 } from 'lucide-react';
+import { Plus, Tag, TagIcon, Trash2, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import { Input } from './ui/input';
 import EmptyListSection from '@/admin/components/partials/EmptyListSection';
+import { route } from 'ziggy-js';
+import axios from 'axios';
 
 interface TagInputProps {
   tags: string[];
@@ -14,10 +16,11 @@ const TagSection: React.FC<TagInputProps> = ({ tags }) => {
   const [inputValue, setInputValue] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const [suggestions, setSuggestions] = useState<string[]>(['winter', 'summer']);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const { state: { currentTheme } } = useStoreConfigCtx();
   const { setValue } = useProductDataCtx();
@@ -49,16 +52,34 @@ const TagSection: React.FC<TagInputProps> = ({ tags }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!inputValue.trim()) return;
+    const timeout = setTimeout(async () => {
+      try {
+        setLoading(true);
+        const { status, data } = await axios.get(route('tags.suggest', { q: inputValue }));
+        if (status === 200) {
+          setSuggestions(data.map((t: any) => t.name));
+        }
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [inputValue]);
+
   const addTag = (tag: string) => {
     const trimmed = tag.trim();
     if (!trimmed || tags.includes(trimmed)) return;
-    setValue('tags', [...tags, trimmed]);
+    setValue('tags', [...tags, trimmed] , { shouldValidate: true });
     setInputValue('');
     setShowSuggestions(false);
   };
 
   const removeTag = (tagToRemove: string) => {
-    setValue('tags', tags.filter((t) => t !== tagToRemove));
+    setValue('tags', tags.filter((t) => t !== tagToRemove) , { shouldValidate: true });
   };
 
   const handleAddClick = (e: React.MouseEvent) => {
@@ -79,13 +100,11 @@ const TagSection: React.FC<TagInputProps> = ({ tags }) => {
     <div className="space-y-4">
       <style>{`
         .search-box { display:flex; max-width:100%; align-items:center; justify-content:space-between; gap:8px; border-radius:0.375rem; position:relative; background:${currentTheme.bg}; border:2px solid ${currentTheme.border}; }
-        .search-button { color:white; position:absolute; right:4px; width:30px; height:35px; border-radius:0.375rem; background:${currentTheme.primary}; border:0; display:inline-flex; align-items:center; justify-content:center; transition: all 300ms cubic-bezier(.23,1,.32,1); cursor:pointer; }
-        .search-button:hover { background-color:${currentTheme.primaryHover}; box-shadow: rgba(0,0,0,0.3) 0 10px 20px; transform: translateY(-3px); }
-        .search-button:active { box-shadow:none; transform:translateY(0); }
+        .search-button { position:absolute; right:6px; width:30px; height:30px; border-radius:0.5rem; background:${currentTheme.accent}20; border:0; display:inline-flex; align-items:center; justify-content:center; transition: background 200ms ease; cursor:pointer; }
+        .search-button:hover { background:${currentTheme.accent}40; }
+        .search-button:active { background:${currentTheme.accent}60; transform: scale(0.95); }
         .search-input { border:none; background:none; outline:none; color:${currentTheme.text}; font-size:15px; padding:16px 60px 16px 20px; width:100%; font-weight:500; border-radius:0.375rem; }
         .search-input::placeholder { color:${currentTheme.text}; opacity:0.5; }
-        .suggestion-tag { transition: all 200ms cubic-bezier(.23,1,.32,1); }
-        .suggestion-tag:hover { transform: translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
         .themed-scroll { scrollbar-width: thin; scrollbar-color: ${currentTheme.accent} transparent; }
         .themed-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
         .themed-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -104,30 +123,48 @@ const TagSection: React.FC<TagInputProps> = ({ tags }) => {
             placeholder="Type a tag..."
             className="search-input"
           />
-          <Button  type="button" onClick={handleAddClick} className="search-button">
-            <Plus className="w-6 h-6" color={currentTheme.accent} />
+          <Button type="button" onClick={handleAddClick} className="search-button">
+            {loading
+              ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: currentTheme.accent }} />
+              : <Plus className="w-4 h-4" style={{ color: currentTheme.accent }} />
+            }
           </Button>
         </div>
 
-        {showSuggestions && filteredSuggestions.length > 0 && (
+        {/* Dropdown */}
+        {(showSuggestions || loading) && (
           <div
             ref={dropdownRef}
-            className="absolute z-50 w-full mt-2 rounded-md shadow-lg overflow-hidden"
-            style={{ backgroundColor: currentTheme.bg, borderWidth: '2px', borderColor: currentTheme.border }}
+            className="absolute z-50 w-full mt-1 rounded-xl shadow-lg overflow-hidden"
+            style={{
+              backgroundColor: currentTheme.bg,
+              border: `1px solid ${currentTheme.border}`,
+            }}
           >
-            <div className="max-h-48 overflow-y-auto themed-scroll">
-              {filteredSuggestions.map((s) => (
-                <Button
-                  key={s}
-                  type="button"
-                  onClick={() => addTag(s)}
-                  className="w-full px-5 py-3 text-left transition-colors font-medium"
-                  style={{ color: currentTheme.textInverse, background: currentTheme.secondary }}
-                >
-                  {s}
-                </Button>
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex items-center gap-2 px-4 py-3" style={{ color: currentTheme.textSecondary }}>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span className="text-xs">Searching...</span>
+              </div>
+            ) : (
+              <div className="max-h-48 overflow-y-auto themed-scroll flex flex-col gap-0.5 p-1">
+                {filteredSuggestions.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => addTag(s)}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-left"
+                    style={{ color: currentTheme.text, backgroundColor: 'transparent' }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = `${currentTheme.accent}15`)}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                  >
+                    <TagIcon className="w-3.5 h-3.5 shrink-0" style={{ color: currentTheme.accent }} />
+                    <span className="capitalize">{s}</span>
+                    <Plus className="w-3 h-3 ml-auto opacity-40" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -144,10 +181,9 @@ const TagSection: React.FC<TagInputProps> = ({ tags }) => {
         }}
       >
         {tags.length === 0 ? (
-    
-          <EmptyListSection 
-          Icon={Tag} 
-          description='Add tags to organize your product'
+          <EmptyListSection
+            Icon={Tag}
+            description='Add tags to organize your product'
           />
         ) : (
           <div className="flex flex-col gap-1">

@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PublishProductRequest;
 use App\Http\Requests\StoreDraftProductRequest;
 use App\Http\Resources\ProductResources;
+use App\Http\Resources\ProductTest;
 use App\Services\product\ProductService;
 use App\Models\Category;
 use App\Models\Media;
 use App\Models\Product;
 use App\Models\ShippingSetting;
+use App\Models\Tag;
 use App\Services\CategoryService;
 use Illuminate\Auth\Access\Gate;
 use Illuminate\Http\Request;
@@ -115,7 +117,8 @@ class ProductController extends Controller
         return inertia::render("admin/pages/products/Create" ,[
                 "data" => [
                     'categoryObject' => $product->nichCategory(),
-                    'product' => (new ProductResources($product)),
+                    // 'product' => (new ProductResources($product)),
+                    'product' => (new ProductTest($product)),
                     'options' => [
                         'categories' => Category::whereNull('parent_id')->select(['id' , 'name'])->get() ,
                         'fits' => collect([
@@ -171,4 +174,30 @@ class ProductController extends Controller
     public function show(){
        return inertia::render('products/Show');
     }
+
+
+
+      public function suggest(Request $request){
+        //   $request->validate(['q' => ['string' , 'min:2']]);
+        //   $query = $request->validated("q");
+        //   $excludes = $request->validated("excludes") ?? [];
+          $excludes = $request->input('exclude', []);
+          $query = $request->input('q', '');
+
+          if (empty($query)) {
+               return response()->json([], 200); // return nothing if empty
+          }
+
+          $products = Product::select('id', 'name' , 'slug')
+            ->where(function($q) use ($query) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$query}%"])
+                ->orWhereRaw('LOWER(slug) LIKE ?', ["%{$query}%"]);
+            })
+            ->whereNotIn("id" , $excludes)
+            ->with('thumbnail')
+            ->limit(10)
+            ->get();
+        
+        return response()->json($products,200);
+     }
 }

@@ -20,7 +20,7 @@ export const variantSchema = z.object({
     .optional(),
   stock: z
     .number({ required_error: "Stock is required", invalid_type_error: "Stock must be a number" })
-    .min(0, "Stock must be 0 or more"),
+    .min(1, "Stock must be 1 or more"),
   sku: z.string().min(1, "SKU is required"),
   image: z.object({
     url: z.string().optional(),
@@ -99,7 +99,7 @@ export const productSchema = z.object({
 
   // optional
   brand: z.string().optional(),
-  releaseDate: z.string().optional(),
+  releaseDate: z.number().optional(),
   madeCountry: z.string().optional(),
 
   // single product specific
@@ -124,7 +124,7 @@ export const productSchema = z.object({
   isFreeShipping: z.boolean({ required_error: "isFreeShipping is required" }),
 
   thumbnail: coverSchema,
-  video: z.array(videoSchema).default([]),
+  video: z.array(videoSchema).nullable().default([]),
   covers: z.array(coverSchema).nullable(),
 
   inventory: inventorySchema,

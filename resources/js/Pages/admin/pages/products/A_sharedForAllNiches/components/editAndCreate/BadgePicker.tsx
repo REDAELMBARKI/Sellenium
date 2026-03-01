@@ -17,9 +17,8 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 export default function BadgePicker({ currentTheme}: { currentTheme: any }) {
   const { watch, setValue , options} = useProductDataCtx();
-  
   const value: string | null = watch('badge_text') ?? null;
-  const BADGE_OPTIONS = (options.badges).map(b => {
+  const BADGE_OPTIONS = (options.badges || [] ).map(b => {
         return {
                 ...b ,
                 icon : ICON_MAP[b.icon] ?? Ban

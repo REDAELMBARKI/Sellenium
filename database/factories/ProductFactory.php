@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -9,90 +10,52 @@ class ProductFactory extends Factory
 {
     public function definition(): array
 {
-    $name = $this->faker->words(rand(2, 4), true);
-
     return [
-        'name'              => ucwords($name),
-        'slug'              => Str::slug($name) . '-' . $this->faker->unique()->numberBetween(1, 9999),
-        'brand'             => $this->faker->randomElement([
-                                'Apple', 'Samsung', 'Dell', 'HP', 'Lenovo', 'Xiaomi', 'Sony', 'Nike', 'Adidas'
-                               ]),
-        'description'       => $this->faker->paragraphs(3, true),
-        'madeCountry'       => $this->faker->randomElement(['Morocco', 'China', 'USA', 'Germany', 'Vietnam', 'Japan']),
-        'releaseDate'       => $this->faker->date(),
-        'badge_text'        => $this->faker->randomElement(['New', 'Hot', 'Sale', 'Limited', null]),
-        'category_niche_id' => null,
-
-        'isFeatured'            => $this->faker->boolean(20),
-        'allow_backorder'       => $this->faker->boolean(20),
-        'show_countdown'        => $this->faker->boolean(50),
-        'show_reviews'          => true,
+        'name'              => $this->faker->words(4, true),
+        'brand'             => $this->faker->company(),
+        'category_niche_id' => Category::where('parent_id' , null)->first()->id,
+        'description'       => $this->faker->paragraphs(2, true),
+        'isFeatured'        => $this->faker->boolean(),
+        'madeCountry'       => $this->faker->countryCode(),
+        'releaseDate'       => (string) $this->faker->numberBetween(2015, 2024),
+        'badge_text'        => $this->faker->randomElement(['Hot', 'New', 'Sale', null]),
+        'allow_backorder'   => $this->faker->boolean(),
+        'show_countdown'    => true,
+        'show_reviews'      => true,
         'show_related_products' => true,
-        'show_social_share'     => true,
-
-        'status'            => $this->faker->randomElement(['draft', 'published']),
-        'ready_to_publish'  => $this->faker->boolean(60),
-        'quality_score'     => $this->faker->numberBetween(40, 100),
-
-        'rating_average'    => $this->faker->boolean(70)
-                                ? $this->faker->randomFloat(2, 3.5, 5)
-                                : null,
-        'rating_count'      => $this->faker->numberBetween(0, 500),
-
-        'inventory'         => [
-            'backorderOptions'  => $this->faker->randomElement(['deny', 'notify', 'allow']),
-            'trackInventory'    => $this->faker->boolean(80),
-            'lowStockThreshold' => $this->faker->numberBetween(1, 20),
-            'stockStatus'       => $this->faker->randomElement(['in_stock', 'out_of_stock', 'discontinued']),
-            'weight'            => $this->faker->randomFloat(2, 0.1, 20),
-            'weightUnit'        => $this->faker->randomElement(['kg', 'g', 'lb', 'oz']),
-            'dimensions'        => [
-                'length' => $this->faker->randomFloat(1, 5, 100),
-                'width'  => $this->faker->randomFloat(1, 5, 100),
-                'height' => $this->faker->randomFloat(1, 2, 60),
-                'unit'   => $this->faker->randomElement(['cm', 'in', 'mm']),
-            ],
-            'warehouseLocation' => 'Zone-' . $this->faker->randomElement(['A', 'B', 'C']) . '-' . $this->faker->numberBetween(1, 50),
-            'fulfillmentType'   => $this->faker->randomElement(['', 'dropship', 'third_party']),
+        'show_social_share' => true,
+        'inventory' => [
+            'backorderOptions'   => 'deny',
+            'trackInventory'     => true,
+            'lowStockThreshold'  => 5,
+            'stockStatus'        => 'in_stock',
+            'weight'             => 1.5,
+            'weightUnit'         => 'kg',
+            'dimensions'         => ['length' => 20, 'width' => 15, 'height' => 10, 'unit' => 'cm'],
+            'warehouseLocation'  => 'A1-B2',
+            'fulfillmentType'    => 'dropship',
         ],
-
-        'shipping'          => [
-            'shippingClass'         => $this->faker->randomElement(['', 'express', 'pickup']),
-            'handlingTime'          => $this->faker->numberBetween(1, 7),
-            'shippingCostOverride'  => $this->faker->boolean(30)
-                                        ? $this->faker->randomFloat(2, 2, 30)
-                                        : null,
-            'isReturnable'          => $this->faker->boolean(70),
-            'returnWindow'          => $this->faker->numberBetween(7, 30),
-            'returnPolicy'          => $this->faker->randomElement(['free_return', 'customer_pays']),
+        'shipping' => [
+            'shippingClass'        => 'express',
+            'shippingCostOverride' => 9.99,
+            'isReturnable'         => true,
+            'returnWindow'         => 30,
+            'returnPolicy'         => 'free_return',
         ],
-
-        'meta'              => [
-            'metaTitle'       => $this->faker->sentence(6),
-            'metaDescription' => $this->faker->sentence(15),
+        'meta' => [
+            'metaTitle'       => $this->faker->words(6, true),
+            'metaDescription' => $this->faker->sentence(20),
         ],
-
-        'vendor'            => [
+        'vendor' => [
             'vendorName'  => $this->faker->company(),
-            'vendorSku'   => strtoupper(Str::random(3)) . '-' . $this->faker->numberBetween(1000, 9999),
-            'vendorNotes' => $this->faker->boolean(40) ? $this->faker->sentence() : null,
+            'vendorSku'   => strtoupper($this->faker->bothify('SUP-####')),
+            'vendorNotes' => $this->faker->sentence(),
         ],
-
-        'faqs'              => collect(range(1, rand(0, 3)))->map(fn() => [
-            'question' => $this->faker->sentence() . '?',
-            'answer'   => $this->faker->paragraph(),
-        ])->toArray(),
-
-        'related_product_ids'   => [],
-
-        'aggregated_attributes' => [
-            'colors' => $this->faker->randomElements(
-                            ['black', 'white', 'red', 'blue', 'silver', 'gold'], rand(1, 3)
-                         ),
-            'sizes'  => $this->faker->randomElements(
-                            ['XS', 'S', 'M', 'L', 'XL', 'XXL'], rand(1, 4)
-                         ),
+        'faqs' => [
+            ['question' => 'What is the warranty?',       'answer' => '1 year manufacturer warranty.'],
+            ['question' => 'Is free shipping available?', 'answer' => 'Yes on orders over $50.'],
         ],
+        'related_product_ids' => [],
     ];
 }
 
