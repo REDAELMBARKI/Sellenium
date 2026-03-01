@@ -5,11 +5,7 @@ import SwitchToggler from '@/components/ui/SwitchToggler';
 import SingleProductPricingSection from './SingleProductPricingSection';
 import VariantBuilder from '../../variantBuilder/VariantBuilder';
 
-function PricingOrVariants({
-  frontEndErrors,
-}: {
-  frontEndErrors: Record<string, string>;
-}) {
+function PricingOrVariants() {
   const {
     state: { currentTheme },
   } = useStoreConfigCtx();
@@ -74,7 +70,7 @@ function PricingOrVariants({
 
       {/* ── Content swap ── */}
       {!variantsEnabled
-        ? <SingleProductPricingSection frontEndErrors={frontEndErrors} />
+        ? <SingleProductPricingSection  />
         : <VariantBuilder />
       }
     </div>

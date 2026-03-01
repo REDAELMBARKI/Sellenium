@@ -1,3 +1,4 @@
+import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 
 
@@ -8,19 +9,18 @@ interface EmptyListSectionProps {
 }
 
 
-const EmptyListSection = ({Icon , label , description}:EmptyListSectionProps) => {
-    return (<>
-    
-        <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-12 text-center" 
-        >
-            <Icon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <div className="text-gray-500 font-medium text-lg">{label}</div>
-            <div className="text-gray-400 text-sm mt-1">{description}</div>
-          </div>
-
-    
-    </>)
+// ─── Empty State ──────────────────────────────────────────────────────────────
+ function EmptyListSection({ description , Icon}: {Icon : React.ElementType, description: string }) {
+  const {state :{currentTheme} } = useStoreConfigCtx()
+  return (
+    <div className="flex flex-col items-center justify-center py-8 rounded-lg"
+      style={{ border: `2px dashed ${currentTheme.border}`, backgroundColor: currentTheme.bg }}>
+      <Icon size={28} className="mb-2 opacity-25" style={{ color: currentTheme.textMuted }} />
+      <p className="text-xs" style={{ color: currentTheme.textMuted }}>{description}</p>
+    </div>
+  );
 }
+
 
 
 

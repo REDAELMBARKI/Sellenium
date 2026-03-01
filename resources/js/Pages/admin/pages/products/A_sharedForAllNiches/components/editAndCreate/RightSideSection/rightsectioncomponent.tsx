@@ -37,18 +37,11 @@ const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 const firstVal = (selected: AllowedObjectsType[]) => selected[0]?.value ?? '';
 
 export function RightSectionComponent() {
-  const { watch, register, control, setValue, formState: { errors } } = useProductDataCtx();
+  const { watch, register, control, setValue, formState: { errors } , options } = useProductDataCtx();
   const { state: { currentTheme } } = useStoreConfigCtx()
-  const [subCategories, setSubCategories] = useState<Category[]>([
-    { id: '1', name: 'Smartphones' },
-    { id: '2', name: 'Laptops' },
-    { id: '3', name: 'Tablets' },
-    { id: '4', name: 'Headphones' },
-    { id: '5', name: 'Smartwatches' },
-    { id: '6', name: 'Cameras' },
-    { id: '7', name: 'Gaming Consoles' },
-  ]);
+  const [subCategories, setSubCategories] = useState<Category[]>([]);
 
+  console.log('options' , options)
   const category = watch('category_niche_id');
   const sub_categories = watch('sub_categories');
   const tags = watch('tags');
@@ -78,7 +71,7 @@ export function RightSectionComponent() {
     setValue('sub_categories', []);
     const getSubCategories = async () => {
       try {
-        const res = await axios.get(route('get.subCategories'), {
+        const res = await axios.get(route('get.sub_categories'), {
           params: { 'parent_id': category }
         })
         setSubCategories(res.data)
@@ -121,6 +114,7 @@ export function RightSectionComponent() {
       {/* Tags */}
       <SectionWrapper title="Tags / Keywords" icon={Tag}>
         <div>
+          
           <HoverInfoLabel
             htmlFor="tags / keywords"
             label="tags / keywords"
@@ -201,13 +195,13 @@ export function RightSectionComponent() {
             multiple={false}
             label="backorder options"
             options={[
-              { label: 'Only if stock available', value: 'deny' },
+              { label: 'Deny', value: 'deny' },
               { label: 'Allow, but notify customer', value: 'notify' },
               { label: 'Allow', value: 'allow' },
             ]}
             selectedValues={inventory?.backorderOptions
-              ? [{ label: inventory.backorderOptions === 'notify' ? 'Allow, but notify customer' : 'Allow', value: inventory.backorderOptions }]
-              : [{ label: 'Do not allow', value: '' }]}
+              ? [{ label: inventory.backorderOptions, value: inventory.backorderOptions }]
+              : []}
             onChange={(selected) => setValue('inventory', { ...inventory, backorderOptions: firstVal(selected) as 'notify' | 'allow' }, { shouldValidate: true })}
           />
           {errors.inventory?.backorderOptions && (
@@ -253,7 +247,7 @@ export function RightSectionComponent() {
             ]}
             selectedValues={inventory?.stockStatus
               ? [{ label: inventory.stockStatus.replace('_', ' '), value: inventory.stockStatus }]
-              : [{ label: 'Auto (based on stock)', value: '' }]}
+              : []}
             onChange={(selected) => setValue('inventory', { ...inventory, stockStatus: firstVal(selected) as 'in_stock' | 'out_of_stock' | 'discontinued' }, { shouldValidate: true })}
           />
           {errors.inventory?.stockStatus && (
@@ -391,7 +385,7 @@ export function RightSectionComponent() {
             ]}
             selectedValues={inventory?.fulfillmentType
               ? [{ label: inventory.fulfillmentType, value: inventory.fulfillmentType }]
-              : []}
+              : [{ label: 'In-House (Own Stock)', value: 'in_house' }]}
             onChange={(selected) => setValue('inventory', { ...inventory, fulfillmentType: firstVal(selected) as string }, { shouldValidate: true })}
           />
           {errors.inventory?.fulfillmentType && (
@@ -414,12 +408,7 @@ export function RightSectionComponent() {
           <MultiSelectDropdownForObject
             multiple={false}
             label="shipping class"
-            options={[
-              { label: 'Livraison Standard (3-5 jours)', value: 'standard' },
-              { label: 'Livraison Express (24-48h)',      value: 'express' },
-              { label: 'Retrait en Magasin',              value: 'pickup' },
-              { label: 'Point Relais',                    value: 'relay' },
-            ]}
+            options={options.shipping_class}
             selectedValues={shipping?.shippingClass
               ? [{ label: shipping.shippingClass, value: shipping.shippingClass }]
               : [{ label: 'Standard', value: '' }]}
@@ -429,29 +418,6 @@ export function RightSectionComponent() {
             <p className="text-red-500 text-xs mt-1">{errors.shipping.shippingClass.message as string}</p>
           )}
         </div>
-
-        {/* Handling Time */}
-        <div>
-          <HoverInfoLabel
-            htmlFor="handlingTime"
-            label="Handling Time (days)"
-            tooltip="How many days to prepare this product before shipping"
-          />
-          <Input
-            type="number"
-            id="handlingTime"
-            value={shipping?.handlingTime ?? ''}
-            onChange={(e) => setValue('shipping', {
-              ...shipping,
-              handlingTime: e.target.value === '' ? null : Number(e.target.value)
-            }, { shouldValidate: true })}
-            placeholder="e.g. 2"
-          />
-          {errors.shipping?.handlingTime && (
-            <p className="text-red-500 text-xs mt-1">{errors.shipping.handlingTime.message as string}</p>
-          )}
-        </div>
-
         {/* Shipping Cost Override */}
         <div>
           <HoverInfoLabel

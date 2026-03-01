@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('free_shipping_threshold_items', )->nullable();       // 5 items
             $table->decimal('base_weight_kg', 8, 2)->nullable();           // 2kg
             $table->decimal('extra_kg_price', 8, 2)->nullable();           // 5 MAD/kg
+            $table->json("shipping_class");
             $table->timestamps();
         });
     }

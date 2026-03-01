@@ -4,6 +4,7 @@ import { Search, X, Link2, PackageSearch } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Input } from '@/components/ui/input';
+import EmptyListSection from '@/admin/components/partials/EmptyListSection';
 
 type SearchProduct = {
   id: number;
@@ -82,16 +83,6 @@ function SearchResultRow({ product, onSelect, isSelected, currentTheme }: {
   );
 }
 
-// ─── Empty State ──────────────────────────────────────────────────────────────
-function EmptySelected({ currentTheme }: { currentTheme: any }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-8 rounded-lg"
-      style={{ border: `2px dashed ${currentTheme.border}`, backgroundColor: currentTheme.bg }}>
-      <PackageSearch size={28} className="mb-2 opacity-25" style={{ color: currentTheme.textMuted }} />
-      <p className="text-xs" style={{ color: currentTheme.textMuted }}>No related products selected</p>
-    </div>
-  );
-}
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 function RelatedProductsSection() {
@@ -225,7 +216,10 @@ function RelatedProductsSection() {
 
       {/* Selected list */}
       {selectedProducts.length === 0 ? (
-        <EmptySelected currentTheme={currentTheme} />
+        <EmptyListSection
+          Icon={PackageSearch}
+          description='No related products selected'
+        />
       ) : (
         <div className="space-y-2">
           {selectedProducts.map((product) => (

@@ -7,10 +7,8 @@ import PricePreview from "../components/editAndCreate/PricePreview";
 import { Input } from "@/components/ui/input";
 import { variantSchema } from "@/shemas/productSchema";
 import { Button } from "@/components/ui/button";
-import { useBackendInteraction } from "@/functions/product/useBackendInteractions";
 import { productFilesUploaderCleaner } from "@/functions/product/productFilesUploaderCleaner";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
-import { string } from "zod";
 
 const OPTION_VALUES: Record<string, string[]> = {
   Size:         ["XS", "S", "M", "L", "XL", "XXL"],
@@ -32,6 +30,7 @@ interface VariantCardProps {
   onChange: (id: string, field: string, value: any) => void;
   onRemove: (id: string) => void;
   onDone: (id: string) => void;
+  onVariantImageUploaded: (hex: string, url: string) => void; // ✅ new
   theme: ThemePalette;
 }
 
@@ -47,6 +46,7 @@ interface CreateVariantFormProps {
   onChange: (id: string, field: string, value: any) => void;
   onRemove: (id: string) => void;
   onDone: () => void;
+  onVariantImageUploaded: (hex: string, url: string) => void; // ✅ new
   theme: ThemePalette;
   errors: any;
 }
@@ -63,10 +63,11 @@ function CreateVariantForm({
   colorHex, colorName,
   inheritedImage, overrideImage, setOverrideImage, imgRef,
   onChange, onRemove, onDone, theme,
+  onVariantImageUploaded,
   errors
 }: CreateVariantFormProps) {
 
-  const { uploadProductFiles , deleteMedia} = productFilesUploaderCleaner();
+  const { uploadProductFiles, deleteMedia } = productFilesUploaderCleaner();
   const { setValue, getValues } = useProductDataCtx();
   const inputClassName = "w-full px-5 py-4 rounded-xl font-medium shadow-sm";
   const inputStyle = (hasError?: boolean) => ({
@@ -81,7 +82,6 @@ function CreateVariantForm({
 
   const err = (field: string) => errors?.[field]?.[0];
 
-  // ── local state to prevent focus loss on every keystroke ─────────────────
   const [local, setLocal] = useState({
     price:         variant.price         ?? '',
     compare_price: variant.compare_price ?? '',
@@ -96,26 +96,30 @@ function CreateVariantForm({
   const handleBlur = (field: string) => {
     const value = local[field as keyof typeof local];
     if (field === 'sku') {
-      onChange(variant.variant_id, field, value); // ✅
+      onChange(variant.variant_id, field, value);
     } else {
-      onChange(variant.variant_id, field, value === '' ? null : Number(value)); // ✅
+      onChange(variant.variant_id, field, value === '' ? null : Number(value));
     }
   };
 
   const handleVariantImageUpload = async (variantId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      const file = e.target?.files![0] ;
+      const file = e.target?.files![0];
       if (file) {
-        const variantIdSnapshot = variantId; // ✅ capture before await
-        const {media} = await uploadProductFiles(file, 'gallery', 'variant');
+        const variantIdSnapshot = variantId; 
+        const { media } = await uploadProductFiles(file, 'gallery', 'variant');
         if (media) {
           const freshVariants = getValues('variants');
-          const newVariants = freshVariants.map(v => v.variant_id === variantIdSnapshot ? { // ✅
+
+          const targetVariant = freshVariants.find(v => v.variant_id === variantIdSnapshot);
+          const hex = (targetVariant?.attrs?.color as { hex: string } | undefined)?.hex;
+          if (hex) {
+            onVariantImageUploaded(hex, media.url);
+          }
+
+          const newVariants = freshVariants.map(v => v.variant_id === variantIdSnapshot ? {
             ...v,
-            image: {
-              url: media.url,
-              id: media.id
-            }
+            image: { url: media.url, id: media.id }
           } : v);
           setValue('variants', newVariants);
         }
@@ -126,14 +130,14 @@ function CreateVariantForm({
   };
 
   const handleRemoveVariantImage = (variant: Variant, imgId: string) => {
-    deleteMedia(imgId)
-    const updated = getValues('variants').map(v => 
-      v.variant_id === variant.variant_id 
-        ? { ...v, image: { url: '', id: undefined } } 
+    deleteMedia(imgId);
+    const updated = getValues('variants').map(v =>
+      v.variant_id === variant.variant_id
+        ? { ...v, image: { url: '', id: undefined } }
         : v
-    )
-    setValue('variants', updated)
-  }
+    );
+    setValue('variants', updated);
+  };
 
   return (
     <div style={{ padding: "0 16px 20px", borderTop: `1px solid ${theme.border}` }}>
@@ -144,7 +148,7 @@ function CreateVariantForm({
           <ColorPicker
             value={colorHex}
             onChange={(hex, name) => {
-              onChange(variant.variant_id, "attrs.color", { hex, name }); // ✅
+              onChange(variant.variant_id, "attrs.color", { hex, name });
               setOverrideImage(false);
             }}
             theme={theme}
@@ -165,7 +169,7 @@ function CreateVariantForm({
               <div style={{ position: "relative" }}>
                 <select
                   value={(variant.attrs?.[opt.toLowerCase()] as string) || ""}
-                  onChange={(e) => onChange(variant.variant_id, `attrs.${opt.toLowerCase()}`, e.target.value)} // ✅
+                  onChange={(e) => onChange(variant.variant_id, `attrs.${opt.toLowerCase()}`, e.target.value)}
                   className={inputClassName}
                   style={{ ...inputStyle(!!err(opt.toLowerCase())), cursor: "pointer", appearance: "none" as any }}
                 >
@@ -187,7 +191,6 @@ function CreateVariantForm({
       >
         <p className={sectionLabelClassName} style={{ color: theme.textMuted }}>Pricing</p>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
           <div>
             <label className={labelClassName} style={{ color: theme.text }}>Price</label>
             <Input
@@ -240,7 +243,6 @@ function CreateVariantForm({
       >
         <p className={sectionLabelClassName} style={{ color: theme.textMuted }}>Inventory</p>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
           <div>
             <label className={labelClassName} style={{ color: theme.text }}>
               Stock <span className="text-red-500">*</span>
@@ -302,55 +304,55 @@ function CreateVariantForm({
         ) : (
           <div className="flex items-center gap-4">
             {variant.image?.url ? (
-             <div style={{ position: "relative", width: 64, height: 64, flexShrink: 0 }}>
-              <img 
-                src={variant.image?.url} 
-                alt="" 
-                style={{ 
-                  width: 64, 
-                  height: 64, 
-                  objectFit: "cover", 
-                  borderRadius: 12, 
-                  border: `2px solid ${theme.border}`,
-                  display: "block"
-                }} 
-              />
-              <button 
-                type="button" 
-                onClick={() => handleRemoveVariantImage(variant , String(variant.image?.id) ?? '')} 
-                style={{ 
-                  position: "absolute", 
-                  top: -6, 
-                  right: -6, 
-                  background: theme.error, 
-                  border: "none", 
-                  borderRadius: "50%", 
-                  width: 20, 
-                  height: 20, 
-                  cursor: "pointer", 
-                  display: "flex", 
-                  alignItems: "center", 
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  padding: 0
-                }}
-              >
-                <Trash2 size={10} color="#fff" />
-              </button>
-            </div>
+              <div style={{ position: "relative", width: 64, height: 64, flexShrink: 0 }}>
+                <img
+                  src={variant.image?.url}
+                  alt=""
+                  style={{
+                    width: 64,
+                    height: 64,
+                    objectFit: "cover",
+                    borderRadius: 12,
+                    border: `2px solid ${theme.border}`,
+                    display: "block"
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveVariantImage(variant, String(variant.image?.id) ?? '')}
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    right: -6,
+                    background: theme.error,
+                    border: "none",
+                    borderRadius: "50%",
+                    width: 20,
+                    height: 20,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    padding: 0
+                  }}
+                >
+                  <Trash2 size={10} color="#fff" />
+                </button>
+              </div>
             ) : (
               <div onClick={() => imgRef.current?.click()} className="flex flex-col items-center justify-center gap-1 cursor-pointer" style={{ width: 64, height: 64, borderRadius: 10, border: `2px dashed ${theme.border}`, background: theme.bg, flexShrink: 0 }}>
                 <Upload size={16} color={theme.textMuted} />
                 <span style={{ fontSize: 9, color: theme.textMuted }}>upload</span>
               </div>
             )}
-            <Input ref={imgRef} type="file" accept="image/*" hidden onChange={(e) => handleVariantImageUpload(variant.variant_id, e)} /> {/* ✅ */}
+            <Input ref={imgRef} type="file" accept="image/*" hidden onChange={(e) => handleVariantImageUpload(variant.variant_id, e)} />
             <div>
               <p className="text-sm" style={{ color: theme.textSecondary }}>
                 {variant.image?.url ? "Custom image for this variant" : "Upload a specific image for this variant"}
               </p>
               {inheritedImage && (
-                <Button type="button" onClick={() => { onChange(variant.variant_id, "imageUrl", null); setOverrideImage(false); }} className="text-xs mt-1" style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 0 }}> {/* ✅ */}
+                <Button type="button" onClick={() => { onChange(variant.variant_id, "imageUrl", null); setOverrideImage(false); }} className="text-xs mt-1" style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 0 }}>
                   ← Use inherited image
                 </Button>
               )}
@@ -361,7 +363,7 @@ function CreateVariantForm({
 
       {/* Actions */}
       <div className="flex justify-end gap-3 mt-6">
-        <Button type="button" onClick={() => onRemove(variant.variant_id)} className="px-4 py-2 rounded-xl text-sm font-medium" style={{ border: `2px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}> {/* ✅ */}
+        <Button type="button" onClick={() => onRemove(variant.variant_id)} className="px-4 py-2 rounded-xl text-sm font-medium" style={{ border: `2px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}>
           Remove
         </Button>
         <Button type="button" onClick={onDone} className="px-6 py-2 rounded-xl text-sm font-semibold" style={{ background: theme.primary, border: "none", color: theme.textInverse, cursor: "pointer" }}>
@@ -375,7 +377,7 @@ function CreateVariantForm({
 // ─── Card ─────────────────────────────────────────────────────────────────────
 export default function VariantCard({
   variant, activeOptions, defaultVariantsPrice, colorImages,
-  onChange, onRemove, onDone, theme
+  onChange, onRemove, onDone, onVariantImageUploaded, theme
 }: VariantCardProps) {
 
   const [overrideImage, setOverrideImage] = useState(false);
@@ -391,8 +393,8 @@ export default function VariantCard({
     .filter(Boolean).join(" / ") || "New Variant";
 
   const inheritedImage = colorHex ? colorImages[colorHex] : null;
-  const displayImage   = variant.image.url || inheritedImage;
-  const isInherited    = !variant.image.url && !!inheritedImage;
+  const displayImage   = variant.image?.url || inheritedImage;
+  const isInherited    = !variant.image?.url && !!inheritedImage;
 
   const handleDone = () => {
     const result = variantSchema.safeParse(variant);
@@ -416,7 +418,7 @@ export default function VariantCard({
     }
 
     setErrors(null);
-    onDone(variant.variant_id); // ✅
+    onDone(variant.variant_id);
   };
 
   return (
@@ -471,10 +473,10 @@ export default function VariantCard({
           </span>
         )}
 
-        <Button type="button" onClick={() => onChange(variant.variant_id, "isOpen", !variant.isOpen)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}> {/* ✅ */}
+        <Button type="button" onClick={() => onChange(variant.variant_id, "isOpen", !variant.isOpen)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
           <ChevronDown size={14} style={{ transform: variant.isOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }} />
         </Button>
-        <Button type="button" onClick={() => onRemove(variant.variant_id)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}> {/* ✅ */}
+        <Button type="button" onClick={() => onRemove(variant.variant_id)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
           <X size={14} />
         </Button>
       </div>
@@ -493,6 +495,7 @@ export default function VariantCard({
           onChange={onChange}
           onRemove={onRemove}
           onDone={handleDone}
+          onVariantImageUploaded={onVariantImageUploaded} // ✅
           theme={theme}
           errors={errors}
         />

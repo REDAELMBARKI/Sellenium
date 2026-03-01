@@ -9,9 +9,11 @@ use App\Services\product\ProductService;
 use App\Models\Category;
 use App\Models\Media;
 use App\Models\Product;
+use App\Models\ShippingSetting;
 use App\Services\CategoryService;
 use Illuminate\Auth\Access\Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
@@ -45,7 +47,9 @@ class ProductController extends Controller
                 "data" => [
                     'options' => [
                     'nich_cats' =>  $this->categoryService->get_niche_cats(),
-                ],
+                    'badges' => DB::table("badges")->get(['id' , 'name' , 'color' , 'icon']),
+                    'shipping_class' => ShippingSetting::value('shipping_class') ,
+                 ],
                 ]
                
             ]);

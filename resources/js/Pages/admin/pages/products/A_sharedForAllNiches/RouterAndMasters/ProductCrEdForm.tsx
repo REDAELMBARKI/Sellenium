@@ -40,19 +40,17 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
         state: { currentTheme },
     } = useStoreConfigCtx();
 
-    // ✅ call watch() as a function not object access
     const covers = watch('covers');
     const video = watch('video');
     const variants = watch('variants');
 
-    const isOpenShowMedia = covers?.length > 0 || !!(video && Object.keys(video).length > 0);
+    const isOpenShowMedia = (covers ?? [])?.length > 0 || !!(video && Object.keys(video).length > 0);
     const isOpenShowVariantBuilder = variants?.length > 0;
     const isOpenShowAttributes = true;
     const hasVariants = variants?.length > 0;
 
     const [showAttributes, setShowAttributes] = useState<boolean>(isOpenShowAttributes);
     const [videoPreview, setVideoPreview] = useState<Video | null>(video ?? null);
-    const [frontEndErrors, setFrontEndErrors] = useState<Record<string, string>>({});
     const [showMedia, setShowMedia] = useState<boolean>(isOpenShowMedia);
     const [showFaqs, setShowFaqs] = useState(false);
     const [showVisibility, setShowVisibility] = useState(false);
@@ -170,7 +168,7 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
                     className="border border-1"
                     style={{ background: currentTheme.card, borderColor: currentTheme.border }}
                 >
-                    <PricingOrVariants frontEndErrors={frontEndErrors} />
+                    <PricingOrVariants />
                 </section>
 
                 {/* FAQs */}

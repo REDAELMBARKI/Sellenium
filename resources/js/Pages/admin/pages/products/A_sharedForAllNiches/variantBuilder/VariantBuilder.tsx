@@ -302,6 +302,7 @@ export default function VariantBuilder() {
               <div key={v.variant_id} ref={i === variants.length - 1 ? newCardRef : undefined}>
                 <VariantCard
                   variant={v}
+                  onVariantImageUploaded={(hex, url) => handleColorImageUpload(hex, url)} 
                   activeOptions={activeOptions}
                   defaultVariantsPrice={defaultVariantsPrice}
                   colorImages={colorImages}

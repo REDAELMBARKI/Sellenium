@@ -1,5 +1,4 @@
 import { RefObject } from "react";
-import { ProductVariant } from "./products/productVariantType";
 
 // Base types
 

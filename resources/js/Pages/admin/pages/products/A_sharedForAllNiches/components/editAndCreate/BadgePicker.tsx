@@ -1,25 +1,35 @@
 import { Button } from "@/components/ui/button";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
-import { Flame, Sparkles, Tag, Zap, Rocket, Ban } from 'lucide-react';
+import { Flame, Sparkles, Tag, Zap, Rocket, Ban, Plus } from 'lucide-react';
 
-const BADGE_OPTIONS = [
-  { label: 'None',     color: 'transparent', icon: Ban      },
-  { label: 'New',      color: '#22c55e',     icon: Sparkles },
-  { label: 'Hot',      color: '#f97316',     icon: Flame    },
-  { label: 'Sale',     color: '#ef4444',     icon: Tag      },
-  { label: 'Limited',  color: '#a855f7',     icon: Zap      },
-  { label: 'Featured', color: '#3b82f6',     icon: Rocket   },
+const BADGE_OPTIONS_STATIC = [
+  { name: 'None',     color: 'transparent', icon: Ban      },
+  { name: 'New',      color: '#22c55e',     icon: Sparkles },
+  { name: 'Hot',      color: '#f97316',     icon: Flame    },
+  { name: 'Sale',     color: '#ef4444',     icon: Tag      },
+  { name: 'Limited',  color: '#a855f7',     icon: Zap      },
+  { name: 'Featured', color: '#3b82f6',     icon: Rocket   },
 ];
 
-export default function BadgePicker({ currentTheme }: { currentTheme: any }) {
-  const { watch, setValue } = useProductDataCtx();
+const ICON_MAP: Record<string, React.ElementType> = {
+  Ban, Sparkles, Flame, Tag, Zap, Rocket,Plus
+};
+
+export default function BadgePicker({ currentTheme}: { currentTheme: any }) {
+  const { watch, setValue , options} = useProductDataCtx();
   
   const value: string | null = watch('badge_text') ?? null;
+  const BADGE_OPTIONS = (options.badges).map(b => {
+        return {
+                ...b ,
+                icon : ICON_MAP[b.icon] ?? Ban
 
+        }
+  }) ?? BADGE_OPTIONS_STATIC
   const selected = BADGE_OPTIONS.find((b) =>
-    b.label === 'None' ? !value : b.label === value
+    b.name === 'None' ? !value : b.name === value
   ) ?? BADGE_OPTIONS[0];
-
+  console.log(BADGE_OPTIONS)
   return (
     <div
       className="rounded-lg p-4"
@@ -56,15 +66,15 @@ export default function BadgePicker({ currentTheme }: { currentTheme: any }) {
       {/* Options */}
       <div className="flex flex-wrap gap-2 mt-1">
         {BADGE_OPTIONS.map((badge) => {
-          const isNone = badge.label === 'None';
-          const isSelected = isNone ? !value : value === badge.label;
+          const isNone = badge.name === 'None';
+          const isSelected = isNone ? !value : value === badge.name;
 
           return (
             <Button
-              key={badge.label}
+              key={badge.name}
               type="button"
               onClick={() =>
-                setValue('badge_text', isNone ? null : badge.label, { shouldValidate: true })
+                setValue('badge_text', isNone ? null : badge.name, { shouldValidate: true })
               }
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-100"
               style={{
@@ -82,7 +92,7 @@ export default function BadgePicker({ currentTheme }: { currentTheme: any }) {
               }}
             >
               <badge.icon size={12} />
-              {badge.label}
+              {badge.name}
             </Button>
           );
         })}

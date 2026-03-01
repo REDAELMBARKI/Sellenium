@@ -45,7 +45,7 @@ export default function ColorPicker({ value, onChange, theme }: ColorPickerProps
         })}
 
         {/* Custom color picker */}
-        <button title="Pick custom color" onClick={() => pickerRef.current?.click()} style={{
+        <button type="button" title="Pick custom color" onClick={() => pickerRef.current?.click()} style={{
           width: 30, height: 30, borderRadius: "50%", cursor: "pointer", flexShrink: 0,
           background: isCustom ? value! : "conic-gradient(red,yellow,lime,aqua,blue,magenta,red)",
           border: isCustom ? `3px solid ${theme.primary}` : `2px dashed ${theme.border}`,

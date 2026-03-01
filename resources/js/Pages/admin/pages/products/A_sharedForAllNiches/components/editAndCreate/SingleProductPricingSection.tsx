@@ -4,17 +4,16 @@ import { Wand2 } from 'lucide-react';
 import React from 'react';
 import PricePreview from './PricePreview';
 import { Input } from '@/components/ui/input';
-import { useWatch } from 'react-hook-form';
+import { FieldError, FieldErrors, useWatch } from 'react-hook-form';
+import { keyof } from 'zod';
+import { FormState } from 'react-hook-form';
+import { ProductSchemaType } from '@/shemas/productSchema';
 
 
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-function SingleProductPricingSection({
-  frontEndErrors,
-}: {
-  frontEndErrors: Record<string, string>;
-}) {
-  const {  control ,  register } = useProductDataCtx();
+function SingleProductPricingSection() {
+  const {  control ,  register , formState :{errors} } = useProductDataCtx();
   const {
     state: { currentTheme },
   } = useStoreConfigCtx();
@@ -22,12 +21,12 @@ function SingleProductPricingSection({
   const compare_price = useWatch({ control, name: 'compare_price' });
   const sku = useWatch({ control, name: 'sku' });
 
-  const inputStyle = (errorKey?: string) => ({
+  const inputStyle = (errorKey?: keyof FieldErrors<ProductSchemaType> ) => ({
     backgroundColor: currentTheme.bg,
     color: currentTheme.text,
     borderWidth: '2px',
     borderColor:
-      errorKey && frontEndErrors[errorKey] ? '#ef4444' : currentTheme.border,
+      errorKey && errors[errorKey] ? '#ef4444' : currentTheme.border,
   });
 
   return (
@@ -53,8 +52,8 @@ function SingleProductPricingSection({
             className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
             style={inputStyle('price')}
           />
-          {frontEndErrors.price && (
-            <p className="text-red-500 text-sm mt-2">{frontEndErrors.price}</p>
+          {errors.price && (
+            <p className="text-red-500 text-sm mt-2">{errors.price.message as string}</p>
           )}
         </div>
 
@@ -116,8 +115,8 @@ function SingleProductPricingSection({
             className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
             style={inputStyle('stock')}
           />
-          {frontEndErrors.stock && (
-            <p className="text-red-500 text-sm mt-2">{frontEndErrors.stock}</p>
+          {errors.stock && (
+            <p className="text-red-500 text-sm mt-2">{errors.stock.message as string}</p>
           )}
         </div>
 
@@ -150,8 +149,8 @@ function SingleProductPricingSection({
             className="w-full px-5 py-4 rounded-xl font-medium shadow-sm"
             style={inputStyle('sku')}
           />
-          {frontEndErrors.sku && (
-            <p className="text-red-500 text-sm mt-2">{frontEndErrors.sku}</p>
+          {errors.sku && (
+            <p className="text-red-500 text-sm mt-2">{errors.sku.message as string}</p>
           )}
         </div>
       </div>

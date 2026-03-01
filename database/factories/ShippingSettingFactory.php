@@ -14,8 +14,15 @@ class ShippingSettingFactory extends Factory
             'free_shipping_threshold_items'  => null,
             'base_weight_kg'                 => null,
             'extra_kg_price'                 => null,
+            'shipping_class'                 => [
+                                            ['value' => 'express' , 'label' => 'Livraison Express (24-48h)'] ,
+                                            ['value' => 'standard' , 'label' => 'Livraison Standard (3-5 jours)'] ,
+                                            ['value' => 'pickup' , 'label' => 'Retrait en Magasin'] ,
+                                            ['value' => 'relay' , 'label' => 'Point Relais'] ,
+            ] ,
         ];
     }
+    
 
     // ── Free shipping types ────────────────────────────────────────────────
 

@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             MediaSeeder::class ,
             ShippingSettingSeeder::class ,
             ShippingZoneSeeder::class ,
+            BadgeSeeder::class ,
           //  TagSeeder::class,
           //  ReviewSeeder::class,
           //  SizeSeeder::class,

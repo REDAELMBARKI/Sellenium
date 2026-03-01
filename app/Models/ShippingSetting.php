@@ -10,4 +10,8 @@ class ShippingSetting extends Model
  use HasFactory;
 
  protected $guarded = [];
+
+ protected $casts = [
+     "shipping_class" => 'array'
+ ];
 }

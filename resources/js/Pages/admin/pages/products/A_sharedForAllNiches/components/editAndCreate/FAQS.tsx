@@ -4,6 +4,8 @@ import { Plus, Trash2, HelpCircle, GripVertical, Check, ChevronDown } from 'luci
 import React, { useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { ProductBase } from '@/types/products/ProductTypes';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export type Faq = {
   question: string;
@@ -88,7 +90,7 @@ function FaqItem({
             <label className="block text-xs font-semibold mb-1 uppercase tracking-wide" style={{ color: currentTheme.textSecondary }}>
               Question
             </label>
-            <input
+            <Input
               type="text"
               value={localQuestion}
               placeholder="e.g. What material is this made of?"
@@ -137,7 +139,7 @@ function FaqItem({
           </div>
 
           <div className="flex justify-end mt-3">
-            <button
+            <Button
               type="button"
               onClick={() => {
                 onChange(index, 'question', localQuestion); // ← save on done click
@@ -155,7 +157,7 @@ function FaqItem({
             >
               <Check size={12} />
               Save FAQ
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -250,21 +252,21 @@ function FaqsSection() {
       )}
 
       {/* Add FAQ button */}
-      <button
+      <Button
         type="button"
         onClick={addFaq}
         className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all duration-150"
         style={{
           backgroundColor: 'transparent',
           color: currentTheme.primary,
-          border: `1.5px dashed ${currentTheme.primary}`,
+          border: `1.5px solid ${currentTheme.primary}`,
         }}
         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = currentTheme.primary + '10'; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent'; }}
       >
         <Plus size={16} />
         Add FAQ
-      </button>
+      </Button>
     </div>
   );
 }

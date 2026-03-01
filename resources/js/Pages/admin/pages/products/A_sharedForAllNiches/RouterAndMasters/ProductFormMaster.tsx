@@ -131,9 +131,7 @@ const ProductFormMaster: React.FC = () => {
       /> }
       {/* edit and create form */}
       <div className='flex'>
-        {/* <pre style={{ fontSize: 11, background: '#111', color: '#0f0', padding: 12 }}>
-          {JSON.stringify(watch(), null, 2)}
-        </pre> */}
+
         <ProductCrEdForm />
         <RightSectionComponent />
       </div>
