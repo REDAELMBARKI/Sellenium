@@ -1,109 +1,172 @@
 <?php
 namespace App\Services\product\validation;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Request;
-
 class DraftsValidation
 {
-    public static function rules()
+    public static function rules(): array
     {
-        // hey how can i only let one object to be sent to backedn like iseendn two types and only validate the type iframe oony to pass validation and other objects fiail 
-
         return array_merge(
-           (new self)->draft_base_rules(),
-            (new self)->draft_attributes_rules(),
-            (new self)->draft_variants_rules(),
+            (new self)->base_rules(),
+            (new self)->inventory_rules(),
+            (new self)->shipping_rules(),
+            (new self)->meta_rules(),
+            (new self)->vendor_rules(),
+            (new self)->variant_rules(),
+            (new self)->faq_rules(),
         );
-       
     }
 
-    
-     private function draft_base_rules()
+    // ── Base ───────────────────────────────────────────────────────────────
+    private function base_rules(): array
     {
+        $nameRegex = 'regex:/^[a-zA-Z0-9\s\-+_.,:;()@!#%&*\/\\\[\]]+$/';
+
         return [
-        'draft_id' => ['nullable', 'numeric'] ,
-        'category_niche_id' => ['nullable', 'numeric'] ,
-        "name" => [
-            'nullable',
-            'min:3',
-            'regex:/^[a-zA-Z0-9\s\-+_.,:;()@!#%&*\/\\\[\]]+$/'
-        ],
-        "brand" => [
-            'nullable',
-            'min:3',
-            'regex:/^[a-zA-Z0-9\s\-+_.,:;()@!#%&*\/\\\[\]]+$/'
-        ],
+            'id'                => ['nullable', 'string'],
+            'category_niche_id' => ['nullable', 'integer'],
 
-        'thumbnail' => ['nullable', 'numeric'],  // can be empty in draft
-        'video' => ['nullable', 'array'],
-        'video.*.url' => ['nullable', 'string'],
-        'video.*.media_type' => ['required' , 'string'] ,
-        'covers' => ['nullable', 'array'],
-        'covers.*' => ['nullable','numeric'],
-        "price" => ['nullable', 'numeric', 'min:0'],
-        "compare_price" => ['nullable', 'numeric', 'min:0'],
-        'subCategories' => ['array'] ,
-        'subCategories.*' => ['numeric'] ,
-        "isFeatured" => ['boolean'],
-        "isFreeShipping" => ['boolean'],
-        "tags" => ['nullable', 'array'],
-        "tags.*" => ['nullable','string', 'min:2', 'regex:/^[a-zA-Z0-9\s\-+_.,:;()@!#%&*\/\\\[\]]+$/'],
+            'name'              => ['nullable', 'string', 'min:1', $nameRegex],
+            'brand'             => ['nullable', 'string', 'min:1', $nameRegex],
+            'description'       => ['nullable', 'string', 'min:1'],
+            'sku'               => ['nullable', 'string', 'min:1'],
+            'price'             => ['nullable', 'numeric', 'min:0'],
+            'compare_price'     => ['nullable', 'numeric', 'min:0'],
+            'stock'             => ['nullable', 'integer', 'min:0'],
+            'badge_text'        => ['nullable', 'string'],
+            'releaseDate'       => ['nullable', 'string'],
+            'madeCountry'       => ['nullable', 'string'],
+            'rating_average'    => ['nullable', 'numeric', 'min:0', 'max:5'],
 
-        "description" => [
-            'nullable',
-            'string',
-            'min:10',
-            // 'regex:/^[\pL0-9\s\-+_.,:;()\'"@!#%&*\/\\\[\]]+$/u'
-        ],
-        "releaseDate" => ['nullable' , 'string'],
-        "madeCountry" => ['nullable' , 'string'] ,
+            'isFeatured'            => ['nullable', 'boolean'],
+            'isFreeShipping'        => ['nullable', 'boolean'],
+            'allow_backorder'       => ['nullable', 'boolean'],
+            'show_countdown'        => ['nullable', 'boolean'],
+            'show_reviews'          => ['nullable', 'boolean'],
+            'show_related_products' => ['nullable', 'boolean'],
+            'show_social_share'     => ['nullable', 'boolean'],
 
-         // inventory json column
-        'inventory' => ['nullable', 'array'],
-        'inventory.quantity' => ['required_with:inventory', 'integer'],
-        'inventory.sku' => ['required_with:inventory', 'string'],
-        'inventory.backorderOptions' => ['required_with:inventory', 'in:notify,deny,allow'],
-    
-        // shipping json column 
-        'shipping' => ['nullable', 'array'],
-        'shipping.weight' => ['nullable', 'numeric'],
-        'shipping.shippingClass' => ['nullable', 'string'],
-        'shipping.dimensions' => ['nullable', 'array'],
-        'shipping.dimensions.height' => ['nullable', 'numeric'],
-        'shipping.dimensions.width' => ['nullable', 'numeric'],
-        'shipping.dimensions.length' => ['nullable', 'numeric'],
+            // thumbnail
+            'thumbnail'         => ['nullable', 'array'],
+            'thumbnail.id'      => ['nullable', 'integer'],
+            'thumbnail.url'     => ['nullable', 'string', 'url'],
 
-        // validate meta
-        'meta' => ['nullable', 'array'],
-        'meta.metaTitle' => ['nullable', 'string', 'max:255'],
-        'meta.metaDescription' => ['nullable', 'string', 'max:1000'],
+            // covers
+            'covers'            => ['nullable', 'array'],
+            'covers.*.id'       => ['nullable', 'integer'],
+            'covers.*.url'      => ['nullable', 'string', 'url'],
 
-        // ---------------------
-        //  validate Vendor
-        // ---------------------
-        'vendor' => ['nullable', 'array'],
-        'vendor.vendorName' => ['nullable', 'string', 'max:255'],
-        'vendor.vendorSku' => ['nullable', 'string', 'max:255'],
-        'vendor.vendorNotes' => ['nullable', 'string', 'max:1000'],
+            // video
+            'video'             => ['nullable', 'array'],
+            'video.*.id'        => ['nullable', 'integer'],
+            'video.*.url'       => ['nullable', 'string', 'url'],
 
+            // sub_categories
+            'sub_categories'        => ['nullable', 'array'],
+            'sub_categories.*.id'   => ['nullable', 'integer'],
+            'sub_categories.*.name' => ['nullable', 'string', 'min:1'],
 
-    ];
-    }
+            // tags
+            'tags'              => ['nullable', 'array'],
+            'tags.*'            => ['nullable', 'string', 'min:1'],
 
+            // marketing
+            'promotion_ids'     => ['nullable', 'array'],
+            'promotion_ids.*'   => ['nullable', 'integer'],
+            'coupon_ids'        => ['nullable', 'array'],
+            'coupon_ids.*'      => ['nullable', 'integer'],
 
-    private function draft_variants_rules()
-    {
-        return [
-            
+            // related products
+            'related_products'  => ['nullable', 'array'],
+            'related_products.*'=> ['nullable', 'integer'],
+
+            // product_attributes
+            'product_attributes'=> ['nullable', 'array'],
         ];
     }
 
-
-    private function draft_attributes_rules(){
+    // ── Inventory ──────────────────────────────────────────────────────────
+    private function inventory_rules(): array
+    {
         return [
-            
+            'inventory'                         => ['nullable', 'array'],
+            'inventory.backorderOptions'        => ['nullable', 'string', 'in:deny,notify,allow'],
+            'inventory.trackInventory'          => ['nullable', 'boolean'],
+            'inventory.lowStockThreshold'       => ['nullable', 'numeric', 'min:0'],
+            'inventory.stockStatus'             => ['nullable', 'string', 'in:,in_stock,out_of_stock,discontinued'],
+            'inventory.weight'                  => ['nullable', 'numeric', 'min:0'],
+            'inventory.weightUnit'              => ['nullable', 'string', 'in:kg,g,lb,oz'],
+            'inventory.dimensions'              => ['nullable', 'array'],
+            'inventory.dimensions.length'       => ['nullable', 'numeric', 'min:0'],
+            'inventory.dimensions.width'        => ['nullable', 'numeric', 'min:0'],
+            'inventory.dimensions.height'       => ['nullable', 'numeric', 'min:0'],
+            'inventory.dimensions.unit'         => ['nullable', 'string', 'in:cm,in,mm'],
+            'inventory.warehouseLocation'       => ['nullable', 'string'],
+            'inventory.fulfillmentType'         => ['nullable', 'string', 'in:,dropship,third_party'],
         ];
     }
 
+    // ── Shipping ───────────────────────────────────────────────────────────
+    private function shipping_rules(): array
+    {
+        return [
+            'shipping'                          => ['nullable', 'array'],
+            'shipping.shippingClass'            => ['nullable', 'string', 'in:,express,pickup'],
+            'shipping.handlingTime'             => ['nullable', 'numeric', 'min:0'],
+            'shipping.shippingCostOverride'     => ['nullable', 'numeric', 'min:0'],
+            'shipping.isReturnable'             => ['nullable', 'boolean'],
+            'shipping.returnWindow'             => ['nullable', 'numeric', 'min:0'],
+            'shipping.returnPolicy'             => ['nullable', 'string', 'in:free_return,customer_pays'],
+        ];
+    }
+
+    // ── Meta ───────────────────────────────────────────────────────────────
+    private function meta_rules(): array
+    {
+        return [
+            'meta'                      => ['nullable', 'array'],
+            'meta.metaTitle'            => ['nullable', 'string', 'max:255'],
+            'meta.metaDescription'      => ['nullable', 'string', 'max:1000'],
+        ];
+    }
+
+    // ── Vendor ─────────────────────────────────────────────────────────────
+    private function vendor_rules(): array
+    {
+        return [
+            'vendor'                    => ['nullable', 'array'],
+            'vendor.vendorName'         => ['nullable', 'string', 'max:255'],
+            'vendor.vendorSku'          => ['nullable', 'string', 'max:255'],
+            'vendor.vendorNotes'        => ['nullable', 'string', 'max:1000'],
+        ];
+    }
+
+    // ── Variants ───────────────────────────────────────────────────────────
+    private function variant_rules(): array
+    {
+        return [
+            'variants'                          => ['nullable', 'array'],
+            'variants.*.id'                     => ['nullable', 'string'],
+            'variants.*.price'                  => ['nullable', 'numeric', 'min:0'],
+            'variants.*.compare_price'          => ['nullable', 'numeric', 'min:0'],
+            'variants.*.stock'                  => ['nullable', 'integer', 'min:0'],
+            'variants.*.sku'                    => ['nullable', 'string'],
+            'variants.*.imageUrl'               => ['nullable', 'string', 'url'],
+            'variants.*.isOpen'                 => ['nullable', 'boolean'],
+            'variants.*.attrs'                  => ['nullable', 'array'],
+            // attrs values can be a plain string or a color object {hex, name}
+            'variants.*.attrs.*'                => ['nullable'],
+            'variants.*.attrs.*.hex'            => ['nullable', 'string'],
+            'variants.*.attrs.*.name'           => ['nullable', 'string'],
+        ];
+    }
+
+    // ── FAQs ───────────────────────────────────────────────────────────────
+    private function faq_rules(): array
+    {
+        return [
+            'faqs'              => ['nullable', 'array'],
+            'faqs.*.question'   => ['nullable', 'string', 'min:1'],
+            'faqs.*.answer'     => ['nullable', 'string', 'min:1'],
+        ];
+    }
 }

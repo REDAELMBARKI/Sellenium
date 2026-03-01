@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PublishProductRequest;
 use App\Http\Requests\StoreDraftProductRequest;
 use App\Http\Resources\ProductResources;
 use App\Services\product\ProductService;
@@ -11,6 +12,7 @@ use App\Models\Product;
 use App\Services\CategoryService;
 use Illuminate\Auth\Access\Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -48,19 +50,28 @@ class ProductController extends Controller
                
             ]);
     }
-   
+
+
+
+
+    /*
+        creates the draft initialy 
+    */
     public function storeDraft()
     {
         $product = Product::create([
             'name'     => null,
             'status' => "draft",
         ]);
-
-        return response()->json(['id' => $product->id]);
+        return response()->json(['id' => $product->id] , 201);
 
     }
 
-    public function publish(ProductService $service , Product $product)
+
+    /*
+        publiches the draft afeter validation
+    */
+    public function publish(PublishProductRequest $publishProductRequest  , ProductService $service , Product $product)
     {
         if(!$service->isPublishable($product)){
             return response()->json(['message' =>  'some fileds are missing ']) ;
@@ -70,6 +81,27 @@ class ProductController extends Controller
         return redirect()->back()->with('success', 'Product published successfully');
 
     }
+
+
+    /*
+        saves the product (update) with validation (on submit click)
+    */
+
+    public function  updateOnSubmit(PublishProductRequest $publishProductRequest , Product $product){
+
+    }
+
+
+    /*
+        saves the draft with no required fields in the page leave 
+
+    */
+
+    public function updateOnPageLeave(StoreDraftProductRequest $request , Product $product){
+
+    }
+
+
 
     public function edit(Product $product){
         $product  = $product->load(['thumbnail' , 'covers'  , 'video' , 'tags' ,  'subCategories']) ;
@@ -119,19 +151,13 @@ class ProductController extends Controller
         
     }
 
-    public function update(Request $request , ProductService $service, Product $product)
-    {
-        $validated = $request->validated() ;
-        $service->updateDraft($validated , $product );
-        return redirect()->route('drafts.index');
-    }
 
-    public function destroy($id){
+    public function destroy(Product $product){
         //  Gate::authorize('manage_products') ;
-         Product::findOrFail($id)->delete() ;
+          $product->delete() ;
          return response()->json([
             'message' => 'Product deleted successfully'
-         ]);
+         ],200);
     }
 
 

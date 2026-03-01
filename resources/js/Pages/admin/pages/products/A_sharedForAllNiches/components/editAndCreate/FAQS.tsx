@@ -3,7 +3,7 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { Plus, Trash2, HelpCircle, GripVertical, Check, ChevronDown } from 'lucide-react';
 import React, { useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
-import { ProductBase } from '@/types/products/baseProductTypes';
+import { ProductBase } from '@/types/products/ProductTypes';
 
 export type Faq = {
   question: string;

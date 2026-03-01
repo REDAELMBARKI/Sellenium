@@ -43,14 +43,13 @@ class MediaService
        )) ;
     }
 
-    public function store($file , Product|null $mediable = null){
-            $storagePath  = $this->folders["gallery"] ?? 'general' ;
+    public function store($file ,string $collection = "gallery" , mixed $mediable = null){
+            $storagePath  = $this->folders[$collection] ?? 'general' ;
             $path = $file->store($storagePath , 'public');
             $url = Storage::url($path) ;
-            
             $data = [
                 'url'  => $url,
-                'collection' => "gallery",
+                'collection' => $collection,
                 'mime_type' => $file->getClientMimeType(),
                 'media_type' => 'image' ,
                 'size' => $file->getSize(),

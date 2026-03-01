@@ -8,7 +8,7 @@ import GenerateModal from "./GenerateModel";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import { variantSchema } from "@/shemas/productCreateform";
 import { useFieldArray } from "react-hook-form";
-import { ProductBase } from "@/types/products/baseProductTypes";
+import { ProductBase } from "@/types/products/ProductTypes";
 import { useToast } from "@/contextHooks/useToasts";
 import { Button } from "@/components/ui/button";
 

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import { Button } from '@/components/ui/button';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
@@ -10,13 +10,16 @@ import adapters from '@/functions/product/adapters';
 import { Inertia } from '@inertiajs/inertia'
 import { route } from 'ziggy-js';
 import axios from 'axios';
-import { ProductBase } from '@/types/products/baseProductTypes';
+import { ProductSchemaType } from '@/shemas/productCreateform';
+import { router } from '@inertiajs/react';
+import LeaveModal from '@/components/ui/LeaveModel';
+import { useBackendInteraction } from '@/functions/product/useBackendInteractions';
 
 const ProductFormMaster: React.FC = () => {
   const { state: { currentTheme } } = useStoreConfigCtx()
-  const { modeForm, draftId, handleSubmit: formHandleSubmit, watch } = useProductDataCtx()
-  const { toBackendAttribute } = adapters();
-
+  const { modeForm, draftId, handleSubmit: formHandleSubmit  ,getValues , formState : {isSubmitting ,isDirty} } = useProductDataCtx()
+  const [showLeaveModal  ,setShowLeaveModal] = useState(false)
+  const [pendingVisit , setPendingVisit] = useState<string>('')
   function cleanAttributesForBackend(attributes: Record<string, any>) {
     const cleaned: Record<string, any> = {}
     Object.entries(attributes).forEach(([key, value]) => {
@@ -33,23 +36,24 @@ const ProductFormMaster: React.FC = () => {
     })
     return cleaned
   }
+  const {save , destroyDraftProduct} =useBackendInteraction();
+  const isLeavingRef = useRef(false);
+  useEffect(() => {
+    if (draftId.current) return;
+    const draftInit = async () => {
+      try {
+        const res = await axios.post(route('products.storeDraft'));
+        draftId.current = res.data.id;
+      } catch (error) {
+        console.error("Failed to create draft:", error);
+      }
+    };
+   
+    draftInit();
+  }, []);
 
-  // useEffect(() => {
-  //   if (draftId.current) return;
 
-  //   const draftInit = async () => {
-  //     try {
-  //       const res = await axios.post(route('products.storeDraft'));
-  //       draftId.current = res.data.id;
-  //     } catch (error) {
-  //       console.error("Failed to create draft:", error);
-  //     }
-  //   };
-
-  //   draftInit();
-  // }, []);
-
-  const onSubmit = (data: ProductBase) => {
+  const onSubmit = (data: ProductSchemaType) => {
     const payload = {
       ...data,
       product_attributes: cleanAttributesForBackend(data.product_attributes),
@@ -61,8 +65,72 @@ const ProductFormMaster: React.FC = () => {
     })
   }
 
+
+  useEffect(() => {
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = ''; // required for Chrome
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+  return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+}, [isDirty]);
+
+
+  useEffect(() => {
+    const unsubscribe = router.on('before', (event) => {
+        if(!isLeavingRef.current){
+          setShowLeaveModal(true);
+          setPendingVisit(event.detail.visit.url.toString()); // save where they were going
+          event.preventDefault(); // block navigation
+        }
+  });
+
+    return () => unsubscribe();
+  }, [isDirty]);
+
+
+  const handleConfirmLeave = () => {
+    // delete the draft
+    const data = getValues()
+    const payload = {
+      ...data,
+      product_attributes: cleanAttributesForBackend(data.product_attributes),
+    }
+    // save the proudct 
+    save("onLeave" , payload , 
+       (errors) => console.log(errors)
+      ,
+      draftId.current) ; 
+    isLeavingRef.current = true ;
+    setShowLeaveModal(false);
+    router.visit(pendingVisit); 
+  };
+
+  const handleCancelLeave = () => {
+    // remove the darft
+    destroyDraftProduct(draftId.current!)
+    isLeavingRef.current = true ;
+    setShowLeaveModal(false);
+    router.visit(pendingVisit); 
+    setPendingVisit(null);
+  };
+
+
+  const handleCancel  = () => {
+    setShowLeaveModal(false);
+    setPendingVisit(null);
+  };
+
   return (
     <form onSubmit={formHandleSubmit(onSubmit)}>
+      {showLeaveModal && 
+      <LeaveModal
+          theme={currentTheme} 
+          onClose={handleCancel} 
+          onLeave={handleCancelLeave} 
+          onSaveDraft={handleConfirmLeave}
+      /> }
       {/* edit and create form */}
       <div className='flex'>
         {/* <pre style={{ fontSize: 11, background: '#111', color: '#0f0', padding: 12 }}>
@@ -87,9 +155,15 @@ const ProductFormMaster: React.FC = () => {
             background: currentTheme.primary,
             color: currentTheme.textInverse,
           }}
+
+          disabled={isSubmitting}
         >
           <Save />
-          {modeForm === "create" ? "Create Product" : "Update Product"}
+            {
+            isSubmitting ? 
+              (modeForm === "create" ? "Create Product" : "Update Product")
+             : "submiting"
+            }
         </Button>
       </div>
     </form>

@@ -14,13 +14,10 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();        // user might not fill yet
-            $table->string('slug')->unique();        // user might not fill yet
+            $table->string('slug')->unique()->nullable();        // user might not fill yet
             $table->string('brand')->nullable();       // optional in draft
             $table->text('description')->nullable();   // optional in draft
-          
             $table->boolean('isFeatured')->default(false);
-            $table->boolean('isFreeShipping')->default(false);
-            
             // status and tracking progress
             $table->enum('status', ['draft','published'])->default('draft');
             $table->boolean('ready_to_publish')->default(false);

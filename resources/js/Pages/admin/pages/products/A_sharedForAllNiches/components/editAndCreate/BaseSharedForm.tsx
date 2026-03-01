@@ -5,10 +5,9 @@ import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
 import { getMediaSrcOrDefault } from "@/functions/product/getMediaSrcOrDefault";
 import { productFilesUploaderCleaner } from "@/functions/product/productFilesUploaderCleaner";
-import { useBackendInteraction } from "@/functions/product/useBackendInteractions";
 import { Cover } from "@/types/inventoryTypes";
 import { Upload, X } from "lucide-react";
-import {  useEffect, useRef, useState } from "react";
+import {  useRef, useState } from "react";
 import { Controller } from "react-hook-form";
 import { Oval } from "react-loader-spinner";
 import ReactQuill from "react-quill";
@@ -28,7 +27,6 @@ const BaseSharedForm = ({getThumbnailPreview}: {getThumbnailPreview: (thumbnail:
     const [thumbnailPreview, setThumbnailPreview] = useState<Cover | null>(thumbnail ?? null);
     
     const { deleteMedia, uploadProductFiles } = productFilesUploaderCleaner()
-    const { createDraft } = useBackendInteraction()
 
     const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         try {
@@ -36,7 +34,7 @@ const BaseSharedForm = ({getThumbnailPreview}: {getThumbnailPreview: (thumbnail:
             if (!file) return;
             setUploadError(null)
             setThumbnailUploading(true)
-            const data = await uploadProductFiles(file, 'thumbnail', 'Product', 'media.store.forProduct', draftId.current);
+            const data = await uploadProductFiles(file, 'thumbnail', 'product', draftId.current);
             setThumbnailPreview({ url: data.media.url, id: data.media.id });
             setValue('thumbnail', { url: data.media.url, id: data.media.id }, { shouldValidate: true }); // ← tell useForm
             if (!draftId.current) draftId.current = data.draft_id
@@ -82,7 +80,7 @@ const BaseSharedForm = ({getThumbnailPreview}: {getThumbnailPreview: (thumbnail:
 
                     {!!thumbnailPreview && (
                         <div className="relative w-40 h-40 group overflow-hidden rounded-2xl shadow-lg border-2"
-                            style={{ borderColor: errors.thumbnail ? '#ef4444' : currentTheme.border }}>
+                            style={{ borderColor: errors.thumbnail ? '' : currentTheme.success }}>
                             <img
                                 src={thumbnailPreview.url ?? getMediaSrcOrDefault(thumbnailPreview, 'image')}
                                 alt="Product thumbnail"

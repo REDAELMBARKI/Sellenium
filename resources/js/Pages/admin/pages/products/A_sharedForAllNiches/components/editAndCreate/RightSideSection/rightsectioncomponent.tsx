@@ -199,7 +199,7 @@ export function RightSectionComponent() {
             multiple={false}
             label="backorder options"
             options={[
-              { label: 'Do not allow', value: '' },
+              { label: 'Do not allow', value: 'deny' },
               { label: 'Allow, but notify customer', value: 'notify' },
               { label: 'Allow', value: 'allow' },
             ]}

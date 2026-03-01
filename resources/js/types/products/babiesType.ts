@@ -1,5 +1,5 @@
 import {  Material  , Gender} from "../inventoryTypes";
-import { ProductBasicInfoData } from "./baseProductTypes";
+import { ProductBasicInfoData } from "./ProductTypes";
 import { ProductVariant } from "./productVariantType";
 
 // 9️⃣ Baby

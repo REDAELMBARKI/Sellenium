@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import React from 'react';
 import SwitchToggler from '@/components/ui/SwitchToggler'; // adjust path to yours
-import { ProductBase } from '@/types/products/baseProductTypes';
+import { ProductBase } from '@/types/products/ProductTypes';
 import { Controller } from 'react-hook-form';
 import { ProductSchemaType } from '@/shemas/productCreateform';
 

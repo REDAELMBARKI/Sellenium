@@ -1,5 +1,5 @@
 import { Gender } from "../inventoryTypes";
-import { ProductBase } from "./baseProductTypes";
+import { ProductBase } from "./ProductTypes";
 import { ProductVariant } from "./productVariantType";
 
 export interface PerfumesAttributes  {

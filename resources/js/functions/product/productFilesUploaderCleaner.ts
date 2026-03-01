@@ -5,7 +5,7 @@ import { route } from "ziggy-js";
 
 export  const productFilesUploaderCleaner = () => {
 
-      const uploadProductFiles = async (file: File, collection: FlagMedia  , model_type : ModelType  , routeUrl : string, toDraftId? : string) => {
+      const uploadProductFiles = async (file: File, collection: FlagMedia  , model_type : ModelType  , toDraftId? : string) => {
           
           const formData = new FormData();
           formData.append('file', file);
@@ -14,7 +14,8 @@ export  const productFilesUploaderCleaner = () => {
           formData.append('model_id', toDraftId ?? '');
           
           try 
-          {  const response = await axios.post(route(routeUrl), formData, {
+          {  
+            const response = await axios.post(route('media.store'), formData, {
               headers: {
                   'Content-Type': 'multipart/form-data',
               }, }
@@ -28,7 +29,6 @@ export  const productFilesUploaderCleaner = () => {
 
 
       const deleteMedia = async (mediaId : string) => {
-          
           try {
             const r =  await axios.delete(route('media.destroy' , mediaId))
           }catch(error){

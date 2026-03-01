@@ -1,6 +1,16 @@
 import { Category , Cover , Video } from "../inventoryTypes";
 import { Variant } from "./productVariantType";
 
+export interface ProductBackendProps {
+    children : React.ReactNode ;
+    data : {product?: ProductBase , categoryObject? : Category  , options : any}
+    options : any
+    [key: string]: any; 
+}
+
+
+
+
 
 export interface ProductBase { 
   category_niche_id?: number;

@@ -5,57 +5,53 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MediaRequest;
 use App\Models\Media;
 use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\User;
 use App\Services\MediaService;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage ;
 use Illuminate\Validation\Rule;
 
 class MediaController extends Controller
 {
 
-
+    private array $mediables = [
+         'product' => Product::class,
+         'variant' => ProductVariant::class,
+         'user' => User::class,
+    ];
     public function __construct(private MediaService $mediaService)
     {
 
     }
 
    
-      public function storeForVariant(MediaRequest $request){
-        $file = $request->file('file');
-        $media = $this->mediaService->store($file);
-        return response()->json(
-        [
-            'media' => $media
-                
-        ]);
-       
-    }
 
-    public function storeForProduct(MediaRequest $request){
-        $product = $request->model_id ? Product::find($request->model_id) : Product::create(['name' => null ]) ;
+    public function store(MediaRequest $request){
+        $exists = array_key_exists(strtolower($request->model_type), $this->mediables) ;
+        if(! $exists){
+             return response()->json(['message' => 'this model type is not exists'],404);
+        }
+        $mediableInstance = $this->mediables[$request->model_type];
+        $mediable = $mediableInstance::find($request->model_id) ?? null;
         $file = $request->file('file');
-        $media = $this->mediaService->store($file ,$product);
+        $collection = $request->collection;
+        $media = $this->mediaService->store($file ,$collection ,$mediable);
         // Debug in console (as JSON response)
         return response()->json(
         [
-            'draft_id' => $product->id ,
             'media' => $media
-                
-        ]);
+        ],201);
        
     }
 
-    public function destroy($mediaId){
-        $mediaId = validator(['id' => $mediaId] , [
-             'id'=> ['required' , Rule::exists('media' , 'id')]  ,
-        ]);
+    public function destroy(Media $media){
 
         try{
-
-            $this->mediaService->deleteMedia($mediaId);
-
+          $media->delete();
         }catch(QueryException $e){
             return response()->json(['message'=> 'failed to delete the media retry'])->setStatusCode(404);
         }catch(Exception $e){

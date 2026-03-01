@@ -1,9 +1,9 @@
 import { AdminLayout } from "@/admin/components/layout/AdminLayout";
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
-import { ProductBackendProps } from "@/types/productsTypes";
 import BasicInfoFormMaster from "./A_sharedForAllNiches/RouterAndMasters/ProductFormMaster";
 import ProductDataProvider from "@/contextProvoders/product/ProductDataProvider";
 import ProductUIProvider from "@/contextProvoders/product/ProductUIProvider";
+import { ProductBackendProps } from "@/types/products/ProductTypes";
 
 
 export default function Create({options , data}: ProductBackendProps) { 
@@ -24,25 +24,6 @@ export default function Create({options , data}: ProductBackendProps) {
 Create.layout = (page:any) => <AdminLayout  children={page} />
 
 function CreateContent() {
-
-
-    // const { setImagesPlaceHolders } = useMedia();
-    // const { data, isReadyToSubmit, setData } = useProductForm();
-    // const { submitForm } = useFormActions();
-
-    // const isReadyToAdd = Object.entries(currentVariant)
-    //     .filter(([key]) => key !== "id" && key !== "covers")
-    //     .every(
-    //         ([, value]) =>
-    //             value !== null &&
-    //             value !== "" &&
-    //             (!Array.isArray(value) || value.length > 0)
-    //     );
-
-
-    // useTagsInventoryValidation();
-    // useFieldAndThumbValidation();
-    // useFinalSubmitFormValidationCheck();
 
     return (
         <>

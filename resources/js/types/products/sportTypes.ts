@@ -1,5 +1,5 @@
 import { Gender, Material, Size } from "../inventoryTypes";
-import { ProductBase } from "./baseProductTypes";
+import { ProductBase } from "./ProductTypes";
 import { ProductVariant } from "./productVariantType";
 
 

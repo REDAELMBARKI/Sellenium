@@ -115,13 +115,14 @@ Route::get('/products/{product}' , [ProductController::class, 'show']) ;
 
 // drafts
 Route::post('/products' , [ProductController::class, 'storeDraft'])->name('products.storeDraft');
-Route::patch('/products/{product}/publish' , [ProductController::class, 'publish'])->name('products.publish');
-Route::delete('/products/{product}' , [ProductController::class, 'destroy']) ;
-Route::put('/products/{product}' , [ProductController::class, 'update'])->name('product.update');
+Route::patch('/products/{product}/publish' , [ProductController::class, 'publish'])->name('product.publish');
+Route::delete('/products/{product}' , [ProductController::class, 'destroy'])->name("product.destroy") ;
+Route::put('/products/{product}' , [ProductController::class, 'updateOnPageLeave'])->name('product.update.onLeave');
+Route::put('/products/{product}' , [ProductController::class, 'updateOnSubmit'])->name('product.update.onSubmit');
 
 // media section
 // store media route
-Route::post('/media' , [MediaController::class, 'storeForProduct'])->name('media.store.forProduct') ;
+Route::post('/media' , [MediaController::class, 'store'])->name('media.store') ;
 // destroy deleted media
 Route::delete('/media/{media}', [MediaController::class, 'destroy'])
     ->name('media.destroy');

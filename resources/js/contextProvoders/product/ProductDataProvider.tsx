@@ -6,7 +6,7 @@ import { getEditedData, getEmptyInitialProductData } from '@/data/initialProduct
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import {  ProductBackendProps } from '@/types/productsTypes';
 import { CategoriesList } from './../../Pages/admin/pages/categories/CategoriesList';
-import { ProductBase } from '@/types/products/baseProductTypes';
+import { ProductBase } from '@/types/products/ProductTypes';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { productSchema } from '@/shemas/productCreateform';
@@ -38,11 +38,11 @@ const ProductDataProvider = ({children , data : {product , categoryObject , opti
     const [category , setCategory] = useState(categoryObject) ;
     const [nicheCategory , setNicheCategory] = useState<Category[]>() ; 
     const draftId = useRef<string | undefined>(product?.id ?? null);
-    const { register, handleSubmit, getValues, control, formState, watch, setValue } = useForm<ProductBase>({
-        defaultValues: initialData,  // ← just pass the object directly
-        resolver: zodResolver(productSchema), // ← add this if you have a schema
+    const { register, handleSubmit, getValues, control, formState  , setError, watch, setValue } = useForm<ProductBase>({
+        defaultValues: initialData, 
+        resolver: zodResolver(productSchema), 
         mode: "onChange"
-        })
+    })
 
     return (
     <ProductDataContext.Provider value={{
@@ -50,7 +50,7 @@ const ProductDataProvider = ({children , data : {product , categoryObject , opti
         nicheCategory , setNicheCategory , 
         setValue , getValues , 
         register , handleSubmit , watch , 
-        control , formState , 
+        control , formState , setError , 
         options , 
         draftId
     }}>

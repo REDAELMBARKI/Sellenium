@@ -12,48 +12,51 @@ class Product extends Model
 {
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
-    use SoftDeletes;
-    // protected $fillable = [
-    //     'name',
-    //     'slug',
-    //     'brand',
-    //     'description',
-    //     'price',
-    //     'compare_price',
-    //     'isFeatured',
-    //     'isFreeShipping',
-    //     'status',
-    //     'rating_average',      // optional; include if users can set/update rating manually
-    //     'shipping',
-    //     'inventory',
-    //     'meta',
-    //     'vendor',
-    //     'madeCountry',
-    //     'releaseDate',
-     
-    //     'category_niche_id',    // foreign key
-    //  ];
+    protected $fillable = [
+    'name',
+    'slug',
+    'brand',
+    'description',
+    'isFeatured',
+    'status',
+    'ready_to_publish',
+    'quality_score',
+    'rating_average',
+    'rating_count',
+    'shipping',
+    'aggregated_attributes',
+    'inventory',
+    'meta',
+    'vendor',
+    'madeCountry',
+    'releaseDate',
+    'category_niche_id',
+    'badge_text',
+    'allow_backorder',
+    'show_countdown',
+    'show_reviews',
+    'show_related_products',
+    'show_social_share',
+    'faqs',
+    'related_product_ids',
+];
     protected $guarded = [];
 
     protected $hidden = ['created_at','updated_at'];
     protected $casts = [
-        'vendor' => 'array',
         'inventory' => 'array',
         'shipping' => 'array',
-        'meta' => 'array',
         'price' => 'float' ,
-        'oldPrice' => 'float' , 
+        'oldPrice' => 'float' ,
         'video' => 'array',
          'related_products'=> 'array',
         'isFeatured' => 'boolean',
-        'isFreeShipping' => 'boolean',
         'ready_to_publish' => 'boolean',
-
-        'shipping' => 'object',
+        'meta'                  => 'array',
+        'vendor'                => 'array',
+        'faqs'                  => 'array',
+        'related_product_ids'   => 'array',
         'aggregated_attributes' => 'array',
-        'inventory' => 'array',
-        'meta' => 'array',
-        'vendor' => 'array',
     ];
   
 

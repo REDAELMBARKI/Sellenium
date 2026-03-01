@@ -16,8 +16,8 @@ class MediaRequest extends FormRequest {
        // Define your validation rules for media upload here
        return [
             'file' => [],
-            'collection' => 'required|in:cover,thumbnail,video,avatar,variant_cover,banner',
-            'model_type' => 'required|in:Product,Variant,User,Admin,Brand,Category,General',
+            'collection' => 'required|in:gellery,thumbnail,video,avatar,variant_cover,banner',
+            'model_type' => 'required|in:product,variant,user,admin,brand,category,general',
        ];
        
     }

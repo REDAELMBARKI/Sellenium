@@ -51,25 +51,51 @@ class ProductService {
         return Tag::whereIn('name' , $tags)->pluck('id') ;
     }
     
-    private function syncSubCategories(Product $product , Collection $subCategories){
+    private function syncSubCategories(Product $product , array $subCategories  ){
         $product->subCategories()->sync($subCategories) ;
     }
 
     private function syncTags(Product $product , Collection $tagsIds){
         $product->tags()->sync($tagsIds) ;
     }
+     
+    public function prepareProductPayload(array $payload) : array
+    {
+      $data = array_merge(
+        [
+            'faqs'                  => [],
+            'related_product_ids'   => [],
+            'subCategories'         => [],
+            'tags'                  => [],
+            'isFeatured'            => false,
+            'isFreeShipping'        => false,
+            'allow_backorder'       => false,
+            'show_countdown'        => true,
+            'show_reviews'          => true,
+            'show_related_products' => true,
+            'show_social_share'     => true,
+            'inventory'             => null,
+            'shipping'              => null,
+            'meta'                  => null,
+            'vendor'                => null,
+        ],
+        $payload
+      ) ;
 
-    public function saveDraft($payload ,?Product $product) { 
+      return $data ;
+    }
+    public function saveDraft($payload ,?Product $product) {
         $product = $product ?? new Product();
         // product is created (not null anymore ) ;
         return DB::transaction(function() use ($product , $payload){
+            $payload = $this->prepareProductPayload($payload);
             $payload = $this->slugProduct($payload, $product);
             $product->fill($payload) ;
             $product->save();
             // save tags
             $ids = $this->storeTags(collect($payload['tags']));
             $this ->syncTags($product , $ids); // sync tags to the product/product
-            $this ->syncSubCategories($product , collect($payload['subCategories'])) ;
+            $this ->syncSubCategories($product , $payload['subCategories'] ?? [] ) ;
             //store vedio iframe url if exists
             $this->mediaService->storeIframeVideo($product , $payload['video']);
             // store variants
@@ -145,7 +171,7 @@ class ProductService {
            $updatedVariants = [[
                   'price' => $payload['price'] ,
                   'compare_price' => $payload['compare_price'] ,
-                  'sku' => $payload['sku'] ,
+                  'sku' => $payload['sku'],
                   'stock' => $payload['stock'] ,
                   'attrs' => []  ,
                   'is_default' => true ,
@@ -203,7 +229,8 @@ class ProductService {
         // Optional fields - boost quality score
         $score = 0;
         if ($product->variants()->exists())      $score += 30; // most important ✅
-        if ($product->images()->count() >= 3)    $score += 25; // drives sales
+        if ($product->thumbnail()->exists())    $score += 10; // drives sales
+        if ($product->covers()->count() >= 2)    $score += 15; // drives sales
         if (strlen($product->description) > 200) $score += 20; // rich content
         if ($product->subCategories()->exists()) $score += 15; // navigation
         if ($product->tags()->exists())          $score += 10; // SEO

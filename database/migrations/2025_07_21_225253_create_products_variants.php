@@ -15,11 +15,11 @@ return new class extends Migration
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Product::class)->constrained()->onDelete('cascade');
-            $table->decimal('price', 10, 2);
-            $table->decimal('compare_price', 10, 2)->nullable();
-            $table->integer('stock')->default(0);
+            $table->decimal('price', 10, 2)->nullable();
+            $table->decimal('compare_price', 10, 2)->nullable()->default(0);
+            $table->integer('stock')->nullable();
             $table->string('sku')->unique()->nullable();
-            $table->boolean('is_default')->default(false);
+            $table->boolean('is_default')->nullable()->default(false);
             // Store all attributes as JSON
             $table->json('attrs')->nullable(); // {"color": "red", "storage": "32GB"}
             $table->timestamps();

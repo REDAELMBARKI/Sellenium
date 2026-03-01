@@ -1,5 +1,5 @@
 import { Category, CategoryCode, Color, Country, Cover, Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
-import { ProductBase } from "@/types/products/baseProductTypes";
+import { ProductBase } from "@/types/products/ProductTypes";
 import { Tag } from "@/types/tagsTypes";
 import { video } from "framer-motion/client";
 

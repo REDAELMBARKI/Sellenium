@@ -5,28 +5,26 @@ import { route } from "ziggy-js";
 
 export const useBackendInteraction = () => {
 
-    const {draftId , basicInfoForm} = useProductDataCtx() ; 
-    const createDraft = async () => {
-        if(draftId.current) return draftId.current ;
-        const response = await axios.post(route("products.createDraft"), basicInfoForm );
-        draftId.current = response.data.id
-        return draftId.current;
-    }
-
     const destroyDraftProduct = async (id : string) => {
         if(!id) return ;
-        const response = await axios.delete(route(`products.destroy` , id))
+        try{
+            const response = await axios.delete(route(`product.destroy` , {product : id}))
+
+        }catch(err)
+        {
+            throw err ; 
+        }
     }
 
-    const saveDraftProduct = (payload : any , onError : (errors : any) => void , id? : string) => {
+    const save = async (url : "onLeave"|"onSubmit" , payload : any  , onError : (errors : any) => void , id? : string) => {
         try{
-            router.put(route('products.updateDraftOnSave'), {...payload , draft_id : id}, {      
-                onError: (errors) => onError(errors),
-                onSuccess: () => console.log('Success'),
-            })
 
+            const res = await axios.put(route(`product.update.`+ url , {product : id }), {...payload}) ;
+            if(res.status == 200) {
+            }
         }
         catch(error : any) {
+            onError(error);
             throw new Error(error)
         }
     }
@@ -34,7 +32,7 @@ export const useBackendInteraction = () => {
     const publishDraftProduct = async (id : string , payload : any , onError : (errors : any) => void) => {
            if(!id) return ;
            try {
-                router.patch(route('products.publish' , id), payload , {
+                router.patch(route('product.publish' , {product : id}), payload , {
                    onError : (errors) => onError(errors),
                 }
             )
@@ -43,24 +41,11 @@ export const useBackendInteraction = () => {
            }
     }
     
-    const updateDraftProduct = (payload : any , onError : (errors : any) => void , id : string) => {
-          try {
-            router.put(route('product.update' , id ) , payload , {
-                 preserveScroll: true, 
-                onError : (errors) =>  onError(errors) ,
-                onSuccess: () => console.log('Success'),
 
-            }) ;
-          }catch(err : any){
-             throw new Error(err)
-          }
-    }
 
     return {
-    createDraft , 
     publishDraftProduct ,
     destroyDraftProduct , 
-    saveDraftProduct  , 
-    updateDraftProduct
+    save , 
     }
 }
