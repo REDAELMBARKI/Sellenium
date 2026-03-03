@@ -1,4 +1,3 @@
-
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import React from 'react';
 
@@ -15,8 +14,7 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
   id = 'switch' 
 }) => {
 
-     const {state :{currentTheme}} = useStoreConfigCtx()
-
+  const {state :{currentTheme}} = useStoreConfigCtx()
 
   return (
     <>
@@ -54,7 +52,8 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
           align-items: center;
           justify-content: center;
           outline: none;
-          background-color: ${currentTheme.accent};
+          /* OFF state: muted/dim background */
+          background-color: ${currentTheme.border};
           border-radius: 9999px;
           border: 2px solid ${currentTheme.border};
           transition: all linear 300ms;
@@ -67,7 +66,8 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
           height: var(--round);
           left: var(--p);
           border-radius: 9999px;
-          background-color: ${currentTheme.primaryHover};
+          /* OFF knob: dimmer color */
+          background-color: ${currentTheme.accent};
           will-change: left, width, margin, padding;
           transition: left 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275),
             width 300ms ease, padding 300ms ease, margin 300ms ease,
@@ -76,11 +76,14 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
         .switch-input + .switch-label:active::after {
           width: var(--scale-x);
         }
+        /* ON state: use primary color so it pops */
         .switch-input:checked + .switch-label {
-          background-color: ${currentTheme.accent};
-        }
-        .switch-input:checked + .switch-label::after {
           background-color: ${currentTheme.bg};
+          border-color: ${currentTheme.border};
+        }
+        /* ON knob: bright contrasting color */
+        .switch-input:checked + .switch-label::after {
+          background-color: ${currentTheme.accent};
           left: var(--checked);
         }
         .switch-input:checked + .switch-label:active::after {
@@ -118,6 +121,52 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
             rotate: 360deg;
           }
         }
+
+        /* Badge */
+        .switch-badge {
+          position: absolute;
+          bottom: -22px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 2px 8px;
+          border-radius: 9999px;
+          background-color: #fef08a33;
+          border: 1.5px solid #facc1566;
+          color: #facc15aa;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          white-space: nowrap;
+          pointer-events: none;
+          z-index: 30;
+          transition: all 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .switch-badge::before {
+          content: "";
+          width: 6px;
+          height: 6px;
+          border-radius: 9999px;
+          background-color: #e8ca4f75;
+          flex-shrink: 0;
+          transition: background-color 300ms ease, box-shadow 300ms ease;
+        }
+        .switch-input:checked ~ .switch-badge {
+          background-color: #16a34a33;
+          border-color: #22c55e99;
+          color: #22c55e;
+        }
+        .switch-input:checked ~ .switch-badge::before {
+          background-color: #22c55e;
+          box-shadow: 0 0 6px 2px #22c55e88;
+          animation: pulse-badge 2s ease infinite;
+        }
+        @keyframes pulse-badge {
+          0%, 100% { box-shadow: 0 0 6px 2px #22c55e88; }
+          50% { box-shadow: 0 0 10px 4px #22c55ecc; }
+        }
       `}</style>
       <div className="switch-wrap">
         <input
@@ -131,6 +180,7 @@ const SwitchToggler: React.FC<SwitchTogglerProps> = ({
         />
         <label className="switch-label" htmlFor={id}></label>
         <span className="switch-marbles"></span>
+        <span className="switch-badge">{checked ? 'Active' : 'Inactive'}</span>
       </div>
     </>
   );

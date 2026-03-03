@@ -35,7 +35,7 @@ export function ThemedTextarea({ className = '', ...props }: ThemedTextareaProps
   return (
     <textarea
       {...props}
-      className={`w-full px-3 py-2 text-sm transition-colors resize-none ${className}`}
+      className={`w-full px-3 py-2 text-sm transition-colors resize-none themed-scroll ${className} `}
       style={{
         backgroundColor: currentTheme.bgSecondary,
         border: `1px solid ${currentTheme.border}`,

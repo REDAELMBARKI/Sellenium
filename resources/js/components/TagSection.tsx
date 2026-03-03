@@ -171,7 +171,7 @@ const TagSection: React.FC<TagInputProps> = ({ tags }) => {
 
       {/* Selected Tags */}
       <div
-        className="rounded-md p-4 overflow-y-auto themed-scroll"
+        className="rounded-md  overflow-y-auto themed-scroll"
         style={{
           backgroundColor: currentTheme.bgSecondary,
           borderWidth: '2px',

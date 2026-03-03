@@ -29,10 +29,20 @@ class ProductTest extends JsonResource
             'stock'                 => $this->stock,
             'madeCountry'           => $this->madeCountry,
             'releaseDate'           => $this->releaseDate,
-            'video'              => null ,
+            'video'              => [[
+                'media_type' => 'iframe' ,
+                'id'=> '1',
+                'url' => 'https://www.youtube.com/embed/8scL5oJX6CM'
+            ],
+            [
+                'media_type' => 'iframe' ,
+                'id'=> '2',
+                'url' => 'https://www.youtube.com/embed/8scL5oJX6CM'
+            ]
+            ] ,
             'thumbnail'             => $this->thumbnail ? [
                 'id'  => $this->thumbnail->id,
-                'url' => $this->thumbnail->url,
+                'url' => "/".$this->thumbnail->url,
             ] : null,
             'tags'                  => $this->tags->pluck('name'),
             'covers'                => $this->covers->map(fn($c) => [
@@ -54,9 +64,9 @@ class ProductTest extends JsonResource
             'show_related_products' => $this->show_related_products,
             'show_reviews'          => $this->show_reviews,
             'show_social_share'     => $this->show_social_share,
-            'allow_backorder'       => $this->allow_backorder,
-            'promotion_ids'         => $this->promotions ?? [],
-            'coupon_ids'            => $this->coupons ?? [],
+            'allow_backorder'       => false,
+            'promotion_ids'         => $this->promotions ?? [1,2,3,4,5,6,7,8],
+            'coupon_ids'            => $this->coupons ?? [1,3,4,5,6,7,8],
         ];
     }
 }

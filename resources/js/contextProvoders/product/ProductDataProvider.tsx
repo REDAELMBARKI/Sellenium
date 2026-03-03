@@ -98,7 +98,7 @@ const fake = {
 
 
 const ProductDataProvider = ({children , data : {product , options  } }:ProductBackendProps) => {
-    console.log(product)
+    console.log('product' , product)
     const modeForm : ModeForm = product ? "edit" : "create" ; 
     
     const getInitialData = (mode: ModeForm, product?: ProductBase ,category?: Category ) => {
@@ -107,14 +107,24 @@ const ProductDataProvider = ({children , data : {product , options  } }:ProductB
       throw new Error("Invalid state");
       };
 
+    
     const initialData = getInitialData(modeForm, product);
     const [nicheCategory , setNicheCategory] = useState<Category[]>() ; 
     const draftId = useRef<string | undefined>(product?.id ?? null);
-    const { register, handleSubmit, getValues, control, formState  , setError, watch, setValue } = useForm<ProductBase>({
+    const { register,reset , handleSubmit, getValues, control, formState  , setError, watch, setValue } = useForm<ProductBase>({
         defaultValues: initialData, 
         resolver: zodResolver(productSchema), 
         mode: "onChange"
     })
+    const hasReset = useRef(false);
+
+    useEffect(() => {
+        if (initialData && !hasReset.current) {
+            reset(initialData);
+            hasReset.current = true;
+        }
+    }, [initialData, reset]);
+
 
     return (
     <ProductDataContext.Provider value={{

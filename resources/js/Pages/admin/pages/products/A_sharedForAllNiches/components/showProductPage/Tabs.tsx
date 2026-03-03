@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import React, { useState } from "react";
 
@@ -29,7 +30,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab }) => {
         >
           {tabs.map(({Icon , ...tab}) => {
             return (
-              <button
+              <Button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors relative `}
@@ -43,7 +44,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab }) => {
                 {activeTab === tab.id && (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background : activeTab === tab.id ? currentTheme.accentHover : 'transparent'}}></div>
                 )}
-              </button>
+              </Button>
             );
           })}
         </div>

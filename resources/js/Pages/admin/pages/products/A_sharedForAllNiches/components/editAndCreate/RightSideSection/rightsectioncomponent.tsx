@@ -42,9 +42,9 @@ export function RightSectionComponent() {
   const { state: { currentTheme } } = useStoreConfigCtx()
   const [subCategories, setSubCategories] = useState<Category[]>([]);
 
-  console.log('options' , options)
   const category = watch('category_niche_id');
   const sub_categories = watch('sub_categories');
+ 
   const tags = watch('tags');
   const madeCountry = watch('madeCountry');
   const releaseDate = watch('releaseDate');
@@ -52,7 +52,7 @@ export function RightSectionComponent() {
   const shipping = watch('shipping');
   const meta = watch('meta');
   const vendor = watch('vendor');
-
+  
   useEffect(() => {
     register('sub_categories');
     register('madeCountry');

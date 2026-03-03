@@ -40,8 +40,7 @@ class Product extends Model
     'faqs',
     'related_product_ids',
 ];
-    protected $guarded = [];
-
+ 
     protected $hidden = ['created_at','updated_at'];
     protected $casts = [
         'inventory' => 'array',

@@ -26,8 +26,10 @@ class ProductSeeder extends Seeder
                 ['url' =>  '/storage/products/3.jpg'],
             ]);
 
-           
 
+            $product->tags()->sync([2, 3 , 4]);
+            $product->subCategories()->sync([2, 3 , 4]);
+        
           
         });
     }

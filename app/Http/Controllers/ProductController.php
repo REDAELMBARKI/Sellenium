@@ -120,41 +120,9 @@ class ProductController extends Controller
                     // 'product' => (new ProductResources($product)),
                     'product' => (new ProductTest($product)),
                     'options' => [
-                        'categories' => Category::whereNull('parent_id')->select(['id' , 'name'])->get() ,
-                        'fits' => collect([
-                        ['id' => 1, 'name' => 'Slim'],
-                        ['id' => 2, 'name' => 'Regular'],
-                        ['id' => 3, 'name' => 'Oversized'],
-                          ]),
-
-                        'materials' => collect([
-                            ['id' => 1, 'name' => 'Cotton'],
-                            ['id' => 2, 'name' => 'Polyester'],
-                            ['id' => 3, 'name' => 'Wool'],
-                            ['id' => 4, 'name' => 'Denim'],
-                        ]),
-                        // Static (enum-like)
-                        'styles' => collect([
-                            ['id' => 1, 'name' => 'Casual'],
-                            ['id' => 2, 'name' => 'Formal'],
-                            ['id' => 3, 'name' => 'Streetwear'],
-                            ['id' => 4, 'name' => 'Sport'],
-                            ['id' => 5, 'name' => 'Luxury'],
-                        ]),
-
-                        'genders' => collect([
-                            ['id' => 1, 'name' => 'Men'],
-                            ['id' => 2, 'name' => 'Women'],
-                            ['id' => 3, 'name' => 'Unisex'],
-                        ]),
-
-                        'seasons' => collect([
-                            ['id' => 1, 'name' => 'Spring'],
-                            ['id' => 2, 'name' => 'Summer'],
-                            ['id' => 3, 'name' => 'Autumn'],
-                            ['id' => 4, 'name' => 'Winter'],
-                            ['id' => 5, 'name' => 'All Seasons'],
-                        ]),
+                        'nich_cats' =>  $this->categoryService->get_niche_cats(),
+                        'badges' => DB::table("badges")->get(['id' , 'name' , 'color' , 'icon']),
+                        'shipping_class' => ShippingSetting::value('shipping_class') ,
                     ],
                 ]
             ]);

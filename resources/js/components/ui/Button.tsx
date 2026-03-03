@@ -139,6 +139,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <MaterialUIButton
+         type="button"
         ref={ref}
         variant={muiVariant}
         size={sizeMap[size]}

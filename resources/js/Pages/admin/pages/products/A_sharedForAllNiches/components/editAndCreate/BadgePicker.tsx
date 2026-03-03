@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
-import { Flame, Sparkles, Tag, Zap, Rocket, Ban, Plus } from 'lucide-react';
+import { Flame, Sparkles, Tag, Zap, Rocket, Ban } from 'lucide-react';
 
 const BADGE_OPTIONS_STATIC = [
   { name: 'None',     color: 'transparent', icon: Ban      },
@@ -12,7 +12,7 @@ const BADGE_OPTIONS_STATIC = [
 ];
 
 const ICON_MAP: Record<string, React.ElementType> = {
-  Ban, Sparkles, Flame, Tag, Zap, Rocket,Plus
+  Ban, Sparkles, Flame, Tag, Zap, Rocket
 };
 
 export default function BadgePicker({ currentTheme}: { currentTheme: any }) {
@@ -52,11 +52,16 @@ export default function BadgePicker({ currentTheme}: { currentTheme: any }) {
           <span
             className="text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1"
             style={{
-              backgroundColor: selected.color + '22',
-              color: selected.color,
+              backgroundColor: selected?.color + '22',
+              color: selected?.color,
             }}
-          >
-            <selected.icon size={11} />
+          > 
+             {
+              selected ?
+              <selected.icon size={11} />
+              :
+              null
+             }
             {value}
           </span>
         )}

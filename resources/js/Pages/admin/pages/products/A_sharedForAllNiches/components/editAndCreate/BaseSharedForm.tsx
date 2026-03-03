@@ -79,7 +79,7 @@ const BaseSharedForm = ({getThumbnailPreview}: {getThumbnailPreview: (thumbnail:
                     )}
 
                     {!!thumbnailPreview && (
-                        <div className="relative w-40 h-40 group overflow-hidden rounded-2xl shadow-lg border-2"
+                        <div className="relative w-40 group h-40 group overflow-hidden rounded-2xl shadow-lg border-2"
                             style={{ borderColor: errors.thumbnail ? '' : currentTheme.success }}>
                             <img
                                 src={thumbnailPreview.url ?? getMediaSrcOrDefault(thumbnailPreview, 'image')}
@@ -89,7 +89,7 @@ const BaseSharedForm = ({getThumbnailPreview}: {getThumbnailPreview: (thumbnail:
                             <button
                                 type="button"
                                 onClick={() => handleThumnailRemove(String(thumbnailPreview.id))}
-                                className="absolute top-2 right-2 p-1 rounded-full bg-white/70 hover:bg-white shadow-lg transition-all"
+                                className="absolute opacity-0 group-hover:opacity-100 top-2 right-2 p-1 rounded-full bg-white/70 hover:bg-white shadow-lg transition-all"
                             >
                                 <X className="w-5 h-5 text-black" />
                             </button>

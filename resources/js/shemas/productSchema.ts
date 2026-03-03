@@ -50,6 +50,7 @@ const coverSchema = z
   });
 
 const videoSchema = z.object({
+  media_type : z.enum(['iframe' , 'video']) ,
   id: z.number().optional(),
   url: z.string().min(1, "Video URL is required").url("Video URL must be a valid URL"),
 });
@@ -99,7 +100,7 @@ export const productSchema = z.object({
 
   // optional
   brand: z.string().optional(),
-  releaseDate: z.number().optional(),
+  releaseDate: z.union([z.string(), z.number()]).optional(),
   madeCountry: z.string().optional(),
 
   // single product specific
