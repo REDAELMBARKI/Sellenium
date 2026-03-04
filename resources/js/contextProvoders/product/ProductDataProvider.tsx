@@ -108,7 +108,6 @@ const ProductDataProvider = ({children , product, nich_cats, shipping_class, bad
       throw new Error("Invalid state");
       };
 
-      console.log('test' , variants_options)
 
     
     const initialData = getInitialData(modeForm, product);

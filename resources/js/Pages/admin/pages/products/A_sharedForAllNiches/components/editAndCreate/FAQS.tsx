@@ -217,10 +217,10 @@ function FaqsSection() {
   };
 
   return (
-    <div className="p-5">
+    <div className="p-5 ">
       {/* FAQ count badge */}
       {fields.length > 0 && (
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2">
           <span
             className="text-xs font-bold px-2 py-1 rounded-full"
             style={{ backgroundColor: currentTheme.accent + '20', color: currentTheme.accent }}
@@ -259,7 +259,7 @@ function FaqsSection() {
         style={{
           backgroundColor: 'transparent',
           color: currentTheme.primary,
-          border: `1.5px solid ${currentTheme.primary}`,
+          border: `1.5px solid ${currentTheme.badge}`,
         }}
         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = currentTheme.primary + '10'; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent'; }}

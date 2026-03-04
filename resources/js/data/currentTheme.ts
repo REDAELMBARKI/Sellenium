@@ -1,15 +1,12 @@
 import { Themes } from "@/types/ThemeTypes";
-
 export const currentThemeExample: Themes = {
   luxuryNoir: {
     light: {
-      // -------------------------
       // SURFACES
-      // -------------------------
-      bg: '#f4f4f3',
-      bgSecondary: '#ecebe9',
-      card: '#ffffff',
-      modal: '#ffffff',
+      bg: '#efefed',           // warm off-white, easy on eyes
+      bgSecondary: '#e5e4e1',  // clear separation from bg
+      card: '#f8f8f6',         // slightly off-white card
+      modal: '#f8f8f6',
       overlay: 'rgba(0,0,0,0.55)',
 
       sidebarBg: '#141414',
@@ -21,49 +18,36 @@ export const currentThemeExample: Themes = {
       sidebarActive: '#bfa36f',
       sidebarActiveFg: '#111111',
 
-      // -------------------------
       // TEXT
-      // -------------------------
       text: '#111111',
       textSecondary: '#3f3f46',
-      textMuted: '#6b7280',
+      textMuted: '#78716c',    // warmer, more readable on light bg
       textInverse: '#ffffff',
 
-      // -------------------------
       // ACTIONS / ACCENTS
-      // -------------------------
       primary: '#111111',
       primaryHover: '#000000',
-      secondary: '#e4e4e7',
-      secondaryHover: '#d4d4d8',
+      secondary: '#dddcda',
+      secondaryHover: '#cccbc8',
       accent: '#bfa36f',
       accentHover: '#a88b5e',
 
-      // -------------------------
       // STATES / BADGES
-      // -------------------------
       badge: '#bfa36f',
+      success: '#3f6f5e',
+      info: '#4b5d73',
+      warning: '#a67c3a',
+      error: '#7a2e2e',
 
-      success: '#3f6f5e',   // muted emerald
-      info: '#4b5d73',      // steel blue
-      warning: '#a67c3a',   // amber gold
-      error: '#7a2e2e',     // deep wine red
+      // BORDERS — main fix: much more visible
+      border: '#c9c8c5',
+      borderHover: '#b5b4b1',
 
-      // -------------------------
-      // BORDERS
-      // -------------------------
-      border: '#e4e4e7',
-      borderHover: '#d4d4d8',
-
-      // -------------------------
       // LINKS
-      // -------------------------
       link: '#111111',
       linkHover: '#000000',
 
-      // -------------------------
       // SHADOWS
-      // -------------------------
       shadow: '0 1px 3px rgba(0,0,0,0.12)',
       shadowMd: '0 6px 14px rgba(0,0,0,0.16)',
       shadowLg: '0 18px 36px rgba(0,0,0,0.22)',
@@ -98,7 +82,6 @@ export const currentThemeExample: Themes = {
       accentHover: '#bfa36f',
 
       badge: '#d6b97b',
-
       success: '#5f8f7c',
       info: '#6b7f99',
       warning: '#c59a5a',
@@ -115,48 +98,55 @@ export const currentThemeExample: Themes = {
       shadowLg: '0 24px 48px rgba(0,0,0,0.85)',
     },
   },
+
   softPastel: {
     light: {
-      bg: '#fafafa',
-      bgSecondary: '#f3f4f6',
-      card: '#ffffff',
+      // SURFACES — bg is gray so card white has contrast
+      bg: '#f2f2f5',           // soft cool gray, not stark white
+      bgSecondary: '#e8e8ec',  // clear step down from bg
+      card: '#ffffff',         // white works here since bg is gray
       modal: '#ffffff',
       overlay: 'rgba(15,23,42,0.4)',
 
       sidebarBg: '#f8fafc',
       sidebarFg: '#1f2937',
-      sidebarBorder: '#e5e7eb',
+      sidebarBorder: '#d1d5db',  // darker sidebar border
       sidebarHover: '#eef2ff',
       sidebarMuted: '#f1f5f9',
       sidebarMutedFg: '#64748b',
       sidebarActive: '#8b5cf6',
       sidebarActiveFg: '#ffffff',
 
+      // TEXT
       text: '#1f2937',
-      textSecondary: '#475569',
-      textMuted: '#94a3b8',
+      textSecondary: '#374151',  // darker than before
+      textMuted: '#6b7280',      // darker — readable as placeholder
       textInverse: '#ffffff',
 
+      // ACTIONS / ACCENTS
       primary: '#8b5cf6',
       primaryHover: '#7c3aed',
-      secondary: '#e5e7eb',
-      secondaryHover: '#d1d5db',
+      secondary: '#dde0e7',
+      secondaryHover: '#c8ccd6',
       accent: '#ec4899',
       accentHover: '#db2777',
 
+      // STATES / BADGES
       badge: '#e879f9',
-
       success: '#22c55e',
       info: '#38bdf8',
       warning: '#f59e0b',
       error: '#ef4444',
 
-      border: '#e5e7eb',
-      borderHover: '#d1d5db',
+      // BORDERS — main fix: visible on both bg and card
+      border: '#c4c7d1',
+      borderHover: '#a8aab8',
 
+      // LINKS
       link: '#8b5cf6',
       linkHover: '#7c3aed',
 
+      // SHADOWS
       shadow: '0 1px 2px rgba(0,0,0,0.08)',
       shadowMd: '0 6px 14px rgba(0,0,0,0.12)',
       shadowLg: '0 18px 30px rgba(0,0,0,0.16)',
@@ -191,7 +181,6 @@ export const currentThemeExample: Themes = {
       accentHover: '#ec4899',
 
       badge: '#f472b6',
-
       success: '#4ade80',
       info: '#60a5fa',
       warning: '#fbbf24',

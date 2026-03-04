@@ -22,7 +22,8 @@ const BaseSharedForm = ({getThumbnailPreview}: {getThumbnailPreview: (thumbnail:
     const thumbnailInputRef = useRef<HTMLInputElement>(null);
     const [uploadError, setUploadError] = useState<string | null>(null)
     const [thumbnailUploading, setThumbnailUploading] = useState(false)
-    
+    const [localPreview, setLocalPreview] = useState<string | null>(null)
+
     const thumbnail = watch('thumbnail');
     const [thumbnailPreview, setThumbnailPreview] = useState<Cover | null>(thumbnail ?? null);
     
@@ -32,17 +33,21 @@ const BaseSharedForm = ({getThumbnailPreview}: {getThumbnailPreview: (thumbnail:
         try {
             const file = e.target.files?.[0];
             if (!file) return;
+            const localUrl = URL.createObjectURL(file);
+            setLocalPreview(localUrl);
             setUploadError(null)
             setThumbnailUploading(true)
             const data = await uploadProductFiles(file, 'thumbnail', 'product', draftId.current);
             setThumbnailPreview({ url: data.media.url, id: data.media.id });
-            setValue('thumbnail', { url: data.media.url, id: data.media.id }, { shouldValidate: true }); // ← tell useForm
+            setValue('thumbnail', { url: data.media.url, id: data.media.id }, { shouldValidate: true });
             if (!draftId.current) draftId.current = data.draft_id
+            URL.revokeObjectURL(localUrl);
         } catch (err: any) {
             setUploadError(err.message)
         } finally {
             if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
             setThumbnailUploading(false)
+            setLocalPreview(null)
         }
     };
 
@@ -51,7 +56,7 @@ const BaseSharedForm = ({getThumbnailPreview}: {getThumbnailPreview: (thumbnail:
         try {
             await deleteMedia(mediaId);
             setThumbnailPreview(null);
-            setValue('thumbnail', null, { shouldValidate: true }); // ← tell useForm
+            setValue('thumbnail', null, { shouldValidate: true });
         } catch (err: any) {
             setUploadError(err.message)
         } finally {
@@ -68,17 +73,31 @@ const BaseSharedForm = ({getThumbnailPreview}: {getThumbnailPreview: (thumbnail:
                     Thumbnail <span className="text-red-500">*</span>
                 </label>
                 <div className="flex items-center gap-6">
-                    {/* loading skeleton */}
-                    {thumbnailUploading && (
-                        <div
-                            className="w-40 h-40 animate-pulse rounded-lg border-2 border-dashed transition-all"
-                            style={{ background: currentTheme.bgSecondary }}
-                        >
-                            <Oval height={30} width={30} color="#fff" visible={thumbnailUploading} />
-                        </div>
-                    )}
+                    {/* loading skeleton — blurred local preview */}
+                   {/* loading — with local preview */}
+{thumbnailUploading && localPreview && (
+    <div className="relative w-40 h-40 rounded-lg overflow-hidden border-2 border-dashed flex-shrink-0"
+        style={{ borderColor: currentTheme.border }}>
+        <img src={localPreview} alt="uploading" className="w-full h-full object-cover blur-sm scale-105" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg"
+            style={{ background: "rgba(0,0,0,0.45)" }}>
+            <div className="w-8 h-8 rounded-full border-2 border-white border-t-transparent animate-spin" />
+            <span className="text-xs text-white opacity-70">Uploading...</span>
+        </div>
+    </div>
+)}
 
-                    {!!thumbnailPreview && (
+{/* loading — no local preview */}
+{thumbnailUploading && !localPreview && (
+    <div className="w-40 h-40 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 animate-pulse"
+        style={{ background: currentTheme.bgSecondary, borderColor: currentTheme.border }}>
+        <div className="w-8 h-8 rounded-full border-2 border-white border-t-transparent animate-spin"
+            style={{ borderColor: currentTheme.textMuted }} />
+        <span className="text-xs opacity-40" style={{ color: currentTheme.textMuted }}>Uploading...</span>
+    </div>
+)}
+
+                    {!thumbnailUploading && !!thumbnailPreview && (
                         <div className="relative w-40 group h-40 group overflow-hidden rounded-2xl shadow-lg border-2"
                             style={{ borderColor: errors.thumbnail ? '' : currentTheme.success }}>
                             <img
@@ -197,7 +216,4 @@ const BaseSharedForm = ({getThumbnailPreview}: {getThumbnailPreview: (thumbnail:
 }
 
 
-export default BaseSharedForm ; 
-
-
-
+export default BaseSharedForm ;

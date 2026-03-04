@@ -6,6 +6,7 @@ namespace App\Services\product;
 use App\Models\Coupon;
 use App\Models\Media;
 use App\Models\Product;
+use App\Models\ProductAttribute;
 use App\Models\ProductVariant;
 use App\Models\Promotion;
 use App\Models\Tag;
@@ -102,6 +103,8 @@ class ProductService {
             $updatedVariants = $this -> resolveVariants($payload);
             $this-> syncVariants($product ,$updatedVariants );
             $this->evaluateProductScore($product);
+            //store attribtes 
+            $this->storeProductAttributes($product , $payload['product_attributes']);
             // coupons and promotions related to this product
             $this->attachApplicableProducts($product, $payload['promotion_ids'] ?? [], Promotion::class);
             $this->attachApplicableProducts($product, $payload['coupon_ids'] ?? [], Coupon::class);
@@ -285,6 +288,32 @@ class ProductService {
             ]));
     }
 
+
+    private function storeProductAttributes(Product $product, array $attributes): void
+    {
+
+            $product->attrs()->detach();
+            ProductAttribute::upsert(
+                collect($attributes)->map(fn($attr) => [
+                    'key'        => $attr['key'],
+                    'value'      => $attr['value'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ])->toArray(),
+                ['key', 'value'],
+                ['updated_at']
+            );
+            
+             $ids = collect($attributes)->map(fn($attr) =>
+                    ProductAttribute::where('key' , $attr['key']) 
+                                     ->where('value', $attr['value'])
+                                      ->value('id') 
+             );
+
+            $product->attrs()->sync($ids);
+            // remove any none used attributes 
+            ProductAttribute::doesntHave('products')->delete();
+    }
 
 
 

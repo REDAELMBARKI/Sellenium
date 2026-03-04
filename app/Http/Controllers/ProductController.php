@@ -44,7 +44,20 @@ class ProductController extends Controller
 
     public function create()
     {
-        return inertia::render("admin/pages/products/Create");
+            $parents = DB::table('variants_options_settings')->whereNull('parent_id')->get(['key']) ;
+            $options =[] ;
+            foreach($parents as $parent){
+                $options[$parent->key] =  DB::table('variants_options_settings')->where('key' , $parent->key)
+                             ->whereNotNull('parent_id')
+                             ->get(['value']) ;
+            }
+            return inertia::render("admin/pages/products/Create" ,
+                [
+                    'nich_cats' =>  $this->categoryService->get_niche_cats(),
+                    'shipping_class' => ShippingSetting::value('shipping_class') ,
+                    'badges' => DB::table("badges")->get(['id' , 'name' , 'color' , 'icon']),
+                    'variants_options' => $options,
+                 ]);
     }
     
 
@@ -81,8 +94,10 @@ class ProductController extends Controller
         saves the product (update) with validation (on submit click)
         */
         
-        public function  updateOnSubmit(PublishProductRequest $publishProductRequest , Product $product){
-            $payload = $publishProductRequest->validated();
+        public function  updateOnSubmit(Request $publishProductRequest , Product $product){
+            // dd($publishProductRequest->all());
+            // $payload = $publishProductRequest->validated();
+            $payload = $publishProductRequest->all();
             $this->productService->saveDraft($payload , $product);
             return redirect()->route('drafts.index')->with('success','product saved ');
         }

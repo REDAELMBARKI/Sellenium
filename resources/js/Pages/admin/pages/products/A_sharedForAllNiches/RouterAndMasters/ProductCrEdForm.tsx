@@ -18,7 +18,6 @@ import BaseSharedForm from "../components/editAndCreate/BaseSharedForm";
 
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 
-import NotifyUser from "@/components/ui/NotifyUser";
 import CollapsibleFrendlySection from "@/components/CollapsibleFrendlySection";
 import adapters from "@/functions/product/adapters";
 import { Button } from "@/components/ui/button";
@@ -28,6 +27,7 @@ import PricingOrVariants from "../components/editAndCreate/PricingOrVariants";
 import MarketingSection from "../components/editAndCreate/MarketingSection";
 import FaqsSection from "../components/editAndCreate/FAQS";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
+import AttributesBuilder from "../components/editAndCreate/AttributesBuilder";
 
 
 interface ProductCrEdFormFormProps {
@@ -80,8 +80,6 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
             setter(!currentState);
         }
     };
-
-    const AttibutesBuilder = null;
 
     return (
         <div className="w-full h-full overflow-y-auto">
@@ -185,7 +183,6 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
                 </section>
 
                 {/* Attributes */}
-                {AttibutesBuilder && (
                     <section
                         className="border border-1"
                         style={{ background: currentTheme.card, borderColor: currentTheme.border }}
@@ -199,11 +196,10 @@ const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
                                     handleToggleSection("Product Attributes", showAttributes, setShowAttributes)
                                 }
                             >
-                                <></>
+                                <AttributesBuilder />
                             </CollapsibleSection>
                         </div>
                     </section>
-                )}
 
                 {/* Marketing */}
                 <section

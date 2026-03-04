@@ -28,7 +28,6 @@ export default function BadgePicker({ currentTheme}: { currentTheme: any }) {
   const selected = BADGE_OPTIONS.find((b) =>
     b.name === 'None' ? !value : b.name === value
   ) ?? BADGE_OPTIONS[0];
-  console.log(BADGE_OPTIONS)
   return (
     <div
       className="rounded-lg p-4"

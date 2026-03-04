@@ -41,27 +41,27 @@ const ProductFormMaster: React.FC = () => {
   }, []);
 
 
-  // errors 
-  useEffect(() => {
-    console.log(errors)
-  }, [errors]);
 
   const onSubmit = (data: ProductSchemaType) => {
+    isLeavingRef.current = true ;
     const payload = {
       ...data,
       product_attributes: cleanAttributesForBackend(data.product_attributes),
     }
 
-    Inertia.put(route('product.update', { product: draftId.current }), payload as any, {
+    Inertia.put(route('draft.save.submit', { product: draftId.current }), payload as any, {
       onSuccess: () => console.log('Success'),
-      onError: (errors) => console.error(errors),
+      onError: (errors) => {
+        isLeavingRef.current = false;
+        console.log(errors)
+      },
     })
   }
 
 
   useEffect(() => {
-  // if(isLeavingRef.current) return ;
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if(isLeavingRef.current) return ;
       e.preventDefault();
       e.returnValue = ''; // required for Chrome
   };
@@ -116,7 +116,7 @@ const ProductFormMaster: React.FC = () => {
     setPendingVisit(null);
   };
 
-
+  console.log('errors' , errors)
   return (
     <form onSubmit={(e) => {
         e.preventDefault()
@@ -131,7 +131,7 @@ const ProductFormMaster: React.FC = () => {
       /> }
       {/* edit and create form */}
       <div className='flex'>
-       
+        
         <ProductCrEdForm />
         <RightSectionComponent />
       </div>

@@ -17,7 +17,7 @@ interface MediaSectionProps {
 }
 
 // Shared skeleton
-const MediaSkeleton = ({ icon, label, theme }: { icon: React.ReactNode; label: string; theme: any }) => (
+export const MediaSkeleton = ({ icon, label, theme }: { icon: React.ReactNode; label: string; theme: any }) => (
     <div
         className="absolute inset-0 flex flex-col items-center justify-center animate-pulse rounded-lg gap-2"
         style={{ background: theme.bgSecondary }}
@@ -28,7 +28,7 @@ const MediaSkeleton = ({ icon, label, theme }: { icon: React.ReactNode; label: s
 );
 
 // Iframe with loading skeleton
-const IframeWithLoader = ({ src, title, theme }: { src: string; title: string; theme: any }) => {
+export const IframeWithLoader = ({ src, title, theme }: { src: string; title: string; theme: any }) => {
     const [loaded, setLoaded] = useState(false);
     return (
         <div className="relative w-full aspect-video rounded-lg overflow-hidden">
@@ -52,7 +52,7 @@ const IframeWithLoader = ({ src, title, theme }: { src: string; title: string; t
 };
 
 // Image with loading skeleton
-const ImageWithLoader = ({ src, alt, theme }: { src: string; alt: string; theme: any }) => {
+export const ImageWithLoader = ({ src, alt, theme }: { src: string; alt: string; theme: any }) => {
     const [loaded, setLoaded] = useState(false);
     return (
         <div className="relative w-full h-full rounded-lg overflow-hidden">
@@ -76,7 +76,7 @@ const ImageWithLoader = ({ src, alt, theme }: { src: string; alt: string; theme:
 };
 
 // Uploading placeholder shown immediately when file is picked — blurred preview + centered spinner
-const UploadingPlaceholder = ({ src, theme }: { src: string; theme: any }) => (
+export const UploadingPlaceholder = ({ src, theme }: { src: string; theme: any }) => (
     <div className="relative aspect-square rounded-lg overflow-hidden">
         <img src={src} alt="uploading" className="w-full h-full object-cover rounded-lg blur-sm scale-105" />
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg" style={{ background: "rgba(0,0,0,0.45)" }}>
@@ -247,7 +247,7 @@ const MediaSection = ({ setVideoPreview, videoPreview }: MediaSectionProps) => {
                                 Icon: Plus,
                                 content: (
                                     <div className="space-y-4">
-                                        <div className="flex justify-end mb-4">
+                                        <div className="flex justify-center items-center mb-4">
                                             <Button type="button" onClick={() => setShowIframeModal(true)} className="px-4 py-2 rounded-md">
                                                 Add iFrame
                                             </Button>

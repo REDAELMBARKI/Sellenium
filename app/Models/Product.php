@@ -60,6 +60,10 @@ class Product extends Model
   
 
 
+    public function attrs(){
+         return $this->belongsToMany(ProductAttribute::class , 'attribute_product');
+    }
+
     public function variants(){
       return   $this->hasMany(ProductVariant::class , 'product_id' , 'id') ;
     }

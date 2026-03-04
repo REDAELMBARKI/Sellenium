@@ -7,7 +7,7 @@ import { ProductClient } from '@/types/clientSideTypes';
 const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [activeFilter, setActiveFilter] = useState('*');
-
+ 
   const slides = [
     {
       image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=1200',
@@ -157,6 +157,8 @@ const HomePage = () => {
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
+
+
 
   return (
     <Layout currentPage="home">

@@ -92,6 +92,11 @@ const vendorSchema = z.object({
   vendorNotes: z.string().optional(),
 }).optional();
 
+
+const attributesSchema = z.object({
+    key : z.string(),
+    value : z.string(),
+})
 // ── Main Product Schema ────────────────────────────────────────────────────
 export const productSchema = z.object({
   id: z.string().nullable().optional(),
@@ -139,7 +144,7 @@ export const productSchema = z.object({
   })).default([]),
 
   variants: z.array(variantSchema).default([]),
-  product_attributes: z.array(z.any()).default([]),
+  product_attributes: z.array(attributesSchema).default([]),
   related_products: z.array(z.number()).default([]),
 
   // settings

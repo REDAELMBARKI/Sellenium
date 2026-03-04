@@ -17,17 +17,16 @@ class PublishProductRequest extends FormRequest{
     }
     public function rules(){
      return SubmitedProductValidation::rules();
-
     }
 
 
     public function withValidator($validator){
           $validator->after(function($validator){
-            $draft =  $this->route('draft') ;
-            $hasThumbnail = Media::where('model_id' , $draft->id)
+            $draft =  $this->route('product') ;
+            $hasThumbnail = Media::where('mediaable_id' , $draft->id)
                             ->where('collection' , 'thumbnail')->exists() ;
             if(!$hasThumbnail) {
-                $validator->errors()->add('thumbnail' , "Thumbnail is required ^^ ") ;
+                $validator->errors()->add('thumbnail' , "Thumbnail is required ") ;
             }
           }) ;
 
