@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { Upload, X } from "lucide-react";
 import { ThemePalette } from "@/types/ThemeTypes";
-import { Button as MaterialUIButton } from "@mui/material";
 import { Button } from "@/components/ui/button";
 
 const AVAILABLE_OPTIONS = ["Color", "Size", "Storage", "RAM", "Style", "Width", "Connectivity", "Flavor"];
@@ -30,8 +29,13 @@ const DB_COLORS = [
 
 export default function OptionSelector({ selected, colorImages, onChange, onColorImageUpload, onColorImageRemove, theme }: OptionSelectorProps) {
   const toggle = (opt: string) =>
-    onChange(selected.includes(opt) ? selected.filter((o) => o !== opt) : [...selected, opt]);
+    onChange(selectedLower.includes(opt.toLowerCase())
+      ? selected.filter((o) => o.toLowerCase() !== opt.toLowerCase())
+      : [...selected, opt] 
+    );
 
+  // Normalize selected to lowercase for all comparisons
+  const selectedLower = selected.map((s) => s.toLowerCase());
   return (
     <div style={{ background: theme.bgSecondary, border: `1px solid ${theme.border}`, padding: "20px 24px" }}>
       <p style={{ fontSize: 11, letterSpacing: "0.12em", color: theme.textMuted, marginBottom: 6 }}>STEP 1 — OPTIONS</p>
@@ -39,34 +43,34 @@ export default function OptionSelector({ selected, colorImages, onChange, onColo
         What makes this product different? e.g. a t-shirt has <strong style={{ color: theme.textSecondary }}>Color</strong> + <strong style={{ color: theme.textSecondary }}>Size</strong>, a phone has <strong style={{ color: theme.textSecondary }}>Storage</strong> + <strong style={{ color: theme.textSecondary }}>Color</strong>
       </p>
 
+      {/* Option toggle buttons */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
         {AVAILABLE_OPTIONS.map((opt) => {
-          const active = selected.includes(opt);
+          const active = selectedLower.includes(opt.toLowerCase());
           return (
-            <Button type="button" key={opt} onClick={() => toggle(opt)} style={{
-              padding: "7px 16px", borderRadius: theme.borderRadius, fontSize: 13, cursor: "pointer",
-              border: `1px solid ${active ? theme.primary : theme.border}`,
-              background: active ? theme.primary + "22" : "transparent",
-              color: active ? theme.primary : theme.textSecondary,
-              fontWeight: active ? 600 : 400, transition: "all 0.15s",
-              display: "flex", alignItems: "center", gap: 6,
-            }}>
+            <Button
+              type="button"
+              key={opt}
+              onClick={() => toggle(opt)}
+              style={{
+                padding: "7px 16px", borderRadius: theme.borderRadius, fontSize: 13, cursor: "pointer",
+                border: `1px solid ${active ? theme.primary : theme.border}`,
+                background: active ? theme.primary + "22" : "transparent",
+                color: active ? theme.primary : theme.textSecondary,
+                fontWeight: active ? 600 : 400, transition: "all 0.15s",
+                display: "flex", alignItems: "center", gap: 6,
+              }}
+            >
               {active && <span style={{ fontSize: 10 }}>✓</span>}
               {opt}
             </Button>
           );
         })}
-        <div>
-          
-            <Button variant="outline" >
-                 Manage Options
-            </Button>
-          
-        </div>
+
+        <Button type="button" variant="outline">
+          Manage Options
+        </Button>
       </div>
-
-
- 
     </div>
   );
 }
@@ -82,7 +86,7 @@ function ColorImageSlot({ color, imageUrl, onUpload, onRemove, theme }: {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, width: 56 }}>
-      {/* color circle */}
+      {/* Color circle */}
       <div style={{ position: "relative" }}>
         <div style={{
           width: 32, height: 32, borderRadius: "50%", background: color.hex,
@@ -96,16 +100,23 @@ function ColorImageSlot({ color, imageUrl, onUpload, onRemove, theme }: {
         )}
       </div>
 
-      {/* image thumbnail or upload */}
+      {/* Image thumbnail or upload trigger */}
       {imageUrl ? (
         <div style={{ position: "relative", width: 48, height: 48 }}>
           <img src={imageUrl} alt={color.name} style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 6, border: `1px solid ${theme.border}` }} />
-          <button type="button" onClick={onRemove} style={{ position: "absolute", top: -4, right: -4, width: 14, height: 14, background: theme.error, border: "none", borderRadius: "50%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <button
+            type="button"
+            onClick={onRemove}
+            style={{ position: "absolute", top: -4, right: -4, width: 14, height: 14, background: theme.error, border: "none", borderRadius: "50%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
             <X size={8} color="#fff" />
           </button>
         </div>
       ) : (
-        <div onClick={() => ref.current?.click()} style={{ width: 48, height: 48, borderRadius: 6, border: `2px dashed ${theme.border}`, background: theme.bg, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+        <div
+          onClick={() => ref.current?.click()}
+          style={{ width: 48, height: 48, borderRadius: 6, border: `2px dashed ${theme.border}`, background: theme.bg, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+        >
           <Upload size={14} color={theme.textMuted} />
         </div>
       )}

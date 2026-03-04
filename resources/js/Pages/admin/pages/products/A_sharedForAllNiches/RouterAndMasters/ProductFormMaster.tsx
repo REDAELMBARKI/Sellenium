@@ -4,7 +4,7 @@ import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import { Button } from '@/components/ui/button';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import ProductCrEdForm from './ProductCrEdForm';
-import { Save } from 'lucide-react';
+import { CloudLightning, Save } from 'lucide-react';
 import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
 import adapters from '@/functions/product/adapters';
 import { Inertia } from '@inertiajs/inertia'
@@ -23,7 +23,7 @@ const ProductFormMaster: React.FC = () => {
   const [showLeaveModal  ,setShowLeaveModal] = useState(false)
   const [pendingVisit , setPendingVisit] = useState<string>('')
 
-  const {cleanObjectToIids , cleanAttributesForBackend} = toBackendDataCleaners()
+  const { cleanAttributesForBackend} = toBackendDataCleaners()
   const {save , destroyDraftProduct} =useBackendInteraction();
   const isLeavingRef = useRef(false);
   useEffect(() => {
@@ -115,7 +115,6 @@ const ProductFormMaster: React.FC = () => {
     setShowLeaveModal(false);
     setPendingVisit(null);
   };
-
 
 
   return (

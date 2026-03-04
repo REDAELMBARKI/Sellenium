@@ -42,7 +42,7 @@ class ProductTest extends JsonResource
             ] ,
             'thumbnail'             => $this->thumbnail ? [
                 'id'  => $this->thumbnail->id,
-                'url' => "/".$this->thumbnail->url,
+                'url' => $this->thumbnail->url,
             ] : null,
             'tags'                  => $this->tags->pluck('name'),
             'covers'                => $this->covers->map(fn($c) => [
@@ -55,7 +55,29 @@ class ProductTest extends JsonResource
             'shipping'              => $this->shipping,
             'meta'                  => $this->meta,
             'vendor'                => $this->vendor,
-            'variants'              => $this->variants ?? [],
+            'variants'              =>  [
+                [
+                  "variant_id" => 1 ,
+                   "image" => $this->thumbnail ? [
+                        'id'  => $this->thumbnail->id,
+                        'url' => $this->thumbnail->url,
+                    ] : null,
+                   "sku" => 'test sku' , 
+                   "price" => 45,
+                   "compare_price" => 60,
+                   "stock" => 10,
+                   "is_open" => false , 
+                   "attrs" => [
+                     'size' =>  "M",
+                     'color' => [
+                         "name" => "Pink" ,
+                         "hex" => "#c616cfff"
+                     ],
+             
+                   ]
+                ],
+               
+            ],
             'product_attributes'    => $this->productAttributes ?? [],
             'related_products'      => $this->relatedProducts ?? [],
             'faqs'                  => $this->faqs,

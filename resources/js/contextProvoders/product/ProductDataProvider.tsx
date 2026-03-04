@@ -4,12 +4,13 @@ import { ModeForm, ProductDataContext } from '@/context/product/ProductDataConte
 import {  Category, Cover } from '@/types/inventoryTypes';
 import { getEditedData, getEmptyInitialProductData } from '@/data/initialProductData';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import {  ProductBackendProps } from '@/types/productsTypes';
 import { CategoriesList } from './../../Pages/admin/pages/categories/CategoriesList';
-import { ProductBase } from '@/types/products/ProductTypes';
+import { ProductBackendProps, ProductBase } from '@/types/products/ProductTypes';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { productSchema } from '@/shemas/productSchema';
+import { productSchema, ProductSchemaType } from '@/shemas/productSchema';
+import axios from 'axios';
+import { route } from 'ziggy-js';
 
 
 const fake = {
@@ -97,15 +98,17 @@ const fake = {
 
 
 
-const ProductDataProvider = ({children , data : {product , options  } }:ProductBackendProps) => {
-    console.log('product' , product)
-    const modeForm : ModeForm = product ? "edit" : "create" ; 
+const ProductDataProvider = ({children , product, nich_cats, shipping_class, badges, variants_options }:ProductBackendProps) => {
     
-    const getInitialData = (mode: ModeForm, product?: ProductBase ,category?: Category ) => {
+    const modeForm=  product ? "edit" : "create" ;
+  
+    const getInitialData = (mode: ModeForm, product?: ProductBase ) => {
       if (mode === "create") return getEmptyInitialProductData();
       if (mode === "edit" && product) return getEditedData(product);
       throw new Error("Invalid state");
       };
+
+      console.log('test' , variants_options)
 
     
     const initialData = getInitialData(modeForm, product);
@@ -133,7 +136,7 @@ const ProductDataProvider = ({children , data : {product , options  } }:ProductB
         setValue , getValues , 
         register , handleSubmit , watch , 
         control , formState , setError , 
-        options , 
+        nich_cats , shipping_class  , badges , variants_options , 
         draftId
     }}>
         {children}

@@ -34,7 +34,7 @@ interface ProductCrEdFormFormProps {
 }
 
 const ProductCrEdForm = ({} : ProductCrEdFormFormProps) => {
-    const { register, control, watch, setValue, formState: { errors } ,  options : {nich_cats }  } = useProductDataCtx();
+    const { register, control, watch, setValue, formState: { errors } ,  nich_cats } = useProductDataCtx();
     const { toSelectOptionAdapter } = adapters()
     const {
         state: { currentTheme },

@@ -18,18 +18,26 @@ export default function VariantBuilder() {
   const [colorImages, setColorImages] = useState<Record<string, string>>({});
   const [showModal, setShowModal] = useState(false);
   const newCardRef = useRef<HTMLDivElement>(null);
-  const {  control } = useProductDataCtx();
+  const {  control , formState : {errors}} = useProductDataCtx();
   const {addToast} = useToast()
   const { fields : variants, append, remove , update} = useFieldArray<ProductBase , 'variants'>({
     control,
     name: 'variants'
   });
+  const {modeForm} = useProductDataCtx();
   const hasOpenCard = variants.some((v) => v.isOpen);
   const [defaultVariantsPrice , setDefaultVariantsPrice] = useState<number>()
-  
+  const variantStep2Ref = useRef<HTMLDivElement>(null)
   // 2. holds the validation errors for those inputs
   const [variantErrors, setVariantErrors] = useState<Record<string, any>>({});
   
+  useEffect(() => {
+     // get all options from existing variants 
+     if(modeForm == 'edit'){
+        const optionToBeSelcted = Object.keys(variants[0].attrs).map(el => el.toLowerCase())
+        setActiveOptions(optionToBeSelcted)
+     }
+  }, []);
 
   const addEmpty = useCallback(() => {
     if (hasOpenCard) return;
@@ -76,17 +84,19 @@ export default function VariantBuilder() {
   }
 
   const markDone = (id: string) => {
-        const index = variants.findIndex(v => v.variant_id === id);
-        if (index === -1) return;
-
-        const variant = variants[index] ; 
-        const result = variantSchema.safeParse(variant);
-        if (!result.success) {
-        setVariantErrors(prev => ({
-             ...prev , 
-               [id]: result.error.flatten().fieldErrors
-          }))
-          return;
+    console.log('errors' , errors)
+    
+    const index = variants.findIndex(v => v.variant_id === id);
+    if (index === -1) return;
+    
+    const variant = variants[index] ; 
+    const result = variantSchema.safeParse(variant);
+    if (!result.success) {
+      setVariantErrors(prev => ({
+        ...prev , 
+        [id]: result.error.flatten().fieldErrors
+      }))
+      return;
         }
 
         const isExists = checkIfExists(variant , variants) ;
@@ -111,6 +121,10 @@ export default function VariantBuilder() {
             type : 'success' , 
             duration : 1000
        })
+
+        setTimeout(() => {
+          variantStep2Ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 50);
   }
 
   const checkIfExists = (variant: Variant, variants: Variant[]): boolean => {
@@ -165,8 +179,8 @@ export default function VariantBuilder() {
       />
 
       {/* ── Step 2: Variants ── */}
-      {activeOptions.length > 0 && (
-        <div className="mt-6">
+      {(activeOptions.length > 0) && (
+        <div ref={variantStep2Ref} className="mt-6">
 
           {/* Section header */}
           <div className="flex items-start justify-between p-3">

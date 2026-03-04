@@ -38,7 +38,7 @@ const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 const firstVal = (selected: AllowedObjectsType[]) => selected[0]?.value ?? '';
 
 export function RightSectionComponent() {
-  const { watch, register, control, setValue, formState: { errors } , options } = useProductDataCtx();
+  const { watch, register, control, setValue, formState: { errors } , shipping_class = []} = useProductDataCtx();
   const { state: { currentTheme } } = useStoreConfigCtx()
   const [subCategories, setSubCategories] = useState<Category[]>([]);
 
@@ -415,7 +415,7 @@ export function RightSectionComponent() {
           <MultiSelectDropdownForObject
             multiple={false}
             label="shipping class"
-            options={options.shipping_class}
+            options={shipping_class}
             selectedValues={shipping?.shippingClass
               ? [{ label: shipping.shippingClass, value: shipping.shippingClass }]
               : [{ label: 'Standard', value: '' }]}

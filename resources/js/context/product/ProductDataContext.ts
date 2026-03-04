@@ -10,19 +10,22 @@ import { Control, FormState, SubmitHandler, UseFormGetValues, UseFormRegister, U
 export type ModeForm = "edit" | "create"
 interface ProductDataContextProps {
     modeForm : ModeForm
-    options: any
-
+   
     nicheCategory : Category[] ;
     setNicheCategory :Dispatch<Category[]>
     draftId: RefObject<string | undefined>
     register: UseFormRegister<ProductSchemaType>
     control: Control<ProductSchemaType>
-    formState: FormState<ProductSchemaType>
     watch: UseFormWatch<ProductSchemaType>
     setValue : UseFormSetValue<ProductSchemaType>
     handleSubmit : SubmitHandler<ProductSchemaType>
     getValues : UseFormGetValues<ProductSchemaType>
     setError : UseFormSetError<any>
+    formState : FormState<ProductSchemaType>
+    nich_cats : any, 
+    shipping_class : any, 
+    badges : any,
+     variants_options : any 
     }
 
 export const ProductDataContext = createContext<ProductDataContextProps |undefined>(undefined)

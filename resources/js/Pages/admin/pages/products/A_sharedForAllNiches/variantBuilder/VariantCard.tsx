@@ -9,16 +9,20 @@ import { variantSchema } from "@/shemas/productSchema";
 import { Button } from "@/components/ui/button";
 import { productFilesUploaderCleaner } from "@/functions/product/productFilesUploaderCleaner";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
+import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
+import { label } from "framer-motion/client";
+import { route } from "ziggy-js";
+import axios from "axios";
 
-const OPTION_VALUES: Record<string, string[]> = {
-  Size:         ["XS", "S", "M", "L", "XL", "XXL"],
-  Storage:      ["32GB", "64GB", "128GB", "256GB", "512GB", "1TB"],
-  RAM:          ["4GB", "8GB", "16GB", "32GB"],
-  Style:        ["Classic", "Modern", "Slim", "Oversized", "Cropped"],
-  Width:        ["Narrow", "Regular", "Wide", "Extra Wide"],
-  Connectivity: ["WiFi", "4G", "5G", "Bluetooth"],
-  Flavor:       ["Vanilla", "Chocolate", "Strawberry", "Mint", "Caramel"],
+const OPTION_VALUES_STATIC: Record<string, { label: string; value: string }[]> = {
+  size: ["XS", "S", "M", "L", "XL", "XXL"].map(v => ({ label: v, value: v })),
+  storage: ["32GB", "64GB", "128GB", "256GB", "512GB", "1TB"].map(v => ({ label: v, value: v })),
+  ram: ["4GB", "8GB", "16GB", "32GB"].map(v => ({ label: v, value: v })),
 };
+
+// Always compare options case-insensitively
+const hasOption = (options: string[], name: string) =>
+  options.some((o) => o.toLowerCase() === name.toLowerCase());
 
 type FormErrors = Record<string, string[]> | null;
 
@@ -30,7 +34,7 @@ interface VariantCardProps {
   onChange: (id: string, field: string, value: any) => void;
   onRemove: (id: string) => void;
   onDone: (id: string) => void;
-  onVariantImageUploaded: (hex: string, url: string) => void; // ✅ new
+  onVariantImageUploaded: (hex: string, url: string) => void;
   theme: ThemePalette;
 }
 
@@ -46,18 +50,16 @@ interface CreateVariantFormProps {
   onChange: (id: string, field: string, value: any) => void;
   onRemove: (id: string) => void;
   onDone: () => void;
-  onVariantImageUploaded: (hex: string, url: string) => void; // ✅ new
+  onVariantImageUploaded: (hex: string, url: string) => void;
   theme: ThemePalette;
   errors: any;
 }
 
-// ── small reusable error line ─────────────────────────────────────────────────
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <p className="text-red-500 text-xs mt-2">{message}</p>;
 }
 
-// ─── Form ─────────────────────────────────────────────────────────────────────
 function CreateVariantForm({
   variant, activeOptions,
   colorHex, colorName,
@@ -68,7 +70,7 @@ function CreateVariantForm({
 }: CreateVariantFormProps) {
 
   const { uploadProductFiles, deleteMedia } = productFilesUploaderCleaner();
-  const { setValue, getValues } = useProductDataCtx();
+  const { setValue, getValues , variants_options } = useProductDataCtx();
   const inputClassName = "w-full px-5 py-4 rounded-xl font-medium shadow-sm";
   const inputStyle = (hasError?: boolean) => ({
     backgroundColor: theme.bg,
@@ -89,6 +91,7 @@ function CreateVariantForm({
     sku:           variant.sku           ?? '',
   });
 
+
   const handleLocalChange = (field: string, value: string) => {
     setLocal(prev => ({ ...prev, [field]: value }));
   };
@@ -106,17 +109,15 @@ function CreateVariantForm({
     try {
       const file = e.target?.files![0];
       if (file) {
-        const variantIdSnapshot = variantId; 
+        const variantIdSnapshot = variantId;
         const { media } = await uploadProductFiles(file, 'gallery', 'variant');
         if (media) {
           const freshVariants = getValues('variants');
-
           const targetVariant = freshVariants.find(v => v.variant_id === variantIdSnapshot);
           const hex = (targetVariant?.attrs?.color as { hex: string } | undefined)?.hex;
           if (hex) {
             onVariantImageUploaded(hex, media.url);
           }
-
           const newVariants = freshVariants.map(v => v.variant_id === variantIdSnapshot ? {
             ...v,
             image: { url: media.url, id: media.id }
@@ -139,11 +140,12 @@ function CreateVariantForm({
     setValue('variants', updated);
   };
 
+
   return (
     <div style={{ padding: "0 16px 20px", borderTop: `1px solid ${theme.border}` }}>
 
       {/* Color */}
-      {activeOptions.includes("Color") && (
+      {hasOption(activeOptions, "color") && (
         <div style={{ marginTop: 18 }}>
           <ColorPicker
             value={colorHex}
@@ -161,22 +163,20 @@ function CreateVariantForm({
       )}
 
       {/* Other options */}
-      {activeOptions.filter((o) => o !== "Color").length > 0 && (
+      {activeOptions.filter((o) => o.toLowerCase() !== "color").length > 0 && (
         <div className="grid grid-cols-2 gap-4" style={{ marginTop: 18 }}>
-          {activeOptions.filter((o) => o !== "Color").map((opt) => (
+          {activeOptions.filter((o) => o.toLowerCase() !== "color").map((opt) => (
             <div key={opt}>
               <label className={labelClassName} style={{ color: theme.text }}>{opt}</label>
               <div style={{ position: "relative" }}>
-                <select
-                  value={(variant.attrs?.[opt.toLowerCase()] as string) || ""}
-                  onChange={(e) => onChange(variant.variant_id, `attrs.${opt.toLowerCase()}`, e.target.value)}
-                  className={inputClassName}
-                  style={{ ...inputStyle(!!err(opt.toLowerCase())), cursor: "pointer", appearance: "none" as any }}
-                >
-                  <option value="">— pick {opt.toLowerCase()} —</option>
-                  {(OPTION_VALUES[opt] || []).map((v) => <option key={v} value={v}>{v}</option>)}
-                </select>
-                <ChevronDown size={12} color={theme.textMuted} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+                <MultiSelectDropdownForObject 
+                 label={`— pick ${opt.toLowerCase()} —`}
+                 selectedValues={variant.attrs ? [{ label : variant.attrs[opt] , value : variant.attrs[opt] }] : []}
+                 onChange={(selected) => onChange(variant.variant_id, `attrs.${opt.toLowerCase()}`, selected[0].value)}
+                 multiple={false}
+                 options={(variants_options[opt.toLowerCase()] || []).map(o => ({value : o.value , label : o.value}))}
+                />
+          
               </div>
               <FieldError message={err(opt.toLowerCase())} />
             </div>
@@ -184,108 +184,65 @@ function CreateVariantForm({
         </div>
       )}
 
-      {/* ── Pricing ──────────────────────────────────────────────────────── */}
-      <div
-        className="rounded-xl p-4"
-        style={{ marginTop: 18, border: `2px solid ${err("price") ? '#ef4444' : theme.border}`, background: theme.bgSecondary }}
-      >
+      {/* Pricing */}
+      <div className="rounded-xl p-4" style={{ marginTop: 18, border: `2px solid ${err("price") ? '#ef4444' : theme.border}`, background: theme.bgSecondary }}>
         <p className={sectionLabelClassName} style={{ color: theme.textMuted }}>Pricing</p>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div>
             <label className={labelClassName} style={{ color: theme.text }}>Price</label>
-            <Input
-              type="number"
-              value={local.price}
-              placeholder="e.g. 299"
+            <Input type="number" value={local.price} placeholder="e.g. 299"
               onChange={(e) => handleLocalChange('price', e.target.value)}
               onBlur={() => handleBlur('price')}
-              className={inputClassName}
-              style={inputStyle(!!err("price"))}
-            />
-            {err("price")
-              ? <FieldError message={err("price")} />
-              : <p className="text-xs mt-2" style={{ color: theme.textMuted }}>pre-filled from product</p>
-            }
+              className={inputClassName} style={inputStyle(!!err("price"))} />
+            {err("price") ? <FieldError message={err("price")} /> : <p className="text-xs mt-2" style={{ color: theme.textMuted }}>pre-filled from product</p>}
           </div>
-
           <div>
             <label className={labelClassName} style={{ color: theme.text }}>Compare Price</label>
-            <Input
-              type="number"
-              value={local.compare_price}
-              placeholder="e.g. 399"
+            <Input type="number" value={local.compare_price} placeholder="e.g. 399"
               onChange={(e) => handleLocalChange('compare_price', e.target.value)}
               onBlur={() => handleBlur('compare_price')}
-              className={inputClassName}
-              style={inputStyle(!!err("compare_price"))}
-            />
-            {err("compare_price")
-              ? <FieldError message={err("compare_price")} />
-              : <p className="text-xs mt-2" style={{ color: theme.textMuted }}>original / crossed-out price</p>
-            }
+              className={inputClassName} style={inputStyle(!!err("compare_price"))} />
+            {err("compare_price") ? <FieldError message={err("compare_price")} /> : <p className="text-xs mt-2" style={{ color: theme.textMuted }}>original / crossed-out price</p>}
           </div>
-
           <div>
             <label className={labelClassName} style={{ color: theme.text }}>Preview</label>
-            <PricePreview
-              price={variant.price ?? null}
-              comparePrice={variant.compare_price ?? null}
-              currentTheme={theme}
-            />
+            <PricePreview price={variant.price ?? null} comparePrice={variant.compare_price ?? null} currentTheme={theme} />
           </div>
         </div>
       </div>
 
-      {/* ── Inventory ────────────────────────────────────────────────────── */}
-      <div
-        className="rounded-xl p-4"
-        style={{ marginTop: 12, border: `2px solid ${err("stock") ? '#ef4444' : theme.border}`, background: theme.bgSecondary }}
-      >
+      {/* Inventory */}
+      <div className="rounded-xl p-4" style={{ marginTop: 12, border: `2px solid ${err("stock") ? '#ef4444' : theme.border}`, background: theme.bgSecondary }}>
         <p className={sectionLabelClassName} style={{ color: theme.textMuted }}>Inventory</p>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
-            <label className={labelClassName} style={{ color: theme.text }}>
-              Stock <span className="text-red-500">*</span>
-            </label>
-            <Input
-              type="number"
-              value={local.stock}
-              placeholder="e.g. 50"
+            <label className={labelClassName} style={{ color: theme.text }}>Stock <span className="text-red-500">*</span></label>
+            <Input type="number" value={local.stock} placeholder="e.g. 50"
               onChange={(e) => handleLocalChange('stock', e.target.value)}
               onBlur={() => handleBlur('stock')}
-              className={inputClassName}
-              style={inputStyle(!!err("stock"))}
-            />
+              className={inputClassName} style={inputStyle(!!err("stock"))} />
             <FieldError message={err("stock")} />
           </div>
-
           <div>
             <label className="block text-sm font-bold mb-4 uppercase tracking-wide flex items-center gap-2" style={{ color: theme.text }}>
               SKU
               {!variant.sku && (
-                <span
-                  className="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full normal-case tracking-normal"
-                  style={{ backgroundColor: theme.primary + '18', color: theme.primary, border: `1px solid ${theme.primary}40` }}
-                >
+                <span className="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full normal-case tracking-normal"
+                  style={{ backgroundColor: theme.primary + '18', color: theme.primary, border: `1px solid ${theme.primary}40` }}>
                   <Wand2 size={10} /> Auto
                 </span>
               )}
             </label>
-            <Input
-              type="text"
-              value={local.sku}
-              placeholder="Leave empty to auto-generate"
+            <Input type="text" value={local.sku} placeholder="Leave empty to auto-generate"
               onChange={(e) => handleLocalChange('sku', e.target.value)}
               onBlur={() => handleBlur('sku')}
-              className={inputClassName}
-              style={inputStyle(!!err("sku"))}
-            />
+              className={inputClassName} style={inputStyle(!!err("sku"))} />
             <FieldError message={err("sku")} />
           </div>
         </div>
       </div>
 
-      {/* ── Image ────────────────────────────────────────────────────────── */}
+      {/* Image */}
       <div style={{ marginTop: 12 }}>
         <label className={labelClassName} style={{ color: theme.text }}>Image</label>
         {inheritedImage && !overrideImage ? (
@@ -297,7 +254,8 @@ function CreateVariantForm({
               </p>
               <p className="text-xs mt-0.5" style={{ color: theme.textMuted }}>All {colorName} variants share this image</p>
             </div>
-            <Button type="button" onClick={() => setOverrideImage(true)} className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ border: `1px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}>
+            <Button type="button" onClick={() => setOverrideImage(true)} className="text-xs font-medium px-3 py-1.5 rounded-lg"
+              style={{ border: `1px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}>
               Override
             </Button>
           </div>
@@ -305,43 +263,15 @@ function CreateVariantForm({
           <div className="flex items-center gap-4">
             {variant.image?.url ? (
               <div style={{ position: "relative", width: 64, height: 64, flexShrink: 0 }}>
-                <img
-                  src={variant.image?.url}
-                  alt=""
-                  style={{
-                    width: 64,
-                    height: 64,
-                    objectFit: "cover",
-                    borderRadius: 12,
-                    border: `2px solid ${theme.border}`,
-                    display: "block"
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveVariantImage(variant, String(variant.image?.id) ?? '')}
-                  style={{
-                    position: "absolute",
-                    top: -6,
-                    right: -6,
-                    background: theme.error,
-                    border: "none",
-                    borderRadius: "50%",
-                    width: 20,
-                    height: 20,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                    padding: 0
-                  }}
-                >
+                <img src={variant.image?.url} alt="" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 12, border: `2px solid ${theme.border}`, display: "block" }} />
+                <button type="button" onClick={() => handleRemoveVariantImage(variant, String(variant.image?.id) ?? '')}
+                  style={{ position: "absolute", top: -6, right: -6, background: theme.error, border: "none", borderRadius: "50%", width: 20, height: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0 }}>
                   <Trash2 size={10} color="#fff" />
                 </button>
               </div>
             ) : (
-              <div onClick={() => imgRef.current?.click()} className="flex flex-col items-center justify-center gap-1 cursor-pointer" style={{ width: 64, height: 64, borderRadius: 10, border: `2px dashed ${theme.border}`, background: theme.bg, flexShrink: 0 }}>
+              <div onClick={() => imgRef.current?.click()} className="flex flex-col items-center justify-center gap-1 cursor-pointer"
+                style={{ width: 64, height: 64, borderRadius: 10, border: `2px dashed ${theme.border}`, background: theme.bg, flexShrink: 0 }}>
                 <Upload size={16} color={theme.textMuted} />
                 <span style={{ fontSize: 9, color: theme.textMuted }}>upload</span>
               </div>
@@ -352,7 +282,8 @@ function CreateVariantForm({
                 {variant.image?.url ? "Custom image for this variant" : "Upload a specific image for this variant"}
               </p>
               {inheritedImage && (
-                <Button type="button" onClick={() => { onChange(variant.variant_id, "imageUrl", null); setOverrideImage(false); }} className="text-xs mt-1" style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 0 }}>
+                <Button type="button" onClick={() => { onChange(variant.variant_id, "imageUrl", null); setOverrideImage(false); }}
+                  className="text-xs mt-1" style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 0 }}>
                   ← Use inherited image
                 </Button>
               )}
@@ -363,10 +294,12 @@ function CreateVariantForm({
 
       {/* Actions */}
       <div className="flex justify-end gap-3 mt-6">
-        <Button type="button" onClick={() => onRemove(variant.variant_id)} className="px-4 py-2 rounded-xl text-sm font-medium" style={{ border: `2px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}>
+        <Button type="button" onClick={() => onRemove(variant.variant_id)} className="px-4 py-2 rounded-xl text-sm font-medium"
+          style={{ border: `2px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}>
           Remove
         </Button>
-        <Button type="button" onClick={onDone} className="px-6 py-2 rounded-xl text-sm font-semibold" style={{ background: theme.primary, border: "none", color: theme.textInverse, cursor: "pointer" }}>
+        <Button type="button" onClick={onDone} className="px-6 py-2 rounded-xl text-sm font-semibold"
+          style={{ background: theme.primary, border: "none", color: theme.textInverse, cursor: "pointer" }}>
           ✓ Save Variant
         </Button>
       </div>
@@ -374,7 +307,6 @@ function CreateVariantForm({
   );
 }
 
-// ─── Card ─────────────────────────────────────────────────────────────────────
 export default function VariantCard({
   variant, activeOptions, defaultVariantsPrice, colorImages,
   onChange, onRemove, onDone, onVariantImageUploaded, theme
@@ -389,7 +321,7 @@ export default function VariantCard({
   const colorName = color?.name ?? null;
 
   const label = activeOptions
-    .map((opt) => opt === "Color" ? colorName : variant.attrs?.[opt.toLowerCase()] as string | undefined)
+    .map((opt) => hasOption([opt], "color") ? colorName : variant.attrs?.[opt.toLowerCase()] as string | undefined)
     .filter(Boolean).join(" / ") || "New Variant";
 
   const inheritedImage = colorHex ? colorImages[colorHex] : null;
@@ -401,7 +333,7 @@ export default function VariantCard({
 
     const attrErrors: Record<string, string[]> = {};
     activeOptions.forEach((opt) => {
-      if (opt === "Color") {
+      if (hasOption([opt], "color")) {
         if (!variant.attrs?.color) attrErrors["color"] = ["Color is required"];
       } else {
         const key = opt.toLowerCase();
@@ -430,7 +362,7 @@ export default function VariantCard({
     }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px" }}>
-        {activeOptions.includes("Color") && (
+        {hasOption(activeOptions, "color") && (
           <div style={{ position: "relative", flexShrink: 0 }}>
             {displayImage ? (
               <div style={{ width: 36, height: 36, borderRadius: 6, overflow: "hidden", border: `2px solid ${colorHex || theme.border}` }}>
@@ -452,16 +384,7 @@ export default function VariantCard({
         <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: theme.text }}>{label}</span>
 
         {errors && Object.keys(errors).length > 0 && (
-          <span style={{
-            fontSize: 11,
-            color: '#ef4444',
-            background: '#ef444415',
-            border: '1px solid #ef444440',
-            padding: '2px 8px',
-            borderRadius: 6,
-            fontWeight: 600,
-            flexShrink: 0
-          }}>
+          <span style={{ fontSize: 11, color: '#ef4444', background: '#ef444415', border: '1px solid #ef444440', padding: '2px 8px', borderRadius: 6, fontWeight: 600, flexShrink: 0 }}>
             ⚠ {Object.keys(errors).length} error{Object.keys(errors).length > 1 ? 's' : ''}
           </span>
         )}
@@ -495,7 +418,7 @@ export default function VariantCard({
           onChange={onChange}
           onRemove={onRemove}
           onDone={handleDone}
-          onVariantImageUploaded={onVariantImageUploaded} // ✅
+          onVariantImageUploaded={onVariantImageUploaded}
           theme={theme}
           errors={errors}
         />

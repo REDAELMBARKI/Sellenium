@@ -3,7 +3,6 @@ import { Variant } from "./productVariantType";
 
 export interface ProductBackendProps {
     children : React.ReactNode ;
-    data : {product?: ProductBase , categoryObject? : Category  , options : any}
     options : any
     [key: string]: any; 
 }

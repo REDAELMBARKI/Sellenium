@@ -11,3 +11,4 @@ Route::get('/products/suggest', [ProductController::class, 'suggest'])->name('pr
 //web hook
 
 Route::post('api/webhook/stripe', [StripeWebhookController::class, 'handle']);
+

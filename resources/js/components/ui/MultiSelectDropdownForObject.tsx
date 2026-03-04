@@ -11,6 +11,7 @@ interface MultiSelectDropdownForObjectProps {
   selectedValues?: AllowedObjectsType[];
   onChange: (selected: AllowedObjectsType[]) => void;
   multiple?: boolean;
+  onOpenState? : () => void
 }
 
 const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> = ({
@@ -19,6 +20,7 @@ const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> 
   selectedValues = [],
   onChange,
   multiple = true,
+  onOpenState
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [rect, setRect] = useState<DOMRect | null>(null);
@@ -30,8 +32,15 @@ const MultiSelectDropdownForObject: React.FC<MultiSelectDropdownForObjectProps> 
     if (!isOpen && triggerRef.current) {
       setRect(triggerRef.current.getBoundingClientRect());
     }
+  
     setIsOpen(prev => !prev);
+    
   };
+
+  useEffect(() => {
+    if(!isOpen) return ; 
+    onOpenState?.()
+  }, [isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

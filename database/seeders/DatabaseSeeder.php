@@ -25,8 +25,6 @@ class DatabaseSeeder extends Seeder
            TagSeeder::class,
            CategorySeeder::class,
            ProductSeeder::class ,
-           AttributesTableSeeder::class ,
-           AttributeValuesSeeder::class ,
            ProductVariantSeeder::class ,
            CouponSeeder::class ,
            PromotionSeeder::class ,
@@ -34,6 +32,7 @@ class DatabaseSeeder extends Seeder
             CartSeeder::class,
             ShippingSettingSeeder::class ,
             ShippingZoneSeeder::class ,
+            VariantOptionSeeder::class
           //  ReviewSeeder::class,
           //  UserSeeder::class,
           //  WishListSeeder::class,

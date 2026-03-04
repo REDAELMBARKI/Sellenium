@@ -13,7 +13,7 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
             // ProductSeeder.php
-           Product::factory(10)->create()->each(function ($product) {
+        Product::factory(10)->create()->each(function ($product) {
 
             // thumbnail
             $product->thumbnail()->create([
