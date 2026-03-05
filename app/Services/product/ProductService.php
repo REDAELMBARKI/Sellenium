@@ -101,9 +101,9 @@ class ProductService {
             $this->mediaService->storeIframeVideo($product , $payload['video']);
             // store variants
             $updatedVariants = $this -> resolveVariants($payload);
-            $this-> syncVariants($product ,$updatedVariants );
+            $this-> storeVariants($product ,$updatedVariants );
             $this->evaluateProductScore($product);
-            //store attribtes 
+            //store attribtes
             $this->storeProductAttributes($product , $payload['product_attributes']);
             // coupons and promotions related to this product
             $this->attachApplicableProducts($product, $payload['promotion_ids'] ?? [], Promotion::class);
@@ -113,7 +113,7 @@ class ProductService {
         });
     }
 
-    private function slugProduct(array $payload, Product $product): array
+    public function slugProduct(array $payload, Product $product): array
     {
         if (!$product->exists) {
             $payload['slug'] = $this->generateSlug($payload['name']);
@@ -130,11 +130,11 @@ class ProductService {
         return !empty($product->name)
         && !empty($product->description)
         && !empty($product->thumbnail)
-        && !empty($product->category_id)
+        && !empty($product->category_niche_id)
         && $product->quality_score >= 50;
     }
 
-    public function syncVariants(Product $product, array $variants): void
+    public function storeVariants(Product $product, array $variants): void
     {
         $existingSkus = collect($variants)->pluck('sku')->filter();
         $product->variants()->whereNotIn('sku', $existingSkus)->delete(); 
@@ -190,7 +190,7 @@ class ProductService {
         }
         return $updatedVariants;
     }
-    private function generateSku(Product $product, array $attrs, int $maxAttempts = 5): string
+    public function generateSku(Product $product, array $attrs, int $maxAttempts = 5): string
     {
         $base = strtoupper(Str::slug($product->name, '-')); // BLUE-TSHIRT
         
@@ -213,7 +213,7 @@ class ProductService {
         throw new \RuntimeException('Failed to generate unique SKU, please try again.');
     }
 
-    private function generateSlug(string $name): string
+    public function generateSlug(string $name): string
     {
         $slug = Str::slug($name);
 
@@ -258,12 +258,22 @@ class ProductService {
             'status' => 'published'
         ]);
 
-        Media::where('mediaable_id' , $product->id)
-                         ->each(function($media){
-                             $media->update([
-                                 'is_temporary' => false
-                             ]) ;
-        });
+        $variants =  $product->variants()->pluck('id') ;
+        Media::where(function($query) use ($product, $variants) {
+                $query->where(function($q) use ($product) {
+                    $q->where('mediaable_id', $product->id)
+                    ->where('mediaable_type', Product::class);
+                });
+                if ($variants->isNotEmpty()) {
+                    $query->orWhere(function($q) use ($variants) {
+                        $q->whereIn('mediaable_id', $variants)
+                        ->where('mediaable_type', ProductVariant::class);
+                    });
+                }
+            })
+            ->each(fn($media) => $media->update(['is_temporary' => 0]));
+
+
     }
 
    private function attachApplicableProducts(Product $product, array $ids, string $model): void
@@ -289,7 +299,7 @@ class ProductService {
     }
 
 
-    private function storeProductAttributes(Product $product, array $attributes): void
+    public function storeProductAttributes(Product $product, array $attributes): void
     {
 
             $product->attrs()->detach();

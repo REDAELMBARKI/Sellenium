@@ -1,14 +1,41 @@
-
-import { Eye, Edit2, Upload, MoreVertical, Copy, Trash2, Image as ImageIcon, ShoppingCart, Heart, Star, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Eye, Edit2, Upload, MoreVertical, Copy, Trash2, Image as ImageIcon, Plus, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 
+// ─── Types ────────────────────────────────────────────────────────────────────
 
+interface Variant {
+  id: string;
+  price: number;
+  compare_price?: number;
+  stock: number;
+  sku?: string;
+  is_default: boolean;
+  attrs: Record<string, any>;
+}
 
+interface Media {
+  id: string;
+  url: string;
+  collection: string;
+  media_type: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  brand?: string;
+  nich_category?: string;
+  thumbnail?: Media | null;
+  updated_at: string;
+  quality_score: number;
+  ready_to_publish: boolean;
+  variants?: Variant[];
+  status: 'draft' | 'published';
+}
 
 interface DraftRowProps {
   draft: Product;
@@ -19,104 +46,282 @@ interface DraftRowProps {
   onDuplicate: () => void;
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-// Fake product interface
-interface Product {
-  id: string;
-  name: string;
-  brand : string  ,
-  category: string;
-  price?: number;
-  thumbnail : any
-  updated_at: string;
-  quality_score : number
-  ready_to_publish : boolean
+function getDefaultVariant(variants?: Variant[]): Variant | null {
+  if (!variants || variants.length === 0) return null;
+  return variants.find((v) => v.is_default) ?? variants[0];
 }
 
-// Example dummy data
-const DUMMY_DRAFTS: Product[] = [
-  {
-    id: "1",
-    title: "Vintage Brown Hoodie",
-    category: "Hoodies",
-    price: 39,
-    covers: [],
-    thumbnail : {id : '3' , url : '/images/perpel.jpg'} ,
-    updated_at: "2025-01-02T12:22:00Z",
-  },
-  {
-    id: "2",
-    title: "Minimalist Necklace",
-    category: "Jewelry",
-    price: 18,
-    covers: [
+function getMinPrice(variants?: Variant[]): number | null {
+  if (!variants || variants.length === 0) return null;
+  const prices = variants.map((v) => v.price).filter((p) => p > 0);
+  return prices.length > 0 ? Math.min(...prices) : null;
+}
 
-    ],
-    thumbnail : {id : '1' , url : '/images/red.jpg'} ,
-    updated_at: "2025-01-07T14:00:00Z",
-    description: "A simple and elegant silver necklace.",
-  },
-];
+function getWarnings(draft: Product): string[] {
+  const warnings: string[] = [];
+  if (!draft.name || draft.name.trim() === '')   warnings.push('Missing name');
+  if (!draft.thumbnail)                           warnings.push('Missing thumbnail');
+  if (!draft.nich_category)                       warnings.push('Missing category');
+  if (!draft.variants || draft.variants.length === 0) warnings.push('Missing variants');
+  if (getMinPrice(draft.variants) === null)       warnings.push('Missing price');
+  return warnings;
+}
 
-export default function Drafts({drafts : backendDrafts} : any) {
-  const [drafts, setDrafts] = useState<Product[]>(backendDrafts ?? DUMMY_DRAFTS);
-  const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
-  const {state : {currentTheme}} = useStoreConfigCtx()
-  const handlePublish = (id: string) => {
+function getTimeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins  = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days  = Math.floor(diff / 86400000);
+  if (mins  < 60)  return `${mins}m ago`;
+  if (hours < 24)  return `${hours}h ago`;
+  return `${days}d ago`;
+}
+
+// ─── Score Bar ────────────────────────────────────────────────────────────────
+
+function ScoreBar({ score }: { score: number }) {
+  const color =
+    score >= 75 ? '#22c55e' :
+    score >= 50 ? '#f59e0b' :
+                  '#ef4444';
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${score}%`, background: color }}
+        />
+      </div>
+      <span className="text-xs font-medium" style={{ color }}>
+        {score}%
+      </span>
+    </div>
+  );
+}
+
+// ─── Draft Row ────────────────────────────────────────────────────────────────
+
+export function DraftRow({ draft, onPreview, onEdit, onPublish, onDelete, onDuplicate }: DraftRowProps) {
+  const [showMenu, setShowMenu] = useState(false);
+  const { state: { currentTheme } } = useStoreConfigCtx();
+
+  const warnings      = getWarnings(draft);
+  const isIncomplete  = warnings.length > 0;
+  const minPrice      = getMinPrice(draft.variants);
+  const variantCount  = draft.variants?.length ?? 0;
+  const coverImage    = draft.thumbnail?.url ?? null;
+
+  return (
+    <div
+      className="rounded-xl border transition-all hover:shadow-md"
+      style={{ background: currentTheme.card, borderColor: currentTheme.border, color: currentTheme.text }}
+    >
+      <div className="p-4 flex items-center gap-4">
+
+        {/* Thumbnail */}
+        <div className="flex-shrink-0">
+          {coverImage ? (
+            <img src={coverImage} alt={draft.name} className="w-20 h-20 object-cover rounded-lg" />
+          ) : (
+            <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
+              <ImageIcon className="text-gray-400" size={28} />
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start gap-3 mb-1.5">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-base font-semibold truncate">
+                {draft.name || 'Untitled Product'}
+              </h3>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {draft.nich_category ?? 'No category'}
+                {draft.brand && ` · ${draft.brand}`}
+              </p>
+            </div>
+
+            {/* Badges */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="px-2.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-700 rounded-full">
+                Draft
+              </span>
+              {isIncomplete && (
+                <span className="px-2.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-700 rounded-full">
+                  Incomplete
+                </span>
+              )}
+              {draft.ready_to_publish && !isIncomplete && (
+                <span className="px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                  Ready
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Meta row */}
+          <div className="flex items-center gap-4 text-xs text-gray-500 mb-2">
+            <span>Edited {getTimeAgo(draft.updated_at)}</span>
+
+            {/* Price from variants */}
+            {minPrice !== null && (
+              <span className="font-semibold text-gray-700">
+                {variantCount > 1 ? `From $${minPrice}` : `$${minPrice}`}
+              </span>
+            )}
+
+            {/* Variant count */}
+            {variantCount > 0 && (
+              <span>{variantCount} variant{variantCount !== 1 ? 's' : ''}</span>
+            )}
+
+            {/* Quality score */}
+            <ScoreBar score={draft.quality_score} />
+          </div>
+
+          {/* Warnings */}
+          {warnings.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {warnings.map((w, i) => (
+                <span
+                  key={i}
+                  className="px-2 py-0.5 text-xs font-medium bg-red-50 text-red-500 rounded-full border border-red-200"
+                >
+                  {w}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={onPreview}
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <Eye size={15} /> Preview
+          </button>
+          <button
+            onClick={onEdit}
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <Edit2 size={15} /> Edit
+          </button>
+          <button
+            onClick={onPublish}
+            disabled={isIncomplete}
+            className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              isIncomplete
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-green-600 text-white hover:bg-green-700'
+            }`}
+          >
+            <Upload size={15} /> Publish
+          </button>
+
+          {/* More menu */}
+          <div className="relative">
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="p-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <MoreVertical size={16} />
+            </button>
+            {showMenu && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
+                <div className="absolute right-0 top-full mt-1.5 w-44 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                  <button
+                    onClick={() => { onDuplicate(); setShowMenu(false); }}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    <Copy size={14} /> Duplicate
+                  </button>
+                  <button
+                    onClick={() => { if (confirm('Delete this draft?')) onDelete(); setShowMenu(false); }}
+                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                  >
+                    <Trash2 size={14} /> Delete
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+export default function Drafts({ drafts: backendDrafts }: { drafts: Product[] }) {
+  const [drafts, setDrafts] = useState<Product[]>(backendDrafts ?? []);
+  const { state: { currentTheme } } = useStoreConfigCtx();
+
+  const handlePublish = (id: string) =>
     setDrafts((prev) => prev.filter((p) => p.id !== id));
-  };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: string) =>
     setDrafts((prev) => prev.filter((p) => p.id !== id));
-  };
 
   const handleDuplicate = (product: Product) => {
-    const newCopy = {
+    const copy: Product = {
       ...product,
       id: String(Date.now()),
-      title: product.name + " (Copy)",
+      name: product.name + ' (Copy)',
       updated_at: new Date().toISOString(),
+      status: 'draft',
+      ready_to_publish: false,
+      quality_score: 0,
+      thumbnail: null,
     };
-
-    setDrafts((prev) => [newCopy, ...prev]);
+    setDrafts((prev) => [copy, ...prev]);
   };
 
   return (
-    <div className="min-h-screen " 
-     style={{ 
-      background : currentTheme.bgSecondary  ,
-      color  : currentTheme.text 
-      }}
+    <div
+      className="min-h-screen"
+      style={{ background: currentTheme.bgSecondary, color: currentTheme.text }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Drafts</h1>
-            <p className="text-gray-600">
-              These products are saved as drafts. Complete them and publish whenever you're ready.
+            <h1 className="text-3xl font-bold mb-1">Drafts</h1>
+            <p className="text-sm text-gray-500">
+              {drafts.length} product{drafts.length !== 1 ? 's' : ''} saved as draft
             </p>
           </div>
-          <button className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-            <Plus size={20} />
-            Create Product
+          <button
+            onClick={() => router.visit(route('products.storeDraft'), { method: 'post' })}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus size={18} /> New Product
           </button>
         </div>
 
-        {/* Drafts List */}
+        {/* List */}
         {drafts.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-lg border-2 border-dashed border-gray-300">
-            <p className="text-gray-500 text-lg mb-4">No drafts yet</p>
-            <p className="text-gray-400">Create your first product to get started</p>
+          <div className="text-center py-20 rounded-xl border-2 border-dashed border-gray-200">
+            <ImageIcon className="mx-auto text-gray-300 mb-4" size={48} />
+            <p className="text-gray-500 font-medium mb-1">No drafts yet</p>
+            <p className="text-gray-400 text-sm">Create your first product to get started</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {drafts.map((draft) => (
               <DraftRow
                 key={draft.id}
                 draft={draft}
-                onPreview={() => setPreviewProduct(draft)}
-                onEdit={() => router.visit(route("product.edit", draft.id))}
+                onPreview={() => {}}
+                onEdit={() => router.visit(route('product.edit', draft.id))}
                 onPublish={() => handlePublish(draft.id)}
                 onDelete={() => handleDelete(draft.id)}
                 onDuplicate={() => handleDuplicate(draft)}
@@ -125,178 +330,8 @@ export default function Drafts({drafts : backendDrafts} : any) {
           </div>
         )}
       </div>
-
-      {/* Preview Modal */}
-      {/* {previewProduct && (
-        <PreviewModal product={previewProduct} onClose={() => setPreviewProduct(null)} /> // single product page component
-      )} */}
     </div>
   );
 }
 
-
-Drafts.layout = (page : any) => <AdminLayout children={page} />
-
-
-export function DraftRow({ draft, onPreview, onEdit, onPublish, onDelete, onDuplicate }: DraftRowProps) {
-  const [showMenu, setShowMenu] = useState(false);
-  const {state : {currentTheme}} = useStoreConfigCtx()
-  const getTimeAgo = (date: string) => {
-    return date;
-  };
-
-  const getWarnings = () => {
-    const warnings: string[] = [];
-    if (!draft.price) warnings.push('Missing price');
-    if (!draft.name || draft.name.trim() === '') warnings.push('Missing title');
-    if (!draft.category || draft.category.trim() === '') warnings.push('Missing category');
-    return warnings;
-  };
-
-  const warnings = getWarnings();
-  const isIncomplete = warnings.length > 0;
-  const coverImage = draft?.thumbnail?.url || null ;
-  return (
-    <div className="rounded-lg border hover:shadow-md transition-shadow"
-    style={{ 
-      background : currentTheme.card ,
-      borderColor : currentTheme.border
-     }}
-    >
-      <div className="p-4 flex items-center gap-4">
-        <div className="flex-shrink-0">
-          {coverImage && coverImage != '' ? (
-            <img
-              src={coverImage}
-              alt={draft.name}
-              className="w-20 h-20 object-cover rounded-lg"
-            />
-          ) : (
-            <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
-              <ImageIcon className="text-gray-400" size={32} />
-            </div>
-          )}
-        </div>
-
-        <div className="flex-1 min-w-0"
-        style={{ color : currentTheme.text }}
-        >
-          <div className="flex items-start gap-3 mb-2">
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold  truncate"
-              
-              >
-                {draft.name || 'Untitled Product'}
-              </h3>
-              <p className="text-sm text-gray-600">
-                {draft.category || 'No category'}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 text-xs font-medium bg-orange-100 text-orange-700 rounded-full">
-                Draft
-              </span>
-              {isIncomplete && (
-                <span className="px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 rounded-full">
-                  Incomplete
-                </span>
-              )}
-            
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            <span>Last edited: {getTimeAgo(draft.updated_at)}</span>
-            {draft.price && (
-              <span className="font-medium text-gray-700">${draft.price}</span>
-            )}
-          </div>
-
-          {warnings.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
-              {warnings.map((warning, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 text-xs font-medium bg-red-50 text-red-600 rounded-full border border-red-200"
-                >
-                  {warning}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <button
-            onClick={onPreview}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Eye size={18} />
-            Preview
-          </button>
-          <button
-            onClick={onEdit}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Edit2 size={18} />
-            Edit
-          </button>
-          <button
-            onClick={onPublish}
-            disabled={isIncomplete}
-            className={`inline-flex items-center gap-2 px-4 py-2 font-medium rounded-lg transition-colors ${
-              isIncomplete
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-green-600 text-white hover:bg-green-700'
-            }`}
-          >
-            <Upload size={18} />
-            Publish
-          </button>
-          <div className="relative">
-            <button
-              onClick={() => setShowMenu(!showMenu)}
-              className="p-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <MoreVertical size={18} />
-            </button>
-            {showMenu && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setShowMenu(false)}
-                />
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
-                  <button
-                    onClick={() => {
-                      onDuplicate();
-                      setShowMenu(false);
-                    }}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                  >
-                    <Copy size={16} />
-                    Duplicate
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (confirm('Are you sure you want to delete this draft?')) {
-                        onDelete();
-                      }
-                      setShowMenu(false);
-                    }}
-                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
+Drafts.layout = (page: any) => <AdminLayout children={page} />;

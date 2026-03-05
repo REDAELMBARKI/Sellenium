@@ -83,6 +83,8 @@ class DraftsValidation
 
             // product_attributes
             'product_attributes'=> ['nullable', 'array'],
+            'product_attributes.*.key'    => ['nullable', 'string', 'min:1'],
+            'product_attributes.*.value'  => ['nullable', 'string', 'min:1'],
         ];
     }
 

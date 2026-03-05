@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('parent_id')->nullable()->constrained('variants_options_settings')->cascadeOnDelete();
             $table->string('key');
             $table->string('value')->nullable();
-            $table->json('hex')->nullable()->comment("this isonly for color attrs");
+            $table->string('hex')->nullable()->comment("this isonly for color attrs");
             $table->unique(['key','value']);
             $table->timestamps();
         });

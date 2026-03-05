@@ -392,7 +392,7 @@ export function RightSectionComponent() {
             ]}
             selectedValues={inventory?.fulfillmentType
               ? [{ label: inventory.fulfillmentType, value: inventory.fulfillmentType }]
-              : [{ label: 'In-House (Own Stock)', value: 'in_house' }]}
+              : []}
             onChange={(selected) => setValue('inventory', { ...inventory, fulfillmentType: firstVal(selected) as string }, { shouldValidate: true })}
           />
           {errors.inventory?.fulfillmentType && (
@@ -418,7 +418,7 @@ export function RightSectionComponent() {
             options={shipping_class}
             selectedValues={shipping?.shippingClass
               ? [{ label: shipping.shippingClass, value: shipping.shippingClass }]
-              : [{ label: 'Standard', value: '' }]}
+              : []}
             onChange={(selected) => setValue('shipping', { ...shipping, shippingClass: firstVal(selected) as string }, { shouldValidate: true })}
           />
           {errors.shipping?.shippingClass && (

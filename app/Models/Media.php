@@ -12,10 +12,13 @@ class Media extends Model
             'url'  ,
             'collection',
             'media_type' ,
+            'mediaable_id',
+            'mediaable_type',
             'size' ,
             'width' ,
             'height' ,
-            'order'
+            'order' ,
+            'is_temporary'
 
     ];
 

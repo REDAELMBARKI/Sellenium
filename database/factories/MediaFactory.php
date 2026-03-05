@@ -22,7 +22,7 @@ class MediaFactory extends Factory
             'size' => $this->faker->numberBetween(50000, 500000),
             'width' => 800,
             'height' => 600,
-            'is_temporary' => false,
+            'is_temporary' => true,
             'order' => 0,
         ];
     }

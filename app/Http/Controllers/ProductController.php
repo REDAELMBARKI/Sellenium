@@ -35,9 +35,11 @@ class ProductController extends Controller
 
 
     public function drafts() {
-        $drafts = Product::with(['thumbnail'])
+        $drafts = Product::with(['thumbnail' , 'variants' , 'nichCategory'])
         ->where('status' , 'draft')
-        ->select(['id' , 'name' , 'brand' , 'price'  , 'compare_price', 'quality_score' , 'ready_to_publish' , 'updated_at'])->get() ;
+        ->select(['id' , 'name' , 'brand' , 'quality_score', 'updated_at'])
+        ->orderBy('updated_at' , 'desc')
+        ->get() ;
         return Inertia::render("admin/pages/products/Drafts" , ['drafts' => $drafts] ) ;
     }
 
@@ -94,7 +96,7 @@ class ProductController extends Controller
         saves the product (update) with validation (on submit click)
         */
         
-        public function  updateOnSubmit(Request $publishProductRequest , Product $product){
+        public function  updateOnSubmit(PublishProductRequest $publishProductRequest , Product $product){
             // dd($publishProductRequest->all());
             // $payload = $publishProductRequest->validated();
             $payload = $publishProductRequest->all();

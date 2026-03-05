@@ -18,10 +18,11 @@ return new class extends Migration
             $table->decimal('price', 10, 2)->nullable();
             $table->decimal('compare_price', 10, 2)->nullable()->default(0);
             $table->integer('stock')->nullable();
-            $table->string('sku')->unique()->nullable();
+            $table->string('sku')->nullable();
             $table->boolean('is_default')->nullable()->default(false);
             // Store all attributes as JSON
             $table->json('attrs')->nullable(); // {"color": "red", "storage": "32GB"}
+            $table->unique(['sku','product_id']);
             $table->timestamps();
             
     

@@ -106,10 +106,8 @@ const ProductDataProvider = ({children , product, nich_cats, shipping_class, bad
       if (mode === "create") return getEmptyInitialProductData();
       if (mode === "edit" && product) return getEditedData(product);
       throw new Error("Invalid state");
-      };
+    };
 
-
-    
     const initialData = getInitialData(modeForm, product);
     const [nicheCategory , setNicheCategory] = useState<Category[]>() ; 
     const draftId = useRef<string | undefined>(product?.id ?? null);

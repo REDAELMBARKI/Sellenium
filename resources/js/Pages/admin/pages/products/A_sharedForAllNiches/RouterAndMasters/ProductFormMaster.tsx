@@ -1,13 +1,10 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useProductDataCtx } from '@/contextHooks/product/useProductDataCtx';
 import { Button } from '@/components/ui/button';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import ProductCrEdForm from './ProductCrEdForm';
-import { CloudLightning, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { RightSectionComponent } from '../components/editAndCreate/RightSideSection/rightsectioncomponent';
-import adapters from '@/functions/product/adapters';
-import { Inertia } from '@inertiajs/inertia'
 import { route } from 'ziggy-js';
 import axios from 'axios';
 import { ProductSchemaType } from '@/shemas/productSchema';
@@ -15,17 +12,31 @@ import { router } from '@inertiajs/react';
 import LeaveModal from '@/components/ui/LeaveModel';
 import { useBackendInteraction } from '@/functions/product/useBackendInteractions';
 import { toBackendDataCleaners } from '@/functions/product/toBackendDataCleaners';
-import { json } from 'zod';
+import { isEmpty } from 'lodash';
+import AppLoading from '@/components/AppLoading';
 
 const ProductFormMaster: React.FC = () => {
-  const { state: { currentTheme } } = useStoreConfigCtx()
-  const { modeForm, draftId, handleSubmit: formHandleSubmit , watch  ,getValues , formState : {isSubmitting ,isDirty  ,errors} } = useProductDataCtx()
-  const [showLeaveModal  ,setShowLeaveModal] = useState(false)
-  const [pendingVisit , setPendingVisit] = useState<string>('')
+  const { state: { currentTheme } } = useStoreConfigCtx();
+  const {
+    modeForm,
+    draftId,
+    handleSubmit: formHandleSubmit,
+    watch,
+    getValues,
+    formState: { isSubmitting, isDirty, errors },
+  } = useProductDataCtx();
 
-  const { cleanAttributesForBackend} = toBackendDataCleaners()
-  const {save , destroyDraftProduct} =useBackendInteraction();
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [pendingVisit, setPendingVisit]     = useState<string | null>(null);
+  const [isLoading, setIsLoading]           = useState(false); // 👈 loading state
+  const [loadingMessage, setLoadingMessage] = useState('Saving product');
+
+  const { cleanAttributesForBackend } = toBackendDataCleaners();
+  const { save, destroyDraftProduct }  = useBackendInteraction();
   const isLeavingRef = useRef(false);
+
+  // ─── Init draft ────────────────────────────────────────────────────────────
+
   useEffect(() => {
     if (draftId.current) return;
     const draftInit = async () => {
@@ -33,134 +44,158 @@ const ProductFormMaster: React.FC = () => {
         const res = await axios.post(route('products.storeDraft'));
         draftId.current = res.data.id;
       } catch (error) {
-        console.error("Failed to create draft:", error);
+        console.error('Failed to create draft:', error);
       }
     };
-   
     draftInit();
   }, []);
 
+  // ─── Submit ────────────────────────────────────────────────────────────────
 
-
-  const onSubmit = (data: ProductSchemaType) => {
-    isLeavingRef.current = true ;
-    const payload = {
-      ...data,
-      product_attributes: cleanAttributesForBackend(data.product_attributes),
-    }
-
-    Inertia.put(route('draft.save.submit', { product: draftId.current }), payload as any, {
-      onSuccess: () => console.log('Success'),
-      onError: (errors) => {
-        isLeavingRef.current = false;
-        console.log(errors)
-      },
-    })
-  }
-
-
-  useEffect(() => {
-  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if(isLeavingRef.current) return ;
-      e.preventDefault();
-      e.returnValue = ''; // required for Chrome
+  const onSubmit = async (data: ProductSchemaType) => {
+    setIsLoading(true);
+    setLoadingMessage(modeForm === 'create' ? 'Creating product...' : 'Updating product...');
+    isLeavingRef.current = true;
+    router.put(
+      route('draft.save.submit', { product: draftId.current }),
+      data as any,
+      {
+        onSuccess: () => {
+          setIsLoading(false); 
+        },
+        onError: (errs) => {
+          console.log('Validation errors:', errs);
+          isLeavingRef.current = false;
+          setIsLoading(false); 
+        },
+        onFinish: () => {
+          setIsLoading(false); 
+        },
+      }
+    );
   };
 
-  window.addEventListener('beforeunload', handleBeforeUnload);
-  return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-}, [isDirty]);
+  // ─── Unload guard ──────────────────────────────────────────────────────────
 
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isLeavingRef.current) return;
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
+  // ─── Inertia nav guard ─────────────────────────────────────────────────────
 
   useEffect(() => {
     const unsubscribe = router.on('before', (event) => {
-        if(!isLeavingRef.current){
-          setShowLeaveModal(true);
-          setPendingVisit(event.detail.visit.url.toString()); // save where they were going
-          event.preventDefault(); // block navigation
-        }
-  });
-
+      if (!isLeavingRef.current) {
+        setShowLeaveModal(true);
+        setPendingVisit(event.detail.visit.url.toString());
+        event.preventDefault();
+      }
+    });
     return () => unsubscribe();
   }, [isDirty]);
 
+  // ─── Leave modal handlers ──────────────────────────────────────────────────
 
   const handleConfirmLeave = () => {
-    // delete the draft
-    const data = getValues()
+    const data    = getValues();
     const payload = {
       ...data,
       product_attributes: cleanAttributesForBackend(data.product_attributes),
-    }
-    // save the proudct 
-    save("draft.save.leave" , payload , 
-       (errors) => console.log(errors)
-      ,
-      draftId.current) ; 
-    isLeavingRef.current = true ;
+    };
+
+    setIsLoading(true);
+    setLoadingMessage('Saving draft...');
+
+    save(
+      'draft.save.leave',
+      payload,
+      (errors) => {
+        console.log(errors);
+        setIsLoading(false);
+      },
+      draftId.current
+    );
+
+    isLeavingRef.current = true;
     setShowLeaveModal(false);
-    router.visit(pendingVisit); 
+    if (pendingVisit) router.visit(pendingVisit);
   };
 
   const handleCancelLeave = () => {
-    // remove the darft
-    destroyDraftProduct(draftId.current!)
-    isLeavingRef.current = true ;
+    destroyDraftProduct(draftId.current!);
+    isLeavingRef.current = true;
     setShowLeaveModal(false);
-    router.visit(pendingVisit); 
+    if (pendingVisit) router.visit(pendingVisit);
     setPendingVisit(null);
   };
 
-
-  const handleCancel  = () => {
+  const handleCancel = () => {
     setShowLeaveModal(false);
     setPendingVisit(null);
   };
 
-  console.log('errors' , errors)
+  // ─── Render ────────────────────────────────────────────────────────────────
+
   return (
-    <form onSubmit={(e) => {
-        e.preventDefault()
-        formHandleSubmit(onSubmit)()
-    }}>
-      {showLeaveModal && 
-      <LeaveModal
-          theme={currentTheme} 
-          onClose={handleCancel} 
-          onLeave={handleCancelLeave} 
-          onSaveDraft={handleConfirmLeave}
-      /> }
-      {/* edit and create form */}
-      <div className='flex'>
-        
-        <ProductCrEdForm />
-        <RightSectionComponent />
-      </div>
+    <>
+      {/* App-wide loading overlay */}
+      {isLoading && <AppLoading message={loadingMessage} />}
 
-      {/* save product */}
-      <div
-        className="sticky bottom-0 z-30 flex justify-end px-6 py-4 border-t backdrop-blur"
-        style={{
-          background: currentTheme.bgSecondary,
-          borderColor: currentTheme.border,
+      <form
+        onSubmit={ (e) => { 
+          e.preventDefault();
+          formHandleSubmit(onSubmit , (errors) => {
+              console.log(errors)
+          })();
         }}
       >
-        <Button
-          type="submit"
-          className="min-w-[220px] text-sm font-semibold rounded-lg shadow-lg transition hover:opacity-90 active:scale-[0.98]"
-          style={{
-            background: currentTheme.primary,
-            color: currentTheme.textInverse,
-          }}
+        {showLeaveModal && (
+          <LeaveModal
+            theme={currentTheme}
+            onClose={handleCancel}
+            onLeave={handleCancelLeave}
+            onSaveDraft={handleConfirmLeave}
+          />
+        )}
 
-          disabled={isSubmitting}
+        <div className="flex">
+          <ProductCrEdForm />
+          <RightSectionComponent />
+        </div>
+
+        {/* Submit bar */}
+        <div
+          className="sticky bottom-0 z-30 flex justify-end px-6 py-4 border-t backdrop-blur"
+          style={{
+            background: currentTheme.bgSecondary,
+            borderColor: currentTheme.border,
+          }}
         >
-          <Save />
-            {
-                isSubmitting ? "Submitting..." : (modeForm === "create" ? "Create Product" : "Update Product")
-            }
-        </Button>
-      </div>
-    </form>
+          <Button
+            type="submit"
+            disabled={isLoading || isSubmitting}  // 👈 fixed condition
+            className="min-w-[220px] text-sm font-semibold rounded-lg shadow-lg transition hover:opacity-90 active:scale-[0.98]"
+            style={{
+              background: currentTheme.primary,
+              color: currentTheme.textInverse,
+            }}
+          >
+            <Save className="mr-2" size={16} />
+            {isLoading || isSubmitting
+              ? 'Submitting...'
+              : modeForm === 'create'
+              ? 'Create Product'
+              : 'Update Product'}
+          </Button>
+        </div>
+      </form>
+    </>
   );
 };
 

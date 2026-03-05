@@ -32,15 +32,13 @@ class MediaService
         }
         
         $filteredIframes = collect($video)->filter(fn($v)=> $v['media_type']  === 'iframe') ;
-        $filteredIframes->map(fn($v) =>  $product->media()->updateOrCreate(
-            [
-               'media_type' => 'iframe',
-               'collection' => 'gallery',
-            ],
-            [
-                    'url' => $v['url'],
-            ]
-       )) ;
+        $filteredIframes->map(fn($v) =>  $product->media()->firstOrCreate([
+            'mediaable_id'   => $product->id,
+            'mediaable_type' => Product::class,
+            'media_type'     => 'iframe',
+            'collection'     => 'gallery',
+            'url'            => $v['url'],
+        ])) ;
     }
 
     public function store($file ,string $collection = "gallery" , mixed $mediable = null){

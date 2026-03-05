@@ -98,7 +98,7 @@ class Product extends Model
 
     public function tags(){
           return $this->belongsToMany(Tag::class)
-                ->select('tags.name');
+                ->select('tags.id' , 'tags.name');
     }
 
     public function orders(){

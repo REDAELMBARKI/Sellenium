@@ -40,7 +40,7 @@ const baseProductData : ProductBase = {
     unit: 'cm',
     },
     warehouseLocation: '',
-    fulfillmentType: '',
+    fulfillmentType: 'in_house',
   },
   shipping: {
     shippingClass: 'express',
