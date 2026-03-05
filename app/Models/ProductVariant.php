@@ -16,7 +16,7 @@ class ProductVariant extends Model
 
 
     protected $fillable = ['product_id' , 'price','sku' ,  'compare_price', 'is_default',  'stock', 'attrs'];
-    protected $casts = ['attributes' => 'array'] ;
+    protected $casts = ['attrs' => 'array'] ;
 
 
     public function media(){

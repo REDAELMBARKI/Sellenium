@@ -17,17 +17,7 @@ class PublishProductRequest extends FormRequest{
         
     }
     public function rules(){
-     $rules =  SubmitedProductValidation::rules();
-     $productId = $this->route("product")->id;
-     $rules['variants.*.sku'] = [
-        'nullable',
-        'string',
-        'distinct',
-        Rule::unique('product_variants', 'sku')
-            ->where(fn($q) => $q->where('product_id', '!=', $productId)),
-    ];
-;
-     return $rules;
+     return SubmitedProductValidation::rules();
     }
 
 

@@ -4,6 +4,8 @@ import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { Category } from '@/types/inventoryTypes';
+import { isEmpty } from 'lodash';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -28,12 +30,14 @@ interface Product {
   id: string;
   name: string;
   brand?: string;
-  nich_category?: string;
+  description : string , 
+  nich_category?: Category;
+  sub_categories : Category[] ,
   thumbnail?: Media | null;
   updated_at: string;
   quality_score: number;
   ready_to_publish: boolean;
-  variants?: Variant[];
+  variants : Variant[]
   status: 'draft' | 'published';
 }
 
@@ -62,10 +66,10 @@ function getMinPrice(variants?: Variant[]): number | null {
 function getWarnings(draft: Product): string[] {
   const warnings: string[] = [];
   if (!draft.name || draft.name.trim() === '')   warnings.push('Missing name');
+  if (!draft.description || draft.name.trim() === '')   warnings.push('Missing description');
   if (!draft.thumbnail)                           warnings.push('Missing thumbnail');
-  if (!draft.nich_category)                       warnings.push('Missing category');
-  if (!draft.variants || draft.variants.length === 0) warnings.push('Missing variants');
-  if (getMinPrice(draft.variants) === null)       warnings.push('Missing price');
+  if (!draft.nich_category || isEmpty(draft.nich_category)) warnings.push('Missing category');
+  if (draft.sub_categories.length < 1)                       warnings.push('Missing sub categories');
   return warnings;
 }
 
@@ -139,9 +143,13 @@ export function DraftRow({ draft, onPreview, onEdit, onPublish, onDelete, onDupl
                 {draft.name || 'Untitled Product'}
               </h3>
               <p className="text-xs text-gray-500 mt-0.5">
-                {draft.nich_category ?? 'No category'}
+                
                 {draft.brand && ` · ${draft.brand}`}
               </p>
+              <div>
+                  <p>Niche : {draft.nich_category?.name ?? 'No category'}</p>
+                   <p>Sub Categories : {draft.sub_categories.map(c => c.name).join(',') ?? 'No category'}</p>
+              </div>
             </div>
 
             {/* Badges */}
@@ -263,10 +271,8 @@ export function DraftRow({ draft, onPreview, onEdit, onPublish, onDelete, onDupl
 export default function Drafts({ drafts: backendDrafts }: { drafts: Product[] }) {
   const [drafts, setDrafts] = useState<Product[]>(backendDrafts ?? []);
   const { state: { currentTheme } } = useStoreConfigCtx();
-
   const handlePublish = (id: string) =>
     setDrafts((prev) => prev.filter((p) => p.id !== id));
-
   const handleDelete = (id: string) =>
     setDrafts((prev) => prev.filter((p) => p.id !== id));
 
@@ -289,7 +295,7 @@ export default function Drafts({ drafts: backendDrafts }: { drafts: Product[] })
       className="min-h-screen"
       style={{ background: currentTheme.bgSecondary, color: currentTheme.text }}
     >
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-100% mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

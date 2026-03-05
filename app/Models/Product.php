@@ -91,7 +91,7 @@ class Product extends Model
     
     }
    
-
+    
     public function nichCategory(){
         return  $this->belongsTo(Category::class ,'category_niche_id');
     }

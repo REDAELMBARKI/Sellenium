@@ -34,7 +34,6 @@ class SubmitedProductValidation
             ],
             'description' => [
                 'bail', 'nullable', 'string', 'min:10',
-                'regex:/^[\pL0-9\s\-+_.,:;()\'"@!#%&*\/\\\[\]]+$/u'
             ],
             'badge_text'    => ['nullable', 'string', 'max:20'],
             'madeCountry'   => ['nullable', 'string', 'size:2'],  
@@ -99,7 +98,7 @@ class SubmitedProductValidation
             'inventory.dimensions.height'      => ['nullable', 'numeric', 'min:0'],
             'inventory.dimensions.unit'        => ['nullable', 'string', Rule::in(['cm', 'in', 'm'])],
             'inventory.warehouseLocation'      => ['nullable', 'string', 'max:100'],
-            'inventory.fulfillmentType'        => ['nullable', 'string', Rule::in(['dropship', 'inhouse', 'third_party'])],
+            'inventory.fulfillmentType'        => ['nullable', 'string', Rule::in(['dropship', 'in_house', 'third_party'])],
         ];
     }
 
@@ -107,7 +106,7 @@ class SubmitedProductValidation
     {
         return [
             'shipping'                       => ['nullable', 'array'],
-            'shipping.shippingClass'         => ['nullable', 'string', Rule::in(['standard', 'express', 'overnight', 'free'])],
+            'shipping.shippingClass'         => ['nullable', 'string', Rule::in(['standard', 'express', 'pickup'])],
             'shipping.shippingCostOverride'  => ['nullable', 'numeric', 'min:0'],
             'shipping.isReturnable'          => ['nullable', 'boolean'],
             'shipping.returnWindow'          => ['nullable', 'integer', 'min:0'],

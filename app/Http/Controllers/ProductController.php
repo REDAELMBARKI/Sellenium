@@ -35,9 +35,9 @@ class ProductController extends Controller
 
 
     public function drafts() {
-        $drafts = Product::with(['thumbnail' , 'variants' , 'nichCategory'])
+        $drafts = Product::with(['thumbnail' , 'variants' , 'nichCategory' , 'subCategories'])
         ->where('status' , 'draft')
-        ->select(['id' , 'name' , 'brand' , 'quality_score', 'updated_at'])
+        ->select(['id' , 'name', 'description' , 'brand' , 'quality_score', 'updated_at' ,'category_niche_id'])
         ->orderBy('updated_at' , 'desc')
         ->get() ;
         return Inertia::render("admin/pages/products/Drafts" , ['drafts' => $drafts] ) ;
@@ -99,7 +99,7 @@ class ProductController extends Controller
         public function  updateOnSubmit(PublishProductRequest $publishProductRequest , Product $product){
             // dd($publishProductRequest->all());
             // $payload = $publishProductRequest->validated();
-            $payload = $publishProductRequest->all();
+            $payload = $publishProductRequest->validated();
             $this->productService->saveDraft($payload , $product);
             return redirect()->route('drafts.index')->with('success','product saved ');
         }
@@ -121,6 +121,7 @@ class ProductController extends Controller
             $product  = $product->load(['thumbnail' , 'covers'  , 'video' , 'tags' , 'variants',   'subCategories']);
             $parents = DB::table('variants_options_settings')->whereNull('parent_id')->get(['key']) ;
             $options =[] ;
+           
             foreach($parents as $parent){
                 $options[$parent->key] =  DB::table('variants_options_settings')->where('key' , $parent->key)
                              ->whereNotNull('parent_id')

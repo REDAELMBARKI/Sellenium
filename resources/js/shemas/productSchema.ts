@@ -73,7 +73,7 @@ const shippingSchema = z.object({
   shippingCostOverride: z.number({ invalid_type_error: "Shipping cost must be a number" }).min(0).nullable().optional(),
   isReturnable:         z.coerce.boolean().nullable().optional(),
   returnWindow:         z.number({ invalid_type_error: "Return window must be a number" }).min(0).nullable().optional(),
-  returnPolicy:         z.enum(['free_return', 'customer_pays']).nullable().optional(),
+  returnPolicy:         z.enum(['free_return', 'paid_return', 'no_return']).nullable().optional(),
 }).nullable().optional();                                     // 👈 nullable
 
 const metaSchema = z.object({
@@ -131,7 +131,12 @@ export const productSchema = z.object({
   tags:            z.array(z.string().min(1)).nullable().optional(),
 
   // media
-  thumbnail: z.any().nullable().optional(),                   // validated in withValidator
+thumbnail: z.any()
+    .refine(
+        (val) => val !== null && val !== undefined && typeof val?.id === 'number' && typeof val?.url === 'string' && val.url.length > 0,
+        { message: "Thumbnail is required" }
+    ),
+
   video:     z.array(videoSchema).nullable().default([]),
   covers:    z.array(coverSchema).nullable().optional(),
 

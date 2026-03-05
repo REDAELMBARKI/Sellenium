@@ -14,6 +14,7 @@ use App\Services\MediaService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\In;
 
@@ -21,7 +22,37 @@ class ProductService {
 
     
    public function __construct(private MediaService $mediaService) {}
-    public function storeTags(Collection $tags) : Collection
+    
+   
+    public function saveDraft($payload ,?Product $product) {
+        $product = $product ?? new Product();
+        // product is created (not null anymore ) ;
+        return DB::transaction(function() use ($product , $payload){
+            $payload = $this->prepareProductPayload($payload);
+            $payload = $this->slugProduct($payload, $product);
+            $product->fill($payload) ;
+            $product->save();
+            // save tags
+            $ids = $this->storeTags(collect($payload['tags']));
+            $this ->syncTags($product , $ids); // sync tags to the product/product
+            $this ->syncSubCategories($product , $payload['sub_categories'] ?? [] ) ;
+            //store vedio iframe url if exists
+            $this->mediaService->storeIframeVideo($product , $payload['video']);
+            // store variants
+            $updatedVariants = $this -> resolveVariants($payload);
+            $this-> storeVariants($product ,$updatedVariants );
+            $this->evaluateProductScore($product);
+            //store attribtes
+            $this->storeProductAttributes($product , $payload['product_attributes']);
+            // coupons and promotions related to this product
+            $this->attachApplicableProducts($product, $payload['promotion_ids'] ?? [], Promotion::class);
+            $this->attachApplicableProducts($product, $payload['coupon_ids'] ?? [], Coupon::class);
+        
+            return $product->fresh();
+        });
+    }
+   
+   public function storeTags(Collection $tags) : Collection
     {
         
         if ($tags->isEmpty()) {
@@ -46,13 +77,15 @@ class ProductService {
                 'updated_at' => now(),
             ])->toArray(),
             ['name'],                 // unique key
-            []    // dont update any  columns
+            ['updated_at']
+
         );
 
         return Tag::whereIn('name' , $tags)->pluck('id') ;
     }
     
     private function syncSubCategories(Product $product , array $subCategories  ){
+        Log::error('sub categories ' , ['count' => count($subCategories)]) ; 
         $product->subCategories()->sync($subCategories) ;
     }
 
@@ -85,33 +118,7 @@ class ProductService {
 
       return $data ;
     }
-    public function saveDraft($payload ,?Product $product) {
-        $product = $product ?? new Product();
-        // product is created (not null anymore ) ;
-        return DB::transaction(function() use ($product , $payload){
-            $payload = $this->prepareProductPayload($payload);
-            $payload = $this->slugProduct($payload, $product);
-            $product->fill($payload) ;
-            $product->save();
-            // save tags
-            $ids = $this->storeTags(collect($payload['tags']));
-            $this ->syncTags($product , $ids); // sync tags to the product/product
-            $this ->syncSubCategories($product , $payload['subCategories'] ?? [] ) ;
-            //store vedio iframe url if exists
-            $this->mediaService->storeIframeVideo($product , $payload['video']);
-            // store variants
-            $updatedVariants = $this -> resolveVariants($payload);
-            $this-> storeVariants($product ,$updatedVariants );
-            $this->evaluateProductScore($product);
-            //store attribtes
-            $this->storeProductAttributes($product , $payload['product_attributes']);
-            // coupons and promotions related to this product
-            $this->attachApplicableProducts($product, $payload['promotion_ids'] ?? [], Promotion::class);
-            $this->attachApplicableProducts($product, $payload['coupon_ids'] ?? [], Coupon::class);
-        
-            return $product->fresh();
-        });
-    }
+   
 
     public function slugProduct(array $payload, Product $product): array
     {
@@ -141,7 +148,14 @@ class ProductService {
         
         DB::transaction(function () use ($product , $variants) {
             collect($variants)->map(function($variant) use ($product) {
-                $sku  =  $variant['sku'] ?? $this->generateSku($product , $variant['attrs'] ) ;
+                $isSkuDuplidated = ProductVariant::whereNot('product_id', $product->id)
+                                   ->where('sku' , $variant['sku'])
+                                   ->exists();
+                                   
+                $sku = $isSkuDuplidated || empty($variant['sku']) ? 
+                    $sku = $this->generateSku($product , $variant['attrs'] ):
+                    $variant['sku'];
+                
                 $created =  ProductVariant::updateOrCreate(
                            ['sku' => $sku , 'product_id' => $product->id] ,
                            [
@@ -194,12 +208,18 @@ class ProductService {
     {
         $base = strtoupper(Str::slug($product->name, '-')); // BLUE-TSHIRT
         
-        $attrPart = !empty($attrs) ?
-            collect($attrs)
-            ->map(fn ($attr) => strtoupper($attr['value']) ?? 'DEFAULT')
-            ->join('-')
-            : 'DEFAULT'
-            ; // RED-XL
+        $attrPart = !empty($attrs)
+            ? collect($attrs)
+                ->map(function($attr) {
+                    // color object has hex + name
+                    if (is_array($attr) && isset($attr['hex'], $attr['name'])) {
+                        return strtoupper($attr['name']);
+                    }
+                    // plain string (size, material, etc)
+                    return strtoupper($attr);
+                })
+                ->join('-')
+            : 'DEFAULT';
 
         for ($i = 0; $i < $maxAttempts; $i++) {
             $sku = $base . '-' . $attrPart . '-' . strtoupper(Str::random(4));

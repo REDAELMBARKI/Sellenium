@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Category;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -34,7 +35,7 @@ return new class extends Migration
             $table->string('madeCountry')->nullable() ;
             $table->string('releaseDate')->nullable() ;
             // Relational / foreign keys
-            $table->foreignId('category_niche_id')
+            $table->foreignIdFor(Category::class , 'category_niche_id')
             ->nullable()
             ->default(null)
             ->constrained('categories')

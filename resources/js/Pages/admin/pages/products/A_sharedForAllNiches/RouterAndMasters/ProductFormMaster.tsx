@@ -28,10 +28,10 @@ const ProductFormMaster: React.FC = () => {
 
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [pendingVisit, setPendingVisit]     = useState<string | null>(null);
-  const [isLoading, setIsLoading]           = useState(false); // 👈 loading state
+  const [isLoading, setIsLoading]           = useState(false); 
   const [loadingMessage, setLoadingMessage] = useState('Saving product');
 
-  const { cleanAttributesForBackend } = toBackendDataCleaners();
+  const { cleanObjectToIids } = toBackendDataCleaners();
   const { save, destroyDraftProduct }  = useBackendInteraction();
   const isLeavingRef = useRef(false);
 
@@ -56,9 +56,13 @@ const ProductFormMaster: React.FC = () => {
     setIsLoading(true);
     setLoadingMessage(modeForm === 'create' ? 'Creating product...' : 'Updating product...');
     isLeavingRef.current = true;
+    const payload : ProductSchemaType = {
+       ...data , 
+       sub_categories : cleanObjectToIids(data.sub_categories)
+    }
     router.put(
       route('draft.save.submit', { product: draftId.current }),
-      data as any,
+      payload as any,
       {
         onSuccess: () => {
           setIsLoading(false); 
@@ -165,6 +169,17 @@ const ProductFormMaster: React.FC = () => {
         )}
 
         <div className="flex">
+         {/* <pre style={{ 
+              color: '#00ff00', 
+              background: '#1e1e1e', 
+              padding: '16px', 
+              borderRadius: '8px', 
+              fontSize: '13px',
+              overflow: 'auto',
+              maxHeight: '400px'
+          }}>
+              {JSON.stringify(getValues(), null, 2)}
+          </pre> */}
           <ProductCrEdForm />
           <RightSectionComponent />
         </div>
