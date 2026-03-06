@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\ShippingSetting;
 use App\Models\Tag;
 use App\Services\CategoryService;
+use Exception;
 use Illuminate\Auth\Access\Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,10 +36,12 @@ class ProductController extends Controller
 
 
     public function drafts() {
+        
+        Log::info('drafts controller hit'); // ← add this
         $drafts = Product::with(['thumbnail' , 'variants' , 'nichCategory' , 'subCategories'])
         ->where('status' , 'draft')
         ->select(['id' , 'name', 'description' , 'brand' , 'quality_score', 'updated_at' ,'category_niche_id'])
-        ->orderBy('updated_at' , 'desc')
+        ->latest('updated_at')
         ->get() ;
         return Inertia::render("admin/pages/products/Drafts" , ['drafts' => $drafts] ) ;
     }
@@ -53,7 +56,7 @@ class ProductController extends Controller
                              ->whereNotNull('parent_id')
                              ->get(['value']) ;
             }
-            return inertia::render("admin/pages/products/Create" ,
+            return inertia::render("admin/pages/products/create" ,
                 [
                     'nich_cats' =>  $this->categoryService->get_niche_cats(),
                     'shipping_class' => ShippingSetting::value('shipping_class') ,
@@ -117,34 +120,41 @@ class ProductController extends Controller
         
         
         
-        public function edit(Product $product){
-            $product  = $product->load(['thumbnail' , 'covers'  , 'video' , 'tags' , 'variants',   'subCategories']);
+    public function edit(Product $product){
+            try {
+                $product = $product->load(['thumbnail', 'covers', 'video', 'tags', 'variants', 'subCategories']);
+
             $parents = DB::table('variants_options_settings')->whereNull('parent_id')->get(['key']) ;
             $options =[] ;
-           
             foreach($parents as $parent){
                 $options[$parent->key] =  DB::table('variants_options_settings')->where('key' , $parent->key)
                              ->whereNotNull('parent_id')
                              ->get(['value']) ;
             }
-            return inertia::render("admin/pages/products/Create" ,
+            return inertia::render("admin/pages/products/create" ,
                 [
-                    'product' => (new ProductTest($product)),
+                    'product' => $product,
                     'nich_cats' =>  $this->categoryService->get_niche_cats(),
                     'shipping_class' => ShippingSetting::value('shipping_class') ,
                     'badges' => DB::table("badges")->get(['id' , 'name' , 'color' , 'icon']),
                     'variants_options' => $options,
                  ]);
+             } 
+             catch (\Exception $e) {
+                dd($e->getMessage(), $e->getTraceAsString()); // 👈 catch any silent errors
+            }
             
     }
 
 
     public function destroy(Product $product){
         //  Gate::authorize('manage_products') ;
-          $product->delete() ;
-         return response()->json([
-            'message' => 'Product deleted successfully'
-         ],200);
+         try {
+          $product->delete();
+          return redirect()->back()->with('success', 'Deleted.');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete.');
+        }
     }
 
 
@@ -154,7 +164,7 @@ class ProductController extends Controller
 
 
 
-      public function suggest(Request $request){
+    public function suggest(Request $request){
         //   $request->validate(['q' => ['string' , 'min:2']]);
         //   $query = $request->validated("q");
         //   $excludes = $request->validated("excludes") ?? [];
@@ -176,5 +186,17 @@ class ProductController extends Controller
             ->get();
         
         return response()->json($products,200);
-     }
+    }
+
+
+    public function duplicate(Product $product){
+        //  Gate::authorize('manage_products') ;
+       // gate admin later
+       try {
+        $product->duplicate();
+        return redirect()->back()->with('success','duplicated');
+       }catch (Exception $e) {
+         return redirect()->back()->with('error', 'failed to duplicate retry again');
+       }
+    }
 }

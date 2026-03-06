@@ -111,7 +111,7 @@ Route::get('/products/drafts' , [ProductController::class, 'drafts'])->name('dra
 Route::get('/products' , [ProductController::class, 'index'])->name('products') ;
 Route::get('/products/create' , [ProductController::class, 'create']) ;
 Route::get('/products/{product}/edit' , [ProductController::class, 'edit'])->name('product.edit') ;
-Route::get('/products/{product}' , [ProductController::class, 'show']) ;
+Route::get('/products/{product}' , [ProductController::class, 'show'])->name('product.show') ;
 
 // drafts
 Route::post('/products' , [ProductController::class, 'storeDraft'])->name('products.storeDraft');
@@ -119,6 +119,7 @@ Route::patch('/products/{product}/publish' , [ProductController::class, 'publish
 Route::delete('/products/{product}' , [ProductController::class, 'destroy'])->name("product.destroy") ;
 Route::put('/products/{product}/leave',  [ProductController::class, 'updateOnPageLeave'])->name('draft.save.leave');
 Route::put('/products/{product}/submit', [ProductController::class, 'updateOnSubmit'])->name('draft.save.submit');
+Route::post("/duplicate" , [ProductController::class,"duplicate"])->name("draft.duplicate");
 // media section
 // store media route
 Route::post('/media' , [MediaController::class, 'store'])->name('media.store') ;

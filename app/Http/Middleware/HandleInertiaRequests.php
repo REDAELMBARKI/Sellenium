@@ -37,6 +37,9 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'client_secret' => session('client_secret'),
                 'order_id'      => session('order_id'),
+                'success' => $request->session()->get('success'),
+                'error'   => $request->session()->get('error'),
+                'errors'  => $request->session()->get('errors'), 
             ],
         ];
     }
