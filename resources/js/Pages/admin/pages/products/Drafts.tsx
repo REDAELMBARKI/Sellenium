@@ -419,6 +419,7 @@ export function DraftRow({ draft, onDelete, onDuplicate, isFirst }: DraftRowProp
         {/* Actions */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
           <button
+            
             onClick={() => router.visit(route('product.show', { product: draft.id }))}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors hover:opacity-75"
             style={{ borderColor: t.border, color: t.textSecondary, background: 'transparent' }}

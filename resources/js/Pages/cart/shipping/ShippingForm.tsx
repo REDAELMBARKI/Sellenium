@@ -8,7 +8,8 @@ import { SelectScrollUpButton } from "@/components/ui/select";
 
 import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { Controller } from "react-hook-form";
-import CustomSelectForObject from "@/components/ui/CustomSelectForObject";
+import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
+
 interface ShippingFormProps {
     onChange: (data: any) => void;
     theme: any;
@@ -237,14 +238,14 @@ export default function ShippingForm({
                             control={control}
                             defaultValue=""
                             render={({ field }) => (
-                                <CustomSelectForObject
+                                <MultiSelectDropdownForObject
+                                    multiple={false}
                                     label="Select City"
-                                    isSearchable={false}
                                     options={shippingCities.map((city) => ({
                                         label: city.city,
                                         value: String(city.city),
                                     }))}
-                                    value={field.value ? { label: shippingCities.find(c => String(c.id) === String(field.value))?.city ?? '', value: String(field.value) } : null}
+                                    selectedValues={field.value ? { label: shippingCities.find(c => String(c.id) === String(field.value))?.city ?? '', value: String(field.value) } : null}
                                     onChange={(option) => {
                                         field.onChange(option.value);
                                         onCityChange(option.value);
