@@ -18,39 +18,45 @@ export default function VariantBuilder() {
   const [colorImages, setColorImages] = useState<Record<string, string>>({});
   const [showModal, setShowModal] = useState(false);
   const newCardRef = useRef<HTMLDivElement>(null);
-  const {  control , formState : {errors}} = useProductDataCtx();
-  const {addToast} = useToast()
-  const { fields : variants, append, remove , update} = useFieldArray<ProductBase , 'variants'>({
+  const { control, formState: { errors } } = useProductDataCtx();
+  const { addToast } = useToast();
+  const { fields: variants, append, remove, update } = useFieldArray<ProductBase, 'variants'>({
     control,
     name: 'variants'
   });
-  const {modeForm} = useProductDataCtx();
+  const { modeForm } = useProductDataCtx();
   const hasOpenCard = variants.some((v) => v.isOpen);
-  const [defaultVariantsPrice , setDefaultVariantsPrice] = useState<number>()
-  const variantStep2Ref = useRef<HTMLDivElement>(null)
-  // 2. holds the validation errors for those inputs
+  const [defaultVariantsPrice, setDefaultVariantsPrice] = useState<number | undefined>();
+  const variantStep2Ref = useRef<HTMLDivElement>(null);
   const [variantErrors, setVariantErrors] = useState<Record<string, any>>({});
-  
+
+  // FIX #1 — use a ref to only initialize activeOptions once in edit mode
+  // Previously this ran on every variants.length change, resetting user-selected options
+  const hasInitialized = useRef(false);
   useEffect(() => {
-     // get all options from existing variants 
-     if(modeForm == 'edit'){
-        const optionToBeSelcted = Object.keys(variants[0].attrs).map(el => el.toLowerCase())
-        setActiveOptions(optionToBeSelcted)
-     }
-  }, []);
+    if (modeForm === 'edit' && variants.length > 0 && !hasInitialized.current) {
+      const attrs = variants[0]?.attrs;
+      // FIX — defend backend data: attrs could be null, string, or not an object
+      if (!attrs || typeof attrs !== 'object') return;
+      const optionToBeSelected = Object.keys(attrs).map(el => el.toLowerCase());
+      if (optionToBeSelected.length === 0) return;
+      setActiveOptions(optionToBeSelected);
+      hasInitialized.current = true;
+    }
+  }, [modeForm, variants.length]);
 
   const addEmpty = useCallback(() => {
     if (hasOpenCard) return;
     const newVariant: Variant = {
       variant_id: `v-${Date.now()}`,
       attrs: null,
-      price: defaultVariantsPrice ??  0 ,
+      price: defaultVariantsPrice ?? 0,
       stock: 0,
-      compare_price : 0 ,
+      compare_price: 0,
       sku: null,
       image: {
-         url : '' , 
-         id : null
+        url: '',
+        id: null
       },
       isOpen: true,
     };
@@ -58,10 +64,10 @@ export default function VariantBuilder() {
     setTimeout(() => {
       newCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 50);
-  }, [hasOpenCard, append , defaultVariantsPrice]);
+  }, [hasOpenCard, append, defaultVariantsPrice]);
 
   const updateVariant = (id: string, field: string, value: any) => {
-    const index = variants.findIndex(f => f.variant_id === id); // ← find index by id
+    const index = variants.findIndex(f => f.variant_id === id);
     if (index === -1) return;
 
     const current = variants[index];
@@ -75,95 +81,108 @@ export default function VariantBuilder() {
     update(index, { ...current, [field]: value });
   };
 
-  const removeVariant = (id: string) =>{
-       const index = variants.findIndex(f => f.variant_id === id)
-       if (index === -1) return;
-
-       remove(index)
-
-  }
+  // FIX #3 — also clean up variantErrors when a variant is removed
+  const removeVariant = (id: string) => {
+    const index = variants.findIndex(f => f.variant_id === id);
+    if (index === -1) return;
+    remove(index);
+    setVariantErrors(prev => {
+      const updated = { ...prev };
+      delete updated[id];
+      return updated;
+    });
+  };
 
   const markDone = (id: string) => {
-    console.log('errors' , errors)
-    
     const index = variants.findIndex(v => v.variant_id === id);
     if (index === -1) return;
-    
-    const variant = variants[index] ; 
+
+    const variant = variants[index];
     const result = variantSchema.safeParse(variant);
     if (!result.success) {
       setVariantErrors(prev => ({
-        ...prev , 
+        ...prev,
         [id]: result.error.flatten().fieldErrors
-      }))
+      }));
       return;
-        }
+    }
 
-        const isExists = checkIfExists(variant , variants) ;
-        if(isExists){
-           addToast({
-             title : "Duplicate" , 
-             description : 'this variant exists' , 
-             duration : 2000 , 
-             
-           }) ; 
-           return ;
-        }
-        setVariantErrors(prev => {
-          const updated = { ...prev };
-          delete updated[id];
-          return updated;
-        });
-  
-       update(index , { ...variant, isOpen: false })
-       addToast({
-            title : 'new variant added' , 
-            type : 'success' , 
-            duration : 1000
-       })
+    const isExists = checkIfExists(variant, variants as Variant[]);
+    if (isExists) {
+      addToast({
+        title: "Duplicate",
+        description: 'this variant exists',
+        duration: 2000,
+      });
+      return;
+    }
 
-        setTimeout(() => {
-          variantStep2Ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-        }, 50);
-  }
+    setVariantErrors(prev => {
+      const updated = { ...prev };
+      delete updated[id];
+      return updated;
+    });
+
+    update(index, { ...variant, isOpen: false });
+    addToast({
+      title: 'new variant added',
+      type: 'success',
+      duration: 1000
+    });
+
+    setTimeout(() => {
+      variantStep2Ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 50);
+  };
 
   const checkIfExists = (variant: Variant, variants: Variant[]): boolean => {
-  return variants.some(v => {
-    // skip comparing with itself
-    if (v.variant_id === variant.variant_id) return false;
+    return variants.some(v => {
+      if (v.variant_id === variant.variant_id) return false;
 
-    // must have same number of attr keys
-    const variantKeys  = Object.keys(variant.attrs  || {});
-    const existingKeys = Object.keys(v.attrs || {});
-    if (variantKeys.length !== existingKeys.length) return false;
+      const variantKeys  = Object.keys(variant.attrs  || {});
+      const existingKeys = Object.keys(v.attrs || {});
+      if (variantKeys.length !== existingKeys.length) return false;
 
-    // every attr value must match
-    return variantKeys.every(key => {
-      const a = variant.attrs?.[key];
-      const b = v.attrs?.[key];
+      return variantKeys.every(key => {
+        const a = variant.attrs?.[key];
+        const b = v.attrs?.[key];
 
-      // color is an object { hex, name } — compare by hex
-      if (typeof a === 'object' && a !== null && 'hex' in a) {
-        return typeof b === 'object' && b !== null && 'hex' in b && a.hex === b.hex;
-      }
+        if (typeof a === 'object' && a !== null && 'hex' in a) {
+          return typeof b === 'object' && b !== null && 'hex' in b && a.hex === b.hex;
+        }
 
-      return a === b;
+        return a === b;
+      });
     });
-  });
-};
+  };
 
+  // FIX #4 — skip duplicates when appending generated variants
   const addGeneratedVariants = (generated: Variant[]) => {
-    append(generated)
+    if (!generated?.length) return;
+    const unique = generated.filter(g => !checkIfExists(g, variants as Variant[]));
+    if (unique.length < generated.length) {
+      addToast({
+        title: 'Some duplicates were skipped',
+        type: 'warning',
+        duration: 2000
+      });
+    }
+    if (unique.length === 0) return;
+    append(unique);
     setTimeout(() => {
       newCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 50);
   };
 
-  const handleColorImageUpload = (hex: string, url: string) =>
+  const handleColorImageUpload = (hex: string, url: string) => {
+    if (!hex || !url) return; // FIX — defend against empty hex/url
     setColorImages((prev) => ({ ...prev, [hex]: url }));
+  };
 
-  const handleColorImageRemove = (hex: string) =>
+  const handleColorImageRemove = (hex: string) => {
+    if (!hex) return; // FIX — defend against empty hex
     setColorImages((prev) => { const n = { ...prev }; delete n[hex]; return n; });
+  };
 
   return (
     <div className="w-full" style={{ color: theme.text }}>
@@ -204,23 +223,24 @@ export default function VariantBuilder() {
             </div>
 
             <div className="flex items-center gap-2 flex-shrink-0">
-               <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold uppercase tracking-wide whitespace-nowrap" style={{ color: theme.textMuted }}>
-                Default Price
-              </label>
-              <input
-                placeholder="0"
-                type="number"
-                value={defaultVariantsPrice === null ? '' : defaultVariantsPrice}
-                onChange={(e) => setDefaultVariantsPrice(e.target.value === '' ? undefined : Number(e.target.value))}
-                className="px-3 py-2 rounded-xl text-sm font-medium w-24"
-                style={{
-                  background: theme.bg,
-                  border: `2px solid ${theme.border}`,
-                  color: theme.text,
-                }}
-              />
-            </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-semibold uppercase tracking-wide whitespace-nowrap" style={{ color: theme.textMuted }}>
+                  Default Price
+                </label>
+                <input
+                  placeholder="0"
+                  type="number"
+                  // FIX #2 — defaultVariantsPrice is undefined not null, ?? handles both
+                  value={defaultVariantsPrice ?? ''}
+                  onChange={(e) => setDefaultVariantsPrice(e.target.value === '' ? undefined : Number(e.target.value))}
+                  className="px-3 py-2 rounded-xl text-sm font-medium w-24"
+                  style={{
+                    background: theme.bg,
+                    border: `2px solid ${theme.border}`,
+                    color: theme.text,
+                  }}
+                />
+              </div>
 
               {/* Generate */}
               <Button
@@ -316,7 +336,7 @@ export default function VariantBuilder() {
               <div key={v.variant_id} ref={i === variants.length - 1 ? newCardRef : undefined}>
                 <VariantCard
                   variant={v}
-                  onVariantImageUploaded={(hex, url) => handleColorImageUpload(hex, url)} 
+                  onVariantImageUploaded={(hex, url) => handleColorImageUpload(hex, url)}
                   activeOptions={activeOptions}
                   defaultVariantsPrice={defaultVariantsPrice}
                   colorImages={colorImages}

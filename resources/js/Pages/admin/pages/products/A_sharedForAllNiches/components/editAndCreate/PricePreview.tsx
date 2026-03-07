@@ -30,12 +30,12 @@ export default function PricePreview({
 
       {hasComparePrice && (
         <p className="text-sm line-through opacity-60">
-          ${comparePrice!.toFixed(2)}
+          ${Number(comparePrice!).toFixed(2)}
         </p>
       )}
 
       <p className="text-2xl font-bold">
-        {hasPrice ? `$${price!.toFixed(2)}` : '--'}
+        {hasPrice ? `$${Number(price!).toFixed(2)}` : '--'}
       </p>
 
       {discount !== null && (

@@ -15,7 +15,7 @@ class ProductResources extends JsonResource
     {
       // this calles resolve() and retuns the array or this->ressource == (the instance)
       $productArray = parent::toArray($request) ;
-
+    
       return array_merge($productArray, [
             'tags' => $this->tags->pluck('name'),
         ]);

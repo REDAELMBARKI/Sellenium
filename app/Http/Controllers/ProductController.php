@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PublishProductRequest;
 use App\Http\Requests\StoreDraftProductRequest;
+use App\Http\Resources\ProductDetailResource;
 use App\Http\Resources\ProductResources;
 use App\Http\Resources\ProductTest;
 use App\Services\product\ProductService;
@@ -166,8 +167,10 @@ class ProductController extends Controller
 
 
     public function show(Product $product){
-       $product->load('','','','','','','') ; 
-       return inertia::render('products/Show');
+       $product->load('variants','attrs','nichCategory','subCategories','thumbnail','covers');
+       return inertia::render('products/Show' , [
+          'product'=> new ProductDetailResource($product),
+       ]);
     }
 
 

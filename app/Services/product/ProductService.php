@@ -161,7 +161,7 @@ class ProductService {
                                 'price' => Arr::get($variant,'price'),
                                 'compare_price'=> Arr::get($variant,'compare_price'),
                                 'stock'=> Arr::get($variant,'stock'),
-                                'attrs' =>json_encode(Arr::get($variant, 'attrs')),
+                                'attrs' => Arr::get($variant, 'attrs'),
                                 'is_default'    => $variant['is_default'] ?? false,
                                 'created_at'    => now(),
                                 'updated_at'    => now(),

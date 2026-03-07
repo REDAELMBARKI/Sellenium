@@ -7,7 +7,7 @@ import { useReducer } from "react"
 
 
 const initialState : StoreConfigType= {  
-  currentThemeMode : "light" ,
+  currentThemeMode : "dark" ,
   currentThemeStyle : "luxuryNoir" , 
   currentTheme : currentThemeExample.luxuryNoir.dark,
   currentLayoutStyle : 'grid'  , 

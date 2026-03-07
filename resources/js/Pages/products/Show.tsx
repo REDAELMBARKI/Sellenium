@@ -52,14 +52,12 @@ export default function Show({tax =  2}: ShowPageMasterProps) {
              2: `/checkout?step=payment`,
         };
 
-        const urlSteps: Record<string, number> = {
-            '':          0,
-            'shipping': 1,
-            'payment':  2,
-        };
+    const urlSteps: Record<string, number> = {
+        '':          0,
+        'shipping': 1,
+        'payment':  2,
+    };
 
-        // step → update URL
- 
 
     useEffect(() => {
         const syncStepFromUrl = () => {
@@ -77,7 +75,7 @@ export default function Show({tax =  2}: ShowPageMasterProps) {
     }, []);
 
 
-       const onStepChange = (action: 'prev' | 'next') => {
+    const onStepChange = (action: 'prev' | 'next') => {
             const newStep = action === 'next' ? step + 1 : step - 1;
             setStep(newStep);
             //  ineed to empty this history in each decrement bro when iplay iwht increment decrement it gets accumulated

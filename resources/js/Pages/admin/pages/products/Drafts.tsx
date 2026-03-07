@@ -8,6 +8,7 @@ import styled, { keyframes } from 'styled-components';
 import { useBackendInteraction } from '@/functions/product/useBackendInteractions';
 import { useToast } from '@/contextHooks/useToasts';
 import AppLoading from '@/components/AppLoading';
+import { Draft } from '@/types/inertia';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -19,26 +20,7 @@ interface Variant {
   attrs: Record<string, any>;
 }
 
-interface Media {
-  id: string;
-  url: string;
-  collection: string;
-}
 
-interface Draft {
-  id:number;
-  name: string;
-  brand?: string;
-  nichCategory?: { id: number; name: string } | null;
-  thumbnail?: Media | null;
-  updated_at: string;
-  quality_score: number;
-  ready_to_publish: boolean;
-  variants?: Variant[];
-  description?: string;
-  tags?: string[];
-  covers?: Media[];
-}
 
 interface DraftRowProps {
   draft: Draft;
@@ -73,9 +55,9 @@ const SkeletonImg = styled(SkeletonBase)`
   flex-shrink: 0;
 `;
 
-const SkeletonLine = styled(SkeletonBase)<{ w?: string; h?: string }>`
-  height: ${({ h }) => h ?? '10px'};
-  width: ${({ w }) => w ?? '100%'};
+const SkeletonLine = styled(SkeletonBase)<{ $w?: string; $h?: string }>`
+  height: ${({ $h }) => $h ?? '10px'};
+  width: ${({ $w }) => $w ?? '100%'};
   border-radius: 999px;
 `;
 
@@ -93,7 +75,7 @@ const SkeletonBtn = styled(SkeletonBase)`
 export default function Drafts() {
   const [pageLoading, setPageLoading] = useState(true);
   const { state: { currentTheme: t } } = useStoreConfigCtx();
-  const {flash , drafts} = usePage().props ; 
+  const {flash , drafts = []} = usePage().props ; 
   const {addToast} = useToast() ;
   const {destroyDraftProduct , duplicateDraft , loading , loadingMessage} = useBackendInteraction()
   
@@ -136,8 +118,8 @@ export default function Drafts() {
           <div>
             {pageLoading ? (
               <div className="flex flex-col gap-2">
-                <SkeletonLine w="140px" h="20px" />
-                <SkeletonLine w="90px"  h="10px" />
+                <SkeletonLine $w="140px" $h="20px" />
+                <SkeletonLine $w="90px"  $h="10px" />
               </div>
             ) : (
               <>
@@ -187,7 +169,7 @@ export default function Drafts() {
                 key={draft.id}
                 draft={draft}
                 isFirst={index === 0}
-                onDelete={() => destroyDraftProduct(draft.id)}
+                onDelete={() => destroyDraftProduct(String(draft.id))}
                 onDuplicate={() => duplicateDraft(draft.id)}
               />
             ))}

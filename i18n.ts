@@ -8,6 +8,7 @@ i18n.use(initReactI18next).init({
     fr: { common: fr },
     ar: { common: ar },
   },
+   debug: false, 
   lng: 'fr',
   fallbackLng: 'fr',
   interpolation: { escapeValue: false },

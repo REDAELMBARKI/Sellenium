@@ -7,6 +7,7 @@ use Faker\Core\File;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class Product extends Model
 {
@@ -59,7 +60,16 @@ class Product extends Model
         'aggregated_attributes' => 'array',
     ];
   
-
+    // for product details desplay 
+    /** @return Collection<int, Media> */
+    public function variantsImages() : Collection
+    {
+        return $this->media()->whereIn('mediaable_id' , $this->variants->pluck("id"))
+                             ->where("mediaable_type" , ProductVariant::class)
+                             ->where("collection" , "gallery")
+                             ->where("media_type" , "image")
+                             ->get() ;
+    }
 
     public function attrs(){
          return $this->belongsToMany(ProductAttribute::class , 'attribute_product');
@@ -73,7 +83,9 @@ class Product extends Model
         return $this->morphOne(Media::class , 'mediaable')->where('collection' , 'thumbnail');
     }
     public function covers(){
-        return $this->morphMany(Media::class , 'mediaable')->where('collection' , 'cover');
+        return $this->morphMany(Media::class , 'mediaable')
+              ->where('collection' , 'gallery')
+              ->where("media_type" , "image");
     }
 
     public function video(){

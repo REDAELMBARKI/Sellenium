@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { X, Upload, ChevronDown, Image, Wand2, Trash2 } from "lucide-react";
 import { ThemePalette } from "@/types/ThemeTypes";
 import { Variant } from "@/types/products/productVariantType";
@@ -10,8 +10,6 @@ import { Button } from "@/components/ui/button";
 import { productFilesUploaderCleaner } from "@/functions/product/productFilesUploaderCleaner";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
 import MultiSelectDropdownForObject from "@/components/ui/MultiSelectDropdownForObject";
-import { label } from "framer-motion/client";
-import { route } from "ziggy-js";
 import axios from "axios";
 
 const OPTION_VALUES_STATIC: Record<string, { label: string; value: string }[]> = {
@@ -70,7 +68,7 @@ function CreateVariantForm({
 }: CreateVariantFormProps) {
 
   const { uploadProductFiles, deleteMedia } = productFilesUploaderCleaner();
-  const { setValue, getValues , variants_options } = useProductDataCtx();
+  const { setValue, getValues, variants_options } = useProductDataCtx();
   const inputClassName = "w-full px-5 py-4 rounded-xl font-medium shadow-sm";
   const inputStyle = (hasError?: boolean) => ({
     backgroundColor: theme.bg,
@@ -91,6 +89,15 @@ function CreateVariantForm({
     sku:           variant.sku           ?? '',
   });
 
+  // FIX #6 — sync local state if variant changes externally (e.g. switching variants)
+  useEffect(() => {
+    setLocal({
+      price:         variant.price         ?? '',
+      compare_price: variant.compare_price ?? '',
+      stock:         variant.stock         ?? '',
+      sku:           variant.sku           ?? '',
+    });
+  }, [variant.variant_id]);
 
   const handleLocalChange = (field: string, value: string) => {
     setLocal(prev => ({ ...prev, [field]: value }));
@@ -107,31 +114,32 @@ function CreateVariantForm({
 
   const handleVariantImageUpload = async (variantId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      const file = e.target?.files![0];
-      if (file) {
-        const variantIdSnapshot = variantId;
-        const { media } = await uploadProductFiles(file, 'gallery', 'variant');
-        if (media) {
-          const freshVariants = getValues('variants');
-          const targetVariant = freshVariants.find(v => v.variant_id === variantIdSnapshot);
-          const hex = (targetVariant?.attrs?.color as { hex: string } | undefined)?.hex;
-          if (hex) {
-            onVariantImageUploaded(hex, media.url);
-          }
-          const newVariants = freshVariants.map(v => v.variant_id === variantIdSnapshot ? {
-            ...v,
-            image: { url: media.url, id: media.id }
-          } : v);
-          setValue('variants', newVariants);
+      const file = e.target?.files?.[0];
+      if (!file) return; // FIX — safe guard, was using ! before
+      const variantIdSnapshot = variantId;
+      const { media } = await uploadProductFiles(file, 'gallery', 'variant');
+      if (media) {
+        const freshVariants = getValues('variants');
+        const targetVariant = freshVariants.find(v => v.variant_id === variantIdSnapshot);
+        const hex = (targetVariant?.attrs?.color as { hex: string } | undefined)?.hex;
+        if (hex) {
+          onVariantImageUploaded(hex, media.url);
         }
+        const newVariants = freshVariants.map(v => v.variant_id === variantIdSnapshot ? {
+          ...v,
+          image: { url: media.url, id: media.id }
+        } : v);
+        setValue('variants', newVariants);
       }
     } catch (err) {
       console.warn(err);
     }
   };
 
-  const handleRemoveVariantImage = (variant: Variant, imgId: string) => {
-    deleteMedia(imgId);
+  const handleRemoveVariantImage = (variant: Variant, imgId: string | null | undefined) => {
+    // FIX #3 — guard against undefined/null image id
+    if (!imgId) return;
+    deleteMedia(String(imgId));
     const updated = getValues('variants').map(v =>
       v.variant_id === variant.variant_id
         ? { ...v, image: { url: '', id: undefined } }
@@ -165,22 +173,35 @@ function CreateVariantForm({
       {/* Other options */}
       {activeOptions.filter((o) => o.toLowerCase() !== "color").length > 0 && (
         <div className="grid grid-cols-2 gap-4" style={{ marginTop: 18 }}>
-          {activeOptions.filter((o) => o.toLowerCase() !== "color").map((opt) => (
-            <div key={opt}>
-              <label className={labelClassName} style={{ color: theme.text }}>{opt}</label>
-              <div style={{ position: "relative" }}>
-                <MultiSelectDropdownForObject 
-                 label={`— pick ${opt.toLowerCase()} —`}
-                 selectedValues={variant.attrs ? [{ label : variant.attrs[opt] , value : variant.attrs[opt] }] : []}
-                 onChange={(selected) => onChange(variant.variant_id, `attrs.${opt.toLowerCase()}`, selected[0].value)}
-                 multiple={false}
-                 options={(variants_options[opt.toLowerCase()] || []).map(o => ({value : o.value , label : o.value}))}
-                />
-          
+          {activeOptions.filter((o) => o.toLowerCase() !== "color").map((opt) => {
+            const optKey = opt.toLowerCase();
+            const attrValue = variant.attrs?.[optKey];
+            // FIX #1 — only build selectedValues when the value actually exists
+            const selectedValues =
+              attrValue && typeof attrValue === 'string'
+                ? [{ label: attrValue, value: attrValue }]
+                : [];
+
+            return (
+              <div key={opt}>
+                <label className={labelClassName} style={{ color: theme.text }}>{opt}</label>
+                <div style={{ position: "relative" }}>
+                  <MultiSelectDropdownForObject
+                    label={`— pick ${optKey} —`}
+                    selectedValues={selectedValues}
+                    onChange={(selected) => {
+                      // FIX #2 — guard against empty selection / cleared dropdown
+                      if (!selected?.length || selected[0]?.value == null) return;
+                      onChange(variant.variant_id, `attrs.${optKey}`, selected[0].value);
+                    }}
+                    multiple={false}
+                    options={(variants_options[optKey] || []).map(o => ({ value: o.value, label: o.value }))}
+                  />
+                </div>
+                <FieldError message={err(optKey)} />
               </div>
-              <FieldError message={err(opt.toLowerCase())} />
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -264,7 +285,9 @@ function CreateVariantForm({
             {variant.image?.url ? (
               <div style={{ position: "relative", width: 64, height: 64, flexShrink: 0 }}>
                 <img src={variant.image?.url} alt="" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 12, border: `2px solid ${theme.border}`, display: "block" }} />
-                <button type="button" onClick={() => handleRemoveVariantImage(variant, String(variant.image?.id) ?? '')}
+                <button type="button"
+                  // FIX #3 — no longer using String(undefined)
+                  onClick={() => handleRemoveVariantImage(variant, variant.image?.id)}
                   style={{ position: "absolute", top: -6, right: -6, background: theme.error, border: "none", borderRadius: "50%", width: 20, height: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0 }}>
                   <Trash2 size={10} color="#fff" />
                 </button>
@@ -320,8 +343,14 @@ export default function VariantCard({
   const colorHex  = color?.hex  ?? null;
   const colorName = color?.name ?? null;
 
-  const label = activeOptions
-    .map((opt) => hasOption([opt], "color") ? colorName : variant.attrs?.[opt.toLowerCase()] as string | undefined)
+  // FIX #4 — guard against object values being cast to string (shows [object Object])
+  const cardLabel = activeOptions
+    .map((opt) => {
+      if (hasOption([opt], "color")) return colorName;
+      const val = variant.attrs?.[opt.toLowerCase()];
+      // only return if it's a plain string, not an object
+      return typeof val === 'string' ? val : undefined;
+    })
     .filter(Boolean).join(" / ") || "New Variant";
 
   const inheritedImage = colorHex ? colorImages[colorHex] : null;
@@ -356,7 +385,7 @@ export default function VariantCard({
   return (
     <div style={{
       background: theme.bgSecondary,
-      border: `1px solid ${errors ? '#ef4444' : theme.border}`,
+      border: `1px solid ${errors && Object.keys(errors).length > 0 ? '#ef4444' : theme.border}`,
       borderRadius: theme.borderRadius,
       overflow: "hidden",
     }}>
@@ -381,7 +410,8 @@ export default function VariantCard({
           </div>
         )}
 
-        <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: theme.text }}>{label}</span>
+        {/* FIX #4 — use cardLabel instead of label (which conflicted with framer-motion import) */}
+        <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: theme.text }}>{cardLabel}</span>
 
         {errors && Object.keys(errors).length > 0 && (
           <span style={{ fontSize: 11, color: '#ef4444', background: '#ef444415', border: '1px solid #ef444440', padding: '2px 8px', borderRadius: 6, fontWeight: 600, flexShrink: 0 }}>

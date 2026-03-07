@@ -23,7 +23,6 @@ class Media extends Model
     ];
 
     protected $hidden = [
-    'collection' ,
     'created_at' ,
     'disk' ,
     'is_temporary' ,

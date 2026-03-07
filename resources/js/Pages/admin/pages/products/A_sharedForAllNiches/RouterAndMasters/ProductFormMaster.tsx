@@ -14,6 +14,7 @@ import { useBackendInteraction } from '@/functions/product/useBackendInteraction
 import { toBackendDataCleaners } from '@/functions/product/toBackendDataCleaners';
 import { isEmpty } from 'lodash';
 import AppLoading from '@/components/AppLoading';
+import { useToast } from '@/contextHooks/useToasts';
 
 const ProductFormMaster: React.FC = () => {
   const { state: { currentTheme } } = useStoreConfigCtx();
@@ -28,11 +29,9 @@ const ProductFormMaster: React.FC = () => {
 
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [pendingVisit, setPendingVisit]     = useState<string | null>(null);
-  const [isLoading, setIsLoading]           = useState(false); 
-  const [loadingMessage, setLoadingMessage] = useState('Saving product');
-
+  const { addToast } = useToast();
   const { cleanObjectToIids } = toBackendDataCleaners();
-  const { save, destroyDraftProduct }  = useBackendInteraction();
+  const { save, destroyDraftProduct, loading, loadingMessage } = useBackendInteraction();
   const isLeavingRef = useRef(false);
 
   // ─── Init draft ────────────────────────────────────────────────────────────
@@ -53,30 +52,25 @@ const ProductFormMaster: React.FC = () => {
   // ─── Submit ────────────────────────────────────────────────────────────────
 
   const onSubmit = async (data: ProductSchemaType) => {
-    setIsLoading(true);
-    setLoadingMessage(modeForm === 'create' ? 'Creating product...' : 'Updating product...');
+    const payload: ProductSchemaType = {
+      ...data,
+      sub_categories: cleanObjectToIids(data.sub_categories)
+    };
+
+    // FIX — must be true BEFORE save so backend redirect isn't blocked by nav guard
+    // if save fails we reset it back to false so the guard works again
     isLeavingRef.current = true;
-    const payload : ProductSchemaType = {
-       ...data , 
-       sub_categories : cleanObjectToIids(data.sub_categories)
+
+    try {
+      await save('draft.save.submit', payload, draftId.current);
+    } catch (err: any) {
+      isLeavingRef.current = false; // FIX — reset on failure so user can retry
+      addToast({
+        title: "Error while submitting!",
+        type: "error",
+        description: err.message
+      });
     }
-    router.put(
-      route('draft.save.submit', { product: draftId.current }),
-      payload as any,
-      {
-        onSuccess: () => {
-          setIsLoading(false); 
-        },
-        onError: (errs) => {
-          console.log('Validation errors:', errs);
-          isLeavingRef.current = false;
-          setIsLoading(false); 
-        },
-        onFinish: () => {
-          setIsLoading(false); 
-        },
-      }
-    );
   };
 
   // ─── Unload guard ──────────────────────────────────────────────────────────
@@ -95,7 +89,8 @@ const ProductFormMaster: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = router.on('before', (event) => {
-      if (!isLeavingRef.current) {
+      // FIX — also check isDirty so clean forms are never blocked
+      if (!isLeavingRef.current && isDirty) {
         setShowLeaveModal(true);
         setPendingVisit(event.detail.visit.url.toString());
         event.preventDefault();
@@ -110,21 +105,11 @@ const ProductFormMaster: React.FC = () => {
     const data    = getValues();
     const payload = {
       ...data,
-      product_attributes: cleanAttributesForBackend(data.product_attributes),
+      product_attributes: cleanObjectToIids(data.product_attributes),
     };
 
-    setIsLoading(true);
-    setLoadingMessage('Saving draft...');
-
-    save(
-      'draft.save.leave',
-      payload,
-      (errors) => {
-        console.log(errors);
-        setIsLoading(false);
-      },
-      draftId.current
-    );
+    // fire — Inertia router.put, not a promise, backend redirects
+    save('draft.save.leave', payload, draftId.current);
 
     isLeavingRef.current = true;
     setShowLeaveModal(false);
@@ -132,7 +117,11 @@ const ProductFormMaster: React.FC = () => {
   };
 
   const handleCancelLeave = () => {
-    destroyDraftProduct(draftId.current!);
+    // guard against null draftId before calling destroy
+    if (draftId.current) {
+      // fire — Inertia router, not a promise
+      destroyDraftProduct(draftId.current);
+    }
     isLeavingRef.current = true;
     setShowLeaveModal(false);
     if (pendingVisit) router.visit(pendingVisit);
@@ -149,13 +138,13 @@ const ProductFormMaster: React.FC = () => {
   return (
     <>
       {/* App-wide loading overlay */}
-      {isLoading && <AppLoading message={loadingMessage} />}
+      {loading && <AppLoading message={loadingMessage} />}
 
       <form
-        onSubmit={ (e) => { 
+        onSubmit={(e) => {
           e.preventDefault();
-          formHandleSubmit(onSubmit , (errors) => {
-              console.log(errors)
+          formHandleSubmit(onSubmit, (errors) => {
+            console.log(errors);
           })();
         }}
       >
@@ -194,7 +183,8 @@ const ProductFormMaster: React.FC = () => {
         >
           <Button
             type="submit"
-            disabled={isLoading || isSubmitting}  // 👈 fixed condition
+            // FIX — was isLoading (undefined), correct variable is loading
+            disabled={loading || isSubmitting}
             className="min-w-[220px] text-sm font-semibold rounded-lg shadow-lg transition hover:opacity-90 active:scale-[0.98]"
             style={{
               background: currentTheme.primary,
@@ -202,7 +192,8 @@ const ProductFormMaster: React.FC = () => {
             }}
           >
             <Save className="mr-2" size={16} />
-            {isLoading || isSubmitting
+            {/* FIX — was isLoading (undefined), correct variable is loading */}
+            {loading || isSubmitting
               ? 'Submitting...'
               : modeForm === 'create'
               ? 'Create Product'
