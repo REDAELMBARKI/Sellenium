@@ -46,8 +46,8 @@ class SubmitedProductValidation
             'stock'         => ['nullable', 'integer', 'min:0'],
 
             // flags
-            'isFeatured'            => ['boolean'],
-            'isFreeShipping'        => ['boolean'],
+            'is_featured'            => ['boolean'],
+            'is_visible'            => ['boolean'],
             'allow_backorder'       => ['boolean'],
             'show_countdown'        => ['boolean'],
             'show_reviews'          => ['boolean'],

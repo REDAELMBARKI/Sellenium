@@ -245,10 +245,10 @@ export default function ShippingForm({
                                         label: city.city,
                                         value: String(city.city),
                                     }))}
-                                    selectedValues={field.value ? { label: shippingCities.find(c => String(c.id) === String(field.value))?.city ?? '', value: String(field.value) } : null}
-                                    onChange={(option) => {
-                                        field.onChange(option.value);
-                                        onCityChange(option.value);
+                                    selectedValues={field.value ? [{ label: shippingCities.find(c => String(c.id) === String(field.value))?.city ?? '', value: String(field.value) }] : []}
+                                    onChange={(selected) => {
+                                        field.onChange(selected[0].value);
+                                        onCityChange(selected[0].value);
                                     }}
                                 />
                             )}

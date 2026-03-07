@@ -1,16 +1,17 @@
-import { Category, CategoryCode, Color, Country, Cover, Fit, Gender, Material, Season, Style } from "@/types/inventoryTypes";
-import { ProductBase } from "@/types/products/ProductTypes";
+import { ProductSchemaType } from "@/shemas/productSchema";
+import { Category, Cover} from "@/types/inventoryTypes";
 import { Tag } from "@/types/tagsTypes";
 import { video } from "framer-motion/client";
 
 
 export const getEmptyInitialProductData = () => { // for create new product
    // Base attributes shared by all niches
-const baseProductData : ProductBase = {
+const baseProductData : ProductSchemaType = {
   category_niche_id : undefined, 
   id: undefined,
   name: "",
   brand: "", 
+  is_visible : true ,
   sub_categories: [] as Category[],
   description: "",
   rating_average: undefined,
@@ -24,8 +25,7 @@ const baseProductData : ProductBase = {
   video: [],
   tags: [] as string[],
   covers: [] as Cover[],
-  isFreeShipping : false ,
-  isFeatured: false,
+  is_featured: false,
   inventory: {
   backorderOptions: 'deny',
   trackInventory: false,
@@ -70,9 +70,9 @@ const baseProductData : ProductBase = {
 
 
 export const getEditedData = (
-  product: ProductBase,
+  product: ProductSchemaType,
 ) => {
-  const baseData : ProductBase = {
+  const baseData : ProductSchemaType = {
     id: product.id ?? undefined,
     name: product.name ?? "",
     brand: product.brand ?? "",
@@ -88,8 +88,8 @@ export const getEditedData = (
     video: product.video ?? {id : null  , url : null , iframe : null , primary : null},
     covers: product.covers ?? [],
     tags: product.tags ?? [],
-    isFreeShipping : product.isFreeShipping , 
-    isFeatured: product.isFeatured ?? false,
+    is_visible : product.is_visible ?? true ,
+    is_featured: product.is_featured ?? false,
     category_niche_id : product.category_niche_id,
     inventory: product.inventory,
     shipping: product.shipping,

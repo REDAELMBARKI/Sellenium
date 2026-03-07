@@ -42,7 +42,7 @@ export const useBackendInteraction = () => {
 
     const duplicateDraft = (id: string | number) => {
         if (!id) return
-        router.post(route('draft.duplicate'), { product: id }, {
+        router.post(route('draft.duplicate' , { product: id }),{} , {
             preserveScroll: true,
             onStart:  () => startLoading("Duplicating draft..."),
             onFinish: () => stopLoading(),

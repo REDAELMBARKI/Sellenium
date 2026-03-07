@@ -37,7 +37,6 @@ class ProductController extends Controller
 
     public function drafts() {
         
-        Log::info('drafts controller hit'); // ← add this
         $drafts = Product::with(['thumbnail' , 'variants' , 'nichCategory' , 'subCategories'])
         ->where('status' , 'draft')
         ->select(['id' , 'name', 'description' , 'brand' , 'quality_score', 'updated_at' ,'category_niche_id'])
@@ -49,6 +48,7 @@ class ProductController extends Controller
 
     public function create()
     {
+            // gates product management 
             $parents = DB::table('variants_options_settings')->whereNull('parent_id')->get(['key']) ;
             $options =[] ;
             foreach($parents as $parent){
@@ -71,6 +71,8 @@ class ProductController extends Controller
     */
         public function storeDraft()
         {
+            // gates product management 
+
             $product = Product::create([
                 'name'     => null,
                 'status' => "draft",
@@ -85,6 +87,8 @@ class ProductController extends Controller
         */
         public function publish(PublishProductRequest $publishProductRequest , Product $product)
         {
+            // gates product management 
+
             if(!$this->productService->isPublishable($product)){
                 return response()->json(['message' =>  'some fileds are missing ']) ;
             }
@@ -100,7 +104,7 @@ class ProductController extends Controller
         */
         
         public function  updateOnSubmit(PublishProductRequest $publishProductRequest , Product $product){
-            // dd($publishProductRequest->all());
+            // gates product management 
             // $payload = $publishProductRequest->validated();
             $payload = $publishProductRequest->validated();
             $this->productService->saveDraft($payload , $product);
@@ -114,6 +118,7 @@ class ProductController extends Controller
         */
         
         public function updateOnPageLeave(StoreDraftProductRequest $draftRequest , Product $product){
+            // gates product management 
             $payload = $draftRequest->validated();
             $this->productService->saveDraft($payload , $product );
         }
@@ -121,9 +126,11 @@ class ProductController extends Controller
         
         
     public function edit(Product $product){
-            try {
-                $product = $product->load(['thumbnail', 'covers', 'video', 'tags', 'variants', 'subCategories']);
 
+            // gates product management 
+            
+            try {
+            $product = $product->load(['thumbnail', 'covers', 'video', 'tags', 'variants', 'subCategories']);
             $parents = DB::table('variants_options_settings')->whereNull('parent_id')->get(['key']) ;
             $options =[] ;
             foreach($parents as $parent){
@@ -133,7 +140,7 @@ class ProductController extends Controller
             }
             return inertia::render("admin/pages/products/create" ,
                 [
-                    'product' => $product,
+                    'product' => new ProductResources($product),
                     'nich_cats' =>  $this->categoryService->get_niche_cats(),
                     'shipping_class' => ShippingSetting::value('shipping_class') ,
                     'badges' => DB::table("badges")->get(['id' , 'name' , 'color' , 'icon']),
@@ -158,7 +165,8 @@ class ProductController extends Controller
     }
 
 
-    public function show(){
+    public function show(Product $product){
+       $product->load('','','','','','','') ; 
        return inertia::render('products/Show');
     }
 
@@ -193,7 +201,7 @@ class ProductController extends Controller
         //  Gate::authorize('manage_products') ;
        // gate admin later
        try {
-        $product->duplicate();
+        $this->productService->duplicate($product);
         return redirect()->back()->with('success','duplicated');
        }catch (Exception $e) {
          return redirect()->back()->with('error', 'failed to duplicate retry again');

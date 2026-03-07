@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('slug')->unique()->nullable();        // user might not fill yet
             $table->string('brand')->nullable();       // optional in draft
             $table->text('description')->nullable();   // optional in draft
-            $table->boolean('isFeatured')->default(false);
+            $table->boolean('is_featured')->default(false);
+            $table->boolean('is_visible')->default(true);
             // status and tracking progress
             $table->enum('status', ['draft','published'])->default('draft');
             $table->boolean('ready_to_publish')->default(false);

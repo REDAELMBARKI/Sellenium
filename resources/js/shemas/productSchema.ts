@@ -34,7 +34,10 @@ export const variantSchema = z.object({
 // ── Sub-schemas ────────────────────────────────────────────────────────────
 
 const categorySchema = z.object({
-  id:   z.number({ required_error: "Category ID is required" }),
+id: z.union([
+    z.string().min(1, "Category ID is required"),
+    z.number({ required_error: "Category ID is required" })
+]) ,
   name: z.string().min(1, "Category name is required"),
 });
 
@@ -101,6 +104,7 @@ export const productSchema = z.object({
   name:              z.string().min(1, "Product name is required"),
 
   // optional base fields
+
   brand:       z.string().nullable().optional(),
   releaseDate: z.union([z.string(), z.number()]).nullable().optional(),
   madeCountry: z.string().nullable().optional(),
@@ -141,8 +145,8 @@ thumbnail: z.any()
   covers:    z.array(coverSchema).nullable().optional(),
 
   // booleans — coerce handles 0/1 from DB  👈
-  isFeatured:           z.coerce.boolean().default(false),
-  isFreeShipping:       z.coerce.boolean().default(false),
+  is_featured:           z.coerce.boolean().default(false),
+  is_visible:       z.coerce.boolean().default(true),
   allow_backorder:      z.coerce.boolean().default(false),
   show_countdown:       z.coerce.boolean().default(true),
   show_reviews:         z.coerce.boolean().default(true),
@@ -169,5 +173,7 @@ thumbnail: z.any()
   coupon_ids:    z.array(z.number()).default([]),
 });
 
-export type ProductSchemaType = z.infer<typeof productSchema>;
+export type ProductSchemaType = Omit<z.infer<typeof productSchema> , 'category_niche_id'> & {
+    category_niche_id: number | undefined
+};
 export type VariantSchemaType = z.infer<typeof variantSchema>;

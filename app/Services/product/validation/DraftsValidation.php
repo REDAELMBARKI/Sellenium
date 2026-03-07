@@ -39,8 +39,8 @@ class DraftsValidation
             'madeCountry'       => ['nullable', 'string'],
             'rating_average'    => ['nullable', 'numeric', 'min:0', 'max:5'],
 
-            'isFeatured'            => ['nullable', 'boolean'],
-            'isFreeShipping'        => ['nullable', 'boolean'],
+            'is_featured'            => ['nullable', 'boolean'],
+            'is_visible'            => ['boolean'],
             'allow_backorder'       => ['nullable', 'boolean'],
             'show_countdown'        => ['nullable', 'boolean'],
             'show_reviews'          => ['nullable', 'boolean'],

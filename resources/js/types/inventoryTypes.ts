@@ -5,7 +5,7 @@ import { RefObject } from "react";
 
 
 export interface BaseAttribute {
-  id: string;
+  id: number | string;
   name: string;
 }
 

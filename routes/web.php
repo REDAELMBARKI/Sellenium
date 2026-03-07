@@ -119,7 +119,7 @@ Route::patch('/products/{product}/publish' , [ProductController::class, 'publish
 Route::delete('/products/{product}' , [ProductController::class, 'destroy'])->name("product.destroy") ;
 Route::put('/products/{product}/leave',  [ProductController::class, 'updateOnPageLeave'])->name('draft.save.leave');
 Route::put('/products/{product}/submit', [ProductController::class, 'updateOnSubmit'])->name('draft.save.submit');
-Route::post("/duplicate" , [ProductController::class,"duplicate"])->name("draft.duplicate");
+Route::post("/{product}/duplicate" , [ProductController::class,"duplicate"])->name("draft.duplicate");
 // media section
 // store media route
 Route::post('/media' , [MediaController::class, 'store'])->name('media.store') ;

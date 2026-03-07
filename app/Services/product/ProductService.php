@@ -85,8 +85,7 @@ class ProductService {
     }
     
     private function syncSubCategories(Product $product , array $subCategories  ){
-        Log::error('sub categories ' , ['count' => count($subCategories)]) ; 
-        $product->subCategories()->sync($subCategories) ;
+          $product->subCategories()->sync($subCategories) ;
     }
 
     private function syncTags(Product $product , Collection $tagsIds){
@@ -347,6 +346,39 @@ class ProductService {
 
 
 
+    public function duplicate(Product $product){
+       $product->load(['variants', 'media', 'attributes', 'subCategories']);
+
+        //  replicate product
+        $newProduct         = $product->replicate();
+        $newProduct->sku    = $this->generateSku($product, []);
+        $newProduct->slug   = Str::slug($product->name . '-' . uniqid());
+        $newProduct->status = 'draft';
+        $newProduct->save();
+
+        //  replicate variants
+        foreach ($product->variants as $variant) {
+            $newVariant             = $variant->replicate();
+            $newVariant->product_id = $newProduct->id;
+            $newVariant->sku        = $this->generateSku($newProduct, $variant->attrs);
+            $newVariant->save();
+        }
+
+        // replicate replicate media
+        foreach ($product->media as $media) {
+            $newMedia             = $media->replicate();
+            $newMedia->mediaable_id   = $newProduct->id; 
+            $newMedia->save();
+        }
+
+        // replicate (categories)
+        $newProduct->subCategories()->attach($product->subCategories->pluck('id'));
+
+        //  replicate attributes
+        foreach ($product->attributes as $attribute) {
+            $newProduct->attrs()->attach($attribute->id);
+        }
+    }
 
 
 }//class close tag
