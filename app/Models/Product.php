@@ -43,7 +43,7 @@ class Product extends Model
     'related_product_ids',
 ];
  
-    protected $hidden = ['created_at','updated_at'];
+    protected $hidden = ['created_at','updated_at' , 'status' , 'quality_score ', 'allow_backorder' , 'deleted_at' , 'inventory' , 'is_visible' , 'is_featured'];
     protected $casts = [
         'inventory' => 'array',
         'shipping' => 'array',
@@ -60,16 +60,7 @@ class Product extends Model
         'aggregated_attributes' => 'array',
     ];
   
-    // for product details desplay 
-    /** @return Collection<int, Media> */
-    public function variantsImages() : Collection
-    {
-        return $this->media()->whereIn('mediaable_id' , $this->variants->pluck("id"))
-                             ->where("mediaable_type" , ProductVariant::class)
-                             ->where("collection" , "gallery")
-                             ->where("media_type" , "image")
-                             ->get() ;
-    }
+
 
     public function attrs(){
          return $this->belongsToMany(ProductAttribute::class , 'attribute_product');

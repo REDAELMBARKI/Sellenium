@@ -159,10 +159,6 @@ class DraftsValidation
             'variants.*.image.url'               => ['nullable', 'string' , Rule::exists('media' , 'url')], // this i sjust to optional 
             'variants.*.isOpen'                 => ['nullable', 'boolean'],
             'variants.*.attrs'                  => ['nullable', 'array'],
-            // attrs values can be a plain string or a color object {hex, name}
-            'variants.*.attrs.*'                => ['nullable'],
-            'variants.*.attrs.*.hex'            => ['nullable', 'string'],
-            'variants.*.attrs.*.name'           => ['nullable', 'string'],
         ];
     }
 

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('stock')->nullable();
             $table->string('sku')->nullable();
             $table->boolean('is_default')->nullable()->default(false);
+            $table->boolean('is_single')->nullable()->default(false);
             // Store all attributes as JSON
             $table->json('attrs')->nullable(); // {"color": "red", "storage": "32GB"}
             $table->unique(['sku','product_id']);

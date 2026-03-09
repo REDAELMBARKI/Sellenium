@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use App\Models\Media;
+use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 class ProductDetailResource extends JsonResource
 {
@@ -16,8 +18,15 @@ class ProductDetailResource extends JsonResource
     public static $wrap = null ;
     public function toArray(Request $request): array
     {
-        $variantsImages = $this->variantsImages();
-        $colors = collect($this->whenLoaded("variants") ?? [])
+        $variants = collect($this->whenLoaded("variants")) ?? collect([])  ;
+        $variantsImages = Media::whereIn('mediaable_id' , $variants->pluck("id"))
+                             ->where("mediaable_type" , ProductVariant::class)
+                             ->where("collection" , "gallery")
+                             ->where("media_type" , "image")
+                             ->get() ;
+
+        // dd($variantsImages);
+        $colors = $variants
                 ->filter()
                 ->unique()
                 ->map(function ($variant){
@@ -31,7 +40,7 @@ class ProductDetailResource extends JsonResource
                 ->toArray()
                 ;
         return [
-            ...parent::toArray($request),
+            ...Arr::except(parent::toArray($request) , ['thumbnail']),
            "covers" => [
              $this->whenLoaded("thumbnail") ,
              ...$this->whenLoaded("covers") ,
@@ -40,7 +49,8 @@ class ProductDetailResource extends JsonResource
                 "variant_id" => $i->mediaable_id
                 ]))->toArray(),
            ] ,
-           "colors" => $colors
+           "colors" => $colors ,
+           
         ];
     }
 }

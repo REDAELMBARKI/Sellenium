@@ -6,11 +6,10 @@ import Layout from "@/Layouts/Layout";
 import { ArrowLeft } from "lucide-react";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { route } from "ziggy-js";
-import CheckoutPage from "../cart/checkout/CheckoutPage";
-import ShippingPage from "../cart/shipping/ShippingPage";
-import ProductDetails from "./ProductDetails";
-import StepIndicator from "../cart/shared/StepIndicator";
-
+import StepIndicator from "@/Pages/cart/shared/StepIndicator";
+import ProductDetails from "./A_sharedForAllNiches/components/showProductPage/ProductDetails";
+import ShippingPage from "@/Pages/cart/shipping/ShippingPage";
+import CheckoutPage from "@/Pages/cart/checkout/CheckoutPage";
 // Pages/Cart/CartPage.tsx
 interface ShowPageMasterProps {
    tax : number
@@ -21,7 +20,7 @@ export default function Show({tax =  2}: ShowPageMasterProps) {
     const [backendErrors , setBackendErrors] = useState<any>({}) ;
     const [items , setItems]= useState([]) ; 
     // const [zone , setZone] 
-
+ 
     const [shippingData, setShippingData] = useState({
         address: {
             first_name: "",
@@ -118,20 +117,20 @@ export default function Show({tax =  2}: ShowPageMasterProps) {
           currentPage={stepName} >
 
             <div>
-                                            {/* Free Shipping Banner */}
-                                        <div
-                                            style={{
-                                                backgroundColor: theme.success,
-                                                color: theme.textInverse,
-                                                borderRadius: theme.borderRadius,
-                                            }}
-                                            className="py-3 text-center font-semibold"
-                                        >
-                                            FREE SHIPPING UNLOCKED!
-                                        </div>
-                                  {   
-                                            step > 0 && <StepIndicator currentStep={step} errors={backendErrors} />
-                                        }
+                    {/* Free Shipping Banner */}
+                <div
+                    style={{
+                        backgroundColor: theme.success,
+                        color: theme.textInverse,
+                        borderRadius: theme.borderRadius,
+                    }}
+                    className="py-3 text-center font-semibold"
+                >
+                    FREE SHIPPING UNLOCKED!
+                </div>
+                {   
+                    step > 0 && <StepIndicator currentStep={step} errors={backendErrors} />
+                }
 
             </div> 
                 {stepsCompos[step]}

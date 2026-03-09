@@ -44,7 +44,7 @@ class PublishProductRequest extends FormRequest{
         });
 
         $validator->after(function ($validator) {
-            $variants = $validator->getData()['variants'] ?? []; 
+            $variants = $validator->getData()['variants'] ?? [];
 
             foreach ($variants as $index => $variant) {
                 foreach ($variant['attrs'] ?? [] as $key => $value) { 

@@ -168,7 +168,7 @@ class ProductController extends Controller
 
     public function show(Product $product){
        $product->load('variants','attrs','nichCategory','subCategories','thumbnail','covers');
-       return inertia::render('products/Show' , [
+       return inertia::render("admin/pages/products/Show"  , [
           'product'=> new ProductDetailResource($product),
        ]);
     }

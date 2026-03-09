@@ -26,7 +26,6 @@ const ProductFormMaster: React.FC = () => {
     getValues,
     formState: { isSubmitting, isDirty, errors },
   } = useProductDataCtx();
-
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [pendingVisit, setPendingVisit]     = useState<string | null>(null);
   const { addToast } = useToast();
@@ -35,7 +34,6 @@ const ProductFormMaster: React.FC = () => {
   const isLeavingRef = useRef(false);
 
   // ─── Init draft ────────────────────────────────────────────────────────────
-
   useEffect(() => {
     if (draftId.current) return;
     const draftInit = async () => {

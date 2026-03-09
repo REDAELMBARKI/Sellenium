@@ -1,5 +1,6 @@
 import React from "react";
 import { Package, Truck, Shield, Award } from "lucide-react";
+import { ThemePalette } from "@/types/theme";
 
 interface ProductDetailsProps {
   description: string;
@@ -8,45 +9,33 @@ interface ProductDetailsProps {
   tags?: Array<{ id: string; name: string }>;
   sku?: string;
   releaseDate?: string;
+  theme?: ThemePalette;
 }
 
 export const ProductMoreDetailsTabMaster: React.FC<ProductDetailsProps> = ({
-  description,
-  brand,
-  category,
-  tags,
-  sku,
-  releaseDate
+  description, brand, category, tags, sku, releaseDate, theme,
 }) => {
+  const t = theme;
+
   const features = [
-    {
-      icon: <Package className="w-5 h-5" />,
-      title: "Premium Quality",
-      description: "Crafted with the finest materials for lasting durability"
-    },
-    {
-      icon: <Truck className="w-5 h-5" />,
-      title: "Fast Shipping",
-      description: "Free shipping on orders over $50"
-    },
-    {
-      icon: <Shield className="w-5 h-5" />,
-      title: "Secure Payment",
-      description: "Your payment information is always protected"
-    },
-    {
-      icon: <Award className="w-5 h-5" />,
-      title: "Warranty",
-      description: "1-year warranty on all products"
-    }
+    { icon: <Package className="w-5 h-5" />, title: "Premium Quality", description: "Crafted with the finest materials for lasting durability" },
+    { icon: <Truck className="w-5 h-5" />, title: "Fast Shipping", description: "Free shipping on orders over $50" },
+    { icon: <Shield className="w-5 h-5" />, title: "Secure Payment", description: "Your payment information is always protected" },
+    { icon: <Award className="w-5 h-5" />, title: "Warranty", description: "1-year warranty on all products" },
   ];
 
+  const cardStyle = {
+    background: t?.bgSecondary ?? "#fff",
+    border: `1px solid ${t?.border ?? "#e2e8f0"}`,
+    borderRadius: t?.borderRadius ?? "16px",
+  };
+
   return (
-    <div className="space-y-8">
-      {/* Description Section */}
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-8 rounded-2xl border border-slate-200 shadow-lg">
-        <h3 className="text-2xl font-bold text-slate-900 mb-4">Product Description</h3>
-        <p className="text-slate-700 leading-relaxed text-lg">{description}</p>
+    <div className="space-y-8 p-6">
+      {/* Description */}
+      <div className="p-8" style={{ ...cardStyle, background: t?.card ?? "#f8fafc" }}>
+        <h3 className="text-2xl font-bold mb-4" style={{ color: t?.text }}>Product Description</h3>
+        <p className="leading-relaxed text-lg" style={{ color: t?.textSecondary ?? t?.text }}>{description}</p>
       </div>
 
       {/* Features Grid */}
@@ -54,15 +43,19 @@ export const ProductMoreDetailsTabMaster: React.FC<ProductDetailsProps> = ({
         {features.map((feature, index) => (
           <div
             key={index}
-            className="bg-white p-6 rounded-xl border border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            style={cardStyle}
           >
             <div className="flex items-start gap-4">
-              <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-3 rounded-lg text-white">
+              <div
+                className="p-3 rounded-lg"
+                style={{ background: t?.primary ?? "#0f172a", color: t?.textInverse ?? "#fff" }}
+              >
                 {feature.icon}
               </div>
               <div>
-                <h4 className="font-semibold text-slate-900 mb-1">{feature.title}</h4>
-                <p className="text-sm text-slate-600">{feature.description}</p>
+                <h4 className="font-semibold mb-1" style={{ color: t?.text }}>{feature.title}</h4>
+                <p className="text-sm" style={{ color: t?.textMuted }}>{feature.description}</p>
               </div>
             </div>
           </div>
@@ -70,47 +63,38 @@ export const ProductMoreDetailsTabMaster: React.FC<ProductDetailsProps> = ({
       </div>
 
       {/* Additional Info */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-md space-y-4">
-        <h3 className="text-xl font-bold text-slate-900 mb-4">Product Information</h3>
-
-        {brand && (
-          <div className="flex justify-between py-3 border-b border-slate-200">
-            <span className="text-slate-600 font-medium">Brand</span>
-            <span className="text-slate-900 font-semibold">{brand}</span>
+      <div className="p-6 space-y-4" style={cardStyle}>
+        <h3 className="text-xl font-bold mb-4" style={{ color: t?.text }}>Product Information</h3>
+        {[
+          brand ? { label: "Brand", value: brand } : null,
+          category?.length ? { label: "Category", value: category.map(c => c.name).join(", ") } : null,
+          sku ? { label: "SKU", value: sku } : null,
+          releaseDate ? { label: "Release Date", value: releaseDate } : null,
+        ].filter(Boolean).map(({ label, value }: any) => (
+          <div
+            key={label}
+            className="flex justify-between py-3"
+            style={{ borderBottom: `1px solid ${t?.border ?? "#e2e8f0"}` }}
+          >
+            <span className="font-medium" style={{ color: t?.textMuted }}>{label}</span>
+            <span className="font-semibold" style={{ color: t?.text }}>{value}</span>
           </div>
-        )}
-
-        {category && category.length > 0 && (
-          <div className="flex justify-between py-3 border-b border-slate-200">
-            <span className="text-slate-600 font-medium">Category</span>
-            <span className="text-slate-900 font-semibold">
-              {category.map(c => c.name).join(", ")}
-            </span>
-          </div>
-        )}
-
-        {sku && (
-          <div className="flex justify-between py-3 border-b border-slate-200">
-            <span className="text-slate-600 font-medium">SKU</span>
-            <span className="text-slate-900 font-mono text-sm">{sku}</span>
-          </div>
-        )}
-
-        {releaseDate && (
-          <div className="flex justify-between py-3 border-b border-slate-200">
-            <span className="text-slate-600 font-medium">Release Date</span>
-            <span className="text-slate-900">{releaseDate}</span>
-          </div>
-        )}
+        ))}
 
         {tags && tags.length > 0 && (
           <div className="pt-3">
-            <span className="text-slate-600 font-medium mb-3 block">Tags</span>
+            <span className="font-medium mb-3 block" style={{ color: t?.textMuted }}>Tags</span>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
                 <span
                   key={tag.id}
-                  className="px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 rounded-full text-sm font-medium border border-slate-300 hover:shadow-md transition-all"
+                  className="px-4 py-2 text-sm font-medium transition-all hover:shadow-md"
+                  style={{
+                    background: t?.card ?? "#f1f5f9",
+                    color: t?.text,
+                    border: `1px solid ${t?.border ?? "#e2e8f0"}`,
+                    borderRadius: 999,
+                  }}
                 >
                   {tag.name}
                 </span>

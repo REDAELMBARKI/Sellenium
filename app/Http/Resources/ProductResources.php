@@ -13,11 +13,20 @@ class ProductResources extends JsonResource
     public static $wrap = null;
     public function toArray(Request $request) 
     {
-      // this calles resolve() and retuns the array or this->ressource == (the instance)
-      $productArray = parent::toArray($request) ;
-    
-      return array_merge($productArray, [
+
+      $variants = $this->whenLoaded("variants");
+      $single = collect($variants ?? [])->first(fn($v) => $v->is_single) ?? null ;
+      $res =  [
+            ...parent::toArray($request) ,
             'tags' => $this->tags->pluck('name'),
-        ]);
+            "price" => $single ?  $single->price :  0  ,
+            "compare_price" =>  $single ?  $single->compare_price :  0 ,
+            "stock" =>   $single ? $single->stock :  0 ,
+            "sku" =>   $single ? $single->sku : "",
+            "variants" => $single ? [] : $variants
+        ];
+
+    //   dd($res);
+     return $res ;
     }
 }

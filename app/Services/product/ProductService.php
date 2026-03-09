@@ -163,6 +163,7 @@ class ProductService {
                                 'stock'=> Arr::get($variant,'stock'),
                                 'attrs' => Arr::get($variant, 'attrs'),
                                 'is_default'    => $variant['is_default'] ?? false,
+                                'is_single' => $variant['is_single'] ?? false , 
                                 'created_at'    => now(),
                                 'updated_at'    => now(),
                ]) ;
@@ -170,6 +171,7 @@ class ProductService {
                //asing the variant to its morph media
 
                 $imageId = Arr::get($variant, 'image.id');
+                Log::error("media id " . $imageId);
                 if ($imageId) {
                     Media::where('id', $imageId)->update([
                         'mediaable_type' => ProductVariant::class,
@@ -199,6 +201,7 @@ class ProductService {
                   'stock' => $payload['stock'] ,
                   'attrs' => []  ,
                   'is_default' => true ,
+                  'is_single' => true
            ]] ;
         }
         return $updatedVariants;

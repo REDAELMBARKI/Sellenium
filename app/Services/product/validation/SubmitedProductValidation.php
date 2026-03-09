@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\product\validation;
 
+use App\Models\Media;
 use Illuminate\Validation\Rule;
 
 class SubmitedProductValidation
@@ -141,7 +142,9 @@ class SubmitedProductValidation
             'variants.*.compare_price'       => ['nullable', 'numeric', 'min:0'],
             'variants.*.stock'               => ['required', 'integer', 'min:0'],
             'variants.*.sku'                 => ['nullable', 'string'],
-            'variants.*.is_default'          => ['boolean'],
+            'variants.*.image'          => ['array'],
+            'variants.*.id'          => ['integer' , Rule::exists(Media::class , 'id')],
+            'variants.*.url' => ['string' , 'min:2' , 'url'] , 
 
             // attrs is a key-value object e.g { color: {hex, name}, size: 'M' }
             'variants.*.attrs'               => ['nullable', 'array'],
