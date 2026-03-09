@@ -32,8 +32,8 @@ class ProductDetailResource extends JsonResource
                 ->map(function ($variant){
                     return collect([
                         "variant_id"=> $variant->id ?? null  ,
-                        "color_hex" => $variant->attrs['color']['hex'] ?? null ,
-                        "color_name" => $variant->attrs['color']['name'] ?? null ,
+                        "hex" => $variant->attrs['color']['hex'] ?? null ,
+                        "name" => $variant->attrs['color']['name'] ?? null ,
                     ]) ;
                 })
                 ->values()

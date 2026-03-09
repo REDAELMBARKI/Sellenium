@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Reviews from "./Reviews";
 import ProductMoreDetailsTabMaster from "./ProductMoreDetailsTabMaster";
 import Specs from "./Specs";
@@ -13,6 +13,7 @@ import { router, usePage } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import { VariantSchemaType } from "@/shemas/productSchema";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import { Color } from "@/types/inventoryTypes";
 
 interface ProductDetailProps {
   onStepChange: (action: "next" | "prev") => void;
@@ -197,9 +198,9 @@ const ProductDetails = ({ onStepChange }: ProductDetailProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"cart" | "buynow">("cart");
   const [faqOpen, setFaqOpen] = useState(false);
-
+  const [selectedColor, setSelectedColor] = useState<Color & {variant_id : number } | undefined>();
+  
   const defaultVariant = product.variants?.[0];
-
   const shouldShowVariantModal =
     Array.isArray(product.variants) &&
     product.variants.length > 0 &&
@@ -208,6 +209,7 @@ const ProductDetails = ({ onStepChange }: ProductDetailProps) => {
   const galleryMedia = (product.covers ?? []).map((c: any) => ({
     id: c.id,
     url: c.url,
+    variant_id : c.variant_id
   }));
 
   const handleAddToCart = () => {
@@ -322,7 +324,7 @@ const ProductDetails = ({ onStepChange }: ProductDetailProps) => {
 
             {/* Media Gallery */}
             <div className="sticky top-4 flex-1 min-w-0">
-              <MediaGallery media={galleryMedia} video={null} theme={theme} />
+              <MediaGallery selectedColor={selectedColor} media={galleryMedia} video={null} theme={theme} />
             </div>
 
             {/* Product Info */}
@@ -351,7 +353,9 @@ const ProductDetails = ({ onStepChange }: ProductDetailProps) => {
                   colors={product.colors ?? []}
                   sizes={product.sizes ?? []}
                   theme={theme}
-                />
+                  onColorSelect={(color : Color & {variant_id : number}) => setSelectedColor(color)}
+                  selectedColor={selectedColor}
+               />
                 <div
                   className="pt-4 mt-4"
                   style={{ borderTop: `1px solid ${theme.border}` }}
@@ -360,7 +364,6 @@ const ProductDetails = ({ onStepChange }: ProductDetailProps) => {
                     onAddToCart={handleAddToCart}
                     onBuyNow={handleBuyNow}
                     stock={defaultVariant?.stock ?? 0}
-                    theme={theme}
                   />
                 </div>
               </div>

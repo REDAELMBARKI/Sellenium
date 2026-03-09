@@ -1,28 +1,22 @@
 import React from "react";
 import { Check } from "lucide-react";
-import { ThemePalette } from "@/types/theme";
-
-interface Color {
-  id: string;
-  name: string;
-  hex: string;
-}
+import { ThemePalette } from "@/types/ThemeTypes";
+import { Color } from "@/types/inventoryTypes";
 
 interface ColorSelectorProps {
-  colors: Color[];
-  selectedColor?: Color;
-  onColorSelect: (color: Color) => void;
+  colors: (Color & {variant_id : number})[];
+  selectedColor?: Color & {variant_id : number};
+  onColorSelect: (color: Color & {variant_id : number}) => void;
   theme?: ThemePalette;
 }
 
-export const ColorSelector: React.FC<ColorSelectorProps> = ({
+export const  ColorSelector: React.FC<ColorSelectorProps> = ({
   colors,
   selectedColor,
   onColorSelect,
   theme,
 }) => {
-  const handleColorClick = (color: Color) => {
-    console.log("Color clicked:", color);
+  const handleColorClick = (color: Color & {variant_id : number}) => {
     onColorSelect(color);
   };
 
@@ -41,7 +35,6 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
       <div className="flex flex-wrap gap-3">
         {colors.map((color) => {
           const isSelected = selectedColor?.id === color.id;
-
           /* Determine contrast for the checkmark */
           const hex = color.hex?.replace("#", "") ?? "000000";
           const r = parseInt(hex.substring(0, 2), 16);

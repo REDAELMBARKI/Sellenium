@@ -1,6 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { ThemePalette } from "@/types/theme";
+import { ThemePalette } from "@/types/ThemeTypes";
+import { Color } from "@/types/inventoryTypes";
+
 
 interface Media {
   url: string;
@@ -8,15 +10,21 @@ interface Media {
 }
 
 interface MediaGalleryProps {
-  media: Media[];
+  media: (Media & {
+      variant_id : number 
+  })[];
   video?: { url: string; id: string } | null;
   theme?: ThemePalette;
+  selectedColor? : Color & {
+      variant_id : number 
+  }
 }
 
-export const MediaGallery: React.FC<MediaGalleryProps> = ({ media, video, theme }) => {
+export const MediaGallery: React.FC<MediaGalleryProps> = ({ media, video, theme , selectedColor }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const stripRef = useRef<HTMLDivElement>(null);
-  const allMedia = [...media, ...(video ? [{ ...video }] : [])];
+  const allMedia = [...media];
+  // const allMedia = [...media, ...(video ? [{ ...video }] : [])];
 
   const goToPrevious = () =>
     setCurrentIndex((prev) => (prev === 0 ? allMedia.length - 1 : prev - 1));
@@ -25,6 +33,15 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ media, video, theme 
 
   const t = theme;
 
+
+  useEffect(() => {
+    const media = allMedia.find(m => m.variant_id === selectedColor?.variant_id) ; 
+    console.log(selectedColor) ; 
+    console.log('media' , media)
+  }, [selectedColor]);
+
+
+  
   return (
     <div className="flex gap-3 h-[540px]">
       {/* THUMBNAIL STRIP */}

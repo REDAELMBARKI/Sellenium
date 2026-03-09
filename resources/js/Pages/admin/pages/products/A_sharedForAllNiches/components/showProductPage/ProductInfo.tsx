@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronDown, Truck, Package, Clock, CreditCard } from "lucide-react";
 import { Color, Size } from "@/types/inventoryTypes";
 import AttributeSelector from "./AttributeSelector";
 import ColorSelector from "./ColorSection";
-import { ThemePalette } from "@/types/theme";
+import { ThemePalette } from "@/types/ThemeTypes";
 
 interface Material { id: string; name: string; }
 interface Fit { id: string; name: string; }
@@ -24,27 +24,29 @@ interface ProductInfoProps {
   styles?: string[];
   season?: string[];
   madeCountry?: Country;
-  colors: Color[];
+  colors: (Color & {variant_id : number})[];
   sizes: Size[];
   isCOD?: boolean;
   theme?: ThemePalette;
+  onColorSelect : (color : Color & {variant_id : number}) => void 
+  selectedColor :Color & {variant_id : number}
 }
 
 export const ProductInfo: React.FC<ProductInfoProps> = ({
   name, brand, price, compareAtPrice, sku, stock, description,
   rating_average, materials, fits, gender, styles, season, madeCountry,
-  colors, sizes, isCOD = true, theme,
+  colors, sizes, isCOD = true, theme , onColorSelect , selectedColor
 }) => {
   const [showDescription, setShowDescription] = useState(false);
   const [showProductDetails, setShowProductDetails] = useState(false);
   const [showShipping, setShowShipping] = useState(false);
-  const [selectedColor, setSelectedColor] = useState<Color | undefined>();
   const [selectedSize, setSelectedSize] = useState<Size | undefined>();
 
-  React.useEffect(() => {
-    if (colors.length > 0) setSelectedColor(colors[0]);
+  useEffect(() => {
+    if (colors.length > 0) onColorSelect(colors[0]);
     if (sizes.length > 0) setSelectedSize(sizes[2] ?? sizes[0]);
   }, []);
+
 
   const t = theme;
   const textStyle = { color: t?.text };
@@ -141,7 +143,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
             <ColorSelector
               colors={colors}
               selectedColor={selectedColor}
-              onColorSelect={(color) => setSelectedColor(color)}
+              onColorSelect={(color) => onColorSelect(color)}
               theme={theme}
             />
           </div>
