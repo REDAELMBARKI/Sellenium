@@ -15,10 +15,9 @@ class CartController extends Controller
     
     public function index(){
         $cartService = app(CartService::class);
-        $cartItems = $cartService->getCartItems(false);
-        return Inertia::render('cart/ShoppingCartMaster' , compact('cartItems'));
+        $items = $cartService->getCartItems(false);
+        return Inertia::render('cart/ShoppingCartMaster' , compact('items'));
     }
-
     
 public function destroy($id)
 {

@@ -142,7 +142,7 @@ const ProductFormMaster: React.FC = () => {
         onSubmit={(e) => {
           e.preventDefault();
           formHandleSubmit(onSubmit, (errors) => {
-            console.log(errors);
+            console.log('errors' , errors);
           })();
         }}
       >

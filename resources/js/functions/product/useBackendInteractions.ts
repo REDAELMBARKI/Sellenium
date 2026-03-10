@@ -5,7 +5,7 @@ import { route } from "ziggy-js"
 export const useBackendInteraction = () => {
     const [loading, setLoading] = useState(false)  
     const [loadingMessage, setLoadingMessage] = useState("")  
-
+    const [backendErrors ,setBackendErrors] = useState<T>([]) ; 
     const startLoading = (message: string) => {
         setLoading(true)
         setLoadingMessage(message)
@@ -29,6 +29,7 @@ export const useBackendInteraction = () => {
         router.put(route(url, { product: id }), { ...payload }, {
             onStart:  () => startLoading("Saving draft..."),
             onFinish: () => stopLoading(),
+            onError: (Errors) => setBackendErrors(Errors)
         })
     }
 
@@ -47,7 +48,7 @@ export const useBackendInteraction = () => {
             onStart:  () => startLoading("Duplicating draft..."),
             onFinish: () => stopLoading(),
             onSuccess: () => router.reload({ only: ['drafts'] })
-
+      
         })
     }
 
@@ -57,6 +58,7 @@ export const useBackendInteraction = () => {
         save,
         duplicateDraft,
         loading,
-        loadingMessage
+        loadingMessage , 
+        backendErrors
     }
 }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Mail, Phone, MapPin, ShoppingBag, Star, Calendar, FileText, Bell, StickyNote, AlertTriangle, Package, Heart, CreditCard, Edit2 } from 'lucide-react';
 import EmptyListSection from '@/admin/components/partials/EmptyListSection';
+import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 
 interface CustomerData {
   name: string;
@@ -227,9 +228,13 @@ export default function CustomerDetails() {
             ))}
           </div>
         ) : (
-            <EmptyListSection Icon={Package} label="Customer has no orders yet"  description="Orders will appear here once the customer makes a purchase" />
+            <EmptyListSection Icon={Package}  description="Orders will appear here once the customer makes a purchase" />
         )}
       </div>
     </div>
   );
 }
+
+
+
+CustomerDetails.layout = (page : any) => <AdminLayout children={page}/> 

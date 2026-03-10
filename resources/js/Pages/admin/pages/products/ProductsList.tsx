@@ -19,9 +19,8 @@ import { Cover } from "@/types/inventoryTypes";
 import { DeleteConfirmationModal } from "@/components/ui/DeleteConfirmationModal";
 import { SectionHeader } from "@/admin/components/layout/SectionHeader";
 import { PaginationSlide } from "@/components/ui/PaginationSlide";
-import CustomSelect from "@/components/ui/CustomSelect";
-import CustomSelectForObject from "@/components/ui/CustomSelectForObject";
 import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
+import MultiSelectDropdownForObject, { AllowedObjectsType } from "@/components/ui/MultiSelectDropdownForObject";
 
 // ===================== TYPES =====================
 export interface ProductListItem {
@@ -32,7 +31,7 @@ export interface ProductListItem {
   compareAtPrice?: string;
   stockQuantity?: number;
   sku?: string;
-  thumbnail?: Cover | ImagePreviewItem | null;
+  thumbnail?: Cover  | null;
   category: { id: string; name: string }[];
   isFeatured?: boolean;
   status: "active" | "draft" | "inactive";
@@ -188,10 +187,11 @@ export default function ProductsList({ response }: { response?: ProductsResponse
               </Input>
             </div>
            
-            <CustomSelectForObject
+            <MultiSelectDropdownForObject 
+            multiple={false}
             label="Filter by Status"
-            value={{value: statusFilter , label : statusFilter === "all" ? "All Status" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1) }}
-            onChange={(option : {value:string , label:string}) => setStatusFilter(option.value)} 
+            selectedValues={[{value: statusFilter , label : statusFilter === "all" ? "All Status" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1) }]}
+            onChange={(selected : AllowedObjectsType[]) => setStatusFilter(String(selected[0].value))} 
             options={[{label : "All Status" , value : "all" } ,
             {label : "Active" , value : "active" } ,
             {label : "Draft" , value : "draft" } ,

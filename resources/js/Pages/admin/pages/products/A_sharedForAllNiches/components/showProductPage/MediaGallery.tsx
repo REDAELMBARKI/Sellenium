@@ -17,10 +17,11 @@ interface MediaGalleryProps {
   theme?: ThemePalette;
   selectedColor? : Color & {
       variant_id : number 
-  }
+  };
+  maxHeight?: number;
 }
 
-export const MediaGallery: React.FC<MediaGalleryProps> = ({ media, video, theme , selectedColor }) => {
+export const MediaGallery: React.FC<MediaGalleryProps> = ({ media, video, theme , selectedColor, maxHeight }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const stripRef = useRef<HTMLDivElement>(null);
   const allMedia = [...media];
@@ -35,15 +36,14 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ media, video, theme 
 
 
   useEffect(() => {
-    const media = allMedia.find(m => m.variant_id === selectedColor?.variant_id) ; 
-    console.log(selectedColor) ; 
-    console.log('media' , media)
+    const mediaIndex = allMedia.findIndex(m => m.variant_id === selectedColor?.variant_id);
+    setCurrentIndex(mediaIndex) ;
   }, [selectedColor]);
 
 
   
   return (
-    <div className="flex gap-3 h-[540px]">
+    <div className="flex gap-3" style={{ height: maxHeight ?? 480, maxHeight: maxHeight ?? 480 }}>
       {/* THUMBNAIL STRIP */}
       {allMedia.length > 1 && (
         <div

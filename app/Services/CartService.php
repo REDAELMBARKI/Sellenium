@@ -50,7 +50,7 @@ class CartService
                 $q->where('cart_token', Cookie::get('cart_token'));
             })
             ->with(['productVariant' => function($q) use($wiThCategories) {
-                    $q->select('id', 'product_id', 'attributes', 'stock');
+                    $q->select('id', 'product_id', 'attrs', 'stock');
                     $q->with(['product' => function($q2) use($wiThCategories){
                         $q2->select('id', 'name', 'description');
                         $q2->with('thumbnail') ;
@@ -61,7 +61,7 @@ class CartService
             }])
         
             ->get();
-
+ 
         }
         catch(Exception $e){
              Log::error('querying cart items Error :'. $e->getMessage());

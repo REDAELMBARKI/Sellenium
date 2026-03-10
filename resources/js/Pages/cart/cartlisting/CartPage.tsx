@@ -23,6 +23,7 @@ export default function CartPage({ items = [], onStepChange }: CartPageProps) {
         state: { currentTheme: theme },
     } = useStoreConfigCtx();
 
+
     const [coupon_code, setCoupon_code] = useState("");
     const {addToast} = useToast() ; 
     // Calculate totals

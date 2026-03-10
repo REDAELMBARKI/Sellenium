@@ -180,6 +180,7 @@ Route::get('/track/{token}', [OrderController::class, 'guestTrack'])
 Route::post('/coupon_feedback', [CouponController::class,'coupon_feedback'])->name('coupon.feedback');
 // customer
 Route::get('/customers' , [CurstomerController::class, 'index']) ;
+Route::get('/customers/{id}' , [CurstomerController::class, 'show']) ;
 
 
 

@@ -10,11 +10,10 @@ import CustomerDetails from './CustomerDetails';
 import { SectionHeader } from '@/admin/components/layout/SectionHeader';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import CustomSelectForObject from '@/components/ui/CustomSelectForObject';
 import { AvatarImage } from '@/components/ui/avatar';
-import CustomSelect from '@/components/ui/CustomSelect';
 import { TableMeta } from '@/components/ui/TableMeta';
 import { PaginationTable } from '@/admin/components/layout/Pagination';
+import MultiSelectDropdownForObject, { AllowedObjectsType } from '@/components/ui/MultiSelectDropdownForObject';
 
 // Types
 type CustomerStatus = 'active' | 'vip' | 'blocked';
@@ -121,20 +120,6 @@ const mockCustomers: Customer[] = [
 
 
 
-const Select: FC<SelectProps> = ({ value, onChange, options, className = '' }) => (
-  <select
-    value={value}
-    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-    className={`flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${className}`}
-  >
-    {options.map((opt: SelectOption) => (
-      <option key={opt.value} value={opt.value}>{opt.label}</option>
-    ))}
-  </select>
-);
-
-
-
 const StatsCard: FC<StatsCardProps> = ({ title, value, change, trend, icon: Icon }) => (
   <Card className="p-6 rounded-xl">
     <div className="flex items-center justify-between">
@@ -202,18 +187,19 @@ const CustomersTable: FC<CustomersTableProps> = ({
           </div>
 
           {/* Status Filter */}
-          <CustomSelectForObject
+          <MultiSelectDropdownForObject
+            multiple={false}
             label="Status"
-            value={{
+            selectedValues={[{
               value: statusFilter,
               label:
                 statusFilter === "all"
                   ? "All Status"
                   : statusFilter.charAt(0).toUpperCase() +
                     statusFilter.slice(1),
-            }}
-            onChange={(opt: { value: string; label: string }) =>
-              onStatusChange(opt.value)
+            }]}
+            onChange={(selected : AllowedObjectsType[]) =>
+              onStatusChange(String(selected[0].value))
             }
             options={[
               { label: "All Status", value: "all" },
@@ -481,10 +467,6 @@ const CustomersManager = () => {
       
       </div>
 
-      <CustomerDetails  
-      //  customer={selectedCustomer} open={detailsOpen} onClose={() => setDetailsOpen(false)} 
-        
-        />
     </div>
   );
 };

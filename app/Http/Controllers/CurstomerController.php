@@ -11,4 +11,11 @@ class CurstomerController extends Controller
     public function index () {
         return Inertia::render('admin/pages/customers/CustomersManager') ; 
     }
+
+
+
+     public function show () {
+        return Inertia::render('admin/pages/customers/CustomerDetails') ; 
+    }
+
 }

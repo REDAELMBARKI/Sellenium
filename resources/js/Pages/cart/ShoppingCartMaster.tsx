@@ -36,6 +36,10 @@ export default function ShoppingCartMaster({ items = [] , tax = 0 }: ShoppingCar
     });
 
     
+    console.log(items)
+
+
+    
     const onChangeBackendErrors = (errors : any) => {
         setBackendErrors(errors) ;
     }
@@ -90,9 +94,6 @@ export default function ShoppingCartMaster({ items = [] , tax = 0 }: ShoppingCar
             address_line1: "",
             address_line2: "",
             city: "",
-            state: "",
-            postal_code: "",
-            company : ""
         },
         notes: "",
     })
