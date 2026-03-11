@@ -32,7 +32,7 @@ class Product extends Model
     'madeCountry',
     'releaseDate',
     'category_niche_id',
-    'badge_text',
+    'badge_id',
     'allow_backorder',
     'show_countdown',
     'show_reviews',
@@ -126,6 +126,9 @@ class Product extends Model
 
 
 
+    public function badge(){
+        return $this->belongsTo(Badge::class);
+    }
 
    
 

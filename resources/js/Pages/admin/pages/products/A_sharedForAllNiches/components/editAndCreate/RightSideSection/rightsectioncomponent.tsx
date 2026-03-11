@@ -110,7 +110,7 @@ export function RightSectionComponent() {
             <p className="text-red-500 text-xs mt-1">{errors.sub_categories.message as string}</p>
           )}
           {
-            (!category && sub_categories.length < 1) ? 
+            (!category && (sub_categories || []).length < 1) ? 
             <NotifyUser message="choose a niche category first" />
             :
             null 

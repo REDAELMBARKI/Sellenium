@@ -171,7 +171,6 @@ class ProductService {
                //asing the variant to its morph media
 
                 $imageId = Arr::get($variant, 'image.id');
-                Log::error("media id " . $imageId);
                 if ($imageId) {
                     Media::where('id', $imageId)->update([
                         'mediaable_type' => ProductVariant::class,

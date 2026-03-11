@@ -1,33 +1,38 @@
 import { Button } from "@/components/ui/button";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
-import { Flame, Sparkles, Tag, Zap, Rocket, Ban } from 'lucide-react';
+import { Flame, Sparkles, Tag, Zap, Rocket, Ban } from "lucide-react";
 
-const BADGE_OPTIONS_STATIC = [
-  { name: 'None',     color: 'transparent', icon: Ban      },
-  { name: 'New',      color: '#22c55e',     icon: Sparkles },
-  { name: 'Hot',      color: '#f97316',     icon: Flame    },
-  { name: 'Sale',     color: '#ef4444',     icon: Tag      },
-  { name: 'Limited',  color: '#a855f7',     icon: Zap      },
-  { name: 'Featured', color: '#3b82f6',     icon: Rocket   },
-];
+interface Badge {
+  id: number;
+  name: string;
+  icon: string;
+  color: string;
+}
 
 const ICON_MAP: Record<string, React.ElementType> = {
-  Ban, Sparkles, Flame, Tag, Zap, Rocket
+  Ban,
+  Sparkles,
+  Flame,
+  Tag,
+  Zap,
+  Rocket,
 };
 
-export default function BadgePicker({ currentTheme}: { currentTheme: any }) {
-  const { watch, setValue , badges = []} = useProductDataCtx();
-  const value: string | null = watch('badge_text') ?? null;
-  const BADGE_OPTIONS = badges.map(b => {
-        return {
-                ...b ,
-                icon : ICON_MAP[b.icon] ?? Ban
+export default function BadgePicker({ currentTheme }: { currentTheme: any }) {
+  const { watch, setValue, badges = [] } = useProductDataCtx();
 
-        }
-  }) ?? BADGE_OPTIONS_STATIC
-  const selected = BADGE_OPTIONS.find((b) =>
-    b.name === 'None' ? !value : b.name === value
-  ) ?? BADGE_OPTIONS[0];
+  // state stores badge ID only
+  const value: number | null = watch("badge") ?? null;
+
+  const BADGE_OPTIONS = badges.map((b: Badge) => {
+    return {
+      ...b,
+      icon: ICON_MAP[b.icon] ?? Ban,
+    };
+  });
+
+  const selected = BADGE_OPTIONS.find((b) => b.id === value) ?? null;
+
   return (
     <div
       className="rounded-lg p-4"
@@ -38,59 +43,58 @@ export default function BadgePicker({ currentTheme}: { currentTheme: any }) {
     >
       <div className="flex items-start justify-between mb-3">
         <div>
-          <p className="text-sm font-medium" style={{ color: currentTheme.text }}>
+          <p
+            className="text-sm font-medium"
+            style={{ color: currentTheme.text }}
+          >
             Product Badge
           </p>
-          <p className="text-xs mt-0.5" style={{ color: currentTheme.textMuted }}>
+          <p
+            className="text-xs mt-0.5"
+            style={{ color: currentTheme.textMuted }}
+          >
             Label shown on the product card image
           </p>
         </div>
 
-        {/* Live preview */}
-        {value && (
+        {/* Live preview (now bigger) */}
+        {selected && (
           <span
-            className="text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full font-bold transition-all"
             style={{
-              backgroundColor: selected?.color + '22',
-              color: selected?.color,
+              backgroundColor: selected.color + "22",
+              color: selected.color,
+              fontSize: "0.875rem", // bigger text
+              padding: "0.375rem 0.75rem",
+              border: `1px solid ${selected.color}`,
             }}
-          > 
-             {
-              selected ?
-              <selected.icon size={11} />
-              :
-              null
-             }
-            {value}
+          >
+            <selected.icon size={16} /> {/* bigger icon */}
+            {selected.text}
           </span>
         )}
       </div>
 
-      {/* Options */}
+      {/* Badge options */}
       <div className="flex flex-wrap gap-2 mt-1">
         {BADGE_OPTIONS.map((badge) => {
-          const isNone = badge.name === 'None';
-          const isSelected = isNone ? !value : value === badge.name;
+          const isSelected = value === badge.id;
 
           return (
             <Button
-              key={badge.name}
+              key={badge.id}
               type="button"
               onClick={() =>
-                setValue('badge_text', isNone ? null : badge.name, { shouldValidate: true })
+                setValue("badge", badge.id, { shouldValidate: true })
               }
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-100"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-150"
               style={{
                 backgroundColor: isSelected
-                  ? isNone ? currentTheme.bgSecondary : badge.color + '18'
-                  : 'transparent',
-                color: isSelected
-                  ? isNone ? currentTheme.text : badge.color
-                  : currentTheme.textMuted,
+                  ? badge.color + "18"
+                  : "transparent",
+                color: isSelected ? badge.color : currentTheme.textMuted,
                 border: `1px solid ${
-                  isSelected
-                    ? isNone ? currentTheme.border : badge.color
-                    : currentTheme.border
+                  isSelected ? badge.color : currentTheme.border
                 }`,
               }}
             >

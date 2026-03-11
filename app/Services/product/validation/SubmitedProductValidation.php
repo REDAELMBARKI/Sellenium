@@ -36,7 +36,7 @@ class SubmitedProductValidation
             'description' => [
                 'bail', 'nullable', 'string', 'min:10',
             ],
-            'badge_text'    => ['nullable', 'string', 'max:20'],
+            'badge'        => ['nullable', 'integer' , Rule::exists('badges' , 'id')],
             'madeCountry'   => ['nullable', 'string', 'size:2'],  
             'releaseDate'   => ['nullable', 'string'],
 

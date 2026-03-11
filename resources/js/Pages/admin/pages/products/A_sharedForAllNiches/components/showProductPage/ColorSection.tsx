@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { Check } from "lucide-react";
 import { ThemePalette } from "@/types/ThemeTypes";
 import { Color } from "@/types/inventoryTypes";
 
@@ -15,58 +16,69 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
   onColorSelect,
   theme,
 }) => {
+
   return (
-    <div className="space-y-3">
-      <label
-        className="text-sm font-semibold uppercase tracking-wide"
-        style={{ color: theme?.text ?? "#0f172a" }}
+    <div>
+      <p
+        style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16, color: theme?.textMuted }}
       >
         Color:{" "}
-        <span style={{ color: theme?.accent ?? "#64748b" }}>
+        <span style={{ textTransform: "none", letterSpacing: "normal", color: theme?.text }}>
           {selectedColor?.name}
         </span>
-      </label>
+      </p>
 
-      <div className="flex flex-wrap gap-4">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
         {colors.map((color) => {
-          const isSelected = selectedColor?.id === color.id;
+          /* compare as string to avoid "1" !== 1 type mismatch */
+          const isSelected = String(selectedColor?.hex) === String(color.hex);
 
-          const hex = color.hex?.replace("#", "") ?? "000000";
-          const r = parseInt(hex.substring(0, 2), 16);
-          const g = parseInt(hex.substring(2, 4), 16);
-          const b = parseInt(hex.substring(4, 6), 16);
-          const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-          const dotColor = luminance > 0.55 ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.85)";
+          const hex = (color.hex ?? "#000000").replace("#", "");
+          const r = parseInt(hex.substring(0, 2), 16) || 0;
+          const g = parseInt(hex.substring(2, 4), 16) || 0;
+          const b = parseInt(hex.substring(4, 6), 16) || 0;
+          const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+          const checkColor = lum > 0.55 ? "#000" : "#fff";
 
           return (
             <button
               key={color.id}
               onClick={() => onColorSelect(color)}
               title={color.name}
-              className="relative flex-shrink-0 transition-all duration-200 hover:scale-110"
               style={{
-                width: 36,
-                height: 36,
+                position: "relative",
+                width: 40,
+                height: 40,
                 borderRadius: "50%",
-                backgroundColor: color.hex,
-                boxShadow: isSelected
-                  ? `0 0 0 3px ${theme?.bg ?? "#fff"}, 0 0 0 5px ${theme?.primary ?? "#0f172a"}`
-                  : `0 0 0 2px ${theme?.border ?? "#cbd5e1"}`,
-                transform: isSelected ? "scale(1.15)" : "scale(1)",
+                backgroundColor: color.hex ?? "#ccc",
+                border: "none",
                 outline: "none",
+                padding: 0,
+                cursor: "pointer",
+                flexShrink: 0,
+                transition: "transform 0.15s, box-shadow 0.15s",
+                ...(isSelected
+                  ? {
+                      boxShadow: `0 0 0 3px ${theme?.bg ?? "#fff"}, 0 0 0 5px ${theme?.primary ?? "#0f172a"}`,
+                      transform: "scale(1.15)",
+                    }
+                  : {
+                      boxShadow: "none",
+                      transform: "scale(1)",
+                    }),
               }}
             >
               {isSelected && (
-                <span className="absolute inset-0 flex items-center justify-center">
-                  <span
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      background: dotColor,
-                      display: "block",
-                    }}
-                  />
+                <span
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Check strokeWidth={3.5} style={{ width: 16, height: 16, color: checkColor }} />
                 </span>
               )}
             </button>

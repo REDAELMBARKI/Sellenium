@@ -1,38 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { ChevronDown, Truck, RotateCcw, ShieldCheck, CreditCard } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Color, Size } from "@/types/inventoryTypes";
-import AttributeSelector from "./AttributeSelector";
-import ColorSelector from "./ColorSection";
 import { ThemePalette } from "@/types/ThemeTypes";
+import ColorSelector from "./ColorSection";
+import { router } from "@inertiajs/react";
+import { route } from "ziggy-js";
 
-interface Material { id: string; name: string; }
-interface Fit { id: string; name: string; }
-
-interface Attr {
-  id: number;
-  key: string;
-  value: string;
-}
-
-interface SubCategory {
-  id: number;
-  name: string;
-}
-
-interface Shipping {
-  isReturnable?: boolean;
-  returnPolicy?: string;
-  returnWindow?: number;
-  shippingClass?: string;
-  shippingCostOverride?: number;
-}
-
-interface Variant {
-  id: number;
-  price: number;
-  compare_price?: number;
-  stock: number;
-}
+interface Attr { id: number; key: string; value: string; }
+interface SubCategory { id: number; name: string; slug?: string; }
+interface Shipping { isReturnable?: boolean; returnPolicy?: string; returnWindow?: number; shippingClass?: string; shippingCostOverride?: number; }
+interface Variant { id: number; price: number; compare_price?: number; stock: number; }
 
 interface ProductInfoProps {
   name: string;
@@ -44,39 +21,67 @@ interface ProductInfoProps {
   description?: string;
   rating_average?: number;
   rating_count?: number;
-  materials?: Material[];
-  fits?: Fit[];
-  gender?: string[];
-  styles?: string[];
-  season?: string[];
-  madeCountry?: string | { code: string; name: string };
+  showCountdown?: boolean;
   colors: (Color & { variant_id: number })[];
   sizes: Size[];
   attrs?: Attr[];
   subCategories?: SubCategory[];
-  shipping?: Shipping;
   variants?: Variant[];
-  isCOD?: boolean;
+  madeCountry?: string | { code: string; name: string };
+  materials?: { id: string; name: string }[];
+  fits?: { id: string; name: string }[];
+  gender?: string[];
+  styles?: string[];
+  season?: string[];
   theme?: ThemePalette;
   onColorSelect: (color: Color & { variant_id: number }) => void;
   selectedColor?: Color & { variant_id: number };
 }
 
+const badgeColor = (text: string, primary: string) => {
+  const t = text.toLowerCase();
+  if (t.includes("new"))  return { bg: "#2563eb", fg: "#fff" };
+  if (t.includes("sale")) return { bg: "#dc2626", fg: "#fff" };
+  if (t.includes("hot") || t.includes("fire")) return { bg: "#ea580c", fg: "#fff" };
+  if (t.includes("best")) return { bg: "#16a34a", fg: "#fff" };
+  return { bg: primary ?? "#0f172a", fg: "#fff" };
+};
+
+function useCountdown(initial = { h: 7, m: 27, s: 5 }) {
+  const [time, setTime] = useState(initial);
+  useEffect(() => {
+    const id = setInterval(() => {
+      setTime(prev => {
+        let { h, m, s } = prev;
+        s--; if (s < 0) { s = 59; m--; } if (m < 0) { m = 59; h--; } if (h < 0) { h = 0; m = 0; s = 0; }
+        return { h, m, s };
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return [pad(time.h), pad(time.m), pad(time.s)];
+}
+
+const Sep = ({ theme }: { theme?: ThemePalette }) => (
+  <div style={{ borderTop: `1px solid ${theme?.border ?? "#f1f5f9"}`, margin: "20px 0" }} />
+);
+
 export const ProductInfo: React.FC<ProductInfoProps> = ({
   name, brand, badgeText, price, compareAtPrice, stock, description,
-  rating_average, rating_count, materials, fits, gender, styles, season,
-  madeCountry, colors, sizes, attrs, subCategories, shipping, variants,
-  isCOD = true, theme, onColorSelect, selectedColor,
+  rating_average, rating_count, showCountdown, colors, sizes, attrs,
+  subCategories, variants, madeCountry, materials, fits, gender, styles,
+  season, theme, onColorSelect, selectedColor,
 }) => {
-  const [showDescription, setShowDescription] = useState(true);
-  const [showProductDetails, setShowProductDetails] = useState(false);
-  const [showShipping, setShowShipping] = useState(true);
+  const [showDesc, setShowDesc] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
   const [selectedSize, setSelectedSize] = useState<Size | undefined>();
-
-  /* variant-driven state */
   const [displayPrice, setDisplayPrice] = useState(price);
   const [displayCompare, setDisplayCompare] = useState(compareAtPrice);
   const [displayStock, setDisplayStock] = useState<number | string | undefined>(stock);
+
+  const countdown = useCountdown();
+  const t = theme;
 
   useEffect(() => {
     if (colors.length > 0) onColorSelect(colors[0]);
@@ -85,267 +90,245 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
 
   useEffect(() => {
     if (!selectedColor || !variants) return;
-    const variant = variants.find((v) => v.id === selectedColor.variant_id);
-    if (!variant) return;
-    setDisplayPrice(String(variant.price));
-    setDisplayCompare(variant.compare_price ? String(variant.compare_price) : undefined);
-    setDisplayStock(variant.stock);
+    const v = variants.find(v => v.id === selectedColor.variant_id);
+    if (!v) return;
+    setDisplayPrice(String(v.price));
+    setDisplayCompare(v.compare_price ? String(v.compare_price) : undefined);
+    setDisplayStock(v.stock);
   }, [selectedColor, variants]);
 
-  const t = theme;
-  const textStyle = { color: t?.text };
-  const mutedStyle = { color: t?.textMuted };
+  const saveAmount = displayCompare && Number(displayCompare) > 0
+    ? (Number(displayCompare) - Number(displayPrice)).toFixed(2)
+    : null;
 
-  const cardStyle = {
-    background: t?.card ?? "#fff",
-    border: `1px solid ${t?.border ?? "#e2e8f0"}`,
-    borderRadius: t?.borderRadius ?? "8px",
-    overflow: "hidden",
-  };
-
-  const AccordionRow = ({
-    label, open, toggle, children,
-  }: {
-    label: string; open: boolean; toggle: () => void; children: React.ReactNode;
-  }) => (
-    <div style={cardStyle}>
-      <button
-        type="button" onClick={toggle}
-        className="w-full flex items-center justify-between px-4 py-3 text-left"
-        style={{ background: "transparent", color: t?.text }}
-      >
-        <span className="font-semibold text-sm">{label}</span>
-        <ChevronDown
-          className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-          style={mutedStyle}
-        />
-      </button>
-      {open && (
-        <div className="px-4 pb-4 text-sm border-t"
-          style={{ borderColor: t?.border, background: t?.bgSecondary ?? "#f8fafc", color: t?.text }}>
-          {children}
-        </div>
-      )}
-    </div>
-  );
-
-  /* shipping rows */
-  const shippingRows = () => {
-    if (!shipping && !isCOD) return [];
-    const rows: { Icon: any; color: string; title: string; desc: string }[] = [];
-    if (shipping?.shippingClass) {
-      const isExpress = shipping.shippingClass === "express";
-      rows.push({
-        Icon: Truck,
-        color: isExpress ? (t?.info ?? "#2563eb") : (t?.warning ?? "#d97706"),
-        title: isExpress ? "Express Shipping" : "Standard Shipping",
-        desc: shipping.shippingCostOverride === 0
-          ? "Free delivery"
-          : shipping.shippingCostOverride
-          ? `$${shipping.shippingCostOverride} flat rate`
-          : "Fast delivery",
-      });
-    }
-    if (isCOD) {
-      rows.push({ Icon: CreditCard, color: t?.accent ?? "#7c3aed", title: "Cash on Delivery", desc: "Pay when you receive" });
-    }
-    if (shipping?.isReturnable) {
-      rows.push({
-        Icon: RotateCcw,
-        color: t?.success ?? "#16a34a",
-        title: `${shipping.returnWindow ?? 30}-Day Returns`,
-        desc: shipping.returnPolicy === "free_return" ? "Free returns accepted" : "Returns accepted",
-      });
-    }
-    rows.push({ Icon: ShieldCheck, color: t?.textMuted ?? "#64748b", title: "Secure Payment", desc: "Your data is protected" });
-    return rows;
-  };
+  const bc = badgeText ? badgeColor(badgeText, t?.primary ?? "#0f172a") : null;
+  const muted = { color: t?.textMuted };
+  const col = { color: t?.text };
 
   return (
-    <div className="space-y-5">
+    <div>
 
-      {/* Brand + Badge */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <p className="text-xs font-semibold uppercase tracking-wide" style={mutedStyle}>{brand}</p>
-        {badgeText && (
-          <span
-            className="text-xs font-bold px-2 py-0.5"
-            style={{
-              borderRadius: 999,
-              background: t?.primary ?? "#0f172a",
-              color: t?.textInverse ?? "#fff",
-            }}
-          >
-            {badgeText}
+      {/* Badge */}
+      {badgeText && bc && (
+        <div className="mb-4">
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold px-4 py-1.5"
+            style={{ borderRadius: 999, background: bc.bg, color: bc.fg, letterSpacing: "0.02em" }}>
+            🔥 {badgeText}
           </span>
-        )}
-      </div>
-
-      {/* Name */}
-      <h1 className="text-2xl font-bold leading-snug" style={textStyle}>{name}</h1>
-
-      {/* Rating */}
-      {rating_average !== undefined && rating_average !== null && (
-        <div className="flex items-center gap-2">
-          <div className="flex gap-0.5">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span key={star} className={`text-base ${star <= Math.round(rating_average) ? "text-amber-400" : "text-gray-300"}`}>★</span>
-            ))}
-          </div>
-          <span className="text-sm font-medium" style={textStyle}>{rating_average}</span>
-          {rating_count !== undefined && rating_count > 0 && (
-            <span className="text-sm" style={mutedStyle}>{rating_count} Reviews</span>
-          )}
         </div>
       )}
 
-      {/* Divider */}
-      <div style={{ borderTop: `1px solid ${t?.border ?? "#f1f5f9"}` }} />
+      {/* Name */}
+      <h1 className="text-2xl font-bold leading-snug mb-4" style={col}>{name}</h1>
 
-      {/* Price */}
-      <div className="flex items-baseline gap-3">
-        <span className="text-3xl font-bold" style={textStyle}>{displayPrice}</span>
+      {/* Rating */}
+      {rating_average != null && (
+        <div className="flex items-center gap-3 mb-2">
+          <div className="flex gap-1">
+            {[1,2,3,4,5].map(s => (
+              <span key={s} className={`text-lg ${s <= Math.round(rating_average) ? "text-amber-400" : "text-gray-300"}`}>★</span>
+            ))}
+          </div>
+          <span className="text-base font-bold" style={col}>{rating_average}</span>
+          {!!rating_count && <span className="text-sm" style={muted}>{rating_count} Reviews</span>}
+        </div>
+      )}
+
+      <Sep theme={t} />
+
+      {/* ── PRICE BLOCK ── */}
+      <div className="mb-2">
+        {/* Deals banner */}
+        {showCountdown && (
+          <div className="flex items-center justify-between px-5 py-3 mb-0"
+            style={{
+              background: t?.primary ?? "#0f172a",
+              borderRadius: `${t?.borderRadius ?? "10px"} ${t?.borderRadius ?? "10px"} 0 0`,
+            }}>
+            <span className="font-extrabold text-base" style={{ color: t?.textInverse ?? "#fff" }}>
+              🔥 SuperDeals
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-medium mr-1" style={{ color: t?.textInverse ?? "#fff", opacity: 0.75 }}>Ends:</span>
+              {countdown.map((seg, i) => (
+                <React.Fragment key={i}>
+                  <span className="text-sm font-extrabold px-2 py-0.5 rounded"
+                    style={{ background: "rgba(255,255,255,0.18)", color: t?.textInverse ?? "#fff", fontVariantNumeric: "tabular-nums", minWidth: 28, textAlign: "center", display: "inline-block" }}>
+                    {seg}
+                  </span>
+                  {i < 2 && <span style={{ color: t?.textInverse ?? "#fff", opacity: 0.6, fontWeight: 700 }}>:</span>}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Price row */}
+        <div className={`flex items-center gap-4 flex-wrap py-4 px-1 ${showCountdown ? "border border-t-0 rounded-b-xl" : ""}`}
+          style={showCountdown ? { borderColor: `${t?.primary ?? "#0f172a"}30`, borderRadius: `0 0 ${t?.borderRadius ?? "10px"} ${t?.borderRadius ?? "10px"}` } : {}}>
+          <span className="text-4xl font-extrabold tracking-tight" style={col}>${displayPrice}</span>
+          {saveAmount && (
+            <span className="flex items-center gap-1 text-sm font-bold px-3 py-1.5"
+              style={{ borderRadius: 999, background: "#fef2f2", color: "#dc2626" }}>
+              ◄ Save ${saveAmount}
+            </span>
+          )}
+          {Number(displayStock) > 0 && Number(displayStock) <= 10 && (
+            <span className="text-sm font-bold px-3 py-1.5"
+              style={{ borderRadius: 999, background: "#fff7ed", color: "#ea580c" }}>
+              Only {displayStock} left
+            </span>
+          )}
+          {(displayStock === 0 || displayStock === "0") && (
+            <span className="text-sm font-bold px-3 py-1.5"
+              style={{ borderRadius: 999, background: "#fef2f2", color: "#dc2626" }}>
+              Out of stock
+            </span>
+          )}
+        </div>
+
+        {/* Compare price */}
         {displayCompare && Number(displayCompare) > 0 && (
-          <span className="text-lg line-through" style={mutedStyle}>{displayCompare}</span>
-        )}
-        {displayStock !== undefined && Number(displayStock) > 0 && (
-          <span className="text-xs font-medium px-2 py-0.5 ml-1"
-            style={{ background: `${t?.success ?? "#16a34a"}18`, color: t?.success ?? "#16a34a", borderRadius: 999 }}>
-            {displayStock} in stock
-          </span>
-        )}
-        {(displayStock === 0 || displayStock === "0") && (
-          <span className="text-xs font-medium px-2 py-0.5 ml-1"
-            style={{ background: `${t?.error ?? "#dc2626"}18`, color: t?.error ?? "#dc2626", borderRadius: 999 }}>
-            Out of stock
-          </span>
+          <p className="text-base line-through mt-1 px-1" style={muted}>${displayCompare}</p>
         )}
       </div>
 
-      {/* Divider */}
-      <div style={{ borderTop: `1px solid ${t?.border ?? "#f1f5f9"}` }} />
+      <Sep theme={t} />
 
-      {/* Colors */}
+      {/* ── COLORS ── */}
       {colors.length > 0 && (
-        <ColorSelector
-          colors={colors}
-          selectedColor={selectedColor}
-          onColorSelect={onColorSelect}
-          theme={theme}
-        />
+        <div className="mb-6">
+          <ColorSelector colors={colors} selectedColor={selectedColor} onColorSelect={onColorSelect} theme={t} />
+        </div>
       )}
 
-      {/* Sizes */}
+      {/* ── SIZES ── */}
       {sizes.length > 0 && (
-        <AttributeSelector
-          label="Size"
-          attributes={sizes}
-          selectedAttribute={selectedSize}
-          onAttributeSelect={setSelectedSize}
-          selectable={true}
-          theme={theme}
-        />
+        <div className="mb-6">
+          <p className="text-sm font-bold uppercase tracking-widest mb-4" style={muted}>
+            Size: <span className="normal-case tracking-normal font-bold" style={col}>{selectedSize?.name}</span>
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {sizes.map(size => {
+              const isSel = selectedSize?.id === size.id;
+              return (
+                <button key={size.id} onClick={() => setSelectedSize(size)}
+                  className="px-5 py-2.5 text-sm font-bold transition-all duration-150 hover:scale-105"
+                  style={{
+                    borderRadius: t?.borderRadius ?? "8px",
+                    background: isSel ? (t?.primary ?? "#0f172a") : "transparent",
+                    color: isSel ? (t?.textInverse ?? "#fff") : (t?.text ?? "#0f172a"),
+                    border: `2px solid ${isSel ? (t?.primary ?? "#0f172a") : (t?.border ?? "#e2e8f0")}`,
+                    minWidth: 52,
+                  }}>
+                  {size.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       )}
 
-      {/* Attrs — inline badges, no label header */}
+      {/* ── ATTRS — inline badges ── */}
       {attrs && attrs.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {attrs.map((attr) => (
-            <span
-              key={attr.id}
-              className="text-xs font-medium px-2.5 py-1 capitalize"
+        <div className="mb-6 flex flex-wrap gap-3">
+          {attrs.map(attr => (
+            <span key={attr.id}
+              className="text-sm font-semibold px-4 py-2 capitalize"
               style={{
-                borderRadius: t?.borderRadius ?? "6px",
+                borderRadius: t?.borderRadius ?? "8px",
                 background: t?.card ?? "#f1f5f9",
                 color: t?.textMuted ?? "#64748b",
-                border: `1px solid ${t?.border ?? "#e2e8f0"}`,
-              }}
-            >
+                border: `1.5px solid ${t?.border ?? "#e2e8f0"}`,
+              }}>
               {attr.key}: {attr.value}
             </span>
           ))}
         </div>
       )}
 
-      {/* Sub-categories */}
+      {/* ── SUB-CATEGORIES ── */}
       {subCategories && subCategories.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {subCategories.map((cat) => (
-            <span
-              key={cat.id}
-              className="text-xs font-medium px-2.5 py-1 cursor-pointer hover:opacity-80 transition-opacity"
+        <div className="mb-2 flex flex-wrap gap-3">
+          {subCategories.map(cat => (
+            <button key={cat.id}
+              onClick={() => router.visit(route("category.show", { slug: cat.slug ?? cat.id }))}
+              className="text-sm font-semibold px-4 py-2 transition-opacity hover:opacity-75"
               style={{
                 borderRadius: 999,
-                background: `${t?.accent ?? t?.primary ?? "#0f172a"}14`,
+                background: `${t?.accent ?? t?.primary ?? "#0f172a"}10`,
                 color: t?.accent ?? t?.primary ?? "#0f172a",
-                border: `1px solid ${t?.accent ?? t?.primary ?? "#0f172a"}30`,
-              }}
-            >
+                border: `1.5px solid ${t?.accent ?? t?.primary ?? "#0f172a"}25`,
+              }}>
               {cat.name}
-            </span>
+            </button>
           ))}
         </div>
       )}
 
-      {/* Divider */}
-      <div style={{ borderTop: `1px solid ${t?.border ?? "#f1f5f9"}` }} />
+      <Sep theme={t} />
 
-      {/* Accordions */}
-      <div className="space-y-2">
-        {description && (
-          <AccordionRow label="Description" open={showDescription} toggle={() => setShowDescription((p) => !p)}>
-            <div className="pt-3 leading-relaxed prose prose-sm max-w-none"
+      {/* ── ACCORDIONS ── */}
+      {description && (
+        <div className="mb-2">
+          <button type="button" onClick={() => setShowDesc(p => !p)}
+            className="w-full flex items-center justify-between py-4 text-left"
+            style={{ background: "transparent", color: t?.text }}>
+            <span className="text-base font-bold">Description</span>
+            <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${showDesc ? "rotate-180" : ""}`}
+              style={muted} />
+          </button>
+          {showDesc && (
+            <div className="pb-6 text-base leading-relaxed prose prose-base max-w-none"
+              style={{ color: t?.text }}
               dangerouslySetInnerHTML={{ __html: description }} />
-          </AccordionRow>
-        )}
+          )}
+          <div style={{ borderTop: `1px solid ${t?.border ?? "#f1f5f9"}` }} />
+        </div>
+      )}
 
-        <AccordionRow label="Shipping & Returns" open={showShipping} toggle={() => setShowShipping((p) => !p)}>
-          <div className="pt-3 space-y-3">
-            {shippingRows().map(({ Icon, color, title, desc }) => (
-              <div key={title} className="flex items-start gap-3">
-                <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color }} />
-                <div>
-                  <p className="text-sm font-semibold" style={textStyle}>{title}</p>
-                  <p className="text-xs" style={mutedStyle}>{desc}</p>
+      {(materials || fits || season || styles || gender || madeCountry) && (
+        <div className="mb-2">
+          <button type="button" onClick={() => setShowDetails(p => !p)}
+            className="w-full flex items-center justify-between py-4 text-left"
+            style={{ background: "transparent", color: t?.text }}>
+            <span className="text-base font-bold">Product Details</span>
+            <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${showDetails ? "rotate-180" : ""}`}
+              style={muted} />
+          </button>
+          {showDetails && (
+            <div className="pb-6 space-y-3">
+              {madeCountry && (
+                <div className="flex gap-3">
+                  <span className="w-24 text-sm flex-shrink-0" style={muted}>Made in</span>
+                  <span className="text-sm font-semibold" style={col}>
+                    {typeof madeCountry === "string" ? madeCountry : madeCountry.name}
+                  </span>
                 </div>
-              </div>
-            ))}
-          </div>
-        </AccordionRow>
-
-        {(materials || fits || season || styles || gender || madeCountry) && (
-          <AccordionRow label="Product Details" open={showProductDetails} toggle={() => setShowProductDetails((p) => !p)}>
-            <div className="pt-3 space-y-2">
+              )}
               {!!materials?.length && (
-                <div className="flex"><span className="w-24 flex-shrink-0" style={mutedStyle}>Material:</span>
-                  <span className="font-medium">{materials.map((m) => m.name).join(", ")}</span></div>
+                <div className="flex gap-3">
+                  <span className="w-24 text-sm flex-shrink-0" style={muted}>Material</span>
+                  <span className="text-sm font-semibold" style={col}>{materials.map(m => m.name).join(", ")}</span>
+                </div>
               )}
               {!!fits?.length && (
-                <div className="flex"><span className="w-24 flex-shrink-0" style={mutedStyle}>Fit:</span>
-                  <span className="font-medium">{fits.map((f) => f.name).join(", ")}</span></div>
-              )}
-              {!!season?.length && (
-                <div className="flex"><span className="w-24 flex-shrink-0" style={mutedStyle}>Season:</span>
-                  <span className="font-medium capitalize">{season.join(", ")}</span></div>
-              )}
-              {!!styles?.length && (
-                <div className="flex"><span className="w-24 flex-shrink-0" style={mutedStyle}>Style:</span>
-                  <span className="font-medium capitalize">{styles.join(", ")}</span></div>
+                <div className="flex gap-3">
+                  <span className="w-24 text-sm flex-shrink-0" style={muted}>Fit</span>
+                  <span className="text-sm font-semibold" style={col}>{fits.map(f => f.name).join(", ")}</span>
+                </div>
               )}
               {!!gender?.length && (
-                <div className="flex"><span className="w-24 flex-shrink-0" style={mutedStyle}>Gender:</span>
-                  <span className="font-medium capitalize">{gender.join(", ")}</span></div>
-              )}
-              {madeCountry && (
-                <div className="flex"><span className="w-24 flex-shrink-0" style={mutedStyle}>Made in:</span>
-                  <span className="font-medium">
-                    {typeof madeCountry === "string" ? madeCountry : madeCountry.name}
-                  </span></div>
+                <div className="flex gap-3">
+                  <span className="w-24 text-sm flex-shrink-0" style={muted}>Gender</span>
+                  <span className="text-sm font-semibold capitalize" style={col}>{gender.join(", ")}</span>
+                </div>
               )}
             </div>
-          </AccordionRow>
-        )}
-      </div>
+          )}
+          <div style={{ borderTop: `1px solid ${t?.border ?? "#f1f5f9"}` }} />
+        </div>
+      )}
     </div>
   );
 };

@@ -29,7 +29,9 @@ export const useBackendInteraction = () => {
         router.put(route(url, { product: id }), { ...payload }, {
             onStart:  () => startLoading("Saving draft..."),
             onFinish: () => stopLoading(),
-            onError: (Errors) => setBackendErrors(Errors)
+            onError: (Errors) => {
+                console.log(Errors)
+                setBackendErrors(Errors)}
         })
     }
 

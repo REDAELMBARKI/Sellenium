@@ -25,7 +25,6 @@ class ProductDetailResource extends JsonResource
                              ->where("media_type" , "image")
                              ->get() ;
 
-        // dd($variantsImages);
         $colors = $variants
                 ->filter()
                 ->unique()
@@ -40,7 +39,7 @@ class ProductDetailResource extends JsonResource
                 ->toArray()
                 ;
         return [
-            ...Arr::except(parent::toArray($request) , ['thumbnail']),
+            ...Arr::except(parent::toArray($request) , ['thumbnail' , 'vendor' , 'slug']),
            "covers" => [
              $this->whenLoaded("thumbnail") ,
              ...$this->whenLoaded("covers") ,

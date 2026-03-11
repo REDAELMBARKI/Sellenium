@@ -3,81 +3,63 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ThemePalette } from "@/types/ThemeTypes";
 import { Color } from "@/types/inventoryTypes";
 
-
-interface Media {
-  url: string;
-  id: string | number;
-}
+interface Media { url: string; id: string | number; }
 
 interface MediaGalleryProps {
-  media: (Media & {
-      variant_id : number 
-  })[];
+  media: (Media & { variant_id: number })[];
   video?: { url: string; id: string } | null;
   theme?: ThemePalette;
-  selectedColor? : Color & {
-      variant_id : number 
-  };
-  maxHeight?: number;
+  selectedColor?: Color & { variant_id: number };
 }
 
-export const MediaGallery: React.FC<MediaGalleryProps> = ({ media, video, theme , selectedColor, maxHeight }) => {
+export const MediaGallery: React.FC<MediaGalleryProps> = ({ media, video, theme, selectedColor }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const stripRef = useRef<HTMLDivElement>(null);
-  const allMedia = [...media];
-  // const allMedia = [...media, ...(video ? [{ ...video }] : [])];
-
-  const goToPrevious = () =>
-    setCurrentIndex((prev) => (prev === 0 ? allMedia.length - 1 : prev - 1));
-  const goToNext = () =>
-    setCurrentIndex((prev) => (prev === allMedia.length - 1 ? 0 : prev + 1));
-
   const t = theme;
-
+  const allMedia = [...media];
 
   useEffect(() => {
-    const mediaIndex = allMedia.findIndex(m => m.variant_id === selectedColor?.variant_id);
-    setCurrentIndex(mediaIndex) ;
+    if (selectedColor == null) return;
+    const idx = allMedia.findIndex(m => m.variant_id === selectedColor.variant_id);
+    if (idx !== -1) setCurrentIndex(idx);
   }, [selectedColor]);
 
+  const goTo = (i: number) => setCurrentIndex(i);
+  const prev = () => setCurrentIndex(p => p === 0 ? allMedia.length - 1 : p - 1);
+  const next = () => setCurrentIndex(p => p === allMedia.length - 1 ? 0 : p + 1);
 
-  
   return (
-    <div className="flex gap-3" style={{ height: maxHeight ?? 480, maxHeight: maxHeight ?? 480 }}>
+    <div className="flex gap-2" style={{ height: 420 }}>
+
       {/* THUMBNAIL STRIP */}
       {allMedia.length > 1 && (
         <div
-          ref={stripRef}
-          className="flex flex-col gap-2 w-[72px] flex-shrink-0 overflow-y-auto pr-1"
-          style={{ scrollbarWidth: "thin", scrollbarColor: `${t?.border ?? "#cbd5e1"} transparent` }}
+          className="flex flex-col gap-1.5 overflow-y-auto flex-shrink-0"
+          style={{
+            width: 60,
+            scrollbarWidth: "none",
+          }}
         >
-          {allMedia.map((item, index) => (
+          {allMedia.map((item, i) => (
             <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className="relative flex-shrink-0 w-full overflow-hidden transition-all duration-200"
-              style={{ aspectRatio: "1 / 1" }}
+              key={i}
+              onClick={() => goTo(i)}
+              className="flex-shrink-0 overflow-hidden transition-all duration-200"
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 8,
+                border: `2px solid ${i === currentIndex ? (t?.primary ?? "#0f172a") : "transparent"}`,
+                opacity: i === currentIndex ? 1 : 0.55,
+                transform: i === currentIndex ? "scale(1.04)" : "scale(1)",
+                background: t?.card ?? "#f1f5f9",
+                overflow: "hidden",
+              }}
             >
               <img
                 src={item.url}
                 alt={String(item.id)}
                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
               />
-              <div
-                className="absolute inset-0 transition-all duration-200"
-                style={{
-                  boxShadow: index === currentIndex
-                    ? `inset 0 0 0 2px ${t?.primary ?? "#0f172a"}`
-                    : undefined,
-                  background: index === currentIndex ? "transparent" : "rgba(255,255,255,0.15)",
-                }}
-              />
-              {index === currentIndex && (
-                <div
-                  className="absolute left-0 top-0 bottom-0 w-[3px]"
-                  style={{ background: t?.primary ?? "#0f172a" }}
-                />
-              )}
             </button>
           ))}
         </div>
@@ -87,9 +69,9 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ media, video, theme 
       <div
         className="relative flex-1 overflow-hidden group"
         style={{
+          borderRadius: 16,
           background: t?.card ?? "#f8fafc",
-          borderRadius: t?.borderRadius ?? "16px",
-          boxShadow: t?.shadowLg ?? "0 10px 40px rgba(0,0,0,0.12)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
         }}
       >
         {allMedia[currentIndex] && (
@@ -97,57 +79,56 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ media, video, theme 
             key={currentIndex}
             src={allMedia[currentIndex].url}
             alt={String(allMedia[currentIndex].id)}
-            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.03]"
-            style={{ animation: "fadeIn 0.3s ease" }}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            style={{ animation: "imgFadeIn 0.35s ease" }}
           />
         )}
 
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+        {/* subtle gradient bottom */}
+        <div className="absolute inset-x-0 bottom-0 h-16 pointer-events-none"
+          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.12), transparent)" }} />
 
+        {/* nav arrows */}
         {allMedia.length > 1 && (
           <>
-            <button
-              onClick={goToPrevious}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
-              style={{ background: t?.bgSecondary ?? "rgba(255,255,255,0.9)", color: t?.text }}
-            >
+            <button onClick={prev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+              style={{ background: "rgba(255,255,255,0.92)", color: t?.text }}>
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button
-              onClick={goToNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
-              style={{ background: t?.bgSecondary ?? "rgba(255,255,255,0.9)", color: t?.text }}
-            >
+            <button onClick={next}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+              style={{ background: "rgba(255,255,255,0.92)", color: t?.text }}>
               <ChevronRight className="w-4 h-4" />
             </button>
           </>
         )}
 
+        {/* dot indicators */}
         {allMedia.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {allMedia.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className="transition-all duration-300 rounded-full"
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
+            {allMedia.map((_, i) => (
+              <button key={i} onClick={() => goTo(i)}
+                className="rounded-full transition-all duration-300"
                 style={{
-                  width: index === currentIndex ? 24 : 6,
-                  height: 6,
-                  background: index === currentIndex ? "#fff" : "rgba(255,255,255,0.5)",
-                }}
-              />
+                  width: i === currentIndex ? 20 : 5,
+                  height: 5,
+                  background: i === currentIndex ? "#fff" : "rgba(255,255,255,0.5)",
+                }} />
             ))}
           </div>
         )}
 
-        <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full">
+        {/* counter badge */}
+        <div className="absolute top-2.5 right-2.5 text-white text-xs font-medium px-2 py-0.5 rounded-full"
+          style={{ background: "rgba(0,0,0,0.38)", backdropFilter: "blur(4px)" }}>
           {currentIndex + 1} / {allMedia.length}
         </div>
       </div>
 
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0.6; transform: scale(1.02); }
+        @keyframes imgFadeIn {
+          from { opacity: 0.5; transform: scale(1.03); }
           to   { opacity: 1;   transform: scale(1); }
         }
       `}</style>

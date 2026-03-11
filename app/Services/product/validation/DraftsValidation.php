@@ -34,7 +34,7 @@ class DraftsValidation
             'price'             => ['nullable', 'numeric', 'min:0'],
             'compare_price'     => ['nullable', 'numeric', 'min:0'],
             'stock'             => ['nullable', 'integer', 'min:0'],
-            'badge_text'        => ['nullable', 'string'],
+            'badge'        => ['nullable', 'integer' , Rule::exists('badges' , 'id')],
             'releaseDate'       => ['nullable', 'string'],
             'madeCountry'       => ['nullable', 'string'],
             'rating_average'    => ['nullable', 'numeric', 'min:0', 'max:5'],

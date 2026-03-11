@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Badge;
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -19,7 +20,7 @@ class ProductFactory extends Factory
         'is_visible'        => $this->faker->boolean(),
         'madeCountry'       => $this->faker->countryCode(),
         'releaseDate'       => (string) $this->faker->numberBetween(2015, 2024),
-        'badge_text'        => $this->faker->randomElement(['Hot', 'New', 'Sale', null]),
+        'badge_id'        => Badge::inRandomOrder()->first()->id,
         'allow_backorder'   => $this->faker->boolean(),
         'show_countdown'    => true,
         'show_reviews'      => true,

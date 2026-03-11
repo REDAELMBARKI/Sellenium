@@ -41,7 +41,7 @@ return new class extends Migration
             ->default(null)
             ->constrained('categories')
             ->nullOnDelete();
-            $table->string('badge_text')->nullable();      // "New", "Hot", "Sale"
+            $table->foreignId('badge_id')->nullable()->constrained("badges")->nullOnDelete();      // "New", "Hot", "Sale"
             $table->boolean('allow_backorder')->default(false); // sell when out of stock?
             $table->boolean('show_countdown')->default(true);  // has active promotion timer?
             $table->boolean('show_reviews')->default(true);  // has active promotion timer?

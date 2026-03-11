@@ -108,7 +108,7 @@ export const productSchema = z.object({
   brand:       z.string().nullable().optional(),
   releaseDate: z.union([z.string(), z.number()]).nullable().optional(),
   madeCountry: z.string().nullable().optional(),
-  badge_text:  z.string().nullable().optional(),
+  badge:  z.number().nullable().optional(),
   description: z.string().nullable().optional(),
   rating_average: z.number({ invalid_type_error: "Rating must be a number" }).min(0).max(5).nullable().optional(),
 
