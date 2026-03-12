@@ -11,16 +11,17 @@ export type Themes =  Record<ThemeStyle ,Record<ThemeMode , ThemePalette>>
   card: string          // Card backgrounds (product cards, info cards)
   modal: string         // Modal backgrounds
   overlay: string       // Overlays, modals backdrop, dimming effects
+ 
   // side bar
-  sidebarBg: string       // Dedicated sidebar background (admin sidebar, navigation panels)
-  sidebarFg: string,
-  sidebarBorder: string,
-  sidebarHover: string,
-  sidebarMuted: string,
-  sidebarMutedFg: string,
-  sidebarActive: string,
-  sidebarActiveFg:string,
-  
+  sidebarBg: string
+  sidebarFg: string
+  sidebarBorder: string
+  sidebarHover: string
+  sidebarMuted: string
+  sidebarMutedFg: string
+  sidebarActive: string
+  sidebarActiveFg: string
+ 
   // -------------------------
   // TEXT
   // -------------------------
@@ -28,7 +29,7 @@ export type Themes =  Record<ThemeStyle ,Record<ThemeMode , ThemePalette>>
   textSecondary: string // Secondary text (less important labels, metadata)
   textMuted: string     // Muted text (disabled, placeholder, faint info)
   textInverse: string   // Text on dark backgrounds (white/light text)
-
+ 
   // -------------------------
   // BUTTONS / ACCENTS
   // -------------------------
@@ -38,33 +39,44 @@ export type Themes =  Record<ThemeStyle ,Record<ThemeMode , ThemePalette>>
   secondaryHover: string// Hover for secondary buttons
   accent: string        // Small UI accents, highlights, badges, status
   accentHover: string   // Hover for accents (interactive badges/buttons)
-
+ 
   // -------------------------
   // BORDERS
   // -------------------------
   border: string        // General borders (cards, inputs, panels)
   borderHover: string   // Border highlight on hover/focus
-  borderRadius : string
+  borderRadius: string
+ 
   // -------------------------
   // LINKS
   // -------------------------
   link: string          // Link text
   linkHover: string     // Link hover color
-
+ 
   // -------------------------
   // SHADOWS
   // -------------------------
   shadow: string        // Small shadows for cards/elements
   shadowMd: string      // Medium shadows (modals, dropdowns)
   shadowLg: string      // Large shadows (dialogs, popups, important layers)
-
-  // bage
-  badge : string 
+ 
+  // badge
+  badge: string
+ 
   // states
-  success : string
-  info : string 
-  error : string 
-  warning : string
+  success: string
+  info: string
+  error: string
+  warning: string
+ 
+  // -------------------------
+  // PRODUCT PAGE SPECIFIC
+  // -------------------------
+  priceText: string     // Big price number — pops more than default text
+  priceStrike: string   // Strikethrough original/compare price color
+  dealBg: string        // Deal box surface background
+  starColor: string     // Review/rating star color (gold tone)
 };
+ 
 
 export type ThemeMode = "dark" | "light"

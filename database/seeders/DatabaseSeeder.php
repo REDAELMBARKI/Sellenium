@@ -32,9 +32,8 @@ class DatabaseSeeder extends Seeder
             CartSeeder::class,
             ShippingSettingSeeder::class ,
             ShippingZoneSeeder::class ,
-            VariantOptionSeeder::class
-          //  ReviewSeeder::class,
-          //  UserSeeder::class,
+            VariantOptionSeeder::class ,
+            ReviewSeeder::class,
           //  WishListSeeder::class,
     
         // Add more seeders here...

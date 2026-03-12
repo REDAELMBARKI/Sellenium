@@ -10,12 +10,12 @@ class Review extends Model
     /** @use HasFactory<\Database\Factories\ReviewFactory> */
     use HasFactory;
     protected $fillable = ['user_id' , 'product_id', 'text' , 'rating'];
-
+    protected  $hidden =["updated_at" , "created_at"] ;
     public function product()  {
         return $this->belongsTo(Product::class);
     }
 
-    public function user() { 
+    public function user() {
         return $this->belongsTo(User::class);
     }
 

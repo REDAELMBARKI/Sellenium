@@ -49,7 +49,8 @@ class ProductDetailResource extends JsonResource
                 ]))->toArray(),
            ] ,
            "colors" => $colors ,
-           
+           "rating_breakdown" => (object) $this->ratingBreakdown() ,
+           "promotions" => $this->promotions() 
         ];
     }
 }

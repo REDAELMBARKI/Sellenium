@@ -49,7 +49,7 @@ class ProductController extends Controller
 
     public function create()
     {
-            // gates product management 
+            // gate product management 
             $parents = DB::table('variants_options_settings')->whereNull('parent_id')->get(['key']) ;
             $options =[] ;
             foreach($parents as $parent){
@@ -88,7 +88,7 @@ class ProductController extends Controller
         */
         public function publish(PublishProductRequest $publishProductRequest , Product $product)
         {
-            // gates product management 
+            // gate product management 
 
             if(!$this->productService->isPublishable($product)){
                 return response()->json(['message' =>  'some fileds are missing ']) ;
@@ -105,7 +105,7 @@ class ProductController extends Controller
         */
         
         public function  updateOnSubmit(PublishProductRequest $publishProductRequest , Product $product){
-            // gates product management 
+            // gate product management 
             // $payload = $publishProductRequest->validated();
             $payload = $publishProductRequest->validated();
             $this->productService->saveDraft($payload , $product);
@@ -119,7 +119,7 @@ class ProductController extends Controller
         */
         
         public function updateOnPageLeave(StoreDraftProductRequest $draftRequest , Product $product){
-            // gates product management 
+            // gate product management 
             $payload = $draftRequest->validated();
             $this->productService->saveDraft($payload , $product );
         }
@@ -167,7 +167,8 @@ class ProductController extends Controller
 
 
     public function show(Product $product){
-       $product->load('variants','attrs','nichCategory','subCategories','thumbnail','covers' , 'badge');
+       $product->load('variants','attrs','nichCategory','subCategories','thumbnail',
+                      'covers' , 'videos'  , 'badge' , 'reviews');
        return inertia::render("admin/pages/products/Show"  , [
           'product'=> new ProductDetailResource($product),
        ]);

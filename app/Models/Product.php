@@ -79,7 +79,7 @@ class Product extends Model
               ->where("media_type" , "image");
     }
 
-    public function video(){
+    public function videos(){
         return $this->morphMany(Media::class , 'mediaable')->whereIn('media_type' , ['video' , 'iframe']);
     }
     
@@ -111,18 +111,39 @@ class Product extends Model
   
 
 
+    public function promotions(){
+        $categories  = collect($this->nichCategory())->merge($this->subCategories());
+
+        return Promotion::where("is_active" , true)
+                          ->where(function($q) use($categories){
+                            $q->whereJsonContains("applicable_product_ids" , $this->id) ;
+                            $q->when($categories->count() > 0 , function($q)
+                                    {
+                                            $q->orWhereJsonContains("applicable_category_ids" , $this->nichCategory()->value("id")) ;
+                                            foreach($this->subCategories()->pluck("id") as $catId){
+                                                    $q->orWhereJsonContains("applicable_sub_category_ids" , $catId) ;
+                                            }
+                                    }
+                                );
+                          })->get()
+                          ;
+    }
+
   
     public function reviews(){
         return $this->hasMany(Review::class);
+            
     }
- 
 
-
-    public function promotion()
-    {
-        return $this->belongsTo(Promotion::class);
+    public function  ratingBreakdown(){
+        return  Review::selectRaw(
+            'rating , count(*) as count'
+        )
+        ->groupBy('rating')
+        ->pluck('count', 'rating')
+        ->toArray() ;
     }
-   
+
 
 
 
