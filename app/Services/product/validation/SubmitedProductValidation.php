@@ -79,7 +79,7 @@ class SubmitedProductValidation
             // video — only iframes sent in request
             'video'              => ['nullable', 'array'],
             'video.*.media_type' => ['required', Rule::in(['iframe', 'video'])],
-            'video.*.url'        => ['nullable', 'string', 'url'],
+            'video.*.url'        => ['nullable', 'string'],
         ];
     }
 

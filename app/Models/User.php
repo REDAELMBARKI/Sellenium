@@ -64,6 +64,11 @@ class User extends Authenticatable
     }
     
     
+    public function avatar(){
+         return $this->morphOne(Media::class , 'mediaable')
+            ->where("collection" , "avatar")
+         ;
+    }
 
 
 }

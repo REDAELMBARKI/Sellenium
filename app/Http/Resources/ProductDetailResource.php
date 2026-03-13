@@ -50,7 +50,7 @@ class ProductDetailResource extends JsonResource
            ] ,
            "colors" => $colors ,
            "rating_breakdown" => (object) $this->ratingBreakdown() ,
-           "promotions" => $this->promotions() 
+           "promotions" => $this->promotions() , 
         ];
     }
 }

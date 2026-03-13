@@ -75,7 +75,6 @@ export const ImageWithLoader = ({ src, alt, theme }: { src: string; alt: string;
     );
 };
 
-// Uploading placeholder shown immediately when file is picked — blurred preview + centered spinner
 export const UploadingPlaceholder = ({ src, theme }: { src: string; theme: any }) => (
     <div className="relative aspect-square rounded-lg overflow-hidden">
         <img src={src} alt="uploading" className="w-full h-full object-cover rounded-lg blur-sm scale-105" />

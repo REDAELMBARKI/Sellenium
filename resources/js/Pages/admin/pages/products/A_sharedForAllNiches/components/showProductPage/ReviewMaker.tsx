@@ -29,7 +29,7 @@ const renderStars = (rating: number) => (
   </div>
 );
 
-const Reviews = ({ theme }: ReviewsProps) => {
+const ReviewMaker = ({ theme }: ReviewsProps) => {
   const t = theme;
   const [reviews, setReviews] = useState(initialReviews);
   const [index, setIndex] = useState(0);
@@ -185,4 +185,4 @@ const Reviews = ({ theme }: ReviewsProps) => {
   );
 };
 
-export default Reviews;
+export default ReviewMaker;

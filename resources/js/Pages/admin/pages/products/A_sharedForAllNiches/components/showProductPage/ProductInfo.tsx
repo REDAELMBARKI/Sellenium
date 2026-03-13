@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Color, Size } from "@/types/inventoryTypes";
 import { ThemePalette } from "@/types/ThemeTypes";
@@ -6,86 +6,244 @@ import ColorSelector from "./ColorSection";
 import { router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 
+/* ─────────────────────────────────────────
+   CSS — injected once into <head>
+   Uses real ::before / ::after for the
+   deal-box gradient line + corner glow
+───────────────────────────────────────── */
+const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+.pi-wrap *{box-sizing:border-box;}
+.pi-wrap{font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.65;}
+
+.pi-badge-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:20px;
+  font-size:11px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.5px;
+  margin-bottom:16px;
+}
+
+.pi-prod-title{
+  font-family:'Syne',sans-serif;font-size:28px;font-weight:800;
+  line-height:1.25;margin:0 0 10px;letter-spacing:-.5px;
+}
+
+.pi-rating-row{display:flex;align-items:center;gap:10px;margin-bottom:24px;}
+.pi-stars{font-size:14px;letter-spacing:1px;}
+.pi-rating-text{font-size:13px;}
+
+.pi-deal-box{
+  background:linear-gradient(135deg,#1c1410 0%,#181210 100%);
+  border-radius:16px;padding:20px 22px;margin-bottom:24px;
+  position:relative;overflow:hidden;
+}
+.pi-deal-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--pi-ac,#e8502a),var(--pi-ac2,#f07340),var(--pi-gold,#d4a843));
+}
+.pi-deal-box::after{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(232,80,42,.15) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+.pi-deal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;flex-wrap:nowrap;gap:8px;
+}
+.pi-deal-name{
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  color:var(--pi-ac,#e8502a);letter-spacing:1px;text-transform:uppercase;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;
+}
+
+.pi-timer{display:flex;align-items:center;gap:4px;font-size:12px;flex-shrink:0;white-space:nowrap;}
+.pi-t-digit{
+  background:rgba(255,255,255,.07);padding:3px 8px;border-radius:5px;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:15px;
+  min-width:28px;text-align:center;display:inline-block;
+}
+.pi-t-sep{font-weight:700;}
+
+.pi-price-row{display:flex;align-items:baseline;gap:14px;}
+.pi-price-main{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;}
+.pi-save-pill{
+  background:linear-gradient(135deg,rgba(232,80,42,.2),rgba(240,115,64,.15));
+  color:var(--pi-ac2,#f07340);padding:4px 12px;border-radius:20px;
+  font-size:12px;font-weight:700;font-family:'Syne',sans-serif;
+}
+.pi-price-old{font-size:13px;text-decoration:line-through;margin-top:4px;}
+.pi-free-ship{
+  background:rgba(34,197,94,.12);color:#4ade80;
+  padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;
+  font-family:'Syne',sans-serif;
+}
+
+.pi-color-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+.pi-color-label span{font-weight:500;}
+
+.pi-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.pi-tag{padding:5px 14px;border-radius:20px;font-size:12px;background:rgba(255,255,255,.04);letter-spacing:.3px;}
+
+.pi-size-btn{
+  padding:8px 20px;border-radius:8px;font-size:13px;font-weight:700;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;min-width:52px;
+}
+.pi-subcat-btn{
+  padding:5px 14px;border-radius:999px;font-size:12px;font-weight:600;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+}
+.pi-accordion-btn{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0;background:transparent;border:none;border-bottom:none;
+  border-left:none;border-right:none;border-top-style:solid;border-top-width:1px;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+}
+.pi-accordion-btn span{font-size:15px;font-weight:700;}
+.pi-description-body{padding-bottom:16px;font-size:14px;line-height:1.7;font-style:italic;font-weight:300;}
+`;
+
+let styleInjected = false;
+function injectStyles() {
+  if (styleInjected || typeof document === "undefined") return;
+  styleInjected = true;
+  const el = document.createElement("style");
+  el.textContent = CSS;
+  document.head.appendChild(el);
+}
+
+/* ─────────────────────────────────────────
+   Types
+───────────────────────────────────────── */
 interface Attr { id: number; key: string; value: string; }
 interface SubCategory { id: number; name: string; slug?: string; }
-interface Shipping { isReturnable?: boolean; returnPolicy?: string; returnWindow?: number; shippingClass?: string; shippingCostOverride?: number; }
 interface Variant { id: number; price: number; compare_price?: number; stock: number; }
+interface Promotion {
+  id: number;
+  name: string;
+  type: "percentage" | "fixed" | "free_shipping";
+  value: number;
+  valid_until: string | null;
+  minimum_order_amount: number | null;
+}
 
 interface ProductInfoProps {
   name: string;
   brand: string;
   badgeText?: string;
+  badgeColor?: string;
   price: string;
   compareAtPrice?: string;
   stock?: number | string;
   description?: string;
-  rating_average?: number;
-  rating_count?: number;
+  rating_average?: number | null;
+  rating_count?: number | null;
   showCountdown?: boolean;
+  promotions?: Promotion[];
   colors: (Color & { variant_id: number })[];
   sizes: Size[];
   attrs?: Attr[];
   subCategories?: SubCategory[];
   variants?: Variant[];
   madeCountry?: string | { code: string; name: string };
-  materials?: { id: string; name: string }[];
-  fits?: { id: string; name: string }[];
-  gender?: string[];
-  styles?: string[];
-  season?: string[];
   theme?: ThemePalette;
   onColorSelect: (color: Color & { variant_id: number }) => void;
   selectedColor?: Color & { variant_id: number };
 }
 
-const badgeColor = (text: string, primary: string) => {
-  const t = text.toLowerCase();
-  if (t.includes("new"))  return { bg: "#2563eb", fg: "#fff" };
-  if (t.includes("sale")) return { bg: "#dc2626", fg: "#fff" };
-  if (t.includes("hot") || t.includes("fire")) return { bg: "#ea580c", fg: "#fff" };
-  if (t.includes("best")) return { bg: "#16a34a", fg: "#fff" };
-  return { bg: primary ?? "#0f172a", fg: "#fff" };
-};
-
-function useCountdown(initial = { h: 7, m: 27, s: 5 }) {
-  const [time, setTime] = useState(initial);
-  useEffect(() => {
-    const id = setInterval(() => {
-      setTime(prev => {
-        let { h, m, s } = prev;
-        s--; if (s < 0) { s = 59; m--; } if (m < 0) { m = 59; h--; } if (h < 0) { h = 0; m = 0; s = 0; }
-        return { h, m, s };
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return [pad(time.h), pad(time.m), pad(time.s)];
+/* ─────────────────────────────────────────
+   Fallback promo — shown when promotions[]
+   is empty so the deal box is never blank
+───────────────────────────────────────── */
+function buildFallbackPromo(compareAtPrice?: string, price?: string): Promotion {
+  const saved = compareAtPrice && price
+    ? Number(compareAtPrice) - Number(price)
+    : 20;
+  return {
+    id: -1,
+    name: "Summer Sale",
+    type: "fixed",
+    value: saved > 0 ? saved : 20,
+    valid_until: new Date(Date.now() + 7 * 3600 * 1000 + 22 * 60 * 1000 + 59 * 1000).toISOString(),
+    minimum_order_amount: null,
+  };
 }
 
-const Sep = ({ theme }: { theme?: ThemePalette }) => (
-  <div style={{ borderTop: `1px solid ${theme?.border ?? "#f1f5f9"}`, margin: "20px 0" }} />
-);
+function getActiveDeal(promotions: Promotion[], compareAtPrice?: string, price?: string): Promotion {
+  const now = new Date();
+  const real = promotions
+    .filter(p => p.type !== "free_shipping" && (!p.valid_until || new Date(p.valid_until) > now))
+    .sort((a, b) => b.value - a.value)[0];
+  return real ?? buildFallbackPromo(compareAtPrice, price);
+}
 
+/* ─────────────────────────────────────────
+   Live countdown hook
+───────────────────────────────────────── */
+function useCountdown(date: string | null) {
+  const calc = () => {
+    if (!date) return { h: 0, m: 0, s: 0 };
+    const diff = Math.max(0, Math.floor((new Date(date).getTime() - Date.now()) / 1000));
+    return { h: Math.floor(diff / 3600), m: Math.floor((diff % 3600) / 60), s: diff % 60 };
+  };
+  const [t, setT] = useState(calc);
+  useEffect(() => {
+    if (!date) return;
+    const id = setInterval(() => setT(calc()), 1000);
+    return () => clearInterval(id);
+  }, [date]);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return [pad(t.h), pad(t.m), pad(t.s)] as const;
+}
+
+/* ─────────────────────────────────────────
+   Component
+───────────────────────────────────────── */
 export const ProductInfo: React.FC<ProductInfoProps> = ({
-  name, brand, badgeText, price, compareAtPrice, stock, description,
-  rating_average, rating_count, showCountdown, colors, sizes, attrs,
-  subCategories, variants, madeCountry, materials, fits, gender, styles,
-  season, theme, onColorSelect, selectedColor,
+  name, brand, badgeText, badgeColor, price, compareAtPrice, stock, description,
+  rating_average, rating_count, showCountdown = true, promotions = [],
+  colors, sizes, attrs, subCategories, variants, madeCountry,
+  theme, onColorSelect, selectedColor,
 }) => {
-  const [showDesc, setShowDesc] = useState(true);
-  const [showDetails, setShowDetails] = useState(false);
-  const [selectedSize, setSelectedSize] = useState<Size | undefined>();
-  const [displayPrice, setDisplayPrice] = useState(price);
-  const [displayCompare, setDisplayCompare] = useState(compareAtPrice);
-  const [displayStock, setDisplayStock] = useState<number | string | undefined>(stock);
+  injectStyles();
 
-  const countdown = useCountdown();
-  const t = theme;
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [showDesc, setShowDesc]         = useState(true);
+  const [showDetails, setShowDetails]   = useState(false);
+  const [selectedSize, setSelectedSize] = useState<Size | undefined>();
+  const [displayPrice, setDisplayPrice]     = useState(price);
+  const [displayCompare, setDisplayCompare] = useState(compareAtPrice);
+  const [displayStock, setDisplayStock]     = useState<number | string | undefined>(stock);
+
+  const t    = theme;
+  const ac   = t?.accent      ?? "#e8502a";
+  const ac2  = t?.accentHover ?? "#f07340";
+  const gold = t?.starColor   ?? "#d4a843";
+
+  const textColor   = t?.text     ?? "#ece9e3";
+  const mutedColor  = t?.textMuted ?? "#5a5760";
+  const borderColor = t?.border   ?? "rgba(255,255,255,0.06)";
+
+  /* always get a deal — real or fallback */
+  const activeDeal      = getActiveDeal(promotions, compareAtPrice, price);
+  const hasFreeShipping = promotions.some(p => p.type === "free_shipping");
+  const dealDate        = activeDeal.valid_until;
+  const [h, m, s]       = useCountdown(dealDate);
+
+  /* push CSS vars so ::before/::after pick up theme colors */
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    el.style.setProperty("--pi-ac",   ac);
+    el.style.setProperty("--pi-ac2",  ac2);
+    el.style.setProperty("--pi-gold", gold);
+  }, [ac, ac2, gold]);
 
   useEffect(() => {
     if (colors.length > 0) onColorSelect(colors[0]);
-    if (sizes.length > 0) setSelectedSize(sizes[2] ?? sizes[0]);
+    if (sizes.length > 0)  setSelectedSize(sizes[2] ?? sizes[0]);
   }, []);
 
   useEffect(() => {
@@ -97,130 +255,149 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
     setDisplayStock(v.stock);
   }, [selectedColor, variants]);
 
-  const saveAmount = displayCompare && Number(displayCompare) > 0
-    ? (Number(displayCompare) - Number(displayPrice)).toFixed(2)
-    : null;
+  const saveAmount = (() => {
+    if (activeDeal.type === "fixed")      return activeDeal.value.toFixed(0);
+    if (activeDeal.type === "percentage") return (Number(displayPrice) * activeDeal.value / 100).toFixed(0);
+    if (displayCompare && Number(displayCompare) > 0)
+      return (Number(displayCompare) - Number(displayPrice)).toFixed(0);
+    return null;
+  })();
 
-  const bc = badgeText ? badgeColor(badgeText, t?.primary ?? "#0f172a") : null;
-  const muted = { color: t?.textMuted };
-  const col = { color: t?.text };
+  const ratingAvg   = rating_average ?? 0;
+  const ratingCount = rating_count   ?? 0;
+  const starsStr    = [1,2,3,4,5].map(i => i <= Math.round(ratingAvg) ? "★" : "☆").join("");
+  const hasColors   = colors.some(c => c.hex !== null || c.name !== null);
+
+  const accordionBtn: React.CSSProperties = {
+    borderTopColor: borderColor,
+    color: textColor,
+  };
 
   return (
-    <div>
+    <div ref={rootRef} className="pi-wrap" style={{ color: textColor }}>
 
-      {/* Badge */}
-      {badgeText && bc && (
-        <div className="mb-4">
-          <span className="inline-flex items-center gap-1.5 text-sm font-bold px-4 py-1.5"
-            style={{ borderRadius: 999, background: bc.bg, color: bc.fg, letterSpacing: "0.02em" }}>
-            🔥 {badgeText}
+      {/* ── badge-pill ── */}
+      {badgeText && (
+        <div className="pi-badge-pill" style={{
+          background: badgeColor ? `${badgeColor}22` : "rgba(168,85,247,0.12)",
+          color:      badgeColor ?? "#c084fc",
+          border:    `1px solid ${badgeColor ? `${badgeColor}44` : "rgba(168,85,247,0.2)"}`,
+        }}>
+          ⚡ {badgeText}
+        </div>
+      )}
+
+      {/* ── prod-title ── */}
+      <h1 className="pi-prod-title" style={{ color: textColor }}>{name}</h1>
+
+      {/* ── rating-row — always shown, falls back to 0 ── */}
+      <div className="pi-rating-row">
+        <span className="pi-stars" style={{ color: gold }}>{starsStr}</span>
+        <span className="pi-rating-text" style={{ color: mutedColor }}>
+          {ratingAvg > 0 ? ratingAvg : "No ratings"}&nbsp;·&nbsp;{ratingCount} reviews&nbsp;·&nbsp;4,000+ sold
+        </span>
+      </div>
+
+      {/* ══ deal-box — always visible (real promo or fallback) ══ */}
+      <div className="pi-deal-box">
+
+        {/* deal-header: name LEFT + timer RIGHT */}
+        <div className="pi-deal-header">
+          <div className="pi-deal-name">
+            🔥 {activeDeal.name}
+          </div>
+          <div className="pi-timer" style={{ color: mutedColor }}>
+            Ends in&nbsp;
+            <span className="pi-t-digit" style={{ color: textColor }}>{h}</span>
+            <span className="pi-t-sep"   style={{ color: mutedColor }}>:</span>
+            <span className="pi-t-digit" style={{ color: textColor }}>{m}</span>
+            <span className="pi-t-sep"   style={{ color: mutedColor }}>:</span>
+            <span className="pi-t-digit" style={{ color: textColor }}>{s}</span>
+          </div>
+        </div>
+
+        {/* price-row */}
+        <div className="pi-price-row">
+          <span className="pi-price-main" style={{ color: t?.priceText ?? textColor }}>
+            ${Number(displayPrice).toFixed(0)}
+          </span>
+          {saveAmount && (
+            <span className="pi-save-pill">Save ${saveAmount}</span>
+          )}
+          {hasFreeShipping && (
+            <span className="pi-free-ship">🚚 Free shipping</span>
+          )}
+        </div>
+
+        {/* price-old */}
+        {displayCompare && Number(displayCompare) > 0 && (
+          <div className="pi-price-old" style={{ color: t?.priceStrike ?? mutedColor }}>
+            was ${Number(displayCompare).toFixed(0)}
+          </div>
+        )}
+
+        {activeDeal.minimum_order_amount && (
+          <div style={{ fontSize: 11, color: mutedColor, marginTop: 6 }}>
+            Min. order ${activeDeal.minimum_order_amount} to apply
+          </div>
+        )}
+      </div>
+
+      {/* ── stock badges (shown outside deal box when no compare price) ── */}
+      {Number(displayStock) > 0 && Number(displayStock) <= 10 && (
+        <div style={{ marginBottom: 16 }}>
+          <span style={{
+            fontSize: 12, fontWeight: 700, padding: "4px 12px", borderRadius: 999,
+            background: `${t?.warning ?? "#f59e0b"}18`,
+            color: t?.warning ?? "#f59e0b",
+          }}>
+            Only {displayStock} left
+          </span>
+        </div>
+      )}
+      {(displayStock === 0 || displayStock === "0") && (
+        <div style={{ marginBottom: 16 }}>
+          <span style={{
+            fontSize: 12, fontWeight: 700, padding: "4px 12px", borderRadius: 999,
+            background: "rgba(239,68,68,0.1)", color: "#f87171",
+          }}>
+            Out of stock
           </span>
         </div>
       )}
 
-      {/* Name */}
-      <h1 className="text-2xl font-bold leading-snug mb-4" style={col}>{name}</h1>
-
-      {/* Rating */}
-      {rating_average != null && (
-        <div className="flex items-center gap-3 mb-2">
-          <div className="flex gap-1">
-            {[1,2,3,4,5].map(s => (
-              <span key={s} className={`text-lg ${s <= Math.round(rating_average) ? "text-amber-400" : "text-gray-300"}`}>★</span>
-            ))}
-          </div>
-          <span className="text-base font-bold" style={col}>{rating_average}</span>
-          {!!rating_count && <span className="text-sm" style={muted}>{rating_count} Reviews</span>}
+      {/* ── color-label + swatches ── */}
+      {hasColors && (
+        <div style={{ marginBottom: 20 }}>
+          <ColorSelector
+            colors={colors}
+            selectedColor={selectedColor}
+            onColorSelect={onColorSelect}
+            theme={t}
+          />
         </div>
       )}
 
-      <Sep theme={t} />
-
-      {/* ── PRICE BLOCK ── */}
-      <div className="mb-2">
-        {/* Deals banner */}
-        {showCountdown && (
-          <div className="flex items-center justify-between px-5 py-3 mb-0"
-            style={{
-              background: t?.primary ?? "#0f172a",
-              borderRadius: `${t?.borderRadius ?? "10px"} ${t?.borderRadius ?? "10px"} 0 0`,
-            }}>
-            <span className="font-extrabold text-base" style={{ color: t?.textInverse ?? "#fff" }}>
-              🔥 SuperDeals
-            </span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-medium mr-1" style={{ color: t?.textInverse ?? "#fff", opacity: 0.75 }}>Ends:</span>
-              {countdown.map((seg, i) => (
-                <React.Fragment key={i}>
-                  <span className="text-sm font-extrabold px-2 py-0.5 rounded"
-                    style={{ background: "rgba(255,255,255,0.18)", color: t?.textInverse ?? "#fff", fontVariantNumeric: "tabular-nums", minWidth: 28, textAlign: "center", display: "inline-block" }}>
-                    {seg}
-                  </span>
-                  {i < 2 && <span style={{ color: t?.textInverse ?? "#fff", opacity: 0.6, fontWeight: 700 }}>:</span>}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Price row */}
-        <div className={`flex items-center gap-4 flex-wrap py-4 px-1 ${showCountdown ? "border border-t-0 rounded-b-xl" : ""}`}
-          style={showCountdown ? { borderColor: `${t?.primary ?? "#0f172a"}30`, borderRadius: `0 0 ${t?.borderRadius ?? "10px"} ${t?.borderRadius ?? "10px"}` } : {}}>
-          <span className="text-4xl font-extrabold tracking-tight" style={col}>${displayPrice}</span>
-          {saveAmount && (
-            <span className="flex items-center gap-1 text-sm font-bold px-3 py-1.5"
-              style={{ borderRadius: 999, background: "#fef2f2", color: "#dc2626" }}>
-              ◄ Save ${saveAmount}
-            </span>
-          )}
-          {Number(displayStock) > 0 && Number(displayStock) <= 10 && (
-            <span className="text-sm font-bold px-3 py-1.5"
-              style={{ borderRadius: 999, background: "#fff7ed", color: "#ea580c" }}>
-              Only {displayStock} left
-            </span>
-          )}
-          {(displayStock === 0 || displayStock === "0") && (
-            <span className="text-sm font-bold px-3 py-1.5"
-              style={{ borderRadius: 999, background: "#fef2f2", color: "#dc2626" }}>
-              Out of stock
-            </span>
-          )}
-        </div>
-
-        {/* Compare price */}
-        {displayCompare && Number(displayCompare) > 0 && (
-          <p className="text-base line-through mt-1 px-1" style={muted}>${displayCompare}</p>
-        )}
-      </div>
-
-      <Sep theme={t} />
-
-      {/* ── COLORS ── */}
-      {colors.length > 0 && (
-        <div className="mb-6">
-          <ColorSelector colors={colors} selectedColor={selectedColor} onColorSelect={onColorSelect} theme={t} />
-        </div>
-      )}
-
-      {/* ── SIZES ── */}
+      {/* ── sizes ── */}
       {sizes.length > 0 && (
-        <div className="mb-6">
-          <p className="text-sm font-bold uppercase tracking-widest mb-4" style={muted}>
-            Size: <span className="normal-case tracking-normal font-bold" style={col}>{selectedSize?.name}</span>
+        <div style={{ marginBottom: 20 }}>
+          <p className="pi-color-label" style={{ color: mutedColor }}>
+            Size:&nbsp;<span style={{ color: textColor }}>{selectedSize?.name}</span>
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
             {sizes.map(size => {
               const isSel = selectedSize?.id === size.id;
               return (
-                <button key={size.id} onClick={() => setSelectedSize(size)}
-                  className="px-5 py-2.5 text-sm font-bold transition-all duration-150 hover:scale-105"
+                <button
+                  key={size.id}
+                  className="pi-size-btn"
+                  onClick={() => setSelectedSize(size)}
                   style={{
-                    borderRadius: t?.borderRadius ?? "8px",
                     background: isSel ? (t?.primary ?? "#0f172a") : "transparent",
-                    color: isSel ? (t?.textInverse ?? "#fff") : (t?.text ?? "#0f172a"),
-                    border: `2px solid ${isSel ? (t?.primary ?? "#0f172a") : (t?.border ?? "#e2e8f0")}`,
-                    minWidth: 52,
-                  }}>
+                    color:      isSel ? (t?.textInverse ?? "#fff") : textColor,
+                    border:    `2px solid ${isSel ? (t?.primary ?? "#0f172a") : borderColor}`,
+                  }}
+                >
                   {size.name}
                 </button>
               );
@@ -229,106 +406,93 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         </div>
       )}
 
-      {/* ── ATTRS — inline badges ── */}
+      {/* ── attrs as tag pills ── */}
       {attrs && attrs.length > 0 && (
-        <div className="mb-6 flex flex-wrap gap-3">
+        <div className="pi-tags">
           {attrs.map(attr => (
-            <span key={attr.id}
-              className="text-sm font-semibold px-4 py-2 capitalize"
-              style={{
-                borderRadius: t?.borderRadius ?? "8px",
-                background: t?.card ?? "#f1f5f9",
-                color: t?.textMuted ?? "#64748b",
-                border: `1.5px solid ${t?.border ?? "#e2e8f0"}`,
-              }}>
-              {attr.key}: {attr.value}
+            <span key={attr.id} className="pi-tag" style={{ color: mutedColor }}>
+              {attr.value}
             </span>
           ))}
         </div>
       )}
 
-      {/* ── SUB-CATEGORIES ── */}
+      {/* ── sub-categories as accent pills ── */}
       {subCategories && subCategories.length > 0 && (
-        <div className="mb-2 flex flex-wrap gap-3">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
           {subCategories.map(cat => (
-            <button key={cat.id}
+            <button
+              key={cat.id}
+              className="pi-subcat-btn"
               onClick={() => router.visit(route("category.show", { slug: cat.slug ?? cat.id }))}
-              className="text-sm font-semibold px-4 py-2 transition-opacity hover:opacity-75"
               style={{
-                borderRadius: 999,
-                background: `${t?.accent ?? t?.primary ?? "#0f172a"}10`,
-                color: t?.accent ?? t?.primary ?? "#0f172a",
-                border: `1.5px solid ${t?.accent ?? t?.primary ?? "#0f172a"}25`,
-              }}>
+                background: `${ac}10`, color: ac,
+                border: `1px solid ${ac}25`,
+              }}
+            >
               {cat.name}
             </button>
           ))}
         </div>
       )}
 
-      <Sep theme={t} />
-
-      {/* ── ACCORDIONS ── */}
+      {/* ── Description accordion ── */}
       {description && (
-        <div className="mb-2">
-          <button type="button" onClick={() => setShowDesc(p => !p)}
-            className="w-full flex items-center justify-between py-4 text-left"
-            style={{ background: "transparent", color: t?.text }}>
-            <span className="text-base font-bold">Description</span>
-            <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${showDesc ? "rotate-180" : ""}`}
-              style={muted} />
+        <div style={{ marginTop: 8 }}>
+          <button
+            type="button"
+            className="pi-accordion-btn"
+            onClick={() => setShowDesc(p => !p)}
+            style={accordionBtn}
+          >
+            <span style={{ color: textColor }}>Description</span>
+            <ChevronDown style={{
+              width: 18, height: 18, color: mutedColor,
+              transition: "transform 0.2s",
+              transform: showDesc ? "rotate(180deg)" : "none",
+            }} />
           </button>
           {showDesc && (
-            <div className="pb-6 text-base leading-relaxed prose prose-base max-w-none"
-              style={{ color: t?.text }}
-              dangerouslySetInnerHTML={{ __html: description }} />
+            <div
+              className="pi-description-body"
+              style={{ color: t?.textSecondary ?? mutedColor }}
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
           )}
-          <div style={{ borderTop: `1px solid ${t?.border ?? "#f1f5f9"}` }} />
         </div>
       )}
 
-      {(materials || fits || season || styles || gender || madeCountry) && (
-        <div className="mb-2">
-          <button type="button" onClick={() => setShowDetails(p => !p)}
-            className="w-full flex items-center justify-between py-4 text-left"
-            style={{ background: "transparent", color: t?.text }}>
-            <span className="text-base font-bold">Product Details</span>
-            <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${showDetails ? "rotate-180" : ""}`}
-              style={muted} />
+      {/* ── Product Details accordion ── */}
+      {madeCountry && (
+        <div>
+          <button
+            type="button"
+            className="pi-accordion-btn"
+            onClick={() => setShowDetails(p => !p)}
+            style={accordionBtn}
+          >
+            <span style={{ color: textColor }}>Product Details</span>
+            <ChevronDown style={{
+              width: 18, height: 18, color: mutedColor,
+              transition: "transform 0.2s",
+              transform: showDetails ? "rotate(180deg)" : "none",
+            }} />
           </button>
           {showDetails && (
-            <div className="pb-6 space-y-3">
-              {madeCountry && (
-                <div className="flex gap-3">
-                  <span className="w-24 text-sm flex-shrink-0" style={muted}>Made in</span>
-                  <span className="text-sm font-semibold" style={col}>
-                    {typeof madeCountry === "string" ? madeCountry : madeCountry.name}
-                  </span>
-                </div>
-              )}
-              {!!materials?.length && (
-                <div className="flex gap-3">
-                  <span className="w-24 text-sm flex-shrink-0" style={muted}>Material</span>
-                  <span className="text-sm font-semibold" style={col}>{materials.map(m => m.name).join(", ")}</span>
-                </div>
-              )}
-              {!!fits?.length && (
-                <div className="flex gap-3">
-                  <span className="w-24 text-sm flex-shrink-0" style={muted}>Fit</span>
-                  <span className="text-sm font-semibold" style={col}>{fits.map(f => f.name).join(", ")}</span>
-                </div>
-              )}
-              {!!gender?.length && (
-                <div className="flex gap-3">
-                  <span className="w-24 text-sm flex-shrink-0" style={muted}>Gender</span>
-                  <span className="text-sm font-semibold capitalize" style={col}>{gender.join(", ")}</span>
-                </div>
-              )}
+            <div style={{ paddingBottom: 16 }}>
+              <div style={{ display: "flex", gap: 12 }}>
+                <span style={{ width: 96, fontSize: 13, flexShrink: 0, color: mutedColor }}>Made in</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: textColor }}>
+                  {typeof madeCountry === "string" ? madeCountry : madeCountry.name}
+                </span>
+              </div>
             </div>
           )}
-          <div style={{ borderTop: `1px solid ${t?.border ?? "#f1f5f9"}` }} />
         </div>
       )}
+
     </div>
   );
 };
+
+export default ProductInfo;

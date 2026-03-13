@@ -131,7 +131,7 @@ class ProductController extends Controller
             // gates product management 
             
             try {
-            $product = $product->load(['thumbnail', 'covers', 'video', 'tags', 'variants', 'subCategories']);
+            $product = $product->load(['thumbnail', 'covers', 'videos', 'tags', 'variants', 'subCategories']);
             $parents = DB::table('variants_options_settings')->whereNull('parent_id')->get(['key']) ;
             $options =[] ;
             foreach($parents as $parent){
@@ -168,7 +168,7 @@ class ProductController extends Controller
 
     public function show(Product $product){
        $product->load('variants','attrs','nichCategory','subCategories','thumbnail',
-                      'covers' , 'videos'  , 'badge' , 'reviews');
+                      'covers' , 'videos'  , 'badge' , 'reviews.user.avatar');
        return inertia::render("admin/pages/products/Show"  , [
           'product'=> new ProductDetailResource($product),
        ]);
