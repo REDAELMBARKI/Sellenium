@@ -295,7 +295,7 @@ const ProductDetails = ({ onStepChange }: ProductDetailProps) => {
 
   return (
     <div style={{ background: t.bg, color: t.text, minHeight: "100vh" }}>
-      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 40px" }}>
+      <div style={{ maxWidth: 1400, margin: "0 auto"}}>
 
         {/* BREADCRUMB */}
         <div style={{ padding: "14px 0", fontSize: 12, color: t.textMuted }}>

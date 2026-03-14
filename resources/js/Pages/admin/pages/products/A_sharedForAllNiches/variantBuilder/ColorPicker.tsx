@@ -16,7 +16,7 @@ const DB_COLORS = [
 
 interface ColorPickerProps {
   value: string | null;
-  colorName: string | null;
+  colorName?: string | null;
   onChange: (hex: string, name: string) => void;
   theme: ThemePalette;
 }

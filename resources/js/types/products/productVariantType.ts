@@ -1,18 +1,7 @@
+import { ProductSchemaType } from "@/shemas/productSchema";
 import { Color, Size } from "../inventoryTypes";
 
-export interface Variant {
-  variant_id: string;
-  price: number | null ;
-  compare_price : number ; 
-  stock: number | null;
-  sku: string | null;
-  image:{
-      id? : number , 
-      url : string
-  };       // manual override per variant
-  isOpen: boolean;    
-  attrs: VariantAttr | null;
-}
+export type Variant = ProductSchemaType["variants"][number]
 
 
 type VariantAttr = {

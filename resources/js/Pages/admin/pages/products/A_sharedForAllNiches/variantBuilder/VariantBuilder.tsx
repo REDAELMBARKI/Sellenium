@@ -6,9 +6,8 @@ import OptionSelector from "./OptionSelector";
 import VariantCard from "./VariantCard";
 import GenerateModal from "./GenerateModel";
 import { useProductDataCtx } from "@/contextHooks/product/useProductDataCtx";
-import { variantSchema } from "@/shemas/productSchema";
+import { ProductSchemaType, variantSchema } from "@/shemas/productSchema";
 import { useFieldArray } from "react-hook-form";
-import { ProductBase } from "@/types/products/ProductTypes";
 import { useToast } from "@/contextHooks/useToasts";
 import { Button } from "@/components/ui/button";
 
@@ -20,7 +19,7 @@ export default function VariantBuilder() {
   const newCardRef = useRef<HTMLDivElement>(null);
   const { control, formState: { errors } } = useProductDataCtx();
   const { addToast } = useToast();
-  const { fields: variants, append, remove, update } = useFieldArray<ProductBase, 'variants'>({
+  const { fields: variants, append, remove, update } = useFieldArray<ProductSchemaType, 'variants'>({
     control,
     name: 'variants'
   });
@@ -29,7 +28,7 @@ export default function VariantBuilder() {
   const [defaultVariantsPrice, setDefaultVariantsPrice] = useState<number | undefined>();
   const variantStep2Ref = useRef<HTMLDivElement>(null);
   const [variantErrors, setVariantErrors] = useState<Record<string, any>>({});
-
+  console.log("variants" , variants)
   // FIX #1 — use a ref to only initialize activeOptions once in edit mode
   // Previously this ran on every variants.length change, resetting user-selected options
   const hasInitialized = useRef(false);
@@ -54,10 +53,7 @@ export default function VariantBuilder() {
       stock: 0,
       compare_price: 0,
       sku: null,
-      image: {
-        url: '',
-        id: null
-      },
+      images: [],
       isOpen: true,
     };
     append(newVariant);
@@ -67,6 +63,7 @@ export default function VariantBuilder() {
   }, [hasOpenCard, append, defaultVariantsPrice]);
 
   const updateVariant = (id: string, field: string, value: any) => {
+    console.log("here" , value)
     const index = variants.findIndex(f => f.variant_id === id);
     if (index === -1) return;
 
@@ -77,7 +74,7 @@ export default function VariantBuilder() {
       update(index, { ...current, attrs: { ...(current.attrs ?? {}), [attrKey]: value } });
       return;
     }
-
+    
     update(index, { ...current, [field]: value });
   };
 
@@ -163,7 +160,7 @@ export default function VariantBuilder() {
     if (unique.length < generated.length) {
       addToast({
         title: 'Some duplicates were skipped',
-        type: 'warning',
+        type: "info",
         duration: 2000
       });
     }

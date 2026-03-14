@@ -23,8 +23,8 @@ class ProductVariant extends Model
     'stock' => 'int' ,
     ] ;
 
-    public function media(){
-        return $this->morphOne(Media::class , 'mediaable');
+    public function images(){
+        return $this->morphMany(Media::class , 'mediaable');
     }
  
 }

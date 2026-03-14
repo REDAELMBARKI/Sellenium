@@ -23,10 +23,10 @@ export const variantSchema = z.object({
     .number({ required_error: "Stock is required", invalid_type_error: "Stock must be a number" })
     .min(0, "Stock must be 0 or more"),
   sku:    z.string().nullable().optional(),                               // optional on variants
-  image:  z.object({
+  images:  z.array(z.object({
     url: z.string().optional(),
     id:  z.number().nullable().optional(),
-  }).nullable().optional(),
+  })).nullable().optional(),
   isOpen: z.boolean().nullable().optional(),
   attrs:  z.record(z.string(), z.union([z.string(), colorSchema])).nullable().optional(),
 });

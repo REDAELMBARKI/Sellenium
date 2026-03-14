@@ -106,9 +106,9 @@ function CreateVariantForm({
   const handleBlur = (field: string) => {
     const value = local[field as keyof typeof local];
     if (field === 'sku') {
-      onChange(variant.variant_id, field, value);
+      onChange(String(variant.variant_id), field, value);
     } else {
-      onChange(variant.variant_id, field, value === '' ? null : Number(value));
+      onChange(String(variant.variant_id), field, value === '' ? null : Number(value));
     }
   };
 
@@ -127,7 +127,7 @@ function CreateVariantForm({
         }
         const newVariants = freshVariants.map(v => v.variant_id === variantIdSnapshot ? {
           ...v,
-          image: { url: media.url, id: media.id }
+          images: [...(v.images || []) , { url: media.url, id: media.id }]
         } : v);
         setValue('variants', newVariants);
       }
@@ -142,7 +142,7 @@ function CreateVariantForm({
     deleteMedia(String(imgId));
     const updated = getValues('variants').map(v =>
       v.variant_id === variant.variant_id
-        ? { ...v, image: { url: '', id: undefined } }
+        ? { ...v, images: (v.images || []).filter(m => m.id ?  String(m.id) != imgId : false) }
         : v
     );
     setValue('variants', updated);
@@ -158,7 +158,7 @@ function CreateVariantForm({
           <ColorPicker
             value={colorHex}
             onChange={(hex, name) => {
-              onChange(variant.variant_id, "attrs.color", { hex, name });
+              onChange(String(variant.variant_id), "attrs.color", { hex, name });
               setOverrideImage(false);
             }}
             theme={theme}
@@ -190,9 +190,8 @@ function CreateVariantForm({
                     label={`— pick ${optKey} —`}
                     selectedValues={selectedValues}
                     onChange={(selected) => {
-                      // FIX #2 — guard against empty selection / cleared dropdown
                       if (!selected?.length || selected[0]?.value == null) return;
-                      onChange(variant.variant_id, `attrs.${optKey}`, selected[0].value);
+                      onChange(String(variant.variant_id), `attrs.${optKey}`, selected[0].value);
                     }}
                     multiple={false}
                     options={(variants_options[optKey] || []).map(o => ({ value: o.value, label: o.value }))}
@@ -263,7 +262,7 @@ function CreateVariantForm({
         </div>
       </div>
 
-      {/* Image */}
+      {/* Images */}
       <div style={{ marginTop: 12 }}>
         <label className={labelClassName} style={{ color: theme.text }}>Image</label>
         {inheritedImage && !overrideImage ? (
@@ -282,30 +281,32 @@ function CreateVariantForm({
           </div>
         ) : (
           <div className="flex items-center gap-4">
-            {variant.image?.url ? (
+             {
+              (variant.images || []).map(image => {
+                  return image?.url && (
               <div style={{ position: "relative", width: 64, height: 64, flexShrink: 0 }}>
-                <img src={variant.image?.url} alt="" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 12, border: `2px solid ${theme.border}`, display: "block" }} />
+                <img src={image?.url} alt="" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 12, border: `2px solid ${theme.border}`, display: "block" }} />
                 <button type="button"
-                  // FIX #3 — no longer using String(undefined)
-                  onClick={() => handleRemoveVariantImage(variant, variant.image?.id)}
+                  onClick={() => handleRemoveVariantImage(variant, String(image?.id))}
                   style={{ position: "absolute", top: -6, right: -6, background: theme.error, border: "none", borderRadius: "50%", width: 20, height: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0 }}>
                   <Trash2 size={10} color="#fff" />
                 </button>
-              </div>
-            ) : (
+              </div>)
+              })
+             }
+             {/* updaloader */}
               <div onClick={() => imgRef.current?.click()} className="flex flex-col items-center justify-center gap-1 cursor-pointer"
                 style={{ width: 64, height: 64, borderRadius: 10, border: `2px dashed ${theme.border}`, background: theme.bg, flexShrink: 0 }}>
                 <Upload size={16} color={theme.textMuted} />
                 <span style={{ fontSize: 9, color: theme.textMuted }}>upload</span>
               </div>
-            )}
-            <Input ref={imgRef} type="file" accept="image/*" hidden onChange={(e) => handleVariantImageUpload(variant.variant_id, e)} />
+            <Input ref={imgRef} type="file" accept="image/*" hidden onChange={(e) => handleVariantImageUpload(String(variant.variant_id), e)} />
             <div>
               <p className="text-sm" style={{ color: theme.textSecondary }}>
-                {variant.image?.url ? "Custom image for this variant" : "Upload a specific image for this variant"}
+                {variant.images?.[0]?.url ? "Custom image for this variant" : "Upload a specific image for this variant"}
               </p>
               {inheritedImage && (
-                <Button type="button" onClick={() => { onChange(variant.variant_id, "imageUrl", null); setOverrideImage(false); }}
+                <Button type="button" onClick={() => { onChange(String(variant.variant_id), "imageUrl", null); setOverrideImage(false); }}
                   className="text-xs mt-1" style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 0 }}>
                   ← Use inherited image
                 </Button>
@@ -317,7 +318,7 @@ function CreateVariantForm({
 
       {/* Actions */}
       <div className="flex justify-end gap-3 mt-6">
-        <Button type="button" onClick={() => onRemove(variant.variant_id)} className="px-4 py-2 rounded-xl text-sm font-medium"
+        <Button type="button" onClick={() => onRemove(String(variant.variant_id))} className="px-4 py-2 rounded-xl text-sm font-medium"
           style={{ border: `2px solid ${theme.border}`, background: "transparent", color: theme.textMuted, cursor: "pointer" }}>
           Remove
         </Button>
@@ -354,8 +355,8 @@ export default function VariantCard({
     .filter(Boolean).join(" / ") || "New Variant";
 
   const inheritedImage = colorHex ? colorImages[colorHex] : null;
-  const displayImage   = variant.image?.url || inheritedImage;
-  const isInherited    = !variant.image?.url && !!inheritedImage;
+  const displayImage   = variant.images?.[0]?.url || inheritedImage;
+  const isInherited    = !variant.images?.[0]?.url && !!inheritedImage;
 
   const handleDone = () => {
     const result = variantSchema.safeParse(variant);
@@ -379,7 +380,7 @@ export default function VariantCard({
     }
 
     setErrors(null);
-    onDone(variant.variant_id);
+    onDone(String(variant.variant_id) ?? '');
   };
 
   return (
@@ -426,10 +427,14 @@ export default function VariantCard({
           </span>
         )}
 
-        <Button type="button" onClick={() => onChange(variant.variant_id, "isOpen", !variant.isOpen)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
+        <Button type="button" onClick={() => {
+            if(!variant.variant_id) return ; 
+            console.log(variant)
+            onChange(String(variant.variant_id), "isOpen", !variant.isOpen)
+        }} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
           <ChevronDown size={14} style={{ transform: variant.isOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }} />
         </Button>
-        <Button type="button" onClick={() => onRemove(variant.variant_id)} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
+        <Button type="button" onClick={() => onRemove(String(variant.variant_id))} style={{ background: "none", border: "none", cursor: "pointer", color: theme.textMuted, padding: 2 }}>
           <X size={14} />
         </Button>
       </div>

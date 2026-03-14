@@ -14,8 +14,14 @@ class ProductResources extends JsonResource
     public function toArray(Request $request) 
     {
 
-      $variants = $this->whenLoaded("variants");
-      $single = collect($variants ?? [])->first(fn($v) => $v->is_single) ?? null ;
+      $variants = collect($this->whenLoaded("variants") ?? collect([]) )->map(function($v){
+        $v->variant_id = $v->id ;
+        unset($v->id) ;
+        return $v ;
+      });
+
+    
+      $single = $variants->first(fn($v) => $v->is_single) ?? null ;
       $res =  [
             ...parent::toArray($request) ,
             'tags' => $this->tags->pluck('name'),
