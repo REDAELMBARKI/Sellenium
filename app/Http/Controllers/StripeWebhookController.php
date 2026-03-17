@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderConfirmed;
 use App\Services\Payment\StripePaymentGateway;
 use App\Models\Order;
+use App\Services\StockService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -65,7 +67,7 @@ class StripeWebhookController extends Controller
     }
 
 
-    private function onPaymentSucceeded($event): void
+    private function onPaymentSucceeded($event , StockService $stockService): void
     {   
         $intent = $event->data->object;
         $order  = Order::find($intent->metadata->order_id);
@@ -77,5 +79,8 @@ class StripeWebhookController extends Controller
             'paid_at'        => now(),
             'order_status'   => 'confirmed',
         ]);
+        // update stock
+        event(new OrderConfirmed($order)) ;
+        
     }
 }

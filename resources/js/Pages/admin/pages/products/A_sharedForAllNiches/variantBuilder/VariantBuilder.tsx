@@ -28,14 +28,10 @@ export default function VariantBuilder() {
   const [defaultVariantsPrice, setDefaultVariantsPrice] = useState<number | undefined>();
   const variantStep2Ref = useRef<HTMLDivElement>(null);
   const [variantErrors, setVariantErrors] = useState<Record<string, any>>({});
-  console.log("variants" , variants)
-  // FIX #1 — use a ref to only initialize activeOptions once in edit mode
-  // Previously this ran on every variants.length change, resetting user-selected options
   const hasInitialized = useRef(false);
   useEffect(() => {
     if (modeForm === 'edit' && variants.length > 0 && !hasInitialized.current) {
       const attrs = variants[0]?.attrs;
-      // FIX — defend backend data: attrs could be null, string, or not an object
       if (!attrs || typeof attrs !== 'object') return;
       const optionToBeSelected = Object.keys(attrs).map(el => el.toLowerCase());
       if (optionToBeSelected.length === 0) return;
@@ -63,22 +59,20 @@ export default function VariantBuilder() {
   }, [hasOpenCard, append, defaultVariantsPrice]);
 
   const updateVariant = (id: string, field: string, value: any) => {
-    console.log("here" , value)
-    const index = variants.findIndex(f => f.variant_id === id);
+
+    const index = variants.findIndex(v => String(v.variant_id) == id);
     if (index === -1) return;
 
     const current = variants[index];
-
+    
     if (field.startsWith("attrs.")) {
       const attrKey = field.replace("attrs.", "");
       update(index, { ...current, attrs: { ...(current.attrs ?? {}), [attrKey]: value } });
       return;
     }
-    
     update(index, { ...current, [field]: value });
   };
 
-  // FIX #3 — also clean up variantErrors when a variant is removed
   const removeVariant = (id: string) => {
     const index = variants.findIndex(f => f.variant_id === id);
     if (index === -1) return;
@@ -227,7 +221,7 @@ export default function VariantBuilder() {
                 <input
                   placeholder="0"
                   type="number"
-                  // FIX #2 — defaultVariantsPrice is undefined not null, ?? handles both
+                  // FIX #2 — dedaultVariantsPrice is undefined not null, ?? handles both
                   value={defaultVariantsPrice ?? ''}
                   onChange={(e) => setDefaultVariantsPrice(e.target.value === '' ? undefined : Number(e.target.value))}
                   className="px-3 py-2 rounded-xl text-sm font-medium w-24"

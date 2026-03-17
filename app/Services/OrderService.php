@@ -30,7 +30,8 @@ class OrderService
                                     private PromotionService $promotionService , 
                                     private ShippingService $shippingService ,
                                     private TaxService $taxService ,
-                                    private OrderFinalizerService $orderFinalizerService
+                                    private OrderFinalizerService $orderFinalizerService , 
+                                    private StockService $stockService
                                     
                                   ){
         }
@@ -95,6 +96,7 @@ class OrderService
               $order =  $this->createOrderMaster($contextUpdate->dto);
               if($order){
                  $this->orderFinalizerService->finalize($order);
+                 $this->stockService->decrementFromOrder($order);
               }
               return $order ;
             }catch(Exception $e){
