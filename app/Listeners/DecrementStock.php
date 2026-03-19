@@ -12,13 +12,15 @@ class DecrementStock
     /**
      * Create the event listener.
      */
+    use InteractsWithQueue ;
+
     public function __construct(public StockService $stockService)
     {
         //
     }
 
     /**
-     * Handle the event.
+     * Handle the event.php artisan queue:failed-table
      */
     public function handle(OrderConfirmed $event): void
     {

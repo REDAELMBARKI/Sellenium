@@ -25,7 +25,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Order::observe(OrderObserver::class);
         Vite::prefetch(concurrency: 3);
-        Route::middleware('web') // or 'api' if you want
+        Route::middleware('web') 
+            ->group(base_path('routes/web.php'));
+        Route::middleware('web')
             ->group(base_path('routes/api.php'));
+        Route::middleware('web')
+            ->group(base_path('routes/auth.php'));
     }
 }

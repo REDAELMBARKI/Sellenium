@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\UserLogin;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CurstomerController;
@@ -23,7 +24,12 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Jobs\WelcomeBack;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Auth;
 use Termwind\Components\Raw;
+
+
 
 // auth 
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
@@ -31,22 +37,6 @@ Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
    
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
     ->name('google.callback');
-
-Route::get('/login', [AuthenticatedSessionController::class, 'create'])
-    ->name('login');
-
-
-Route::get('/logout', [AuthenticatedSessionController::class, 'destroy'])
-    ->name('logout');    
-    
-Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-    ->name('login.store');
-
-Route::get('/register', [RegisteredUserController::class, 'create'])
-    ->name('register');
-    
-Route::post('/register', [RegisteredUserController::class, 'store'])
-    ->name('register.store');
 
 
 Route::get('/', function () {

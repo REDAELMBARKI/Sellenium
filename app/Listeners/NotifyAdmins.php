@@ -6,12 +6,14 @@ use App\Events\OrderConfirmed;
 use App\Mail\OrderConfirmedMail;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Mail;
 
-class NotifyAdmins
+class NotifyAdmins implements ShouldQueue
 {
-    
+    use InteractsWithQueue ;
     public function handle(OrderConfirmed $event): void
     {
         $admins = $this->getRecipients() ;

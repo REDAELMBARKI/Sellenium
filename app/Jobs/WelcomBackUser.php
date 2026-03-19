@@ -2,17 +2,18 @@
 
 namespace App\Jobs;
 
+use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class SendWelcomeEmail implements ShouldQueue
+class WelcomBackUser implements ShouldQueue
 {
     use Queueable;
 
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct(private User $user)
     {
         //
     }
@@ -22,6 +23,6 @@ class SendWelcomeEmail implements ShouldQueue
      */
     public function handle(): void
     {
-        //
+      logger("hello user welcome back test" ) ;
     }
 }
