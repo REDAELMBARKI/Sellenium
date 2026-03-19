@@ -30,8 +30,8 @@ class OrderAction
         if($dto->payment_method == 'COD'){
            $order =  $this->orderService->placeOrder($context);
            $result = [
-               'order_id' => $order->id,
-               'tracking_token' => $order->tracking_token
+               'order_id' => $order?->id,
+               'tracking_token' => $order?->tracking_token
            ];
         }else{
            $gateway  = $this->gatewayFactory->make($context->dto->payment_method);

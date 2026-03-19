@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
@@ -14,6 +15,10 @@ class CategoryController extends Controller
         ]) ;
         $subCategories = Category::where('parent_id' ,$request->parent_id )->get(['id' , 'name']) ;
         return response()->json($subCategories);
+    }
+
+    public function create(){
+        return Inertia::render("admin/pages/categories/Create") ;
     }
 
   

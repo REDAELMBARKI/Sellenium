@@ -94,10 +94,7 @@ class OrderService
 
             try{
               $order =  $this->createOrderMaster($contextUpdate->dto);
-              if($order){
-                 $this->orderFinalizerService->finalize($order);
-                 $this->stockService->decrementFromOrder($order);
-              }
+              $this->orderFinalizerService->finalize($order);
               return $order ;
             }catch(Exception $e){
                throw new CheckoutException($e->getMessage());

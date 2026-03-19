@@ -97,19 +97,20 @@ Route::post('/sheets', [DriveController::class, 'auth'])
 
 // products
 // Route::resource('/products', ProductController::class );
-Route::get('/products/drafts' , [ProductController::class, 'drafts'])->name('drafts.index') ;
-Route::get('/products' , [ProductController::class, 'index'])->name('products') ;
-Route::get('/products/create' , [ProductController::class, 'create']) ;
-Route::get('/products/{product}/edit' , [ProductController::class, 'edit'])->name('product.edit') ;
-Route::get('/products/{product}' , [ProductController::class, 'show'])->name('product.show') ;
-
-// drafts
-Route::post('/products' , [ProductController::class, 'storeDraft'])->name('products.storeDraft');
-Route::patch('/products/{product}/publish' , [ProductController::class, 'publish'])->name('product.publish');
-Route::delete('/products/{product}' , [ProductController::class, 'destroy'])->name("product.destroy") ;
-Route::put('/products/{product}/leave',  [ProductController::class, 'updateOnPageLeave'])->name('draft.save.leave');
-Route::put('/products/{product}/submit', [ProductController::class, 'updateOnSubmit'])->name('draft.save.submit');
-Route::post("/{product}/duplicate" , [ProductController::class,"duplicate"])->name("draft.duplicate");
+Route::prefix('products')->group(function(){
+    Route::get('' , [ProductController::class, 'index'])->name('products') ;
+    Route::get('/drafts' , [ProductController::class, 'drafts'])->name('drafts.index') ;
+    Route::get('/create' , [ProductController::class, 'create']) ;
+    Route::get('/{product}/edit' , [ProductController::class, 'edit'])->name('product.edit') ;
+    Route::get('/{product}' , [ProductController::class, 'show'])->name('product.show') ;
+  // drafts
+    Route::post('/drafts' , [ProductController::class, 'storeDraft'])->name('products.storeDraft');
+    Route::patch('/{product}/publish' , [ProductController::class, 'publish'])->name('product.publish');
+    Route::delete('/{product}' , [ProductController::class, 'destroy'])->name("product.destroy") ;
+    Route::put('/{product}/leave',  [ProductController::class, 'updateOnPageLeave'])->name('draft.save.leave');
+    Route::put('/{product}/submit', [ProductController::class, 'updateOnSubmit'])->name('draft.save.submit');
+    Route::post("/{product}/duplicate" , [ProductController::class,"duplicate"])->name("draft.duplicate");
+})->can('manage-products');
 // media section
 // store media route
 Route::post('/media' , [MediaController::class, 'store'])->name('media.store') ;
@@ -155,16 +156,18 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 Route::get('/coupons' , [CouponController::class,'index'])->name('get.coupons') ; 
 
 // promotions
-Route::get('/promotions' , [PromotionController::class,'index'])->name('get.promotions') ; 
+Route::get('/promotions' , [PromotionController::class,'index'])->name('get.promotions') ;
 
 
 // oderes
 // OrderManager
-Route::get('/orders' , [OrderController::class, 'index'])->middleware('auth')->name('orders.index') ;
-// after checkout sucess 
-Route::get("orders/{order}/track" , [OrderController::class, 'authTrack'])->middleware('auth')->name('track.auth') ;
-Route::get('/track/{token}', [OrderController::class, 'guestTrack'])
-    ->where('token', '[0-9a-f-]{36}')->name('track.guest') ;
+Route::prefix('orders')->group(function(){
+    Route::get('/orders' , [OrderController::class, 'index'])->middleware('auth')->name('orders.index') ;
+    // after checkout sucess
+    Route::get("orders/{order}/track" , [OrderController::class, 'authTrack'])->middleware('auth')->name('track.auth') ;
+    Route::get('/track/{token}', [OrderController::class, 'guestTrack'])
+        ->where('token', '[0-9a-f-]{36}')->name('track.guest') ;
+})->can('manage-orders');
 
 // coupon aplly ajaxrequest
 Route::post('/coupon_feedback', [CouponController::class,'coupon_feedback'])->name('coupon.feedback');

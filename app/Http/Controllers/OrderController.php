@@ -94,12 +94,9 @@ class OrderController extends Controller
     }
 
 
-
-    
     public function checkout(CheckoutOrderRequest $request , OrderAction $action , CartService $cartService)
     
     {
-
         try{
                 if ($request->payment_method === 'CARD' && !Auth::check()) {
                         return back()->withErrors([

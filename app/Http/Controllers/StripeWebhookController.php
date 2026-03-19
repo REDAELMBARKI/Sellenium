@@ -50,13 +50,12 @@ class StripeWebhookController extends Controller
     // payment failed
     private function onPaymentFailed($event): void
     {
-
             $intent = $event->data->object;
             $orderId = $intent->metadata->order_id;
             $order = Order::find($orderId);
             if (!$order) return;
             $order->update(['payment_status' => 'failed']);
-
+            event() ; // failed payment later
     }
 
     // refund status updated
@@ -64,11 +63,12 @@ class StripeWebhookController extends Controller
     {
         $refund = $event->data->object;
         // update your payment record status
+
     }
 
 
-    private function onPaymentSucceeded($event , StockService $stockService): void
-    {   
+    private function onPaymentSucceeded($event): void
+    {
         $intent = $event->data->object;
         $order  = Order::find($intent->metadata->order_id);
         if (!$order) return;

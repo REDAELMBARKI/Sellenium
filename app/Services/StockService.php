@@ -79,9 +79,9 @@ class StockService
       public function decrementFromOrder(Order $order): void
       {
         $order->load("items.productVariant");
+        
         ($order->items)->each(function($item){
             $item->productVariant->decrement('stock',  $item->quantity);
-
         });
       
       }

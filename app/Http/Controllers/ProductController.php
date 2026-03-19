@@ -127,9 +127,6 @@ class ProductController extends Controller
         
         
     public function edit(Product $product){
-
-            // gates product management 
-            
             try {
             $product = $product->load(['thumbnail', 'covers', 'videos', 'tags', 'variants.images', 'subCategories']);
             $parents = DB::table('variants_options_settings')->whereNull('parent_id')->get(['key']) ;

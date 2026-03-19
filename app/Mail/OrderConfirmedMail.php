@@ -29,7 +29,7 @@ class OrderConfirmedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from : new Address(config('mail' , "pther email address ")) ,
+            from : new Address(config('mail' , "other email address ")) ,
             subject: 'Order Confirmed Mail',
         );
     }
