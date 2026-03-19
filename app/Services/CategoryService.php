@@ -3,12 +3,35 @@
 namespace App\Services;
 
 use App\Models\Category;
+use App\Models\Coupon;
+use App\Models\Promotion;
+use App\Services\Discount\CouponService;
+use App\Services\Discount\PromotionService;
 use Illuminate\Database\Eloquent\Collection;
 
 class CategoryService
 {
     
-  
+    
+    public function getAllCats(CouponService $couponService , PromotionService $promotionService){
+        $subs = Category::whereNotNull("parent_id")->with('parent' )->get();
+        $nichs = Category::whereNull("parent_id")->with('childrens')->get();
+        $allCoupons =  $couponService->getDbCoupons();
+        $allPromotions =  $promotionService->getDbPromotions();
+       return collect($subs)->merge($nichs)->map(function($cat) use($allCoupons , $allPromotions){
+            $collumn = $cat->parent_id ? "applicable_sub_category_ids" : "applicable_category_ids" ;
+            $cat->coupons = $allCoupons->filter(function($c) use ($cat , $collumn){
+                return in_array($cat->id , $c->$collumn ?? []);
+            });
+
+           $cat->promotions = $allPromotions->filter(function($c) use ($cat , $collumn){
+                return in_array($cat->id , $c->$collumn ?? []);
+            });
+
+            return $cat ;
+        });
+        
+    } 
     public function get_niche_cats(){
         return  Category::where('parent_id' , null)->get(['id' , 'name']) ;
     }

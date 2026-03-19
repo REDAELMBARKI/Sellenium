@@ -72,9 +72,4 @@ abstract class DiscountService
             return 0;
         }
 
-     
-    
-
-        
-
 }

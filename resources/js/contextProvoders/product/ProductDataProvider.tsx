@@ -4,7 +4,7 @@ import { ModeForm, ProductDataContext } from '@/context/product/ProductDataConte
 import {  Category, Cover } from '@/types/inventoryTypes';
 import { getEditedData, getEmptyInitialProductData } from '@/data/initialProductData';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import { CategoriesList } from './../../Pages/admin/pages/categories/CategoriesList';
+import { CategoriesList } from '../../Pages/admin/pages/categories/Index';
 import { ProductBackendProps } from '@/types/products/ProductTypes';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

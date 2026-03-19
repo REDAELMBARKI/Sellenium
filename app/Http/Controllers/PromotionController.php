@@ -3,16 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Promotion;
+use App\Services\Discount\PromotionService;
 use Illuminate\Http\Request;
 
 class PromotionController extends Controller
 {
-      public function index()
+
+
+    public function __construct(private PromotionService $promotionService)
     {
-        $promotions = Promotion::where('is_active', true)
-            ->whereNull('valid_until')
-            ->orWhere('valid_until', '>', now())
-            ->get();
+        throw new \Exception('Not implemented');
+    }
+      public function getAll()
+    {
+        $promotions = $this->promotionService->getDbPromotions();
       
         return response()->json($promotions);
     }

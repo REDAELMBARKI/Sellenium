@@ -10,6 +10,7 @@ import {
   MoreVertical,
 } from 'lucide-react';
 import { useState} from 'react';
+import { route } from 'ziggy-js';
 
 // Types
 interface SubLink {
@@ -371,14 +372,15 @@ export function Sidebar() {
                     }}
                   >
                     {item.subLinks.map((subLink, subIndex) => {
-                      const SubIcon = subLink.icon;
-                      const isSubActive = url === subLink.href;
+                          const SubIcon = subLink.icon;
+                          const isSubActive = url === subLink.href;
+                          const isDisabled = !subLink.href;  
 
-                      return (
-                        <Link
-                          key={subLink.href}
-                          href={subLink.href}
-                         
+                          return (
+                            <Link
+                              key={`${subLink.title}-${subIndex}`}            
+                              href={isDisabled ? '#' : route(subLink.href)}  
+                                                
                           style={{
                             display: 'flex',
                             alignItems: 'center',

@@ -100,7 +100,7 @@ Route::post('/sheets', [DriveController::class, 'auth'])
 Route::prefix('products')->group(function(){
     Route::get('' , [ProductController::class, 'index'])->name('products') ;
     Route::get('/drafts' , [ProductController::class, 'drafts'])->name('drafts.index') ;
-    Route::get('/create' , [ProductController::class, 'create']) ;
+    Route::get('/create' , [ProductController::class, 'create'])->name('products.create') ;
     Route::get('/{product}/edit' , [ProductController::class, 'edit'])->name('product.edit') ;
     Route::get('/{product}' , [ProductController::class, 'show'])->name('product.show') ;
   // drafts
@@ -125,8 +125,10 @@ Route::delete('/media', [MediaController::class, 'destroyBulk'])
 
 // catgeories secion
 
-Route::get('/subCategories' , [CategoryController::class,'subCategories'])->name('get.sub_categories');
-
+Route::get('api/subCategories' , [CategoryController::class,'subCategories'])->name('get.sub_categories');
+Route::get('/categories' , [CategoryController::class, 'index'])->name("categories.index");
+Route::get('/categories/create' , [CategoryController::class, 'create'])->name("categories.create");
+// Route::get('/categories' , [CategoryController::class, 'tree'])->name("categories.tree");
 //end categories section
 
 
@@ -153,10 +155,10 @@ Route::get('/variants/sizes' , [VariantsController::class, 'sizes']) ;
 
 //marketing 
 // coupons 
-Route::get('/coupons' , [CouponController::class,'index'])->name('get.coupons') ; 
+Route::get('/coupons' , [CouponController::class,'getAll'])->name('get.coupons') ;
 
 // promotions
-Route::get('/promotions' , [PromotionController::class,'index'])->name('get.promotions') ;
+Route::get('/promotions' , [PromotionController::class,'getAll'])->name('get.promotions') ;
 
 
 // oderes

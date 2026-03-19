@@ -19,8 +19,14 @@ use Illuminate\Support\Facades\Log;
 
 class CouponService extends DiscountService
 {
+   
+        public function getDbCoupons(){
+            return Coupon::where('is_active', true)
+            ->whereNull('valid_until')
+            ->orWhere('valid_until', '>', now())
+            ->get();
+        }
 
- 
         public function getDbCouponCodeMatch(string $coupon_code){
                  return Coupon::where('code' , $coupon_code)
                      ->where('is_active' , true)

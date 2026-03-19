@@ -16,6 +16,16 @@ class Promotion extends Model
         'applicable_category_ids' => 'array',
         'applicable_sub_category_ids' => 'array'
     ];
+    protected $hidden = [
+        'times_used',
+        'max_uses',
+        'priority',
+        'created_at',
+        'updated_at',
+        'applicable_category_ids',
+        'applicable_product_ids',
+        'applicable_sub_category_ids',
+    ];
 
     public function products(){
          return $this->hasMany(Promotion::class);

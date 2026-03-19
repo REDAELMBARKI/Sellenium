@@ -16,13 +16,9 @@ class CouponController extends Controller
     }
     
 
-     public function index()
+     public function getAll()
     {
-        $coupons = Coupon::where('is_active', true)
-            ->whereNull('valid_until')
-            ->orWhere('valid_until', '>', now())
-            ->get();
-
+        $coupons = $this->couponService->getDbActiveCoupons() ;
         return response()->json($coupons);
     }
 
