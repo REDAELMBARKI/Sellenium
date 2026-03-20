@@ -25,7 +25,7 @@ class Product extends Model
     'rating_average',
     'rating_count',
     'shipping',
-    'aggregated_attributes',
+    'attrs',
     'inventory',
     'meta',
     'vendor',
@@ -57,14 +57,8 @@ class Product extends Model
         'vendor'                => 'array',
         'faqs'                  => 'array',
         'related_product_ids'   => 'array',
-        'aggregated_attributes' => 'array',
+        'attrs' => 'array',
     ];
-  
-
-
-    public function attrs(){
-         return $this->belongsToMany(ProductAttribute::class , 'attribute_product');
-    }
 
     public function variants(){
       return   $this->hasMany(ProductVariant::class , 'product_id' , 'id') ;

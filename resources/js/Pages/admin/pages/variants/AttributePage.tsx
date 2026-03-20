@@ -15,7 +15,7 @@ import { attributesActions } from '@/store/actions/attributesActions';
 
 
 
-function AttributePage({attributes} : {attributes : Attribute[]}) {
+function AttributePage({attributes = []} : {attributes : Attribute[]}) {
     return (
       <Provider store={store}>
            <AttribueContent {...{attributes}} />
@@ -26,7 +26,7 @@ export default AttributePage ;
 
 AttributePage.layout = (page : any) => <AdminLayout  children={page} />
 
-function AttribueContent({attributes = []} : {attributes : Attribute[]} ) {
+function AttribueContent({attributes } : {attributes : Attribute[]} ) {
   const [isAddAttributeOpen, setIsAddAttributeOpen] = useState(false);
   const [isAddValueOpen, setIsAddValueOpen] = useState(false);
   const [editingAttribute, setEditingAttribute] = useState<Attribute | null>(null);
@@ -47,7 +47,7 @@ function AttribueContent({attributes = []} : {attributes : Attribute[]} ) {
         dataInitializer} = attributesActions() ;
  
   useEffect(() => {
-      dispatch({type : dataInitializer() , payload : {data : {attributes , activeAttributeId : attributes[0].id}}  })
+      dispatch({type : dataInitializer() , payload : {data : {attributes , activeAttributeId : attributes?.[0]?.id}}  })
   }, [attributes  , dispatch]);
 
  

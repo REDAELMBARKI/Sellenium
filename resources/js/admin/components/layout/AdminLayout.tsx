@@ -1,7 +1,7 @@
 
 
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { Header } from "./Header";
 import { AuthProvider } from "@/admin/context/AuthContext";
@@ -27,43 +27,33 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
 
 const AdminLayoutContent = ({ children }: { children: ReactNode }) => {
-  const { admin, isLoading } = useAuth();
-  const {state :{currentTheme}} = useStoreConfigCtx()
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center text-gray-700">
-        Loading...
-      </div>
-    );
-  }
-
-  // if (!admin) {
-  //   // Inertia.visit("/admin/login"); 
-  //   return null;
-  // }
+  const { isLoading } = useAuth();
+  const { state: { currentTheme } } = useStoreConfigCtx();
+  const [collapsed, setCollapsed] = useState(false); // ← lift state here
 
   return (
-    <div className="flex h-dvh" 
-    >
-  {/* Sidebar: fixed width, full height, stays visible */}
-  <div className="w-64 flex-shrink-0 h-full">
-    <Sidebar />
-  </div>
+    <div className="flex h-dvh overflow-hidden">
 
-  {/* Main content area */}
-  <div className="flex-1 flex flex-col overflow-hidden">
-    {/* Header fixed height */}
-    <Header />
+      {/* ← dynamic width instead of hardcoded w-64 */}
+      <div style={{
+        width: collapsed ? '72px' : '256px',
+        minWidth: collapsed ? '72px' : '256px',
+        flexShrink: 0,
+        height: '100%',
+        transition: 'width 0.3s ease, min-width 0.3s ease',
+      }}>
+        <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+      </div>
 
-    {/* Scrollable content */}
-    <main className="flex-1  overflow-auto " 
-    style={{color : currentTheme.text , background : currentTheme.bgSecondary}}
-    >
-      {children}
-    </main>
-  </div>
-</div>
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <Header />
+        <main className="flex-1 overflow-auto"
+          style={{ color: currentTheme.text, background: currentTheme.bgSecondary }}
+        >
+          {children}
+        </main>
+      </div>
+
+    </div>
   );
 };
-export default AdminLayoutContent;

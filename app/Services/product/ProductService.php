@@ -42,8 +42,6 @@ class ProductService {
             $updatedVariants = $this -> resolveVariants($payload);
             $this-> storeVariants($product ,$updatedVariants );
             $this->evaluateProductScore($product);
-            //store attribtes
-            $this->storeProductAttributes($product , $payload['product_attributes']);
             // coupons and promotions related to this product
             $this->attachApplicableProducts($product, $payload['promotion_ids'] ?? [], Promotion::class);
             $this->attachApplicableProducts($product, $payload['coupon_ids'] ?? [], Coupon::class);
@@ -320,33 +318,6 @@ class ProductService {
     }
 
 
-    public function storeProductAttributes(Product $product, array $attributes): void
-    {
-
-            $product->attrs()->detach();
-            ProductAttribute::upsert(
-                collect($attributes)->map(fn($attr) => [
-                    'key'        => $attr['key'],
-                    'value'      => $attr['value'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ])->toArray(),
-                ['key', 'value'],
-                ['updated_at']
-            );
-            
-             $ids = collect($attributes)->map(fn($attr) =>
-                    ProductAttribute::where('key' , $attr['key']) 
-                                     ->where('value', $attr['value'])
-                                      ->value('id') 
-             );
-
-            $product->attrs()->sync($ids);
-            // remove any none used attributes 
-            ProductAttribute::doesntHave('products')->delete();
-    }
-
-
 
     public function duplicate(Product $product){
        $product->load(['variants', 'media', 'attributes', 'subCategories']);
@@ -376,10 +347,7 @@ class ProductService {
         // replicate (categories)
         $newProduct->subCategories()->attach($product->subCategories->pluck('id'));
 
-        //  replicate attributes
-        foreach ($product->attributes as $attribute) {
-            $newProduct->attrs()->attach($attribute->id);
-        }
+
     }
 
 

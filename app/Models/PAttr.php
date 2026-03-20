@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Attributes extends Model
+class PAttr extends Model
 {
     
-
+    protected $table = 'product_attributes' ;
     protected $fillable = [
         'name',
         'slug',

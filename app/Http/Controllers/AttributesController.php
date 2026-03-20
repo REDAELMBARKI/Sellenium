@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attributes;
 use App\Models\AttributesValues;
+use App\Models\PAttr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
@@ -13,10 +14,8 @@ class AttributesController extends Controller
 {
     public function index()
     {
-        // IDs of common attributes to preload values
-        $commonForInitFetch = Attributes::whereIn('name', ['color', 'material'])->pluck('id');
-        // Get all attributes
-        $attributes = Attributes::with(['values' => function ($q) use ($commonForInitFetch) {
+        $commonForInitFetch = PAttr::whereIn('key', ['color', 'material' , 'size'])->pluck('id');
+        $attributes = PAttr::with(['values' => function ($q) use ($commonForInitFetch) {
                 $q->whereIn('attribute_id', $commonForInitFetch);
         }])->get();
         

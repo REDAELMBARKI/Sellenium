@@ -8,6 +8,7 @@ use App\Models\Promotion;
 use App\Services\Discount\CouponService;
 use App\Services\Discount\PromotionService;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 
 class CategoryService
 {
@@ -37,11 +38,17 @@ class CategoryService
     }
 
    
-    public function store(array $data): Category {
-        return Category::create([
+    public function storeCategory(array $data): Category {
+        return Category::updateOrCreate(
+        [
+            'id'      => $data['id'],
+        ]
+            ,
+        [
             'name'      => $data['name'],
-            'slug'      => str($data['name'])->slug(),
             'parent_id' => $data['parent_id'] ?? null,
+            'desciption' => $data['description'] ,
+            'slug'      => Str::slug($data['name']),
         ]);
     }
 

@@ -384,48 +384,33 @@ export function Sidebar() {
                           style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.75rem',
-                            padding: '0.625rem 1rem',
-                            borderRadius: '0.5rem',
-                            fontSize: '0.875rem',
+                            gap: 10,
+                            padding: '8px 16px 8px 42px',
+                            fontSize: '0.825rem',
                             fontWeight: 500,
-                            transition: 'all 0.2s ease-out',
-                            cursor: 'pointer',
                             textDecoration: 'none',
-                            backgroundColor: isSubActive
-                              ? currentTheme.sidebarActive
-                              : 'transparent',
-                            color: isSubActive
-                              ? currentTheme.sidebarActiveFg
-                              : currentTheme.sidebarMutedFg,
+                            transition: 'background 0.15s',
+                            cursor: isDisabled ? 'not-allowed' : 'pointer',
+                            opacity: isDisabled ? 0.4 : 1,
+                            backgroundColor: isSubActive ? currentTheme.sidebarActive : 'transparent',
+                            color: isSubActive ? currentTheme.sidebarActiveFg : currentTheme.sidebarMutedFg,
+                            borderLeft: `2px solid ${isSubActive ? currentTheme.sidebarActiveFg : 'transparent'}`,
                             animationDelay: `${subIndex * 30}ms`,
                             marginBottom: '0.25rem',
                           }}
                           onMouseEnter={(e) => {
-                            if (!isSubActive) {
+                            if (!isSubActive && !isDisabled) {
                               e.currentTarget.style.backgroundColor = currentTheme.sidebarHover;
                               e.currentTarget.style.color = currentTheme.sidebarFg;
                             }
                           }}
                           onMouseLeave={(e) => {
-                            if (!isSubActive) {
+                            if (!isSubActive && !isDisabled) {
                               e.currentTarget.style.backgroundColor = 'transparent';
                               e.currentTarget.style.color = currentTheme.sidebarMutedFg;
                             }
                           }}
                         >
-                          <div
-                            style={{
-                              width: '6px',
-                              height: '6px',
-                              borderRadius: '9999px',
-                              transition: 'all 0.2s',
-                              backgroundColor: isSubActive
-                                ? currentTheme.sidebarActiveFg
-                                : currentTheme.sidebarMuted,
-                              transform: isSubActive ? 'scale(1.25)' : 'scale(1)',
-                            }}
-                          />
                           <SubIcon
                             size={16}
                             style={{

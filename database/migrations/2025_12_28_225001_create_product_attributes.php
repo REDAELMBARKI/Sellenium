@@ -9,15 +9,16 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * this iss for variants 
      */
     public function up(): void
     {
         Schema::create('product_attributes', function (Blueprint $table) {
         $table->id();
-        $table->string('key');
-        $table->string('value');
+        $table->string('key')->comment("material");
+        $table->json("values")->comment("e.g material has ['coton' , 'other stuff']");
         $table->timestamps();
-        $table->unique(['key' , 'value']);
+        $table->unique(['key']);
     });
 
     }

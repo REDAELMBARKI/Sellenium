@@ -5,6 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use App\Models\Coupon;
+use App\Models\ProductAttribute;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -34,6 +35,8 @@ class DatabaseSeeder extends Seeder
             ShippingZoneSeeder::class ,
             VariantOptionSeeder::class ,
             ReviewSeeder::class,
+            AttributesSeeder::class , 
+
           //  WishListSeeder::class,
     
         // Add more seeders here...

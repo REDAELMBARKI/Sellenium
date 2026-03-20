@@ -58,6 +58,9 @@ interface Category {
 
 type FilterMode = 'all' | 'niches' | 'subs';
 
+interface Props {
+  categories: Category[] 
+}
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function fmtDiscount(type: string, value: string) {
@@ -74,8 +77,7 @@ function fmtDate(d: string) {
 
 export default function Index() {
   const { state: { currentTheme: t } } = useStoreConfigCtx();
-  const { categories: rawCategories } = usePage().props as { categories: Category[] };
-  console.log(rawCategories)
+  const { categories: rawCategories } = usePage().props as Props;
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [filterMode, setFilterMode] = useState<FilterMode>('all');
   const [search,     setSearch]     = useState('');
@@ -168,8 +170,8 @@ export default function Index() {
       <div style={card}>
 
         {/* header row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '32px 1fr 120px 120px 80px', padding: '10px 16px', borderBottom: `1px solid ${t.border}`, background: t.bgSecondary, borderRadius: `${br} ${br} 0 0` }}>
-          {['', 'Name', 'Type', 'Marketing', 'Actions'].map((h, i) => (
+        <div style={{ display: 'grid', gridTemplateColumns: '32px 1fr 120px 80px', padding: '10px 16px', borderBottom: `1px solid ${t.border}`, background: t.bgSecondary, borderRadius: `${br} ${br} 0 0` }}>
+          {['', 'Name', 'Type', 'Actions'].map((h, i) => (
             <span key={i} style={{ color: t.textMuted, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', textAlign: i >= 3 ? 'center' : 'left' }}>
               {h}
             </span>
@@ -196,7 +198,7 @@ export default function Index() {
                 {/* ── main row ── */}
                 <div
                   onClick={() => setExpandedId(isExpanded ? null : cat.id)}
-                  style={{ display: 'grid', gridTemplateColumns: '32px 1fr 120px 120px 80px', padding: '12px 16px', alignItems: 'center', background: isExpanded ? `${t.primary}06` : 'transparent', transition: 'background .1s', cursor: 'pointer' }}
+                  style={{ display: 'grid', gridTemplateColumns: '32px 1fr 120px 80px', padding: '12px 16px', alignItems: 'center', background: isExpanded ? `${t.primary}06` : 'transparent', transition: 'background .1s', cursor: 'pointer' }}
                 >
                   {/* chevron */}
                   <div style={{ color: t.textMuted, display: 'flex', alignItems: 'center' }}>
@@ -222,17 +224,10 @@ export default function Index() {
                     </span>
                   </div>
 
-                  {/* marketing counts */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                    {couponCount > 0 && <span style={pill(t.success)}><Ticket size={9} />{couponCount}</span>}
-                    {promoCount  > 0 && <span style={pill(t.primary)}><Tag size={9} />{promoCount}</span>}
-                    {(couponCount + promoCount) === 0 && <span style={{ color: t.textMuted, fontSize: 11 }}>—</span>}
-                  </div>
-
                   {/* actions */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}
                        onClick={e => e.stopPropagation()}>
-                    <Link href={route('categories.create')}
+                    <Link href={route('categories.edit' , cat.slug)}
                           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: br, background: 'transparent', border: `1px solid ${t.border}`, color: t.textSecondary, textDecoration: 'none' }}
                           onMouseEnter={e => { e.currentTarget.style.background = t.bgSecondary; e.currentTarget.style.color = t.text; }}
                           onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = t.textSecondary; }}>

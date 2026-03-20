@@ -190,11 +190,13 @@ function HalfPanel({
 
 export default function Create() {
   const { state: { currentTheme: t } } = useStoreConfigCtx();
-
+  const { category , niches: rawNiches, coupons: rawCoupons, promotions: rawPromotions } = usePage().props as any;
+  const nich_id = category?.parent_id != null ? category?.parent_id : null ;
+  console.log(category)
   // ── single mode flag ──────────────────────────────────────────────────────
   const [mode, setMode]         = useState<CategoryMode>('add-niches');
   const [warnTo, setWarnTo]     = useState<CategoryMode | null>(null); // pending switch
-  const [selectedNicheId, setSelectedNicheId] = useState<number | null>(null);
+  
 
   // ── marketing ─────────────────────────────────────────────────────────────
   const [assignCoupons,    setAssignCoupons]    = useState(false);
@@ -204,7 +206,9 @@ export default function Create() {
   const [couponSearch,     setCouponSearch]     = useState('');
   const [promoSearch,      setPromoSearch]      = useState('');
 
-  const { niches: rawNiches, coupons: rawCoupons, promotions: rawPromotions } = usePage().props as any;
+
+  const [selectedNicheId, setSelectedNicheId] = useState<number | null>(nich_id);
+
   const niches     = normalizeNiches(rawNiches);
   const coupons    = (rawCoupons    as CouponItem[]    ?? []);
   const promotions = (rawPromotions as PromotionItem[] ?? []);
@@ -237,7 +241,7 @@ export default function Create() {
 
   // ── form ──────────────────────────────────────────────────────────────────
   const { register, handleSubmit, setValue, watch, formState: { errors } } =
-    useForm<FormValues>({ defaultValues: { name: '' } });
+    useForm<FormValues>({ defaultValues: { name: category?.name ?? '' , description : category?.description ?? '' } });
   const nameVal = watch('name');
 
   function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {

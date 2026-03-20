@@ -128,7 +128,8 @@ Route::delete('/media', [MediaController::class, 'destroyBulk'])
 Route::get('api/subCategories' , [CategoryController::class,'subCategories'])->name('get.sub_categories');
 Route::get('/categories' , [CategoryController::class, 'index'])->name("categories.index");
 Route::get('/categories/create' , [CategoryController::class, 'create'])->name("categories.create");
-// Route::get('/categories' , [CategoryController::class, 'tree'])->name("categories.tree");
+Route::get('/categories/{category:slug}' , [CategoryController::class, 'edit'])->name("categories.edit");
+Route::get('/categories/tree' , [CategoryController::class, 'tree'])->name("categories.tree");
 //end categories section
 
 

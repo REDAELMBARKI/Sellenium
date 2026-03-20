@@ -44,9 +44,20 @@ class CategoryController extends Controller
         ]) ;
     }
 
+    public function edit(Category $category , PromotionService $promotionService , CouponService $couponService){
+        
+        return Inertia::render("admin/pages/categories/Create" , [
+            'category' => $category ,
+            'niches' => $this->categoryService->get_niche_cats() ,
+            'promotions' =>   Arr::except($promotionService->getDbPromotions()->toArray() , ['description' , 'is_active']),
+            'coupons' =>  Arr::except($couponService->getDbCoupons()->toArray() , ['description' , 'is_active']),
+        ]) ;
+    }
+
 
     public function store(Request $request){
         $request->validate([
+            'id' => ['nullable' ,Rule::exists('categories' , 'id') ] ,
             'flag' => ['required' , Rule::in(['add-subs' , 'add-niches'])],
             'name' => ['required', 'string' , 'min:2'] ,
             'description' => ['nullable' , 'string' , 'min:2'] ,
@@ -54,6 +65,10 @@ class CategoryController extends Controller
                 return $request->flag === 'add-subs' ;
             })]
         ]);
+
+         $category = $this->categoryService->storeCategory($request->validated());
+         if(!$category) return collect([]);
+         return $category ;
     }
 
   

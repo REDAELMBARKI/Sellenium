@@ -14,6 +14,7 @@ return new class extends Migration
        Schema::create('variants_options_settings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('parent_id')->nullable()->constrained('variants_options_settings')->cascadeOnDelete();
+            $table->enum('type' , ['radio' , 'button'])->nullable();
             $table->string('key');
             $table->string('value')->nullable();
             $table->string('hex')->nullable()->comment("this isonly for color attrs");
