@@ -46,7 +46,7 @@ class ProductService {
             $this->attachApplicableProducts($product, $payload['promotion_ids'] ?? [], Promotion::class);
             $this->attachApplicableProducts($product, $payload['coupon_ids'] ?? [], Coupon::class);
         
-            return $product->fresh();
+            return $product->fresh(); 
         });
     }
    

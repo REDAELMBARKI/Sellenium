@@ -8,8 +8,8 @@ import { useReducer } from "react"
 
 const initialState : StoreConfigType= {  
   currentThemeMode : "dark" ,
-  currentThemeStyle : "luxuryNoir" , 
-  currentTheme : currentThemeExample.luxuryNoir.dark,
+  currentThemeStyle : "orangeNight", 
+  currentTheme : currentThemeExample.orangeNight.dark,
   currentLayoutStyle : 'grid'  , 
   currentCardConf : {
     cardId : 'card-2'  , 

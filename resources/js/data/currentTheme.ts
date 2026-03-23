@@ -23,7 +23,7 @@ export const currentThemeExample: Themes = {
       // TEXT
       text: '#111111',
       textSecondary: '#3f3f46',
-      textMuted: '#78716c',    // warmer, more readable on light bg
+      textMuted: '#78716c',
       textInverse: '#ffffff',
  
       // ACTIONS / ACCENTS
@@ -56,10 +56,10 @@ export const currentThemeExample: Themes = {
       shadowLg: '0 18px 36px rgba(0,0,0,0.22)',
  
       // PRODUCT PAGE
-      priceText: '#111111',    // same as text — already strong on light bg
-      priceStrike: '#b0aea9',  // warm muted gray — clearly inactive/crossed out
-      dealBg: '#f0ece3',       // warm parchment — premium deal flyer feel
-      starColor: '#bfa36f',    // matches accent gold
+      priceText: '#111111',
+      priceStrike: '#b0aea9',
+      dealBg: '#f0ece3',
+      starColor: '#bfa36f',
     },
  
     dark: {
@@ -115,19 +115,19 @@ export const currentThemeExample: Themes = {
       shadowLg: '0 24px 48px rgba(0,0,0,0.85)',
  
       // PRODUCT PAGE
-      priceText: '#f9fafb',    // bright white — pops on dark bg
-      priceStrike: '#4a4a52',  // dark muted — clearly crossed out
-      dealBg: '#18150f',       // very dark warm brown — premium flyer bg
-      starColor: '#d6b97b',    // matches accent gold
+      priceText: '#f9fafb',
+      priceStrike: '#4a4a52',
+      dealBg: '#18150f',
+      starColor: '#d6b97b',
     },
   },
  
   softPastel: {
     light: {
       // SURFACES
-      bg: '#f2f2f5',           // soft cool gray, not stark white
-      bgSecondary: '#e8e8ec',  // clear step down from bg
-      card: '#ffffff',         // white works here since bg is gray
+      bg: '#f2f2f5',
+      bgSecondary: '#e8e8ec',
+      card: '#ffffff',
       modal: '#ffffff',
       overlay: 'rgba(15,23,42,0.4)',
  
@@ -142,8 +142,8 @@ export const currentThemeExample: Themes = {
  
       // TEXT
       text: '#1f2937',
-      textSecondary: '#374151',  // darker than before
-      textMuted: '#6b7280',      // darker — readable as placeholder
+      textSecondary: '#374151',
+      textMuted: '#6b7280',
       textInverse: '#ffffff',
  
       // ACTIONS / ACCENTS
@@ -176,10 +176,10 @@ export const currentThemeExample: Themes = {
       shadowLg: '0 18px 30px rgba(0,0,0,0.16)',
  
       // PRODUCT PAGE
-      priceText: '#1f2937',    // strong dark — same as text, already bold enough
-      priceStrike: '#a0a3b1',  // cool muted gray — clearly inactive
-      dealBg: '#faf5ff',       // soft purple tint — echoes primary accent
-      starColor: '#f59e0b',    // amber — universally readable for stars
+      priceText: '#1f2937',
+      priceStrike: '#a0a3b1',
+      dealBg: '#faf5ff',
+      starColor: '#f59e0b',
     },
  
     dark: {
@@ -235,10 +235,130 @@ export const currentThemeExample: Themes = {
       shadowLg: '0 26px 48px rgba(0,0,0,0.85)',
  
       // PRODUCT PAGE
-      priceText: '#f9fafb',    // bright white — pops on dark bg
-      priceStrike: '#475569',  // slate muted — clearly crossed out
-      dealBg: '#1a1033',       // deep purple-dark — echoes primary accent feel
-      starColor: '#fbbf24',    // amber — warm and readable on dark
+      priceText: '#f9fafb',
+      priceStrike: '#475569',
+      dealBg: '#1a1033',
+      starColor: '#fbbf24',
+    },
+  },
+
+  orangeNight: {
+    light: {
+      // SURFACES
+      bg: '#f5f3f0',           // warm off-white with subtle orange undertone
+      bgSecondary: '#ece9e4',  // clear step down
+      card: '#faf9f7',         // clean warm white card
+      modal: '#faf9f7',
+      overlay: 'rgba(0,0,0,0.5)',
+
+      sidebarBg: '#1a1210',    // very dark warm brown-black (your dark bg color)
+      sidebarFg: '#f0ede8',
+      sidebarBorder: '#2e2420',
+      sidebarHover: '#231815',
+      sidebarMuted: '#1e1512',
+      sidebarMutedFg: '#9c9189',
+      sidebarActive: '#ff6b35', // orange accent
+      sidebarActiveFg: '#ffffff',
+
+      // TEXT
+      text: '#1a1210',
+      textSecondary: '#3d2f28',
+      textMuted: '#8a7a72',
+      textInverse: '#ffffff',
+
+      // ACTIONS / ACCENTS
+      primary: '#ff6b35',       // vibrant orange
+      primaryHover: '#e85520',
+      secondary: '#ece9e4',
+      secondaryHover: '#dedad3',
+      accent: '#ff6b35',
+      accentHover: '#e85520',
+
+      // STATES / BADGES
+      badge: '#ff6b35',
+      success: '#3a7d5c',
+      info: '#3a6080',
+      warning: '#c47c1a',
+      error: '#c0392b',
+
+      // BORDERS
+      border: '#d9d4cc',
+      borderHover: '#c4bdb4',
+      borderRadius: '8px',
+
+      // LINKS
+      link: '#ff6b35',
+      linkHover: '#e85520',
+
+      // SHADOWS
+      shadow: '0 1px 3px rgba(0,0,0,0.1)',
+      shadowMd: '0 6px 14px rgba(0,0,0,0.14)',
+      shadowLg: '0 18px 36px rgba(0,0,0,0.2)',
+
+      // PRODUCT PAGE
+      priceText: '#1a1210',
+      priceStrike: '#b0a89e',
+      dealBg: '#fff3ee',       // very light orange tint
+      starColor: '#ff6b35',
+    },
+
+    dark: {
+      // SURFACES
+      bg: '#0f0b09',           // your dark background — near black with warm undertone
+      bgSecondary: '#141009',
+      card: '#1a1410',         // dark warm card
+      modal: '#201812',
+      overlay: 'rgba(0,0,0,0.75)',
+
+      sidebarBg: '#0c0a07',    // even deeper dark for sidebar
+      sidebarFg: '#f0ede8',
+      sidebarBorder: '#2a2018',
+      sidebarHover: '#1c1610',
+      sidebarMuted: '#120e0a',
+      sidebarMutedFg: '#9c9189',
+      sidebarActive: '#ff6b35', // orange stays vibrant on dark
+      sidebarActiveFg: '#ffffff',
+
+      // TEXT
+      text: '#f5f0ea',         // warm white
+      textSecondary: '#d4ccc3',
+      textMuted: '#9c9189',
+      textInverse: '#0f0b09',
+
+      // ACTIONS / ACCENTS
+      primary: '#ff6b35',      // orange pops on dark bg
+      primaryHover: '#ff8555',
+      secondary: '#2a2018',
+      secondaryHover: '#382d20',
+      accent: '#ff6b35',
+      accentHover: '#ff8555',
+
+      // STATES / BADGES
+      badge: '#ff6b35',
+      success: '#4d9e78',
+      info: '#5b8fad',
+      warning: '#e09030',
+      error: '#d95c4a',
+
+      // BORDERS
+      border: '#2a2018',
+      borderHover: '#3d3025',
+      borderRadius: '8px',
+
+      // LINKS
+      link: '#ff6b35',
+      linkHover: '#ff9966',
+
+      // SHADOWS
+      shadow: '0 2px 6px rgba(0,0,0,0.7)',
+      shadowMd: '0 10px 20px rgba(0,0,0,0.8)',
+      shadowLg: '0 24px 48px rgba(0,0,0,0.9)',
+
+      // PRODUCT PAGE
+      priceText: '#f5f0ea',
+      priceStrike: '#4a3d30',
+      dealBg: '#1f1208',       // very dark orange-brown — premium flyer feel
+      starColor: '#ff6b35',
     },
   },
 };
