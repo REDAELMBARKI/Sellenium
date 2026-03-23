@@ -40,7 +40,7 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
 
 
 Route::get('/', function () {
-    return Inertia::render('HomePage');
+    return Inertia::render('Home/HomePage');
 })->name('home');
 Route::get('/shop', function () {
     return Inertia::render('ShopPage');
