@@ -35,7 +35,8 @@ class DatabaseSeeder extends Seeder
             ShippingZoneSeeder::class ,
             VariantOptionSeeder::class ,
             ReviewSeeder::class,
-            AttributesSeeder::class , 
+            CatalogSectionsTableSeeder::class
+            // AttributesSeeder::class , 
 
           //  WishListSeeder::class,
     

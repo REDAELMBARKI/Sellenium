@@ -76,6 +76,17 @@ export type Themes =  Record<ThemeStyle ,Record<ThemeMode , ThemePalette>>
   priceStrike: string   // Strikethrough original/compare price color
   dealBg: string        // Deal box surface background
   starColor: string     // Review/rating star color (gold tone)
+
+  // promotions
+  
+  promotionBg: {
+    percentage: string    // e.g. orange for discount deals
+    fixed: string         // e.g. deep blue for fixed amount off
+    free_shipping: string // e.g. green for free shipping
+    text: string          // text color on top of promo backgrounds
+    badge: string         // the yellow threshold badge background
+    badgeText: string     // text on the badge
+ }
 };
  
 

@@ -282,41 +282,7 @@ const HeroSlider: React.FC = () => {
   );
 };
 
-// ─────────────────────────────────────────────
-//  PROMO STRIP
-// ─────────────────────────────────────────────
-const PromoStrip: React.FC = () => {
-  const doubled = [...PROMO_ITEMS, ...PROMO_ITEMS];
-
-  return (
-    <div
-      className="relative overflow-hidden py-[11px] border-t"
-      style={{ background: '#1a1410', borderColor: 'rgba(201,169,110,0.25)' }}
-    >
-      <div
-        className="inline-flex gap-14 whitespace-nowrap"
-        style={{ animation: 'marqueeScroll 30s linear infinite' }}
-      >
-        {doubled.map((item, i) => (
-          <span
-            key={i}
-            className="text-[10px] font-medium uppercase tracking-[0.18em] inline-flex items-center gap-2.5"
-            style={{ color: 'rgba(201,169,110,0.9)' }}
-          >
-            <span className="opacity-55 text-[9px]">{item.icon}</span>
-            {item.text}
-          </span>
-        ))}
-      </div>
-      <style>{`
-        @keyframes marqueeScroll {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
-        }
-      `}</style>
-    </div>
-  );
-};
+// ────────────────────────────────
 
 // ─────────────────────────────────────────────
 //  PAGE EXPORT
@@ -324,7 +290,6 @@ const PromoStrip: React.FC = () => {
 const Page: React.FC = () => (
   <>
     <HeroSlider />
-    <PromoStrip />
   </>
 );
 

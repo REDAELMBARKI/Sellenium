@@ -6,6 +6,7 @@ import {
   Mail, Image as ImageIcon, Percent, FileText, DollarSign, PieChart, Ship,
   Map as MapIcon, Truck, Navigation, Shield, Lock as LockIcon, Settings,
   Sliders, CreditCard, Receipt, Store, Search, Bell, Settings2, FolderGit,
+  SectionIcon,
 } from 'lucide-react';
 
 interface SubLink {
@@ -34,11 +35,11 @@ export const menuItems: MenuItem[] = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
-    href: "dashboard",
     subLinks: [
-      { title: "Sales",     icon: BarChart3,  href: "",     disabled: true },
+      { title: "Overview",     icon: BarChart3,  href: "dashboard.overview",     disabled: true },
       { title: "Customers", icon: TrendingUp, href: "", disabled: true },
       { title: "Inventory", icon: Zap,        href: "", disabled: true },
+      { title: "alerts", icon: Zap,        href: "", disabled: true },
     ]
   },
   {
@@ -107,6 +108,13 @@ export const menuItems: MenuItem[] = [
       { title: "Completed",      icon: CheckCircle,href: "", disabled: true },
       { title: "Cancelled",      icon: XCircle,    href: "", disabled: true },
       { title: "Returns",        icon: RotateCcw,  href: "", disabled: true },
+    ]
+  },
+  {
+    title: "Store",
+    icon: Store,
+    subLinks: [
+      { title: "sections", icon: SectionIcon, href: "sections.create", disabled: true },
     ]
   },
   {

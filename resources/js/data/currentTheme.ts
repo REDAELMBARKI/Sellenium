@@ -60,6 +60,14 @@ export const currentThemeExample: Themes = {
       priceStrike: '#b0aea9',
       dealBg: '#f0ece3',
       starColor: '#bfa36f',
+      promotionBg: {
+        percentage: '#9a6f2e',      // deep gold — matches the accent
+        fixed: '#1a1a2e',           // near-black indigo — exclusive feel
+        free_shipping: '#1e4035',   // dark forest green
+        text: '#ffffff',
+        badge: '#f5e6c8',           // warm cream
+        badgeText: '#1a1200',
+      },
     },
  
     dark: {
@@ -119,6 +127,14 @@ export const currentThemeExample: Themes = {
       priceStrike: '#4a4a52',
       dealBg: '#18150f',
       starColor: '#d6b97b',
+      promotionBg: {
+        percentage: '#b8861a',      // richer gold on dark
+        fixed: '#16103a',           // deep indigo
+        free_shipping: '#0d3528',   // deep emerald
+        text: '#ffffff',
+        badge: '#f5e6c8',
+        badgeText: '#1a1200',
+      },
     },
   },
  
@@ -180,6 +196,14 @@ export const currentThemeExample: Themes = {
       priceStrike: '#a0a3b1',
       dealBg: '#faf5ff',
       starColor: '#f59e0b',
+      promotionBg: {
+        percentage: '#7c3aed',      // purple — matches primary
+        fixed: '#0e7490',           // cyan-teal
+        free_shipping: '#059669',   // emerald
+        text: '#ffffff',
+        badge: '#fef9c3',           // soft yellow
+        badgeText: '#1a1200',
+      },
     },
  
     dark: {
@@ -239,6 +263,14 @@ export const currentThemeExample: Themes = {
       priceStrike: '#475569',
       dealBg: '#1a1033',
       starColor: '#fbbf24',
+      promotionBg: {
+        percentage: '#6d28d9',      // deep violet
+        fixed: '#0c4a6e',           // deep cyan
+        free_shipping: '#065f46',   // deep emerald
+        text: '#ffffff',
+        badge: '#fef9c3',
+        badgeText: '#1a1200',
+      },
     },
   },
 
@@ -300,6 +332,14 @@ export const currentThemeExample: Themes = {
       priceStrike: '#b0a89e',
       dealBg: '#fff3ee',       // very light orange tint
       starColor: '#ff6b35',
+      promotionBg: {
+        percentage: '#e85520',      // primaryHover orange — vivid
+        fixed: '#1a1210',           // dark warm brown
+        free_shipping: '#3a7d5c',   // matches success green
+        text: '#ffffff',
+        badge: '#FFE000',
+        badgeText: '#1a1200',
+      },
     },
 
     dark: {
@@ -359,6 +399,14 @@ export const currentThemeExample: Themes = {
       priceStrike: '#4a3d30',
       dealBg: '#1f1208',       // very dark orange-brown — premium flyer feel
       starColor: '#ff6b35',
+      promotionBg: {
+        percentage: '#ff6b35',      // full orange — pops on dark
+        fixed: '#1c1060',           // deep indigo contrast
+        free_shipping: '#0d4a30',   // deep green
+        text: '#ffffff',
+        badge: '#FFE000',
+        badgeText: '#1a1200',
+      },
     },
   },
 };

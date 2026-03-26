@@ -2,6 +2,7 @@
 
 use App\Events\UserLogin;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CatalogSectionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CurstomerController;
 use App\Http\Controllers\DashboardController;
@@ -22,7 +23,9 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Jobs\WelcomeBack;
 use Illuminate\Auth\Events\Login;
@@ -39,9 +42,8 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
     ->name('google.callback');
 
 
-Route::get('/', function () {
-    return Inertia::render('Home/HomePage');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/store/sections', [CatalogSectionController::class, 'create'])->name('sections.create');
 Route::get('/shop', function () {
     return Inertia::render('ShopPage');
 })->name('shop');
@@ -85,9 +87,10 @@ Route::post('/sheets', [DriveController::class, 'auth'])
 ->name('googleSheet.create');
 
 
-// Route::get('/dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('admin/dashboard', function () {
+    return Inertia::render('admin/pages/dashboard/Overview');
+})->name("dashboard.overview");
+// ->middleware(['auth', 'verified'])->name('dashboard');
 
 // Route::middleware('auth')->group(function () {
 //     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

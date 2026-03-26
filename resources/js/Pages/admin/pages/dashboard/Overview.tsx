@@ -8,7 +8,7 @@ import { RecentOrdersTable } from './dashboardComponents/RecentOrdersTable';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 
 
-export default function Dashboard() {
+export default function Overview() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -44,4 +44,4 @@ export default function Dashboard() {
 }
 
 
-Dashboard.layout = (page:any) => <AdminLayout children={page} />
+Overview.layout = (page:any) => <AdminLayout children={page} />
