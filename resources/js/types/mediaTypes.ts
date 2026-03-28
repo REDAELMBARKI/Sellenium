@@ -30,4 +30,4 @@ export type FlagMedia =
   | 'gallery'           // gallery or variant cover images
   | 'video'           // product video
   | 'avatar'     // customer or user avatar
-  | 'baner'    
+  | 'banner'    

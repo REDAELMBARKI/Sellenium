@@ -1,316 +1,314 @@
 import React, { useState } from 'react';
 import { 
-  MoreVertical, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, 
-  Plus, Trash2, Save, Edit2, CheckCircle, XCircle 
+  MoreVertical, Trash2, Settings, Sliders, GripVertical, 
+  PanelLeft, PanelRight, Maximize2, ChevronRight, ChevronLeft
 } from 'lucide-react';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 
-// --- Types ---
-type FilterField = 'discount' | 'price' | 'stock' | 'category_id' | 'brand_id';
-type FilterOperator = '=' | '!=' | '>' | '>=' | '<' | '<=';
-
-interface Filter {
-  id: string;
-  field: FilterField;
-  operator: FilterOperator;
-  value: string;
-}
-
-interface CatalogSection {
+// --- THE EXPECTED BACKEND PAYLOAD STRUCTURE ---
+interface CatalogSectionPayload {
   id: number;
+  section_type: 'deals' | 'curated' | 'category' | 'new_arrivals';
   name: string;
   active: boolean;
-  filters: Filter[];
+  layout_config: {
+    displayLimit: number;
+    gap: number;
+    paddingInline: number;
+  };
+  card_config: {
+    aspectRatio: string;
+    borderRadius: number;
+    showPrice: boolean;
+    showBadge: boolean;
+    textAlign: 'left' | 'center';
+    hoverEffect: 'zoom' | 'scrim' | 'none';
+  };
+  rules: {
+    id: string;
+    field: string;
+    operator: string;
+    value: string;
+    label?: string;
+  }[];
 }
 
-const ALLOWED_FIELDS: FilterField[] = ['discount', 'price', 'stock', 'category_id', 'brand_id'];
-const OPERATORS: FilterOperator[] = ['=', '!=', '>', '>=', '<', '<='];
+const CATEGORIES = ["Menswear", "Electronics", "Home & Living", "Beauty", "Accessories"];
+const BRANDS = ["Nike", "Apple", "Samsung", "Zara", "Adidas"];
 
-// --- Initial Data (Mimicking your Seeder) ---
-const INITIAL_DATA: CatalogSection[] = [
-  { 
-    id: 1, name: 'Top Deals', active: true, 
-    filters: [
-      { id: 'f1', field: 'discount', operator: '>=', value: '20' },
-      { id: 'f2', field: 'price', operator: '<', value: '100' }
-    ]
-  },
-  { 
-    id: 2, name: 'Picked For You', active: true, 
-    filters: [
-      { id: 'f3', field: 'stock', operator: '>', value: '0' },
-      { id: 'f4', field: 'category_id', operator: '=', value: '3' }
-    ]
-  },
-  { 
-    id: 3, name: 'Featured', active: true, 
-    filters: [
-      { id: 'f5', field: 'brand_id', operator: '=', value: '5' }
-    ]
-  },
-];
-
-export default function CreateCatalogSection() {
+export default function ProductSectionEditor() {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
   
-  const [sections, setSections] = useState<CatalogSection[]>(INITIAL_DATA);
-  const [editingSection, setEditingSection] = useState<CatalogSection | null>(null);
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [sections, setSections] = useState<CatalogSectionPayload[]>(INITIAL_PAYLOAD);
+  const [activeId, setActiveId] = useState<number>(1);
+  
+  // Panel States: Now using 40px for "closed" to keep the button visible
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(true);
 
-  // --- Handlers ---
+  const activeSection = sections.find(s => s.id === activeId) || sections[0];
 
-  const handleOrderChange = async (id: number, action: 'up' | 'down' | 'top' | 'bottom') => {
-    // Logic for PATCH request simulation
-    console.log(`PATCH: section.order.patch | ID: ${id} | Action: ${action}`);
-
-    const newSections = [...sections];
-    const index = newSections.findIndex(s => s.id === id);
-    if (index === -1) return;
-
-    const [removed] = newSections.splice(index, 1);
-
-    if (action === 'top') newSections.unshift(removed);
-    else if (action === 'bottom') newSections.push(removed);
-    else if (action === 'up') newSections.splice(Math.max(0, index - 1), 0, removed);
-    else if (action === 'down') newSections.splice(Math.min(newSections.length, index + 1), 0, removed);
-    
-    setSections(newSections);
-    setOpenMenuId(null);
+  const updateSection = (updates: any) => {
+    setSections(prev => prev.map(s => s.id === activeId ? { ...s, ...updates } : s));
   };
 
-  const handleSave = () => {
-    if (!editingSection) return;
-    if (editingSection.id === 0) {
-      setSections([...sections, { ...editingSection, id: Date.now() }]);
-    } else {
-      setSections(sections.map(s => s.id === editingSection.id ? editingSection : s));
-    }
-    setEditingSection(null);
+  const updateCard = (updates: any) => {
+    updateSection({ card_config: { ...activeSection.card_config, ...updates } });
   };
 
-  const addFilterRow = () => {
-    if (!editingSection) return;
-    const newFilter: Filter = { id: crypto.randomUUID(), field: 'price', operator: '=', value: '' };
-    setEditingSection({ ...editingSection, filters: [...editingSection.filters, newFilter] });
-  };
-
-  const updateFilter = (filterId: string, key: keyof Filter, value: string) => {
-    if (!editingSection) return;
-    const updatedFilters = editingSection.filters.map(f => 
-      f.id === filterId ? { ...f, [key]: value } : f
-    );
-    setEditingSection({ ...editingSection, filters: updatedFilters });
-  };
-
-  const removeFilter = (filterId: string) => {
-    if (!editingSection) return;
-    setEditingSection({
-      ...editingSection,
-      filters: editingSection.filters.filter(f => f.id !== filterId)
-    });
+  const updateLayout = (updates: any) => {
+    updateSection({ layout_config: { ...activeSection.layout_config, ...updates } });
   };
 
   return (
-    <div style={{ backgroundColor: theme.bg, color: theme.text, minHeight: '100vh' }} className="p-8">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">Section Management</h1>
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: theme.bg, color: theme.text }}>
+      
+      {/* --- LEFT: NAVIGATION (Collapses to 40px) --- */}
+      <aside 
+        className="border-r flex flex-col transition-all duration-300 relative" 
+        style={{ 
+          width: leftOpen ? '260px' : '40px',
+          backgroundColor: theme.sidebarBg, 
+          borderColor: theme.sidebarBorder 
+        }}
+      >
+        <div className="p-3 border-b flex justify-between items-center overflow-hidden whitespace-nowrap" style={{ borderColor: theme.sidebarBorder }}>
+          {leftOpen && <span className="text-[10px] font-black uppercase opacity-50">Site Structure</span>}
           <button 
-            onClick={() => setEditingSection({ id: 0, name: '', active: true, filters: [] })}
-            style={{ backgroundColor: theme.primary, color: theme.textInverse, borderRadius: theme.borderRadius }}
-            className="px-5 py-2.5 flex items-center gap-2 font-medium hover:opacity-90 transition shadow-sm"
+            onClick={() => setLeftOpen(!leftOpen)} 
+            className={`p-1 hover:bg-black/10 rounded transition-all ${!leftOpen ? 'mx-auto' : ''}`}
           >
-            <Plus size={20} /> Create New Section
+            {leftOpen ? <PanelLeft size={16}/> : <ChevronRight size={16}/>}
           </button>
-        </header>
-
-        {/* --- Table Section --- */}
-        <div style={{ backgroundColor: theme.bgSecondary, borderRadius: theme.borderRadius, border: `1px solid ${theme.border}`, boxShadow: theme.shadow }} className="overflow-hidden mb-12">
-          <table className="w-full text-left">
-            <thead style={{ backgroundColor: theme.bg, borderBottom: `1px solid ${theme.border}` }}>
-              <tr>
-                <th className="px-6 py-4 text-xs uppercase tracking-wider" style={{ color: theme.textSecondary }}>Section Name</th>
-                <th className="px-6 py-4 text-xs uppercase tracking-wider" style={{ color: theme.textSecondary }}>Status</th>
-                <th className="px-6 py-4 text-xs uppercase tracking-wider text-right" style={{ color: theme.textSecondary }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y" style={{ borderColor: theme.border }}>
-              {sections.map((section) => (
-                <tr key={section.id} style={{ backgroundColor: theme.card }} className="group">
-                  <td className="px-6 py-4 font-semibold">{section.name}</td>
-                  <td className="px-6 py-4">
-                    <span className="flex items-center gap-2 text-sm" style={{ color: section.active ? theme.success : theme.textMuted }}>
-                      {section.active ? <CheckCircle size={16} /> : <XCircle size={16} />}
-                      {section.active ? 'Active' : 'Disabled'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right relative">
-                    <button 
-                      onClick={() => setOpenMenuId(openMenuId === section.id ? null : section.id)}
-                      style={{ color: theme.textSecondary }}
-                      className="p-2 hover:bg-black/5 rounded-full"
-                    >
-                      <MoreVertical size={20} />
-                    </button>
-
-                    {/* Ordering Menu */}
-                    {openMenuId === section.id && (
-                      <div 
-                        style={{ backgroundColor: theme.modal, border: `1px solid ${theme.border}`, borderRadius: theme.borderRadius, boxShadow: theme.shadowLg }}
-                        className="absolute right-8 top-12 w-52 z-50 p-1.5"
-                      >
-                        <OrderAction theme={theme} icon={<ArrowUp size={16}/>} label="Move Up" onClick={() => handleOrderChange(section.id, 'up')} />
-                        <OrderAction theme={theme} icon={<ArrowDown size={16}/>} label="Move Down" onClick={() => handleOrderChange(section.id, 'down')} />
-                        <OrderAction theme={theme} icon={<ChevronsUp size={16}/>} label="Move to Top" onClick={() => handleOrderChange(section.id, 'top')} />
-                        <OrderAction theme={theme} icon={<ChevronsDown size={16}/>} label="Move to Bottom" onClick={() => handleOrderChange(section.id, 'bottom')} />
-                        <div style={{ borderTop: `1px solid ${theme.border}`, margin: '6px 0' }} />
-                        <OrderAction theme={theme} icon={<Edit2 size={16}/>} label="Edit Section" onClick={() => { setEditingSection(section); setOpenMenuId(null); }} />
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
 
-        {/* --- Dynamic Form Panel --- */}
-        {editingSection && (
-          <div 
-            style={{ backgroundColor: theme.bgSecondary, border: `2px solid ${theme.primary}`, borderRadius: theme.borderRadius, boxShadow: theme.shadowLg }}
-            className="p-8 animate-in slide-in-from-top-2 duration-300"
-          >
-            <div className="flex justify-between items-start mb-8">
-              <h2 className="text-xl font-bold">Configuring: {editingSection.name || 'New Section'}</h2>
-              <button onClick={() => setEditingSection(null)} style={{ color: theme.textMuted }}>
-                <XCircle size={24} />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-              <div className="space-y-2">
-                <label className="text-sm font-bold" style={{ color: theme.textSecondary }}>Section Display Name</label>
-                <input 
-                  type="text"
-                  value={editingSection.name}
-                  onChange={(e) => setEditingSection({...editingSection, name: e.target.value})}
-                  placeholder="e.g. Summer Sale"
-                  style={{ backgroundColor: theme.bg, border: `1px solid ${theme.border}`, color: theme.text, borderRadius: theme.borderRadius }}
-                  className="w-full p-3 focus:outline-none focus:ring-2 focus:ring-offset-2 ring-indigo-500"
-                />
+        {leftOpen && (
+          <div className="p-2 space-y-1 overflow-y-auto">
+            {sections.map(s => (
+              <div key={s.id} onClick={() => setActiveId(s.id)} 
+                   className="flex items-center gap-3 p-3 rounded-xl cursor-pointer text-xs font-bold transition-colors"
+                   style={{ 
+                     backgroundColor: activeId === s.id ? theme.sidebarActive : 'transparent', 
+                     color: activeId === s.id ? theme.sidebarActiveFg : theme.sidebarFg 
+                   }}>
+                <GripVertical size={14} className="opacity-30" />
+                <span className="truncate">{s.name}</span>
               </div>
-              <div className="flex items-center gap-4 pt-8">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    className="sr-only peer" 
-                    checked={editingSection.active}
-                    onChange={(e) => setEditingSection({...editingSection, active: e.target.checked})}
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-                  <span className="ml-3 text-sm font-medium">Status: {editingSection.active ? 'Active' : 'Hidden'}</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex justify-between items-center border-b pb-2" style={{ borderColor: theme.border }}>
-                <h3 className="font-bold text-sm uppercase tracking-widest" style={{ color: theme.textSecondary }}>Filter Rules</h3>
-                <button 
-                  onClick={addFilterRow}
-                  style={{ color: theme.link }} 
-                  className="flex items-center gap-1 text-sm font-bold hover:underline"
-                >
-                  <Plus size={16} /> Add Rule
-                </button>
-              </div>
-
-              {editingSection.filters.map((filter) => (
-                <div key={filter.id} className="flex flex-wrap md:flex-nowrap items-center gap-3 bg-black/5 p-3 rounded-lg">
-                  <div className="flex-1 min-w-[150px]">
-                    <select 
-                      value={filter.field}
-                      onChange={(e) => updateFilter(filter.id, 'field', e.target.value)}
-                      style={{ backgroundColor: theme.bg, color: theme.text, border: `1px solid ${theme.border}`, borderRadius: theme.borderRadius }}
-                      className="w-full p-2 text-sm"
-                    >
-                      {ALLOWED_FIELDS.map(f => <option key={f} value={f}>{f}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="w-24">
-                    <select 
-                      value={filter.operator}
-                      onChange={(e) => updateFilter(filter.id, 'operator', e.target.value)}
-                      style={{ backgroundColor: theme.bg, color: theme.text, border: `1px solid ${theme.border}`, borderRadius: theme.borderRadius }}
-                      className="w-full p-2 text-sm"
-                    >
-                      {OPERATORS.map(op => <option key={op} value={op}>{op}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="flex-1 min-w-[100px]">
-                    <input 
-                      type="text"
-                      placeholder="Value..."
-                      value={filter.value}
-                      onChange={(e) => updateFilter(filter.id, 'value', e.target.value)}
-                      style={{ backgroundColor: theme.bg, color: theme.text, border: `1px solid ${theme.border}`, borderRadius: theme.borderRadius }}
-                      className="w-full p-2 text-sm"
-                    />
-                  </div>
-
-                  <button 
-                    onClick={() => removeFilter(filter.id)}
-                    style={{ color: theme.error }}
-                    className="p-2 hover:bg-red-50 rounded-md transition"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              ))}
-
-              {editingSection.filters.length === 0 && (
-                <div className="py-8 text-center text-sm" style={{ color: theme.textMuted }}>
-                  No filters defined. This section will show all products.
-                </div>
-              )}
-            </div>
-
-            <div className="mt-10 flex justify-end gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
-              <button 
-                onClick={() => setEditingSection(null)}
-                style={{ color: theme.textSecondary }}
-                className="px-6 py-2 hover:underline font-medium"
-              >
-                Discard
-              </button>
-              <button 
-                onClick={handleSave}
-                style={{ backgroundColor: theme.primary, color: theme.textInverse, borderRadius: theme.borderRadius }}
-                className="px-8 py-2.5 font-bold flex items-center gap-2 shadow-md hover:brightness-110 transition"
-              >
-                <Save size={18} /> Update Catalog
-              </button>
-            </div>
+            ))}
           </div>
         )}
-      </div>
+      </aside>
+
+      {/* --- CENTER: STAGE --- */}
+      <main className="flex-1 flex flex-col relative overflow-hidden" style={{ backgroundColor: theme.bg }}>
+        <header className="h-14 border-b flex items-center justify-between px-6" style={{ borderColor: theme.border, backgroundColor: theme.bg }}>
+           <h1 className="text-xs font-black uppercase tracking-widest" style={{ color: theme.textSecondary }}>
+             {activeSection.name} Editor
+           </h1>
+           <div className="flex gap-2">
+              <button className="px-6 py-1.5 text-[10px] font-black uppercase rounded shadow-lg transition-transform active:scale-95" 
+                      style={{ backgroundColor: theme.primary, color: theme.textInverse }}>
+                Publish Changes
+              </button>
+           </div>
+        </header>
+
+        <div className="flex-1 overflow-y-auto p-12 scrollbar-hide">
+          <div className="max-w-[1000px] mx-auto">
+             <div className="mb-10">
+                <h2 className="text-3xl font-black italic">{activeSection.name}</h2>
+                <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1">Live Storefront Preview</p>
+             </div>
+
+             <div className="flex flex-nowrap w-full" 
+                  style={{ gap: `${activeSection.layout_config.gap}px`, paddingInline: `${activeSection.layout_config.paddingInline}px` }}>
+                {[...Array(activeSection.layout_config.displayLimit)].map((_, i) => (
+                  <div key={i} className="flex-1 flex flex-col min-w-0">
+                    <div 
+                      className="w-full relative overflow-hidden group border transition-all"
+                      style={{ 
+                        aspectRatio: activeSection.card_config.aspectRatio, 
+                        borderRadius: `${activeSection.card_config.borderRadius}px`,
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                        boxShadow: theme.shadow
+                      }}
+                    >
+                      <img src={`https://picsum.photos/seed/p${activeId}${i}/800/1000`} className={`w-full h-full object-cover transition-transform duration-700 ${activeSection.card_config.hoverEffect === 'zoom' ? 'group-hover:scale-110' : ''}`} />
+                      {activeSection.card_config.hoverEffect === 'scrim' && (
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      )}
+                      {activeSection.card_config.showBadge && (
+                         <div className="absolute top-3 left-3 px-2 py-1 text-[8px] font-black uppercase rounded shadow-sm" style={{ backgroundColor: theme.primary, color: theme.textInverse }}>Hot</div>
+                      )}
+                    </div>
+                    <div className="mt-4" style={{ textAlign: activeSection.card_config.textAlign }}>
+                       <p className="text-xs font-bold uppercase tracking-tighter mb-1" style={{ color: theme.text }}>Sample Product Name</p>
+                       {activeSection.card_config.showPrice && <p className="text-sm font-black" style={{ color: theme.textSecondary }}>$149.00</p>}
+                    </div>
+                  </div>
+                ))}
+             </div>
+          </div>
+        </div>
+      </main>
+
+      {/* --- RIGHT: INSPECTOR (Collapses to 40px) --- */}
+      <aside 
+        className="border-l flex flex-col transition-all duration-300 relative" 
+        style={{ 
+          width: rightOpen ? '320px' : '40px',
+          backgroundColor: theme.bgSecondary, 
+          borderColor: theme.border 
+        }}
+      >
+        <div className="p-3 border-b flex items-center overflow-hidden" style={{ borderColor: theme.border }}>
+          <button 
+            onClick={() => setRightOpen(!rightOpen)} 
+            className={`p-1 hover:bg-black/10 rounded transition-all ${!rightOpen ? 'mx-auto' : 'mr-3'}`}
+          >
+            {rightOpen ? <PanelRight size={16}/> : <ChevronLeft size={16}/>}
+          </button>
+          {rightOpen && <span className="text-[10px] font-black uppercase opacity-40">Inspector</span>}
+        </div>
+
+        {rightOpen && (
+          <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-hide">
+            {/* Layout Section - Restored Range Inputs */}
+            <section className="space-y-4">
+               <div className="flex items-center gap-2 text-[10px] font-black uppercase opacity-40 mb-4"><Maximize2 size={12}/> Layout & Spacing</div>
+               <div className="space-y-4">
+                  <div>
+                     <label className="text-[10px] font-bold block mb-1">Card Count ({activeSection.layout_config.displayLimit})</label>
+                     <input type="range" min="1" max="5" value={activeSection.layout_config.displayLimit} onChange={e => updateLayout({ displayLimit: Number(e.target.value) })} className="w-full cursor-pointer" style={{ accentColor: theme.primary }}/>
+                  </div>
+                  <div>
+                     <label className="text-[10px] font-bold block mb-1">Gap Size ({activeSection.layout_config.gap}px)</label>
+                     <input type="range" min="0" max="40" value={activeSection.layout_config.gap} onChange={e => updateLayout({ gap: Number(e.target.value) })} className="w-full cursor-pointer" style={{ accentColor: theme.primary }}/>
+                  </div>
+                  <div>
+                     <label className="text-[10px] font-bold block mb-1">Border Radius ({activeSection.card_config.borderRadius}px)</label>
+                     <input type="range" min="0" max="40" value={activeSection.card_config.borderRadius} onChange={e => updateCard({ borderRadius: Number(e.target.value) })} className="w-full cursor-pointer" style={{ accentColor: theme.primary }}/>
+                  </div>
+               </div>
+            </section>
+
+            <hr className="opacity-10" />
+
+            {/* Rules Section */}
+            <section className="space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                 <div className="flex items-center gap-2 text-[10px] font-black uppercase opacity-40"><Sliders size={12}/> Selection Rules</div>
+                 <button className="text-[10px] font-bold" style={{ color: theme.primary }} onClick={() => {
+                    const newRule = { id: Date.now().toString(), field: 'category_id', operator: '=', value: '' };
+                    updateSection({ rules: [...activeSection.rules, newRule] });
+                 }}>+ Add Rule</button>
+              </div>
+
+              <div className="space-y-3">
+                {activeSection.rules.map((rule) => (
+                  <div key={rule.id} className="p-3 border rounded-xl relative group shadow-sm" style={{ backgroundColor: theme.bg, borderColor: theme.border }}>
+                     <select 
+                        className="w-full text-[10px] font-black mb-2 border-b bg-transparent outline-none pb-1"
+                        style={{ borderColor: theme.border, color: theme.text }}
+                        value={rule.field}
+                        onChange={(e) => {
+                           const updated = activeSection.rules.map(r => r.id === rule.id ? { ...r, field: e.target.value, value: '' } : r);
+                           updateSection({ rules: updated });
+                        }}
+                      >
+                        <option value="discount">Discount Percentage</option>
+                        <option value="price">Price Range</option>
+                        <option value="category_id">Filter by Category</option>
+                        <option value="brand_id">Filter by Brand</option>
+                     </select>
+
+                     {(rule.field === 'category_id' || rule.field === 'brand_id') ? (
+                        <select 
+                          className="w-full p-2 text-[10px] border rounded bg-transparent"
+                          style={{ borderColor: theme.border, color: theme.text }}
+                          value={rule.value}
+                          onChange={(e) => {
+                             const updated = activeSection.rules.map(r => r.id === rule.id ? { ...r, value: e.target.value } : r);
+                             updateSection({ rules: updated });
+                          }}
+                        >
+                           <option value="">Select {rule.field === 'category_id' ? 'Category' : 'Brand'}...</option>
+                           {(rule.field === 'category_id' ? CATEGORIES : BRANDS).map(name => (
+                              <option key={name} value={name}>{name}</option>
+                           ))}
+                        </select>
+                     ) : (
+                        <div className="flex gap-2">
+                          <select className="p-1 text-[10px] border rounded bg-transparent" style={{ borderColor: theme.border, color: theme.text }} value={rule.operator}>
+                             <option value=">=">{'>='}</option>
+                             <option value="<=">{'<='}</option>
+                             <option value="=">{'='}</option>
+                          </select>
+                          <input className="flex-1 p-1 text-[10px] border rounded outline-none bg-transparent" 
+                                 style={{ borderColor: theme.border, color: theme.text }}
+                                 placeholder="Value" value={rule.value} />
+                        </div>
+                     )}
+
+                     <button onClick={() => updateSection({ rules: activeSection.rules.filter(r => r.id !== rule.id) })}
+                             className="absolute -top-2 -right-2 p-1.5 border rounded-full text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                             style={{ backgroundColor: theme.bg, borderColor: theme.border }}>
+                        <Trash2 size={10} />
+                     </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <hr className="opacity-10" />
+
+            {/* Visibility Toggle Section */}
+            <section className="space-y-3">
+               {[
+                 { label: 'Show Price', key: 'showPrice', target: 'card' },
+                 { label: 'Show Promo Badges', key: 'showBadge', target: 'card' },
+                 { label: 'Visible to Public', key: 'active', target: 'section' }
+               ].map((item) => (
+                 <div key={item.key} className="flex items-center justify-between p-3 border rounded-xl" style={{ borderColor: theme.border }}>
+                    <span className="text-[10px] font-bold uppercase opacity-60">{item.label}</span>
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4 rounded"
+                      style={{ accentColor: theme.primary }}
+                      checked={item.target === 'card' ? (activeSection.card_config as any)[item.key] : (activeSection as any)[item.key]} 
+                      onChange={e => item.target === 'card' ? updateCard({ [item.key]: e.target.checked }) : updateSection({ [item.key]: e.target.checked })} 
+                    />
+                 </div>
+               ))}
+            </section>
+          </div>
+        )}
+      </aside>
     </div>
   );
 }
 
-function OrderAction({ theme, icon, label, onClick }: any) {
-  return (
-    <button 
-      onClick={onClick}
-      style={{ color: theme.text, borderRadius: '6px' }}
-      className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium hover:bg-black/5 transition-colors"
-    >
-      <span style={{ color: theme.primary }}>{icon}</span>
-      {label}
-    </button>
-  );
-}
-CreateCatalogSection.layout = (page : any) => <AdminLayout >{page}</AdminLayout>
+ProductSectionEditor.layout = (page: any) => <AdminLayout>{page}</AdminLayout>
+
+const INITIAL_PAYLOAD: CatalogSectionPayload[] = [
+  { 
+    id: 1, 
+    section_type: 'deals',
+    name: 'Top Deals', 
+    active: true,
+    layout_config: { displayLimit: 4, gap: 16, paddingInline: 0 },
+    card_config: { aspectRatio: '3/4', borderRadius: 12, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'zoom' },
+    rules: [{ id: '1', field: 'discount', operator: '>=', value: '25' }]
+  },
+  { 
+    id: 2, 
+    section_type: 'category',
+    name: 'Featured Footwear', 
+    active: true,
+    layout_config: { displayLimit: 3, gap: 24, paddingInline: 0 },
+    card_config: { aspectRatio: '1/1', borderRadius: 24, showPrice: true, showBadge: false, textAlign: 'center', hoverEffect: 'scrim' },
+    rules: [{ id: '2', field: 'category_id', operator: '=', value: 'Menswear' }]
+  }
+];

@@ -22,6 +22,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CouponController;
@@ -44,6 +45,7 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/store/sections', [CatalogSectionController::class, 'create'])->name('sections.create');
+Route::get('/store/banners', [BannerController::class, 'create'])->name('banner.create');
 Route::get('/shop', function () {
     return Inertia::render('ShopPage');
 })->name('shop');
@@ -123,19 +125,14 @@ Route::delete('/media/{media}', [MediaController::class, 'destroy'])
 
 Route::delete('/media', [MediaController::class, 'destroyBulk'])
     ->name('media.destroy.bulk');
-// the end of the media section
-
-
-// catgeories secion
-
+// end media section 
+// categories 
 Route::get('api/subCategories' , [CategoryController::class,'subCategories'])->name('get.sub_categories');
 Route::get('/categories' , [CategoryController::class, 'index'])->name("categories.index");
 Route::get('/categories/create' , [CategoryController::class, 'create'])->name("categories.create");
 Route::get('/categories/{category:slug}' , [CategoryController::class, 'edit'])->name("categories.edit");
 Route::get('/categories/tree' , [CategoryController::class, 'tree'])->name("categories.tree");
 //end categories section
-
-
 
 // attributes
 Route::get('/attributes' , [AttributesController::class, 'index'])->name('get.attributes');
@@ -194,3 +191,4 @@ Route::get('dashboard/customers_analytics' , [DashboardController::class, 'custo
 Route::get('dashboard/inventory_analytics' , [DashboardController::class, 'inventoryIndex']) ;
 
 // require __DIR__.'/auth.php';
+  

@@ -17,7 +17,7 @@ class MediaRequest extends FormRequest {
        return [
             'file' => [],
             'collection' => 'required|in:gallery,thumbnail,avatar,variant_cover,banner',
-            'model_type' => 'required|in:product,variant,user,admin,brand,category,general',
+            'model_type' => 'required|in:banner,product,variant,user,admin,brand,category,general',
        ];
        
     }

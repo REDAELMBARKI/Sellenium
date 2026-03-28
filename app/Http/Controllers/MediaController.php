@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MediaRequest;
+use App\Models\Banner;
 use App\Models\Media;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -22,15 +23,17 @@ class MediaController extends Controller
          'product' => Product::class,
          'variant' => ProductVariant::class,
          'user' => User::class,
+         'banner' => Banner::class
     ];
+
     public function __construct(private MediaService $mediaService)
     {
 
     }
 
-   
-
+    
     public function store(MediaRequest $request){
+        logger("request" , ['request' => $request->all()]) ;
         $exists = array_key_exists(strtolower($request->model_type), $this->mediables) ;
         if(! $exists){
             return response()->json(['message' => 'this model type is not exists'],404);
@@ -40,11 +43,11 @@ class MediaController extends Controller
         $file = $request->file('file');
         $collection = $request->collection;
         $media = $this->mediaService->store($file ,$collection ,$mediable);
-        // Debug in console (as JSON response)
         return response()->json(
         [
-            'media' => $media
-        ],201);
+          'media' => $media
+        ]
+        ,201);
        
     }
 

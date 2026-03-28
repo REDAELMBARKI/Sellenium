@@ -12,7 +12,7 @@ class CatalogSectionsTableSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('catalog_sections')->insert([
+        DB::table('home_catalog_sections')->insert([
             [
                 'name' => 'Top Deals',
                 'icon' => null,

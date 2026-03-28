@@ -3,3 +3,4 @@ export type ModelType =
   | 'variant'
   | 'user'
   | 'brand'
+  |'banner'

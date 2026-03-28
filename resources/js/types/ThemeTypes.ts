@@ -86,7 +86,21 @@ export type Themes =  Record<ThemeStyle ,Record<ThemeMode , ThemePalette>>
     text: string          // text color on top of promo backgrounds
     badge: string         // the yellow threshold badge background
     badgeText: string     // text on the badge
- }
+ },
+ // Add this block to every theme variant (light + dark) in your ThemePalette type first:
+
+banner: {
+  scrim: string           // overlay on top of photos (rgba dark tint)
+  scrimText: string       // primary text on scrimmed backgrounds
+  scrimSubtext: string    // secondary/subtitle text on scrimmed backgrounds  
+  scrimBorder: string     // button borders on scrimmed backgrounds
+  solidBg: string         // background when section has NO photo (solid color sections)
+  solidText: string       // text on solid background sections
+  solidSubtext: string    // subtext on solid background sections
+  accentBtn: string       // CTA button bg on banners
+  accentBtnText: string   // CTA button text on banners
+}
+
 };
  
 

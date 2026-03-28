@@ -68,6 +68,19 @@ export const currentThemeExample: Themes = {
         badge: '#f5e6c8',           // warm cream
         badgeText: '#1a1200',
       },
+      // luxuryNoir light
+      banner: {
+        scrim: 'rgba(0,0,0,0.48)',
+        scrimText: '#ffffff',
+        scrimSubtext: 'rgba(255,255,255,0.72)',
+        scrimBorder: 'rgba(255,255,255,0.85)',
+        solidBg: '#141414',          // their dark sidebar color — dramatic on light theme
+        solidText: '#f5f5f5',
+        solidSubtext: '#9ca3af',
+        accentBtn: '#bfa36f',        // gold accent
+        accentBtnText: '#111111',
+      },
+
     },
  
     dark: {
@@ -135,6 +148,19 @@ export const currentThemeExample: Themes = {
         badge: '#f5e6c8',
         badgeText: '#1a1200',
       },
+      // luxuryNoir dark
+      banner: {
+        scrim: 'rgba(0,0,0,0.58)',   // darker — already dark UI so needs more contrast
+        scrimText: '#ffffff',
+        scrimSubtext: 'rgba(255,255,255,0.68)',
+        scrimBorder: 'rgba(255,255,255,0.75)',
+        solidBg: '#1a1a1a',
+        solidText: '#f9fafb',
+        solidSubtext: '#d6b97b',     // gold subtext — luxury feel
+        accentBtn: '#d6b97b',
+        accentBtnText: '#000000',
+      },
+
     },
   },
  
@@ -204,6 +230,19 @@ export const currentThemeExample: Themes = {
         badge: '#fef9c3',           // soft yellow
         badgeText: '#1a1200',
       },
+       // softPastel light
+      banner: {
+        scrim: 'rgba(15,23,42,0.42)', // their overlay value — cool blue-black tint
+        scrimText: '#ffffff',
+        scrimSubtext: 'rgba(255,255,255,0.78)',
+        scrimBorder: 'rgba(255,255,255,0.9)',
+        solidBg: '#f3e8ff',           // soft purple tint — matches their primary
+        solidText: '#1f2937',
+        solidSubtext: '#374151',
+        accentBtn: '#8b5cf6',         // purple primary
+        accentBtnText: '#ffffff',
+      },
+
     },
  
     dark: {
@@ -271,6 +310,19 @@ export const currentThemeExample: Themes = {
         badge: '#fef9c3',
         badgeText: '#1a1200',
       },
+      
+    // softPastel dark
+    banner: {
+      scrim: 'rgba(0,0,0,0.52)',
+      scrimText: '#ffffff',
+      scrimSubtext: 'rgba(255,255,255,0.72)',
+      scrimBorder: 'rgba(255,255,255,0.8)',
+      solidBg: '#1e1b4b',           // deep indigo
+      solidText: '#f9fafb',
+      solidSubtext: '#c4b5fd',      // light violet
+      accentBtn: '#a78bfa',
+      accentBtnText: '#0f172a',
+    },
     },
   },
 
@@ -340,6 +392,20 @@ export const currentThemeExample: Themes = {
         badge: '#FFE000',
         badgeText: '#1a1200',
       },
+      banner: {
+        scrim: 'rgba(20,10,5,0.45)',  // warm brown-black tint matches their dark bg
+        scrimText: '#ffffff',
+        scrimSubtext: 'rgba(255,255,255,0.74)',
+        scrimBorder: 'rgba(255,255,255,0.82)',
+        solidBg: '#1a1210',           // their sidebarBg — warm dark
+        solidText: '#f5f0ea',
+        solidSubtext: '#9c9189',
+        accentBtn: '#ff6b35',         // orange
+        accentBtnText: '#ffffff',
+      },
+
+
+
     },
 
     dark: {
@@ -406,6 +472,18 @@ export const currentThemeExample: Themes = {
         text: '#ffffff',
         badge: '#FFE000',
         badgeText: '#1a1200',
+      },
+      // orangeNight dark
+      banner: {
+        scrim: 'rgba(10,5,2,0.62)',   // deep warm black — matches their near-black bg
+        scrimText: '#ffffff',
+        scrimSubtext: 'rgba(255,255,255,0.70)',
+        scrimBorder: 'rgba(255,255,255,0.75)',
+        solidBg: '#1f1208',           // their dealBg — deep orange-brown
+        solidText: '#f5f0ea',
+        solidSubtext: '#d4ccc3',
+        accentBtn: '#ff6b35',
+        accentBtnText: '#ffffff',
       },
     },
   },

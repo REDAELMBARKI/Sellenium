@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CatalogSectionController extends Controller
 {
@@ -31,4 +32,6 @@ class CatalogSectionController extends Controller
             'operators' => $operators,
         ]);
     }
+
+   
 }
