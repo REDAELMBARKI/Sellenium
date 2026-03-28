@@ -1,75 +1,37 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import {
   Image, Layers, Film, LayoutDashboard, Columns2, LayoutGrid,
   MoreVertical, ChevronUp, ChevronDown, ArrowUpToLine, ArrowDownToLine,
   Eye, EyeOff, Upload, ArrowLeftRight, Loader2, Plus,
+  PanelRight, ChevronLeft, RotateCcw, Save, AlertTriangle,
 } from 'lucide-react';
+import { router } from '@inertiajs/react';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
+import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 
-// ─── Mock Theme (replace with useStoreConfigCtx in production) ───────────────
-const THEME = {
-  bg: '#0f1011',
-  bgSecondary: '#18191b',
-  card: '#1e2022',
-  modal: '#1e2022',
-  overlay: 'rgba(0,0,0,0.6)',
-  sidebarBg: '#0f1011',
-  sidebarFg: '#e8e9ea',
-  sidebarBorder: '#252729',
-  sidebarHover: '#1e2022',
-  sidebarMuted: '#3a3d43',
-  sidebarMutedFg: '#6b7280',
-  sidebarActive: '#25262a',
-  sidebarActiveFg: '#a78bfa',
-  text: '#e8e9ea',
-  textSecondary: '#9a9da6',
-  textMuted: '#555a63',
-  textInverse: '#0f1011',
-  primary: '#7F77DD',
-  primaryHover: '#6d65c8',
-  secondary: '#2a2c30',
-  secondaryHover: '#333640',
-  accent: '#a78bfa',
-  accentHover: '#9474f5',
-  border: '#252729',
-  borderHover: '#3a3d43',
-  borderRadius: '10px',
-  link: '#a78bfa',
-  linkHover: '#c4b5fd',
-  shadow: '0 1px 3px rgba(0,0,0,0.5)',
-  shadowMd: '0 4px 12px rgba(0,0,0,0.4)',
-  shadowLg: '0 12px 32px rgba(0,0,0,0.6)',
-  badge: '#2a2c30',
-  success: '#1D9E75',
-  info: '#378ADD',
-  error: '#E24B4A',
-  warning: '#BA7517',
-  priceText: '#e8e9ea',
-  priceStrike: '#555a63',
-  dealBg: '#1e2022',
-  starColor: '#EF9F27',
-  promotionBg: {
-    percentage: '#D85A30',
-    fixed: '#185FA5',
-    free_shipping: '#1D9E75',
-    text: '#ffffff',
-    badge: '#EF9F27',
-    badgeText: '#0f1011',
-  },
-  banner: {
-    scrim: 'rgba(0,0,0,0.45)',
-    scrimText: '#ffffff',
-    scrimSubtext: 'rgba(255,255,255,0.7)',
-    scrimBorder: 'rgba(255,255,255,0.8)',
-    solidBg: '#0d1117',
-    solidText: '#ffffff',
-    solidSubtext: 'rgba(255,255,255,0.65)',
-    accentBtn: '#7F77DD',
-    accentBtnText: '#ffffff',
-  },
-};
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface BannerImage {
+  slot: string;
+  url: string;
+  label: string;
+}
+
+interface BannerSection {
+  id: string;
+  type: string;
+  isActive: boolean;
+  order: number;
+  direction: 'ltr' | 'rtl' | null;
+  tag: string;
+  title: string;
+  subtitle: string;
+  ctaLabel: string;
+  images: BannerImage[];
+}
 
 // ─── Section Type Registry ────────────────────────────────────────────────────
+
 const SECTION_TYPES = [
   { type: 'overlay',         label: 'Overlay',        Icon: Image,           description: 'Full-bleed image with text overlay' },
   { type: 'lifestyle-inset', label: 'Lifestyle Inset', Icon: Layers,          description: 'Text panel + photo with floating inset card' },
@@ -79,16 +41,15 @@ const SECTION_TYPES = [
   { type: 'double-media',    label: 'Double Media',    Icon: LayoutGrid,      description: 'Side-by-side photos with overlapping text' },
 ];
 
-// ─── Fake Sections Data ───────────────────────────────────────────────────────
-const INITIAL_SECTIONS = [
+// ─── Factory & Initial Payloads ───────────────────────────────────────────────
+
+const FACTORY_SECTIONS: BannerSection[] = [
   {
     id: 's1', type: 'overlay', isActive: true, order: 0, direction: null,
     tag: 'New Season', title: 'MODERN MINIMALISM',
     subtitle: 'Clean lines and timeless silhouettes for the sophisticated wardrobe.',
     ctaLabel: 'EXPLORE',
-    images: [
-      { slot: 'main', url: 'https://images.unsplash.com/photo-1490481651871-ab68624d5517?q=80&w=2000', label: 'Background image' },
-    ],
+    images: [{ slot: 'main', url: 'https://images.unsplash.com/photo-1490481651871-ab68624d5517?q=80&w=2000', label: 'Background image' }],
   },
   {
     id: 's2', type: 'lifestyle-inset', isActive: true, order: 1, direction: 'ltr',
@@ -105,9 +66,7 @@ const INITIAL_SECTIONS = [
     tag: 'FW 2025', title: 'THE NEW COLLECTION',
     subtitle: 'Where craft meets quiet luxury',
     ctaLabel: 'DISCOVER',
-    images: [
-      { slot: 'main', url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=2000', label: 'Background image' },
-    ],
+    images: [{ slot: 'main', url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=2000', label: 'Background image' }],
   },
   {
     id: 's4', type: 'editorial-text', isActive: false, order: 3, direction: null,
@@ -121,9 +80,7 @@ const INITIAL_SECTIONS = [
     tag: 'Archive', title: 'THE ARCHIVE EDIT',
     subtitle: 'Revisiting the codes that defined a generation.',
     ctaLabel: 'SHOP NOW',
-    images: [
-      { slot: 'main', url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1400', label: 'Feature photo' },
-    ],
+    images: [{ slot: 'main', url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1400', label: 'Feature photo' }],
   },
   {
     id: 's6', type: 'double-media', isActive: true, order: 5, direction: 'ltr',
@@ -137,29 +94,130 @@ const INITIAL_SECTIONS = [
   },
 ];
 
+const INITIAL_SECTIONS: BannerSection[] = JSON.parse(JSON.stringify(FACTORY_SECTIONS));
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const getImg = (section, slot = 'main') =>
+
+const getImg = (section: BannerSection, slot = 'main') =>
   section.images.find(i => i.slot === slot)?.url || '';
 
-const typeLabel = (type) =>
+const typeLabel = (type: string) =>
   SECTION_TYPES.find(s => s.type === type)?.label ?? type;
 
-const typeIcon = (type) => {
+const typeIcon = (type: string) => {
   const found = SECTION_TYPES.find(s => s.type === type);
   return found ? <found.Icon size={12} /> : <Image size={12} />;
 };
 
+// ─── Unsaved Changes Modal ────────────────────────────────────────────────────
+
+type ModalReason = 'switch' | 'publish' | 'navigate';
+
+interface UnsavedModalProps {
+  sectionName: string;
+  reason: ModalReason;
+  onDiscard: () => void;
+  onKeep: () => void;
+}
+
+const MODAL_COPY: Record<ModalReason, { title: string; body: (name: string) => React.ReactNode; keep: string; discard: string }> = {
+  switch: {
+    title: 'You have unsaved changes',
+    body: (name) => <>Changes to <strong>{name}</strong> will be lost if you switch without publishing first.</>,
+    keep: 'Keep Editing',
+    discard: 'Discard & Switch',
+  },
+  publish: {
+    title: 'Publish these changes?',
+    body: (name) => <>You're about to publish changes to <strong>{name}</strong> and make them live on your storefront.</>,
+    keep: 'Publish Now',
+    discard: 'Cancel',
+  },
+  navigate: {
+    title: 'Leave without publishing?',
+    body: () => <>You have unpublished changes that will be lost if you leave this page.</>,
+    keep: 'Stay Here',
+    discard: 'Leave Anyway',
+  },
+};
+
+function UnsavedModal({ sectionName, reason, onDiscard, onKeep }: UnsavedModalProps) {
+  const { state: { currentTheme: theme } } = useStoreConfigCtx();
+  const copy = MODAL_COPY[reason];
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div
+        style={{ position: 'absolute', inset: 0, background: theme.overlay, backdropFilter: 'blur(4px)' }}
+        onClick={onKeep}
+      />
+      <div style={{
+        position: 'relative', zIndex: 10, width: 380,
+        borderRadius: 16, border: `1px solid ${theme.border}`,
+        padding: 24, boxShadow: theme.shadowLg,
+        backgroundColor: theme.bgSecondary,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 24 }}>
+          <div style={{
+            flexShrink: 0, width: 36, height: 36, borderRadius: 10,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backgroundColor: `${theme.primary}20`,
+          }}>
+            <AlertTriangle size={16} style={{ color: theme.primary }} />
+          </div>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 6, color: theme.text }}>
+              {copy.title}
+            </p>
+            <p style={{ fontSize: 11, lineHeight: 1.6, color: theme.textSecondary }}>
+              {copy.body(sectionName)}
+            </p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button
+            onClick={onKeep}
+            style={{
+              flex: 1, padding: '10px 0', fontSize: 10, fontWeight: 800,
+              textTransform: 'uppercase', letterSpacing: '0.08em',
+              borderRadius: 10, border: 'none', cursor: 'pointer',
+              backgroundColor: theme.primary, color: theme.textInverse,
+            }}
+          >
+            {copy.keep}
+          </button>
+          <button
+            onClick={onDiscard}
+            style={{
+              flex: 1, padding: '10px 0', fontSize: 10, fontWeight: 800,
+              textTransform: 'uppercase', letterSpacing: '0.08em',
+              borderRadius: 10, border: `1px solid ${theme.border}`,
+              background: 'transparent', cursor: 'pointer', color: theme.text,
+            }}
+          >
+            {copy.discard}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Dots Menu ────────────────────────────────────────────────────────────────
-function DotsMenu({ isFirst, isLast, isActive, onAction }) {
+
+function DotsMenu({ isFirst, isLast, isActive, onAction }: {
+  isFirst: boolean; isLast: boolean; isActive: boolean;
+  onAction: (action: string) => void;
+}) {
+  const { state: { currentTheme: t } } = useStoreConfigCtx();
   const [open, setOpen] = useState(false);
-  const t = THEME;
 
   const items = [
-    { label: 'Move up',         icon: <ChevronUp size={12} />,      action: 'up',     disabled: isFirst },
-    { label: 'Move down',       icon: <ChevronDown size={12} />,    action: 'down',   disabled: isLast },
+    { label: 'Move up',        icon: <ChevronUp size={12} />,       action: 'up',     disabled: isFirst },
+    { label: 'Move down',      icon: <ChevronDown size={12} />,     action: 'down',   disabled: isLast  },
     null,
-    { label: 'Move to top',     icon: <ArrowUpToLine size={12} />,  action: 'top',    disabled: isFirst },
-    { label: 'Move to bottom',  icon: <ArrowDownToLine size={12} />,action: 'bottom', disabled: isLast },
+    { label: 'Move to top',    icon: <ArrowUpToLine size={12} />,   action: 'top',    disabled: isFirst },
+    { label: 'Move to bottom', icon: <ArrowDownToLine size={12} />, action: 'bottom', disabled: isLast  },
     null,
     {
       label: isActive ? 'Set hidden' : 'Set live',
@@ -175,23 +233,18 @@ function DotsMenu({ isFirst, isLast, isActive, onAction }) {
         style={{
           width: 22, height: 22, display: 'grid', placeItems: 'center',
           background: open ? t.secondary : 'transparent',
-          border: 'none', borderRadius: 5, cursor: 'pointer',
-          color: t.textMuted, opacity: 1,
+          border: 'none', borderRadius: 5, cursor: 'pointer', color: t.textMuted,
         }}
       >
         <MoreVertical size={13} />
       </button>
       {open && (
         <>
-          <div
-            style={{ position: 'fixed', inset: 0, zIndex: 40 }}
-            onClick={() => setOpen(false)}
-          />
+          <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={() => setOpen(false)} />
           <div style={{
             position: 'absolute', right: 0, top: '110%', zIndex: 50,
             background: t.card, border: `0.5px solid ${t.borderHover}`,
-            borderRadius: 10, padding: 4, minWidth: 162,
-            boxShadow: t.shadowLg,
+            borderRadius: 10, padding: 4, minWidth: 162, boxShadow: t.shadowLg,
           }}>
             {items.map((item, i) =>
               item === null
@@ -206,13 +259,12 @@ function DotsMenu({ isFirst, isLast, isActive, onAction }) {
                       padding: '7px 10px', background: 'transparent', border: 'none',
                       borderRadius: 6, cursor: item.disabled ? 'not-allowed' : 'pointer',
                       color: item.disabled ? t.textMuted : t.text,
-                      fontSize: 11, textAlign: 'left',
-                      opacity: item.disabled ? 0.35 : 1,
+                      fontSize: 11, textAlign: 'left', opacity: item.disabled ? 0.35 : 1,
                     }}
-                    onMouseEnter={e => { if (!item.disabled) e.currentTarget.style.background = t.secondary; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                    onMouseEnter={e => { if (!item.disabled) (e.currentTarget as HTMLElement).style.background = t.secondary; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                   >
-                    <span style={{ color: '#D85A30', width: 14 }}>{item.icon}</span>
+                    <span style={{ color: t.primary, width: 14 }}>{item.icon}</span>
                     {item.label}
                   </button>
                 )
@@ -224,34 +276,33 @@ function DotsMenu({ isFirst, isLast, isActive, onAction }) {
   );
 }
 
-// ─── Left Sidebar Item ────────────────────────────────────────────────────────
-function SidebarItem({ section, index, isActive, onSelect, onAction }) {
-  const t = THEME;
+// ─── Sidebar Item ─────────────────────────────────────────────────────────────
+
+function SidebarItem({ section, index, isActive, isDirty, onSelect, onAction }: {
+  section: BannerSection; index: number; isActive: boolean; isDirty: boolean;
+  onSelect: (id: string) => void; onAction: (action: string) => void;
+}) {
+  const { state: { currentTheme: t } } = useStoreConfigCtx();
+
   return (
     <div
       onClick={() => onSelect(section.id)}
       style={{
         display: 'flex', alignItems: 'center', gap: 7,
-        padding: '8px 10px',
-        cursor: 'pointer',
+        padding: '8px 10px', cursor: 'pointer',
         borderLeft: `2px solid ${isActive ? t.primary : 'transparent'}`,
         background: isActive ? `${t.primary}0f` : 'transparent',
         transition: 'background 0.1s',
       }}
-      onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = t.sidebarHover; }}
-      onMouseLeave={e => { e.currentTarget.style.background = isActive ? `${t.primary}0f` : 'transparent'; }}
+      onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = t.sidebarHover; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = isActive ? `${t.primary}0f` : 'transparent'; }}
     >
-      {/* order number */}
       <span style={{ fontSize: 10, fontFamily: 'monospace', color: t.textMuted, width: 14, textAlign: 'right', flexShrink: 0 }}>
         {String(index + 1).padStart(2, '0')}
       </span>
-
-      {/* icon */}
       <span style={{ color: isActive ? t.primary : t.textMuted, flexShrink: 0 }}>
         {typeIcon(section.type)}
       </span>
-
-      {/* info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
           fontSize: 12, fontWeight: 500,
@@ -265,45 +316,48 @@ function SidebarItem({ section, index, isActive, onSelect, onAction }) {
         </div>
       </div>
 
+      {/* dirty dot */}
+      {isDirty && (
+        <span style={{
+          width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+          backgroundColor: t.primary,
+        }} />
+      )}
+
       {/* live/hidden pill */}
       <span style={{
         display: 'flex', alignItems: 'center', gap: 4,
         padding: '2px 6px', borderRadius: 20,
         fontSize: 9, fontFamily: 'monospace', flexShrink: 0,
         background: section.isActive ? 'rgba(29,158,117,0.14)' : t.secondary,
-        color: section.isActive ? '#1D9E75' : t.textMuted,
+        color: section.isActive ? t.success : t.textMuted,
       }}>
         <span style={{
           width: 4, height: 4, borderRadius: '50%',
-          background: section.isActive ? '#1D9E75' : t.textMuted,
+          background: section.isActive ? t.success : t.textMuted,
         }} />
         {section.isActive ? 'live' : 'hidden'}
       </span>
 
-      {/* dots menu */}
-      <DotsMenu
-        isFirst={index === 0}
-        isLast={false}
-        isActive={section.isActive}
-        onAction={onAction}
-      />
+      <DotsMenu isFirst={index === 0} isLast={index === -1} isActive={section.isActive} onAction={onAction} />
     </div>
   );
 }
 
 // ─── Banner Preview ───────────────────────────────────────────────────────────
-function BannerPreview({ section }) {
-  const t = THEME;
+
+function BannerPreview({ section }: { section: BannerSection }) {
+  const { state: { currentTheme: t } } = useStoreConfigCtx();
   const b = t.banner;
   const main = getImg(section, 'main');
   const secondary = getImg(section, 'secondary');
 
-  const ImgBox = ({ src, style, children }) => (
-    <div style={{ position: 'relative', background: '#1a2235', ...style }}>
+  const ImgBox = ({ src, style, children }: { src: string; style?: React.CSSProperties; children?: React.ReactNode }) => (
+    <div style={{ position: 'relative', background: t.card, ...style }}>
       {src
         ? <img src={src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
-        : <div style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center', background: '#1d2535' }}>
-            <Upload size={20} style={{ color: '#556', opacity: 0.4 }} />
+        : <div style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center', background: t.bgSecondary }}>
+            <Upload size={20} style={{ color: t.textMuted, opacity: 0.4 }} />
           </div>
       }
       {children}
@@ -318,11 +372,10 @@ function BannerPreview({ section }) {
     }}>{section.tag}</span>
   ) : null;
 
-  // ── OVERLAY ──────────────────────────────────────────────────────────────
   if (section.type === 'overlay') return (
     <div style={{ position: 'relative', width: '100%', minHeight: 340, borderRadius: 10, overflow: 'hidden' }}>
       <ImgBox src={main} style={{ position: 'absolute', inset: 0 }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 100%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: b.scrim }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '48px 40px', minHeight: 340, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
         <Tag />
         <h2 style={{ fontSize: 'clamp(1.6rem,3.5vw,2.8rem)', fontWeight: 700, color: b.scrimText, lineHeight: 1.1, letterSpacing: '-0.02em' }}>{section.title}</h2>
@@ -334,7 +387,6 @@ function BannerPreview({ section }) {
     </div>
   );
 
-  // ── LIFESTYLE INSET ───────────────────────────────────────────────────────
   if (section.type === 'lifestyle-inset') return (
     <div style={{ display: 'flex', flexDirection: section.direction === 'rtl' ? 'row-reverse' : 'row', borderRadius: 10, overflow: 'hidden', minHeight: 340, background: t.card }}>
       <div style={{ width: '48%', padding: '36px 28px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
@@ -357,15 +409,14 @@ function BannerPreview({ section }) {
     </div>
   );
 
-  // ── CINEMATIC HERO ────────────────────────────────────────────────────────
   if (section.type === 'cinematic-hero') return (
     <div style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', minHeight: 340 }}>
       <ImgBox src={main} style={{ position: 'absolute', inset: 0 }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.15) 55%, transparent 100%)' }} />
       <div style={{ position: 'relative', zIndex: 1, minHeight: 340, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '40px 32px', textAlign: 'center', gap: 8 }}>
-        {section.tag && <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.35em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>{section.tag}</span>}
-        <h2 style={{ fontSize: 'clamp(2rem,4vw,3.2rem)', fontWeight: 700, color: '#fff', lineHeight: 1, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{section.title}</h2>
-        <p style={{ fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>{section.subtitle}</p>
+        {section.tag && <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.35em', textTransform: 'uppercase', color: b.scrimSubtext }}>{section.tag}</span>}
+        <h2 style={{ fontSize: 'clamp(2rem,4vw,3.2rem)', fontWeight: 700, color: b.scrimText, lineHeight: 1, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{section.title}</h2>
+        <p style={{ fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase', color: b.scrimSubtext }}>{section.subtitle}</p>
         <button style={{ marginTop: 10, padding: '10px 28px', background: b.accentBtn, color: b.accentBtnText, border: 'none', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', cursor: 'pointer', borderRadius: 3 }}>
           {section.ctaLabel}
         </button>
@@ -373,7 +424,6 @@ function BannerPreview({ section }) {
     </div>
   );
 
-  // ── EDITORIAL TEXT ────────────────────────────────────────────────────────
   if (section.type === 'editorial-text') return (
     <div style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', minHeight: 340, background: b.solidBg, display: 'flex', alignItems: 'center' }}>
       <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: b.accentBtn }} />
@@ -388,7 +438,6 @@ function BannerPreview({ section }) {
     </div>
   );
 
-  // ── DUOTONE SPLIT ─────────────────────────────────────────────────────────
   if (section.type === 'duotone-split') return (
     <div style={{ display: 'flex', flexDirection: section.direction === 'rtl' ? 'row-reverse' : 'row', borderRadius: 10, overflow: 'hidden', minHeight: 340 }}>
       <div style={{ width: '42%', background: b.accentBtn, padding: '36px 28px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10, position: 'relative', overflow: 'hidden' }}>
@@ -406,7 +455,6 @@ function BannerPreview({ section }) {
     </div>
   );
 
-  // ── DOUBLE MEDIA ──────────────────────────────────────────────────────────
   if (section.type === 'double-media') return (
     <div style={{ position: 'relative', display: 'flex', borderRadius: 10, overflow: 'hidden', minHeight: 340 }}>
       <div style={{ width: '50%', position: 'relative' }}>
@@ -434,16 +482,18 @@ function BannerPreview({ section }) {
 }
 
 // ─── Image Slot ───────────────────────────────────────────────────────────────
-function ImageSlot({ imageObj, label, onChange }) {
-  const t = THEME;
-  const fileRef = useRef();
+
+function ImageSlot({ imageObj, label, onChange }: {
+  imageObj: BannerImage; label: string; onChange: (img: BannerImage) => void;
+}) {
+  const { state: { currentTheme: t } } = useStoreConfigCtx();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleFile = async (e) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setLoading(true);
-    // Simulate upload — replace with real upload in production
     await new Promise(r => setTimeout(r, 800));
     const url = URL.createObjectURL(file);
     onChange({ ...imageObj, url });
@@ -471,75 +521,67 @@ function ImageSlot({ imageObj, label, onChange }) {
           : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
               {loading
-                ? <Loader2 size={18} style={{ color: t.textMuted, animation: 'spin 1s linear infinite' }} />
+                ? <Loader2 size={18} style={{ color: t.textMuted }} />
                 : <Upload size={16} style={{ color: t.textMuted, opacity: 0.6 }} />
               }
               <span style={{ fontSize: 10, color: t.textMuted }}>{loading ? 'Uploading…' : 'Click to upload'}</span>
             </div>
           )
         }
-        {imageObj?.url && !loading && (
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.45)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0)'}
-          >
-            <Upload size={16} style={{ color: '#fff', opacity: 0 }}
-              onMouseEnter={e => e.currentTarget.style.opacity = 1}
-            />
-          </div>
-        )}
       </div>
       <input type="file" ref={fileRef} accept="image/*,video/*" style={{ display: 'none' }} onChange={handleFile} />
     </div>
   );
 }
 
-// ─── Right Content Editor ─────────────────────────────────────────────────────
-function ContentEditor({ section, onUpdate }) {
-  const t = THEME;
+// ─── Right Content Editor (inner scroll body) ─────────────────────────────────
+
+function ContentEditor({ section, onUpdate }: {
+  section: BannerSection | undefined;
+  onUpdate: (updates: Partial<BannerSection>) => void;
+}) {
+  const { state: { currentTheme: t } } = useStoreConfigCtx();
+
   if (!section) return (
     <div style={{ padding: 16, color: t.textMuted, fontSize: 12 }}>Select a section to edit</div>
   );
 
-  const Field = ({ label, children }) => (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ fontSize: 10, fontWeight: 500, color: t.textMuted, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 5 }}>{label}</div>
-      {children}
-    </div>
-  );
-
-  const inputStyle = {
+  const inputStyle: React.CSSProperties = {
     width: '100%', padding: '7px 9px', fontSize: 12,
     border: `0.5px solid ${t.border}`, borderRadius: 8,
     background: t.bgSecondary, color: t.text,
-    outline: 'none', fontFamily: 'inherit', resize: 'none',
-    transition: 'border-color 0.1s',
+    outline: 'none', fontFamily: 'inherit', resize: 'none' as const,
+    transition: 'border-color 0.1s', boxSizing: 'border-box',
   };
 
   const hasDirection = ['lifestyle-inset', 'duotone-split', 'double-media'].includes(section.type);
-  const imageSlotDefs = {
+  const imageSlotDefs: { slot: string; label: string }[] = ({
     'overlay':         [{ slot: 'main', label: 'Background image' }],
     'lifestyle-inset': [{ slot: 'main', label: 'Main photo' }, { slot: 'secondary', label: 'Inset photo' }],
     'cinematic-hero':  [{ slot: 'main', label: 'Background image' }],
     'editorial-text':  [],
     'duotone-split':   [{ slot: 'main', label: 'Feature photo' }],
     'double-media':    [{ slot: 'main', label: 'Left photo' }, { slot: 'secondary', label: 'Right photo' }],
-  }[section.type] ?? [];
+  } as Record<string, { slot: string; label: string }[]>)[section.type] ?? [];
 
-  const updateImage = (slot, newImgObj) => {
+  const updateImage = (slot: string, newImgObj: BannerImage) => {
     const newImages = section.images.filter(i => i.slot !== slot);
     onUpdate({ images: [...newImages, newImgObj] });
   };
 
   const Sep = () => <div style={{ height: 0.5, background: t.border, margin: '14px 0' }} />;
-  const SectionTitle = ({ children }) => (
-    <div style={{ fontSize: 10, fontWeight: 500, color: t.textMuted, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 10 }}>{children}</div>
+  const SectionTitle = ({ children }: { children: React.ReactNode }) => (
+    <div style={{ fontSize: 10, fontWeight: 600, color: t.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 10 }}>{children}</div>
+  );
+  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 10, fontWeight: 500, color: t.textMuted, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 5 }}>{label}</div>
+      {children}
+    </div>
   );
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 14 }}>
-
-      {/* Images */}
       {imageSlotDefs.length > 0 && (
         <>
           <SectionTitle>Images</SectionTitle>
@@ -555,55 +597,36 @@ function ContentEditor({ section, onUpdate }) {
         </>
       )}
 
-      {/* Text */}
       <SectionTitle>Text</SectionTitle>
 
       <Field label="Tag / eyebrow">
-        <input
-          style={inputStyle} value={section.tag || ''}
-          onChange={e => onUpdate({ tag: e.target.value })}
-          placeholder="e.g. New Season"
-          onFocus={e => e.target.style.borderColor = t.primary}
-          onBlur={e => e.target.style.borderColor = t.border}
+        <input style={inputStyle} value={section.tag || ''} onChange={e => onUpdate({ tag: e.target.value })} placeholder="e.g. New Season"
+          onFocus={e => (e.target as HTMLElement).style.borderColor = t.primary}
+          onBlur={e => (e.target as HTMLElement).style.borderColor = t.border}
         />
       </Field>
-
       <Field label="Headline">
-        <textarea
-          style={{ ...inputStyle, lineHeight: 1.5 }}
-          value={section.title} rows={2}
-          onChange={e => onUpdate({ title: e.target.value })}
-          placeholder="Main headline"
-          onFocus={e => e.target.style.borderColor = t.primary}
-          onBlur={e => e.target.style.borderColor = t.border}
+        <textarea style={{ ...inputStyle, lineHeight: 1.5 }} value={section.title} rows={2} onChange={e => onUpdate({ title: e.target.value })} placeholder="Main headline"
+          onFocus={e => (e.target as HTMLElement).style.borderColor = t.primary}
+          onBlur={e => (e.target as HTMLElement).style.borderColor = t.border}
         />
       </Field>
-
       <Field label="Body copy">
-        <textarea
-          style={{ ...inputStyle, lineHeight: 1.5 }}
-          value={section.subtitle} rows={3}
-          onChange={e => onUpdate({ subtitle: e.target.value })}
-          placeholder="Supporting copy"
-          onFocus={e => e.target.style.borderColor = t.primary}
-          onBlur={e => e.target.style.borderColor = t.border}
+        <textarea style={{ ...inputStyle, lineHeight: 1.5 }} value={section.subtitle} rows={3} onChange={e => onUpdate({ subtitle: e.target.value })} placeholder="Supporting copy"
+          onFocus={e => (e.target as HTMLElement).style.borderColor = t.primary}
+          onBlur={e => (e.target as HTMLElement).style.borderColor = t.border}
         />
       </Field>
-
       <Field label="Button label">
-        <input
-          style={inputStyle} value={section.ctaLabel || ''}
-          onChange={e => onUpdate({ ctaLabel: e.target.value })}
-          placeholder="e.g. EXPLORE"
-          onFocus={e => e.target.style.borderColor = t.primary}
-          onBlur={e => e.target.style.borderColor = t.border}
+        <input style={inputStyle} value={section.ctaLabel || ''} onChange={e => onUpdate({ ctaLabel: e.target.value })} placeholder="e.g. EXPLORE"
+          onFocus={e => (e.target as HTMLElement).style.borderColor = t.primary}
+          onBlur={e => (e.target as HTMLElement).style.borderColor = t.border}
         />
       </Field>
 
       <Sep />
       <SectionTitle>Settings</SectionTitle>
 
-      {/* Direction toggle */}
       {hasDirection && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <span style={{ fontSize: 12, color: t.text }}>Layout direction</span>
@@ -621,7 +644,6 @@ function ContentEditor({ section, onUpdate }) {
         </div>
       )}
 
-      {/* Visibility toggle */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontSize: 12, color: t.text }}>Live on storefront</span>
         <button
@@ -634,9 +656,7 @@ function ContentEditor({ section, onUpdate }) {
         >
           <span style={{
             position: 'absolute', width: 14, height: 14, borderRadius: '50%',
-            background: '#fff', top: 3,
-            left: section.isActive ? 19 : 3,
-            transition: 'left 0.2s',
+            background: '#fff', top: 3, left: section.isActive ? 19 : 3, transition: 'left 0.2s',
           }} />
         </button>
       </div>
@@ -645,33 +665,71 @@ function ContentEditor({ section, onUpdate }) {
 }
 
 // ─── Main Editor ──────────────────────────────────────────────────────────────
+
 export default function BannerEditor() {
-  const t = THEME;
-  const [sections, setSections] = useState(
-    [...INITIAL_SECTIONS].sort((a, b) => a.order - b.order)
-  );
-  const [activeId, setActiveId] = useState(INITIAL_SECTIONS[0].id);
+  const { state: { currentTheme: t } } = useStoreConfigCtx();
+
+  const [sections, setSections]           = useState<BannerSection[]>([...INITIAL_SECTIONS].sort((a, b) => a.order - b.order));
+  const [activeId, setActiveId]           = useState<string>(INITIAL_SECTIONS[0].id);
+  const [rightOpen, setRightOpen]         = useState(true);
+  const [savedSnapshot, setSavedSnapshot] = useState<BannerSection[]>(JSON.parse(JSON.stringify(INITIAL_SECTIONS)));
+
+  // modal state: tracks which trigger opened it + pending action target
+  const [modal, setModal] = useState<{ reason: ModalReason; pendingId?: string } | null>(null);
 
   const activeSection = sections.find(s => s.id === activeId);
 
-  const updateSection = useCallback((id, updates) => {
+  // ── Dirty check ────────────────────────────────────────────────────────────
+  const isDirty = useMemo(
+    () => JSON.stringify(sections) !== JSON.stringify(savedSnapshot),
+    [sections, savedSnapshot]
+  );
+
+  // ── browser beforeunload guard (navigate away) ─────────────────────────────
+  // Note: modern browsers show their own native dialog for beforeunload.
+  // We additionally intercept Inertia navigation via router.on('before').
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      e.preventDefault();
+      e.returnValue = '';     // required for Chrome to show the native prompt
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
+  // ── Inertia navigate-away guard ────────────────────────────────────────────
+  useEffect(() => {
+    const removeHandler = router.on('before', (event) => {
+      if (!isDirty) return;
+      // Show our custom modal instead of following the navigation.
+      // We store the href so we can replay it after the user confirms.
+      event.preventDefault();
+      setModal({ reason: 'navigate', pendingId: (event.detail.visit as any).url?.href ?? '' });
+    });
+    return () => removeHandler();
+  }, [isDirty]);
+
+  // ── Section update ─────────────────────────────────────────────────────────
+  const updateSection = useCallback((id: string, updates: Partial<BannerSection>) => {
     setSections(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
   }, []);
 
-  const handleAction = useCallback((id, action) => {
+  // ── Sidebar reorder / toggle ───────────────────────────────────────────────
+  const handleAction = useCallback((id: string, action: string) => {
     setSections(prev => {
       const sorted = [...prev];
       const idx = sorted.findIndex(s => s.id === id);
       if (idx < 0) return prev;
+      if (action === 'toggle') {
+        sorted[idx] = { ...sorted[idx], isActive: !sorted[idx].isActive };
+        return sorted.map((s, i) => ({ ...s, order: i }));
+      }
       let newIdx = idx;
       if (action === 'up')     newIdx = Math.max(0, idx - 1);
       if (action === 'down')   newIdx = Math.min(sorted.length - 1, idx + 1);
       if (action === 'top')    newIdx = 0;
       if (action === 'bottom') newIdx = sorted.length - 1;
-      if (action === 'toggle') {
-        sorted[idx] = { ...sorted[idx], isActive: !sorted[idx].isActive };
-        return sorted.map((s, i) => ({ ...s, order: i }));
-      }
       if (newIdx === idx) return prev;
       const [moved] = sorted.splice(idx, 1);
       sorted.splice(newIdx, 0, moved);
@@ -679,42 +737,136 @@ export default function BannerEditor() {
     });
   }, []);
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: t.bg, color: t.text, fontFamily: 'system-ui, sans-serif' }}>
+  // ── Section selection (dirty guard → switch modal) ─────────────────────────
+  const handleSelectSection = (id: string) => {
+    if (id === activeId) return;
+    isDirty ? setModal({ reason: 'switch', pendingId: id }) : setActiveId(id);
+  };
 
-      {/* ── Top Bar ── */}
+  // ── Unified modal discard handler ──────────────────────────────────────────
+  const handleModalDiscard = () => {
+    if (!modal) return;
+    if (modal.reason === 'switch' && modal.pendingId) {
+      setSections(JSON.parse(JSON.stringify(savedSnapshot)));
+      setActiveId(modal.pendingId);
+    }
+    if (modal.reason === 'navigate' && modal.pendingId) {
+      // Re-fire navigation after discarding — bypass the Inertia guard
+      // by visiting directly (the guard only fires when isDirty is true,
+      // and we've just reset to snapshot so it will be clean).
+      setSections(JSON.parse(JSON.stringify(savedSnapshot)));
+      // Allow state to flush before navigating
+      setTimeout(() => router.visit(modal.pendingId!), 0);
+    }
+    if (modal.reason === 'publish') {
+      // "Discard" on publish modal = cancel, do nothing
+    }
+    setModal(null);
+  };
+
+  const handleModalKeep = () => setModal(null);
+
+  // ── Publish (with confirmation modal) ─────────────────────────────────────
+  const handlePublish = () => {
+    if (!isDirty) return;
+    // Show a publish-confirm modal before firing the request
+    setModal({ reason: 'publish' });
+  };
+
+  const confirmPublish = () => {
+    setModal(null);
+    router.put(
+      '/admin/banners/sections/update',
+      { sections },
+      {
+        onSuccess: () => setSavedSnapshot(JSON.parse(JSON.stringify(sections))),
+        preserveScroll: true,
+      }
+    );
+  };
+
+  // ── Factory reset (active section only) ───────────────────────────────────
+  const handleFactoryReset = () => {
+    const factory = FACTORY_SECTIONS.find(f => f.id === activeId);
+    if (!factory) return;
+    setSections(prev => prev.map(s => s.id === activeId ? JSON.parse(JSON.stringify(factory)) : s));
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: t.bg, color: t.text, fontFamily: 'system-ui, sans-serif' }}>
+
+      {/* ── Top Bar ────────────────────────────────────────────────────────── */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 20px', height: 52,
-        borderBottom: `1px solid ${t.border}`,
-        background: t.bg, flexShrink: 0,
+        padding: '0 20px', height: 52, flexShrink: 0,
+        borderBottom: `1px solid ${t.border}`, background: t.bg,
       }}>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em' }}>Visual catalog</div>
+          <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em', color: t.text }}>Visual catalog</div>
           <div style={{ fontSize: 10, color: t.textMuted, fontFamily: 'monospace' }}>storefront banner editor</div>
         </div>
-        <button style={{
-          background: t.text, color: t.bg,
-          border: 'none', padding: '8px 18px',
-          fontSize: 11, fontWeight: 600, letterSpacing: '0.07em',
-          textTransform: 'uppercase', cursor: 'pointer',
-          borderRadius: 6, fontFamily: 'monospace',
-        }}>
-          Publish changes
-        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {/* Reset to factory */}
+          <button
+            onClick={handleFactoryReset}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+              letterSpacing: '0.08em', color: t.textMuted, opacity: 0.6,
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = '1'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = '0.6'}
+          >
+            <RotateCcw size={12} /> Reset to Factory
+          </button>
+
+          {/* Unsaved badge */}
+          {isDirty && (
+            <span style={{
+              padding: '2px 8px', fontSize: 9, fontWeight: 800, textTransform: 'uppercase',
+              borderRadius: 20, backgroundColor: `${t.primary}20`, color: t.primary,
+            }}>
+              Unsaved
+            </span>
+          )}
+
+          {/* Publish */}
+          <button
+            onClick={handlePublish}
+            disabled={!isDirty}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: t.text, color: t.bg, border: 'none',
+              padding: '8px 18px', fontSize: 11, fontWeight: 700,
+              letterSpacing: '0.07em', textTransform: 'uppercase',
+              cursor: isDirty ? 'pointer' : 'not-allowed', borderRadius: 6,
+              fontFamily: 'monospace', opacity: isDirty ? 1 : 0.3,
+              transition: 'opacity 0.2s',
+              boxShadow: isDirty ? `0 0 0 3px ${t.primary}30, 0 4px 14px ${t.primary}30` : 'none',
+            }}
+          >
+            <Save size={12} /> Publish Changes
+          </button>
+        </div>
       </div>
 
-      {/* ── Body ── */}
+      {/* ── Body ───────────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
 
-        {/* ── Left Sidebar ── */}
+        {/* ── Left Sidebar ────────────────────────────────────────────────── */}
         <aside style={{
           width: 230, flexShrink: 0,
           borderRight: `1px solid ${t.border}`,
           display: 'flex', flexDirection: 'column',
           background: t.sidebarBg, overflow: 'hidden',
         }}>
-          <div style={{ padding: '10px 12px 8px', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: t.textMuted, borderBottom: `1px solid ${t.border}`, fontFamily: 'monospace', flexShrink: 0 }}>
+          <div style={{
+            padding: '10px 12px 8px', fontSize: 10, fontWeight: 600,
+            letterSpacing: '0.1em', textTransform: 'uppercase', color: t.textMuted,
+            borderBottom: `1px solid ${t.border}`, fontFamily: 'monospace', flexShrink: 0,
+          }}>
             Sections
           </div>
           <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -724,22 +876,24 @@ export default function BannerEditor() {
                 section={s}
                 index={i}
                 isActive={s.id === activeId}
-                onSelect={setActiveId}
+                isDirty={isDirty && s.id === activeId}
+                onSelect={handleSelectSection}
                 onAction={(action) => handleAction(s.id, action)}
               />
             ))}
           </div>
         </aside>
 
-        {/* ── Center Preview ── */}
+        {/* ── Center Preview ───────────────────────────────────────────────── */}
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: t.bgSecondary }}>
-          <div style={{ padding: '9px 16px', borderBottom: `1px solid ${t.border}`, fontSize: 10, color: t.textMuted, background: t.bg, fontFamily: 'monospace', flexShrink: 0 }}>
+          <div style={{
+            padding: '9px 16px', borderBottom: `1px solid ${t.border}`,
+            fontSize: 10, color: t.textMuted, background: t.bg, fontFamily: 'monospace', flexShrink: 0,
+          }}>
             Editing: <strong style={{ color: t.primary, fontWeight: 500 }}>{typeLabel(activeSection?.type ?? '')}</strong>
           </div>
           <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {activeSection && <BannerPreview section={activeSection} />}
-
-            {/* Add section placeholder */}
             <button
               style={{
                 width: '100%', padding: 12, background: 'transparent',
@@ -747,33 +901,72 @@ export default function BannerEditor() {
                 color: t.textMuted, fontSize: 12, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
               }}
-              onMouseEnter={e => e.currentTarget.style.background = t.card}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = t.card}
+              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
             >
               <Plus size={14} /> Add {typeLabel(activeSection?.type ?? '')} section
             </button>
           </div>
         </main>
 
-        {/* ── Right Editor Sidebar ── */}
+        {/* ── Right Panel (collapsible) ────────────────────────────────────── */}
         <aside style={{
-          width: 240, flexShrink: 0,
+          width: rightOpen ? 240 : 40, flexShrink: 0,
           borderLeft: `1px solid ${t.border}`,
           display: 'flex', flexDirection: 'column',
           background: t.bg, overflow: 'hidden',
+          transition: 'width 0.3s ease',
         }}>
-          <div style={{ padding: '10px 12px 8px', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: t.textMuted, borderBottom: `1px solid ${t.border}`, fontFamily: 'monospace', flexShrink: 0 }}>
-            Content
+          {/* Toggle row */}
+          <div style={{
+            padding: '0 10px', height: 40, flexShrink: 0,
+            display: 'flex', alignItems: 'center',
+            borderBottom: `1px solid ${t.border}`,
+            background: t.bg,
+            justifyContent: rightOpen ? 'space-between' : 'center',
+          }}>
+            <button
+              onClick={() => setRightOpen(v => !v)}
+              style={{
+                width: 22, height: 22, display: 'grid', placeItems: 'center',
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: t.textMuted, borderRadius: 5,
+              }}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = t.secondary}
+              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+            >
+              {rightOpen ? <PanelRight size={16} /> : <ChevronLeft size={16} />}
+            </button>
+            {rightOpen && (
+              <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: t.textMuted, fontFamily: 'monospace' }}>
+                Content
+              </span>
+            )}
           </div>
-          <ContentEditor
-            section={activeSection}
-            onUpdate={(updates) => activeSection && updateSection(activeSection.id, updates)}
-          />
-        </aside>
 
+          {/* Editor body */}
+          {rightOpen && (
+            <ContentEditor
+              section={activeSection}
+              onUpdate={(updates) => activeSection && updateSection(activeSection.id, updates)}
+            />
+          )}
+        </aside>
       </div>
+
+      {/* ── Unsaved Changes / Publish Confirm / Navigate Away Modal ─────── */}
+      {modal !== null && (
+        <UnsavedModal
+          sectionName={activeSection?.title.replace(/\n/g, ' ') ?? 'this section'}
+          reason={modal.reason}
+          // For 'publish': primary button = confirm publish, secondary = cancel
+          // For 'switch' / 'navigate': primary button = keep/stay, secondary = discard/leave
+          onKeep={modal.reason === 'publish' ? confirmPublish : handleModalKeep}
+          onDiscard={modal.reason === 'publish' ? handleModalKeep : handleModalDiscard}
+        />
+      )}
     </div>
   );
 }
 
-BannerEditor.layout = (page :any) => <AdminLayout >{page}</AdminLayout>
+BannerEditor.layout = (page: any) => <AdminLayout>{page}</AdminLayout>;

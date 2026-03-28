@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class CatalogSectionController extends Controller
+class RuleBasedCollectionController extends Controller
 {
     public function create()
     {
@@ -27,7 +27,7 @@ class CatalogSectionController extends Controller
             ['value' => 'lt', 'label' => 'Less than'],
         ];
 
-        return \Inertia\Inertia::render('admin/pages/store/CreateCatalogSection', [
+        return \Inertia\Inertia::render('admin/pages/store/RuleBasedCollections/CollectionEditor', [
             'fields' => $fields,
             'operators' => $operators,
         ]);

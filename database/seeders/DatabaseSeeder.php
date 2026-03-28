@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
     
 
        $this->call([
+           AppFactoryConfigSeeder::class ,
            storeSettingSeeder::class,
            BadgeSeeder::class ,
            UserSeeder::class ,
@@ -35,7 +36,8 @@ class DatabaseSeeder extends Seeder
             ShippingZoneSeeder::class ,
             VariantOptionSeeder::class ,
             ReviewSeeder::class,
-            CatalogSectionsTableSeeder::class
+            CatalogSectionsTableSeeder::class , 
+            
             // AttributesSeeder::class , 
 
           //  WishListSeeder::class,

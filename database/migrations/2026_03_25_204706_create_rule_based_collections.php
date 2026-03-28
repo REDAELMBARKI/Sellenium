@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('home_catalog_sections', function (Blueprint $table) {
+        Schema::create('rule_based_collections', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // "Top Deals", "Picked for You"
             $table->string('icon')->nullable();
@@ -19,6 +19,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('home_catalog_sections');
+        Schema::dropIfExists('rule_based_collections');
     }
 };

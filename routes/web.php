@@ -2,7 +2,7 @@
 
 use App\Events\UserLogin;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\CatalogSectionController;
+use App\Http\Controllers\RuleBasedCollectionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CurstomerController;
 use App\Http\Controllers\DashboardController;
@@ -44,7 +44,7 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/store/sections', [CatalogSectionController::class, 'create'])->name('sections.create');
+Route::get('/store/collections', [RuleBasedCollectionController::class, 'create'])->name('collections.create');
 Route::get('/store/banners', [BannerController::class, 'create'])->name('banner.create');
 Route::get('/shop', function () {
     return Inertia::render('ShopPage');

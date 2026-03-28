@@ -9,7 +9,7 @@ class BannerController extends Controller
 {
     public function create(){
          $banners = [] ;
-         return Inertia::render("admin/pages/store/BannerEditor" , ["banners" => $banners]);
+         return Inertia::render("admin/pages/store/Banner/BannerEditor" , ["banners" => $banners]);
     }
 
     public function replicate(){

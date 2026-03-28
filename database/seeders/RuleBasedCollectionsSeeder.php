@@ -5,14 +5,14 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class CatalogSectionsTableSeeder extends Seeder
+class RuleBasedCollectionsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        DB::table('home_catalog_sections')->insert([
+        DB::table('rule_based_collections')->insert([
             [
                 'name' => 'Top Deals',
                 'icon' => null,
