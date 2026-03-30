@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
 
        $this->call([
            AppFactoryConfigSeeder::class ,
+           BannerSeeder::class, 
            storeSettingSeeder::class,
            BadgeSeeder::class ,
            UserSeeder::class ,
@@ -37,6 +38,7 @@ class DatabaseSeeder extends Seeder
             VariantOptionSeeder::class ,
             ReviewSeeder::class,
             RuleBasedCollectionsSeeder::class , 
+            
             
             // AttributesSeeder::class , 
 

@@ -70,8 +70,5 @@ class RuleBasedCollectionController extends Controller
     }
 
 
-    private function normalizeOrder()
-    {
-    
-    }
+
 }

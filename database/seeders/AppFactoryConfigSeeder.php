@@ -15,7 +15,7 @@ class AppFactoryConfigSeeder extends Seeder
      */
     public function run(): void
     {
-        $factoryPayloads = [
+        $collections_factoryPayloads = [
             [
                 'config_key' => 'collections.top_deals',
                 'description' => 'Factory default for the Top Deals rule-based collection',
@@ -66,9 +66,45 @@ class AppFactoryConfigSeeder extends Seeder
                     ],
                 ]
             ],
+           
         ];
+        $banners_factoryPayloads = [
+            [
+                'config_key' => 'banners.main_hero',
+                'description' => 'Primary hero banner for the landing page',
+                'payload' => [
+                    'key' => 'home_hero',
+                    'slug' => 'summer-collection-2026',
+                    'order' => 1,
+                    'direction' => 'ltr',
+                    'name' => 'Summer Collection 2026',
+                    'subname' => 'Experience the heat with our new arrivals.',
+                    'is_active' => true,
+                    'main_media_url' => 'https://picsum.photos/seed/main_1/1920/1080',
+                    'secondary_media_url' => 'https://picsum.photos/seed/sec_1/800/600',
+                ]
+            ],
+            [
+                'config_key' => 'banners.seasonal_promo',
+                'description' => 'Secondary promotional banner for seasonal sales',
+                'payload' => [
+                    'key' => 'sale_banner',
+                    'slug' => 'flash-sale-50',
+                    'order' => 2,
+                    'direction' => 'rtl',
+                    'name' => 'Flash Sale',
+                    'subname' => 'Up to 50% off for a limited time only.',
+                    'is_active' => true,
+                    'main_media_url' => 'https://picsum.photos/seed/main_2/1920/1080',
+                    'secondary_media_url' => null,
+                ]
+            ],
+        ];
+         
 
-        foreach ($factoryPayloads as $config) {
+        
+        $configs = array_merge($collections_factoryPayloads, $banners_factoryPayloads);
+        foreach ($configs as $config) {
             AppFactoryConfig::updateOrCreate(
                 ['config_key' => $config['config_key']],
                 [

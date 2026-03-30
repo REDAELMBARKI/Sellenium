@@ -51,7 +51,10 @@ Route::put('/store/collections/{collection:slug}', [RuleBasedCollectionControlle
 Route::patch('/store/collections/{collection:slug}', [RuleBasedCollectionController::class, 'reorder'])->name('collections.reorder');
 
 // banners
-Route::get('/store/banners', [BannerController::class, 'create'])->name('banner.create');
+Route::get('/store/banners', [BannerController::class, 'index'])->name('banners.index');
+Route::get('/store/banners/{banner:slug}', [BannerController::class, 'edit'])->name('banners.edit');
+Route::put('/store/banners/{banner:slug}', [BannerController::class, 'update'])->name('banners.update');
+Route::patch('/store/banners/{banner:slug}', [BannerController::class, 'reorder'])->name('banners.reorder');
 
 // catalog 
 Route::get('/shop', function () {

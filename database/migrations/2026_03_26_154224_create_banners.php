@@ -13,17 +13,15 @@ return new class extends Migration
     {
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
-            $table->string('banner_type'); // overlay, lifestyle-inset, double-media
-            $table->integer('sort_order')->index(); // For your Move Up/Down logic
+            $table->string('key');
+            $table->string('slug')->unique();
+            $table->integer('order')->index();
             
-            // Nullable for banners with only one card/full background
             $table->string('direction', 3)->nullable();
 
-            // Text Content
-            $table->text('title')->nullable();
-            $table->text('subtitle')->nullable();
+            $table->text('name')->nullable();
+            $table->text('subname')->nullable();
 
-            // Foreign Keys to Media Table
             $table->foreignId('main_media_id')
                   ->nullable()
                   ->constrained('media')

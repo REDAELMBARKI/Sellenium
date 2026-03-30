@@ -3,7 +3,8 @@ import {
   Image, Layers, Film, LayoutDashboard, Columns2, LayoutGrid,
   MoreVertical, ChevronUp, ChevronDown, ArrowUpToLine, ArrowDownToLine,
   Eye, EyeOff, Upload, ArrowLeftRight, Loader2, Plus,
-  PanelRight, ChevronLeft, RotateCcw, Save, AlertTriangle,
+  PanelRight, PanelLeft, ChevronLeft, ChevronRight,
+  RotateCcw, Save, AlertTriangle, X,
 } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
@@ -30,23 +31,26 @@ interface BannerSection {
   images: BannerImage[];
 }
 
-// Props the page receives from the server (Inertia)
+interface AvailableType {
+  type: string;
+  label: string;
+}
+
 interface BannerEditorProps {
-  /** Last saved state from the DB — this is what the user was editing */
   initialSections: BannerSection[];
-  /** Developer-defined defaults — used only for "Reset to Factory" */
   factorySections: BannerSection[];
+  availableTypes: AvailableType[];
 }
 
 // ─── Section Type Registry ────────────────────────────────────────────────────
 
 const SECTION_TYPES = [
-  { type: 'overlay',         label: 'Overlay',        Icon: Image           },
-  { type: 'lifestyle-inset', label: 'Lifestyle Inset', Icon: Layers          },
-  { type: 'cinematic-hero',  label: 'Cinematic Hero',  Icon: Film            },
-  { type: 'editorial-text',  label: 'Editorial',       Icon: LayoutDashboard },
-  { type: 'duotone-split',   label: 'Duotone Split',   Icon: Columns2        },
-  { type: 'double-media',    label: 'Double Media',    Icon: LayoutGrid      },
+  { type: 'overlay',         label: 'Overlay',         Icon: Image           },
+  { type: 'lifestyle-inset', label: 'Lifestyle Inset',  Icon: Layers          },
+  { type: 'cinematic-hero',  label: 'Cinematic Hero',   Icon: Film            },
+  { type: 'editorial-text',  label: 'Editorial',        Icon: LayoutDashboard },
+  { type: 'duotone-split',   label: 'Duotone Split',    Icon: Columns2        },
+  { type: 'double-media',    label: 'Double Media',     Icon: LayoutGrid      },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -62,50 +66,18 @@ const typeIcon = (type: string) => {
   return found ? <found.Icon size={12} /> : <Image size={12} />;
 };
 
-// ─── Unsaved Changes Modal ────────────────────────────────────────────────────
+// ─── Unsaved Modal ────────────────────────────────────────────────────────────
 
-type ModalReason = 'switch' | 'publish' | 'navigate';
-
-interface UnsavedModalProps {
+function UnsavedModal({ sectionName, onDiscard, onKeep }: {
   sectionName: string;
-  reason: ModalReason;
   onDiscard: () => void;
   onKeep: () => void;
-}
-
-const MODAL_COPY: Record<ModalReason, {
-  title: string;
-  body: (name: string) => React.ReactNode;
-  keep: string;
-  discard: string;
-}> = {
-  switch: {
-    title: 'You have unsaved changes',
-    body: (name) => <>Changes to <strong>{name}</strong> will be lost if you switch without publishing first.</>,
-    keep: 'Keep Editing',
-    discard: 'Discard & Switch',
-  },
-  publish: {
-    title: 'Publish these changes?',
-    body: (name) => <>You're about to publish changes to <strong>{name}</strong> and make them live on your storefront.</>,
-    keep: 'Publish Now',
-    discard: 'Cancel',
-  },
-  navigate: {
-    title: 'Leave without publishing?',
-    body: () => <>You have unpublished changes that will be lost if you leave this page.</>,
-    keep: 'Stay Here',
-    discard: 'Leave Anyway',
-  },
-};
-
-function UnsavedModal({ sectionName, reason, onDiscard, onKeep }: UnsavedModalProps) {
+}) {
   const { state: { currentTheme: t } } = useStoreConfigCtx();
-  const copy = MODAL_COPY[reason];
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ position: 'absolute', inset: 0, background: t.overlay, backdropFilter: 'blur(4px)' }} onClick={onKeep} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }} onClick={onKeep} />
       <div style={{
         position: 'relative', zIndex: 10, width: 380,
         borderRadius: 16, border: `1px solid ${t.border}`,
@@ -120,8 +92,12 @@ function UnsavedModal({ sectionName, reason, onDiscard, onKeep }: UnsavedModalPr
             <AlertTriangle size={16} style={{ color: t.primary }} />
           </div>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 6, color: t.text }}>{copy.title}</p>
-            <p style={{ fontSize: 11, lineHeight: 1.6, color: t.textSecondary }}>{copy.body(sectionName)}</p>
+            <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 6, color: t.text }}>
+              You have unsaved changes
+            </p>
+            <p style={{ fontSize: 11, lineHeight: 1.6, color: t.textSecondary }}>
+              Changes to <strong>{sectionName}</strong> will be lost if you switch without publishing first.
+            </p>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
@@ -130,13 +106,90 @@ function UnsavedModal({ sectionName, reason, onDiscard, onKeep }: UnsavedModalPr
             textTransform: 'uppercase', letterSpacing: '0.08em',
             borderRadius: 10, border: 'none', cursor: 'pointer',
             backgroundColor: t.primary, color: t.textInverse,
-          }}>{copy.keep}</button>
+          }}>Keep Editing</button>
           <button onClick={onDiscard} style={{
             flex: 1, padding: '10px 0', fontSize: 10, fontWeight: 800,
             textTransform: 'uppercase', letterSpacing: '0.08em',
             borderRadius: 10, border: `1px solid ${t.border}`,
             background: 'transparent', cursor: 'pointer', color: t.text,
-          }}>{copy.discard}</button>
+          }}>Discard Changes</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Type Picker Modal ────────────────────────────────────────────────────────
+
+function TypePickerModal({ availableTypes, onPick, onClose }: {
+  availableTypes: AvailableType[];
+  onPick: (type: string) => void;
+  onClose: () => void;
+}) {
+  const { state: { currentTheme: t } } = useStoreConfigCtx();
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }} onClick={onClose} />
+      <div style={{
+        position: 'relative', zIndex: 10, width: 460,
+        borderRadius: 16, border: `1px solid ${t.border}`,
+        padding: 24, boxShadow: t.shadowLg, backgroundColor: t.bgSecondary,
+      }}>
+        {/* Modal header */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 800, color: t.text }}>Add a section</p>
+            <p style={{ fontSize: 11, color: t.textMuted, marginTop: 3 }}>Choose a layout type to get started</p>
+          </div>
+          <button onClick={onClose} style={{
+            width: 28, height: 28, display: 'grid', placeItems: 'center',
+            background: t.secondary, border: 'none', borderRadius: 7,
+            cursor: 'pointer', color: t.textMuted, flexShrink: 0,
+          }}>
+            <X size={14} />
+          </button>
+        </div>
+
+        {/* Type grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {availableTypes.map(({ type, label }) => {
+            const found = SECTION_TYPES.find(s => s.type === type);
+            const Icon = found?.Icon ?? Image;
+            return (
+              <button
+                key={type}
+                onClick={() => onPick(type)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '13px 14px', borderRadius: 10,
+                  border: `1px solid ${t.border}`,
+                  background: t.bg, cursor: 'pointer', textAlign: 'left',
+                  transition: 'border-color 0.15s, background 0.15s',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = t.primary;
+                  (e.currentTarget as HTMLElement).style.background = `${t.primary}0d`;
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = t.border;
+                  (e.currentTarget as HTMLElement).style.background = t.bg;
+                }}
+              >
+                <div style={{
+                  width: 34, height: 34, borderRadius: 9, flexShrink: 0,
+                  display: 'grid', placeItems: 'center',
+                  background: `${t.primary}18`, color: t.primary,
+                }}>
+                  <Icon size={15} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{label}</div>
+                  <div style={{ fontSize: 9, color: t.textMuted, fontFamily: 'monospace', marginTop: 2 }}>{type}</div>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -146,7 +199,6 @@ function UnsavedModal({ sectionName, reason, onDiscard, onKeep }: UnsavedModalPr
 // ─── Dots Menu ────────────────────────────────────────────────────────────────
 
 function DotsMenu({ isFirst, isLast, isActive, onAction }: {
-
   isFirst: boolean;
   isLast: boolean;
   isActive: boolean;
@@ -215,76 +267,6 @@ function DotsMenu({ isFirst, isLast, isActive, onAction }: {
           </div>
         </>
       )}
-    </div>
-  );
-}
-
-// ─── Sidebar Item ─────────────────────────────────────────────────────────────
-
-function SidebarItem({ section, index, isFirst, isLast, isActive, isDirty, onSelect, onAction }: {
-  section: BannerSection;
-  index: number;
-  isFirst: boolean;   // ← passed from parent, no reference to sections array needed here
-  isLast: boolean;    // ← same
-  isActive: boolean;
-  isDirty: boolean;
-  onSelect: (id: string) => void;
-  onAction: (action: string) => void;
-}) {
-  const { state: { currentTheme: t } } = useStoreConfigCtx();
-
-  return (
-    <div
-      onClick={() => onSelect(section.id)}
-      style={{
-        display: 'flex', alignItems: 'center', gap: 7,
-        padding: '8px 10px', cursor: 'pointer',
-        borderLeft: `2px solid ${isActive ? t.primary : 'transparent'}`,
-        background: isActive ? `${t.primary}0f` : 'transparent',
-        transition: 'background 0.1s',
-      }}
-      onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = t.sidebarHover; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = isActive ? `${t.primary}0f` : 'transparent'; }}
-    >
-      <span style={{ fontSize: 10, fontFamily: 'monospace', color: t.textMuted, width: 14, textAlign: 'right', flexShrink: 0 }}>
-        {String(index + 1).padStart(2, '0')}
-      </span>
-      <span style={{ color: isActive ? t.primary : t.textMuted, flexShrink: 0 }}>
-        {typeIcon(section.type)}
-      </span>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{
-          fontSize: 12, fontWeight: 500, color: isActive ? t.primary : t.text,
-          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-        }}>
-          {section.title.replace(/\n/g, ' ')}
-        </div>
-        <div style={{ fontSize: 9, color: t.textMuted, fontFamily: 'monospace' }}>
-          {typeLabel(section.type)}
-        </div>
-      </div>
-
-      {isDirty && (
-        <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, backgroundColor: t.primary }} />
-      )}
-
-      <span style={{
-        display: 'flex', alignItems: 'center', gap: 4,
-        padding: '2px 6px', borderRadius: 20,
-        fontSize: 9, fontFamily: 'monospace', flexShrink: 0,
-        background: section.isActive ? 'rgba(29,158,117,0.14)' : t.secondary,
-        color: section.isActive ? t.success : t.textMuted,
-      }}>
-        <span style={{ width: 4, height: 4, borderRadius: '50%', background: section.isActive ? t.success : t.textMuted }} />
-        {section.isActive ? 'live' : 'hidden'}
-      </span>
-
-      <DotsMenu
-        isFirst={isFirst}
-        isLast={isLast}
-        isActive={section.isActive}
-        onAction={onAction}
-      />
     </div>
   );
 }
@@ -430,7 +412,9 @@ function BannerPreview({ section }: { section: BannerSection }) {
 // ─── Image Slot ───────────────────────────────────────────────────────────────
 
 function ImageSlot({ imageObj, label, onChange }: {
-  imageObj: BannerImage; label: string; onChange: (img: BannerImage) => void;
+  imageObj: BannerImage;
+  label: string;
+  onChange: (img: BannerImage) => void;
 }) {
   const { state: { currentTheme: t } } = useStoreConfigCtx();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -605,34 +589,342 @@ function ContentEditor({ section, onUpdate }: {
   );
 }
 
-// ─── Main Editor ──────────────────────────────────────────────────────────────
+// ─── BannerEditorNav ──────────────────────────────────────────────────────────
 
-export default function BannerEditor({ initialSections, factorySections }: BannerEditorProps) {
+function BannerEditorNav({ open, onToggle, sections, activeId, dirtyId, onSelect, onAction }: {
+  open: boolean;
+  onToggle: () => void;
+  sections: BannerSection[];
+  activeId: string;
+  dirtyId: string | null;
+  onSelect: (id: string) => void;
+  onAction: (id: string, action: string) => void;
+}) {
   const { state: { currentTheme: t } } = useStoreConfigCtx();
 
-  // Live editing state — seeded from DB payload
+  return (
+    <aside style={{
+      width: open ? 230 : 40,
+      flexShrink: 0,
+      borderRight: `1px solid ${t.border}`,
+      display: 'flex',
+      flexDirection: 'column',
+      background: t.sidebarBg,
+      overflow: 'hidden',
+      transition: 'width 0.3s ease',
+      // No height set here — it's bounded by the parent flex row
+    }}>
+      {/* Fixed column header */}
+      <div style={{
+        flexShrink: 0,
+        height: 56,
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 12px',
+        borderBottom: `1px solid ${t.border}`,
+        justifyContent: open ? 'space-between' : 'center',
+        background: t.sidebarBg,
+      }}>
+        {open && (
+          <span style={{
+            fontSize: 11, fontWeight: 800, letterSpacing: '0.14em',
+            textTransform: 'uppercase', color: t.text,
+          }}>Sections</span>
+        )}
+        <button
+          onClick={onToggle}
+          style={{
+            width: 26, height: 26, display: 'grid', placeItems: 'center',
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: t.textMuted, borderRadius: 5, flexShrink: 0,
+          }}
+          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = t.secondary}
+          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+        >
+          {open ? <PanelLeft size={16} /> : <ChevronRight size={16} />}
+        </button>
+      </div>
+
+      {/* Independent inner scroll */}
+      {open && (
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {sections.map((s, i) => (
+            <div
+              key={s.id}
+              onClick={() => onSelect(s.id)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '8px 10px', cursor: 'pointer',
+                borderLeft: `2px solid ${s.id === activeId ? t.primary : 'transparent'}`,
+                background: s.id === activeId ? `${t.primary}0f` : 'transparent',
+                transition: 'background 0.1s',
+              }}
+              onMouseEnter={e => { if (s.id !== activeId) (e.currentTarget as HTMLElement).style.background = t.sidebarHover; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = s.id === activeId ? `${t.primary}0f` : 'transparent'; }}
+            >
+              <span style={{ fontSize: 10, fontFamily: 'monospace', color: t.textMuted, width: 14, textAlign: 'right', flexShrink: 0 }}>
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span style={{ color: s.id === activeId ? t.primary : t.textMuted, flexShrink: 0 }}>
+                {typeIcon(s.type)}
+              </span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{
+                  fontSize: 12, fontWeight: 500,
+                  color: s.id === activeId ? t.primary : t.text,
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                }}>
+                  {s.title.replace(/\n/g, ' ')}
+                </div>
+                <div style={{ fontSize: 9, color: t.textMuted, fontFamily: 'monospace' }}>
+                  {typeLabel(s.type)}
+                </div>
+              </div>
+
+              {dirtyId === s.id && (
+                <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, backgroundColor: t.primary }} />
+              )}
+
+              <span style={{
+                display: 'flex', alignItems: 'center', gap: 4,
+                padding: '2px 6px', borderRadius: 20,
+                fontSize: 9, fontFamily: 'monospace', flexShrink: 0,
+                background: s.isActive ? 'rgba(29,158,117,0.14)' : t.secondary,
+                color: s.isActive ? t.success : t.textMuted,
+              }}>
+                <span style={{ width: 4, height: 4, borderRadius: '50%', background: s.isActive ? t.success : t.textMuted }} />
+                {s.isActive ? 'live' : 'hidden'}
+              </span>
+
+              <DotsMenu
+                isFirst={i === 0}
+                isLast={i === sections.length - 1}
+                isActive={s.isActive}
+                onAction={(action) => onAction(s.id, action)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </aside>
+  );
+}
+
+// ─── Banner Center Panel ──────────────────────────────────────────────────────
+
+function BannerCenterPanel({ activeSection, isDirty, isSaving, onAddSection, onReset, onPublish }: {
+  activeSection: BannerSection | undefined;
+  isDirty: boolean;
+  isSaving: boolean;
+  onAddSection: () => void;
+  onReset: () => void;
+  onPublish: () => void;
+}) {
+  const { state: { currentTheme: t } } = useStoreConfigCtx();
+
+  return (
+    <main style={{
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',       // ← no outer scroll
+      background: t.bgSecondary,
+      minWidth: 0,
+    }}>
+      {/* Fixed column header — holds all global actions */}
+      <header style={{
+        flexShrink: 0,
+        height: 56,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 20px',
+        borderBottom: `1px solid ${t.border}`,
+        background: t.bg,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{
+            fontSize: 11, fontWeight: 800, letterSpacing: '0.14em',
+            textTransform: 'uppercase', color: t.text,
+          }}>
+            {activeSection?.title.replace(/\n/g, ' ') ?? 'Banner'} Editor
+          </span>
+          {isDirty && (
+            <span style={{
+              padding: '2px 8px', fontSize: 9, fontWeight: 800,
+              textTransform: 'uppercase', borderRadius: 20,
+              backgroundColor: `${t.primary}20`, color: t.primary,
+            }}>Unsaved</span>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Add Section */}
+          <button
+            onClick={onAddSection}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '7px 14px', borderRadius: 8,
+              border: `1px solid ${t.border}`,
+              background: t.secondary, color: t.text,
+              fontSize: 10, fontWeight: 700,
+              textTransform: 'uppercase', letterSpacing: '0.08em',
+              cursor: 'pointer', transition: 'border-color 0.15s',
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = t.primary}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = t.border}
+          >
+            <Plus size={12} /> Add Section
+          </button>
+
+          {/* Reset */}
+          <button
+            onClick={onReset}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+              letterSpacing: '0.08em', color: t.textMuted, opacity: 0.6,
+              transition: 'opacity 0.15s',
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = '1'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = '0.6'}
+          >
+            <RotateCcw size={12} /> Reset
+          </button>
+
+          {/* Publish */}
+          <button
+            onClick={onPublish}
+            disabled={!isDirty || isSaving}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: t.text, color: t.bg, border: 'none',
+              padding: '8px 18px', fontSize: 11, fontWeight: 700,
+              letterSpacing: '0.07em', textTransform: 'uppercase',
+              cursor: isDirty && !isSaving ? 'pointer' : 'not-allowed',
+              borderRadius: 6, fontFamily: 'monospace',
+              opacity: isDirty ? 1 : 0.3, transition: 'opacity 0.2s',
+              boxShadow: isDirty ? `0 0 0 3px ${t.primary}30, 0 4px 14px ${t.primary}30` : 'none',
+            }}
+          >
+            <Save size={12} />
+            {isSaving ? 'Publishing…' : 'Publish Changes'}
+          </button>
+        </div>
+      </header>
+
+      {/* Preview body — fixed height, NO scroll */}
+      <div style={{ flex: 1, overflow: 'hidden', padding: 16 }}>
+        {activeSection && <BannerPreview section={activeSection} />}
+      </div>
+    </main>
+  );
+}
+
+// ─── Banner Inspector ─────────────────────────────────────────────────────────
+
+function BannerInspector({ open, onToggle, activeSection, onUpdate }: {
+  open: boolean;
+  onToggle: () => void;
+  activeSection: BannerSection | undefined;
+  onUpdate: (updates: Partial<BannerSection>) => void;
+}) {
+  const { state: { currentTheme: t } } = useStoreConfigCtx();
+
+  return (
+    <aside style={{
+      width: open ? 240 : 40,
+      flexShrink: 0,
+      borderLeft: `1px solid ${t.border}`,
+      display: 'flex',
+      flexDirection: 'column',
+      background: t.bg,
+      overflow: 'hidden',
+      transition: 'width 0.3s ease',
+    }}>
+      {/* Fixed column header */}
+      <div style={{
+        flexShrink: 0,
+        height: 56,
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 12px',
+        borderBottom: `1px solid ${t.border}`,
+        background: t.bg,
+        justifyContent: open ? 'space-between' : 'center',
+      }}>
+        {open && (
+          <span style={{
+            fontSize: 11, fontWeight: 800, letterSpacing: '0.14em',
+            textTransform: 'uppercase', color: t.text,
+          }}>Content</span>
+        )}
+        <button
+          onClick={onToggle}
+          style={{
+            width: 26, height: 26, display: 'grid', placeItems: 'center',
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: t.textMuted, borderRadius: 5, flexShrink: 0,
+          }}
+          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = t.secondary}
+          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+        >
+          {open ? <PanelRight size={16} /> : <ChevronLeft size={16} />}
+        </button>
+      </div>
+
+      {/* Independent inner scroll */}
+      {open && (
+        <div style={{ flex: 1, overflowY: 'auto', padding: 14 }}>
+          <ContentEditor section={activeSection} onUpdate={onUpdate} />
+        </div>
+      )}
+    </aside>
+  );
+}
+
+// ─── Main Editor ──────────────────────────────────────────────────────────────
+
+export default function BannerEditor({ initialSections, factorySections, availableTypes }: BannerEditorProps) {
+  const { state: { currentTheme: t } } = useStoreConfigCtx();
+
+  // ── Live editing state — seeded from DB ────────────────────────────────────
   const [sections, setSections] = useState<BannerSection[]>(
     [...initialSections].sort((a, b) => a.order - b.order)
   );
 
-  // Snapshot of what's been published — dirty = live !== snapshot
-  // Seeded from the same DB payload; advances only on successful publish
+  // ── Snapshot — advances only on successful publish ─────────────────────────
   const [savedSnapshot, setSavedSnapshot] = useState<BannerSection[]>(
     JSON.parse(JSON.stringify(initialSections))
   );
 
-  const [activeId, setActiveId]   = useState<string>(initialSections[0]?.id ?? '');
-  const [rightOpen, setRightOpen] = useState(true);
-  const [modal, setModal]         = useState<{ reason: ModalReason; pendingId?: string } | null>(null);
+  const [activeId, setActiveId]         = useState<string>(initialSections[0]?.id ?? '');
+  const [leftOpen, setLeftOpen]         = useState(true);
+  const [rightOpen, setRightOpen]       = useState(true);
+  const [isSaving, setIsSaving]         = useState(false);
+  const [pendingSwitchId, setPendingSwitchId] = useState<string | null>(null);
+  const [showTypePicker, setShowTypePicker]   = useState(false);
 
-  const activeSection = sections.find(s => s.id === activeId);
+  // ── Sync when Inertia re-hydrates ─────────────────────────────────────────
+  useEffect(() => {
+    const sorted = [...initialSections].sort((a, b) => a.order - b.order);
+    setSections(sorted);
+    setSavedSnapshot(JSON.parse(JSON.stringify(sorted)));
+    setActiveId(sorted[0]?.id ?? '');
+  }, [initialSections]);
+
+  const activeSection = useMemo(
+    () => sections.find(s => s.id === activeId) ?? sections[0],
+    [sections, activeId]
+  );
 
   const isDirty = useMemo(
     () => JSON.stringify(sections) !== JSON.stringify(savedSnapshot),
     [sections, savedSnapshot]
   );
 
-  // ── Browser / Inertia navigate-away guards ────────────────────────────────
+  // ── Browser unload guard ──────────────────────────────────────────────────
   useEffect(() => {
     const handle = (e: BeforeUnloadEvent) => {
       if (!isDirty) return;
@@ -643,25 +935,27 @@ export default function BannerEditor({ initialSections, factorySections }: Banne
     return () => window.removeEventListener('beforeunload', handle);
   }, [isDirty]);
 
+  // ── Inertia navigate-away guard ───────────────────────────────────────────
   useEffect(() => {
     const off = router.on('before', (event) => {
       if (!isDirty) return;
       event.preventDefault();
-      setModal({ reason: 'navigate', pendingId: (event.detail.visit as any).url?.href ?? '' });
+      // '__navigate__' is a sentinel that means "leave the page entirely"
+      setPendingSwitchId('__navigate__');
     });
     return () => off();
   }, [isDirty]);
 
-  // ── Section updater ───────────────────────────────────────────────────────
+  // ── Section field updater ─────────────────────────────────────────────────
   const updateSection = useCallback((id: string, updates: Partial<BannerSection>) => {
     setSections(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
   }, []);
 
-  // ── Reorder / toggle via dots menu ────────────────────────────────────────
+  // ── Dots menu: reorder + toggle ───────────────────────────────────────────
   const handleAction = useCallback((id: string, action: string) => {
     setSections(prev => {
       const list = [...prev];
-      const idx = list.findIndex(s => s.id === id);
+      const idx  = list.findIndex(s => s.id === id);
       if (idx < 0) return prev;
 
       if (action === 'toggle') {
@@ -682,242 +976,121 @@ export default function BannerEditor({ initialSections, factorySections }: Banne
     });
   }, []);
 
-  // ── Section selection with dirty guard ───────────────────────────────────
+  // ── Section selection — guard dirty state ─────────────────────────────────
   const handleSelectSection = (id: string) => {
     if (id === activeId) return;
-    isDirty ? setModal({ reason: 'switch', pendingId: id }) : setActiveId(id);
+    isDirty ? setPendingSwitchId(id) : setActiveId(id);
   };
 
-  const handleModalDiscard = () => {
-    if (!modal) return;
-    if (modal.reason === 'switch' && modal.pendingId) {
-      setSections(JSON.parse(JSON.stringify(savedSnapshot)));
-      setActiveId(modal.pendingId);
+  // ── Discard: reset to snapshot then proceed ───────────────────────────────
+  const handleDiscard = () => {
+    if (!pendingSwitchId) return;
+    setSections(JSON.parse(JSON.stringify(savedSnapshot)));
+    if (pendingSwitchId !== '__navigate__') {
+      setActiveId(pendingSwitchId);
     }
-    if (modal.reason === 'navigate' && modal.pendingId) {
-      setSections(JSON.parse(JSON.stringify(savedSnapshot)));
-      setTimeout(() => router.visit(modal.pendingId!), 0);
-    }
-    setModal(null);
+    setPendingSwitchId(null);
   };
 
   // ── Publish ───────────────────────────────────────────────────────────────
   const handlePublish = () => {
-    if (!isDirty) return;
-    setModal({ reason: 'publish' });
-  };
-
-  const confirmPublish = () => {
-    setModal(null);
+    if (!isDirty || isSaving) return;
     router.put(
       '/admin/banners/sections/update',
       { sections },
       {
+        onBefore: () => setIsSaving(true),
         onSuccess: () => setSavedSnapshot(JSON.parse(JSON.stringify(sections))),
+        onFinish: () => setIsSaving(false),
         preserveScroll: true,
       }
     );
   };
 
-  // ── Factory reset — uses the separate factorySections prop, never touches initialSections ──
+  // ── Factory reset (active section only) ───────────────────────────────────
   const handleFactoryReset = () => {
     const factory = factorySections.find(f => f.id === activeId);
     if (!factory) return;
-    setSections(prev => prev.map(s => s.id === activeId ? JSON.parse(JSON.stringify(factory)) : s));
+    setSections(prev =>
+      prev.map(s => s.id === activeId ? JSON.parse(JSON.stringify(factory)) : s)
+    );
   };
 
-  // ── Shared column header style ────────────────────────────────────────────
-  const colHeader: React.CSSProperties = {
-    flexShrink: 0,
-    height: 56,
-    display: 'flex',
-    alignItems: 'center',
-    padding: '0 16px',
-    borderBottom: `1px solid ${t.border}`,
-    background: t.bg,
-    gap: 10,
-  };
-
-  const colHeaderText: React.CSSProperties = {
-    fontSize: 11,
-    fontWeight: 800,
-    letterSpacing: '0.14em',
-    textTransform: 'uppercase',
-    color: t.text,
-    fontFamily: 'system-ui, sans-serif',
+  // ── Add new section (optimistic, saved on next publish) ───────────────────
+  const handleAddSection = (type: string) => {
+    const newSection: BannerSection = {
+      id:        `temp_${Date.now()}`,
+      type,
+      isActive:  false,
+      order:     sections.length,
+      direction: 'ltr',
+      tag:       '',
+      title:     'Untitled Section',
+      subtitle:  '',
+      ctaLabel:  'Explore',
+      images:    [],
+    };
+    setSections(prev => [...prev, newSection]);
+    setActiveId(newSection.id);
+    setShowTypePicker(false);
+    // Auto-open right inspector so user can immediately rename
+    setRightOpen(true);
   };
 
   return (
     <div style={{
-      display: 'flex', flexDirection: 'column',
-      height: '100vh', overflow: 'hidden',
-      background: t.bg, color: t.text, fontFamily: 'system-ui, sans-serif',
+      display: 'flex',
+      height: '100vh',
+      overflow: 'hidden',                // ← outermost lock
+      background: t.bg,
+      color: t.text,
+      fontFamily: 'system-ui, sans-serif',
     }}>
 
-      {/* ── Global Top Bar ─────────────────────────────────────────────────── */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 20px', height: 52, flexShrink: 0,
-        borderBottom: `1px solid ${t.border}`, background: t.bg,
-      }}>
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em', color: t.text }}>Visual catalog</div>
-          <div style={{ fontSize: 10, color: t.textMuted, fontFamily: 'monospace' }}>storefront banner editor</div>
-        </div>
+      {/* LEFT — sections nav */}
+      <BannerEditorNav
+        open={leftOpen}
+        onToggle={() => setLeftOpen(v => !v)}
+        sections={sections}
+        activeId={activeId}
+        dirtyId={isDirty ? activeId : null}
+        onSelect={handleSelectSection}
+        onAction={handleAction}
+      />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button
-            onClick={handleFactoryReset}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
-              letterSpacing: '0.08em', color: t.textMuted, opacity: 0.6,
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = '1'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = '0.6'}
-          >
-            <RotateCcw size={12} /> Reset to Factory
-          </button>
+      {/* CENTER — preview (no scroll) */}
+      <BannerCenterPanel
+        activeSection={activeSection}
+        isDirty={isDirty}
+        isSaving={isSaving}
+        onAddSection={() => setShowTypePicker(true)}
+        onReset={handleFactoryReset}
+        onPublish={handlePublish}
+      />
 
-          {isDirty && (
-            <span style={{
-              padding: '2px 8px', fontSize: 9, fontWeight: 800, textTransform: 'uppercase',
-              borderRadius: 20, backgroundColor: `${t.primary}20`, color: t.primary,
-            }}>
-              Unsaved
-            </span>
-          )}
+      {/* RIGHT — inspector */}
+      <BannerInspector
+        open={rightOpen}
+        onToggle={() => setRightOpen(v => !v)}
+        activeSection={activeSection}
+        onUpdate={(updates) => activeSection && updateSection(activeSection.id, updates)}
+      />
 
-          <button
-            onClick={handlePublish}
-            disabled={!isDirty}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              background: t.text, color: t.bg, border: 'none',
-              padding: '8px 18px', fontSize: 11, fontWeight: 700,
-              letterSpacing: '0.07em', textTransform: 'uppercase',
-              cursor: isDirty ? 'pointer' : 'not-allowed', borderRadius: 6,
-              fontFamily: 'monospace', opacity: isDirty ? 1 : 0.3,
-              transition: 'opacity 0.2s',
-              boxShadow: isDirty ? `0 0 0 3px ${t.primary}30, 0 4px 14px ${t.primary}30` : 'none',
-            }}
-          >
-            <Save size={12} /> Publish Changes
-          </button>
-        </div>
-      </div>
-
-      {/* ── Three-column body ───────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-
-        {/* LEFT: Section nav */}
-        <aside style={{
-          width: 230, flexShrink: 0,
-          borderRight: `1px solid ${t.border}`,
-          display: 'flex', flexDirection: 'column',
-          background: t.sidebarBg, overflow: 'hidden',
-        }}>
-          <div style={{ ...colHeader, background: t.sidebarBg }}>
-            <span style={colHeaderText}>Sections</span>
-          </div>
-          {/* Scrollable list */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
-            {sections.map((s, i) => (
-              <SidebarItem
-                key={s.id}
-                section={s}
-                index={i}
-                isFirst={i === 0}
-                isLast={i === sections.length - 1}  // ← computed here in the parent where `sections` is in scope
-                isActive={s.id === activeId}
-                isDirty={isDirty && s.id === activeId}
-                onSelect={handleSelectSection}
-                onAction={(action) => handleAction(s.id, action)}
-              />
-            ))}
-          </div>
-        </aside>
-
-        {/* CENTER: Preview canvas */}
-        <main style={{
-          flex: 1, display: 'flex', flexDirection: 'column',
-          overflow: 'hidden', background: t.bgSecondary,
-        }}>
-          <div style={{ ...colHeader, background: t.bg, justifyContent: 'space-between' }}>
-            <span style={colHeaderText}>
-              {activeSection?.title.replace(/\n/g, ' ') ?? ''} Editor
-            </span>
-            <span style={{
-              fontSize: 10, fontFamily: 'monospace', color: t.textMuted,
-              background: t.secondary, padding: '2px 8px', borderRadius: 4,
-            }}>
-              {typeLabel(activeSection?.type ?? '')}
-            </span>
-          </div>
-          {/* Scrollable preview */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {activeSection && <BannerPreview section={activeSection} />}
-            <button
-              style={{
-                width: '100%', padding: 12, background: 'transparent',
-                border: `0.5px dashed ${t.borderHover}`, borderRadius: 8,
-                color: t.textMuted, fontSize: 12, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-              }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = t.card}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-            >
-              <Plus size={14} /> Add {typeLabel(activeSection?.type ?? '')} section
-            </button>
-          </div>
-        </main>
-
-        {/* RIGHT: Inspector */}
-        <aside style={{
-          width: rightOpen ? 240 : 40, flexShrink: 0,
-          borderLeft: `1px solid ${t.border}`,
-          display: 'flex', flexDirection: 'column',
-          background: t.bg, overflow: 'hidden',
-          transition: 'width 0.3s ease',
-        }}>
-          <div style={{
-            ...colHeader,
-            justifyContent: rightOpen ? 'space-between' : 'center',
-          }}>
-            {rightOpen && <span style={colHeaderText}>Content</span>}
-            <button
-              onClick={() => setRightOpen(v => !v)}
-              style={{
-                width: 26, height: 26, display: 'grid', placeItems: 'center',
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: t.textMuted, borderRadius: 5, flexShrink: 0,
-              }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = t.secondary}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-            >
-              {rightOpen ? <PanelRight size={16} /> : <ChevronLeft size={16} />}
-            </button>
-          </div>
-          {/* Scrollable editor */}
-          {rightOpen && (
-            <div style={{ flex: 1, overflowY: 'auto', padding: 14 }}>
-              <ContentEditor
-                section={activeSection}
-                onUpdate={(updates) => activeSection && updateSection(activeSection.id, updates)}
-              />
-            </div>
-          )}
-        </aside>
-      </div>
-
-      {/* ── Modal ──────────────────────────────────────────────────────────── */}
-      {modal !== null && (
+      {/* Unsaved changes modal */}
+      {pendingSwitchId !== null && (
         <UnsavedModal
           sectionName={activeSection?.title.replace(/\n/g, ' ') ?? 'this section'}
-          reason={modal.reason}
-          onKeep={modal.reason === 'publish' ? confirmPublish : () => setModal(null)}
-          onDiscard={modal.reason === 'publish' ? () => setModal(null) : handleModalDiscard}
+          onDiscard={handleDiscard}
+          onKeep={() => setPendingSwitchId(null)}
+        />
+      )}
+
+      {/* Type picker modal */}
+      {showTypePicker && (
+        <TypePickerModal
+          availableTypes={availableTypes}
+          onPick={handleAddSection}
+          onClose={() => setShowTypePicker(false)}
         />
       )}
     </div>
