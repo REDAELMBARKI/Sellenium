@@ -2,36 +2,75 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CollectionRequest;
+use App\Models\AppFactoryConfig;
+use App\Models\RuleBasedCollection;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class RuleBasedCollectionController extends Controller
-{
-    public function create()
+{  
+
+    public function index()
     {
-        $fields = [
-            ['name' => 'title', 'label' => 'Title', 'type' => 'text', 'required' => true],
-            ['name' => 'slug', 'label' => 'Slug', 'type' => 'text', 'required' => true],
-            ['name' => 'parent_id', 'label' => 'Parent', 'type' => 'select', 'options' => [], 'nullable' => true],
-            ['name' => 'description', 'label' => 'Description', 'type' => 'textarea', 'required' => false],
-            ['name' => 'is_active', 'label' => 'Active', 'type' => 'boolean', 'default' => true],
-        ];
+        $first = RuleBasedCollection::orderBy('order')->first();
 
-        $operators = [
-            ['value' => 'equals', 'label' => 'Equals'],
-            ['value' => 'not_equals', 'label' => 'Not equals'],
-            ['value' => 'contains', 'label' => 'Contains'],
-            ['value' => 'starts_with', 'label' => 'Starts with'],
-            ['value' => 'ends_with', 'label' => 'Ends with'],
-            ['value' => 'gt', 'label' => 'Greater than'],
-            ['value' => 'lt', 'label' => 'Less than'],
-        ];
-
-        return \Inertia\Inertia::render('admin/pages/store/RuleBasedCollections/CollectionEditor', [
-            'fields' => $fields,
-            'operators' => $operators,
+        return redirect()->route('collections.edit', $first->slug);
+    }
+    public function edit(RuleBasedCollection $collection)
+    {
+        $collections = RuleBasedCollection::orderBy('order')->get();
+        $app_factory_config = AppFactoryConfig::where("config_key" , "LIKE", "collections.%")
+                                                ->where("config_key" , $collection->key)
+                                                ->get(['id' , 'payload'])
+                                                ->map(function($config) { return array_merge($config->payload , ["id" => $config->id]) ; })  ;
+       
+        return Inertia::render('admin/pages/store/RuleBasedCollections/CollectionEditor', [
+              "collections" => $collections,
+              "app_factory_config" => $app_factory_config,
+              "selectedCollection" => $collection
         ]);
     }
 
-   
+
+    public function update(RuleBasedCollection $collection , CollectionRequest $collection_request)
+    {
+        $collection->update($collection_request->validated()) ;
+        $app_factory_config = AppFactoryConfig::where("config_key" , "LIKE", "collections.%")->get(['id' , 'payload'])
+        ->map(function($config) { return array_merge($config->payload , ["id" => $config->id]) ; })  ;
+        $collections = RuleBasedCollection::orderBy('order')->get();
+        return Inertia::render('admin/pages/store/RuleBasedCollections/CollectionEditor', [
+              "collections" => $collections,
+              "app_factory_config" => $app_factory_config,
+        ]);
+       
+    }
+
+    public function reorder(Request $request, RuleBasedCollection $collection)
+    {
+        $action = $request->input('action');
+
+        switch ($action) {
+            case 'increment':
+                $collection->moveDown();
+                break;
+            case 'decrement':
+                $collection->moveUp();
+                break;
+            case 'start':
+                $collection->moveToStart();
+                break;
+            case 'end':
+                $collection->moveToEnd();
+                break;
+        }
+
+        return back();
+    }
+
+
+    private function normalizeOrder()
+    {
+    
+    }
 }

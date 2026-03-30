@@ -44,8 +44,16 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/store/collections', [RuleBasedCollectionController::class, 'create'])->name('collections.create');
+//collecctions
+Route::get('/store/collections', [RuleBasedCollectionController::class, 'index'])->name('collections.index');
+Route::get('/store/collections/{collection:slug}', [RuleBasedCollectionController::class, 'edit'])->name('collections.edit');
+Route::put('/store/collections/{collection:slug}', [RuleBasedCollectionController::class, 'update'])->name('collections.update');
+Route::patch('/store/collections/{collection:slug}', [RuleBasedCollectionController::class, 'reorder'])->name('collections.reorder');
+
+// banners
 Route::get('/store/banners', [BannerController::class, 'create'])->name('banner.create');
+
+// catalog 
 Route::get('/shop', function () {
     return Inertia::render('ShopPage');
 })->name('shop');

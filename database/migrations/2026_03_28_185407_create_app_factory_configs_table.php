@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('app_factory_configs', function (Blueprint $table) {
             $table->id();
-            // Unique key: e.g., 'home.hero_carousel', 'global.product_card', 'sidebar.main'
             $table->string('config_key')->unique();
             $table->string('description');
             $table->json('payload');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            
         });
     }
 

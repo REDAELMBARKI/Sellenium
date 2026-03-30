@@ -40,7 +40,7 @@ class ProductController extends Controller
         
         $drafts = Product::with(['thumbnail' , 'variants' , 'nichCategory' , 'subCategories'])
         ->where('status' , 'draft')
-        ->where('quality_score' , ">" , 0)
+        ->where('quality_score' , ">" , 50)
         ->select(['id' , 'name', 'description' , 'brand' , 'quality_score', 'updated_at' ,'category_niche_id'])
         ->latest('updated_at')
         ->get() ;

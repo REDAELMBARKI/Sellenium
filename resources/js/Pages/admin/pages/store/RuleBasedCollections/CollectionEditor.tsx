@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { router } from '@inertiajs/react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { router, usePage } from '@inertiajs/react';
 import {
   Trash2, Sliders, GripVertical,
   PanelLeft, PanelRight, Maximize2, ChevronRight, ChevronLeft,
@@ -9,8 +9,7 @@ import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import CollectionEditorNav from './Partials/CollectionEditorNav';
 import CollectionEditorInspector from './Partials/CollectionEditorInspector';
-
-
+import { route } from 'ziggy-js';
 
 // ─────────────────────────────────────────────
 // UNSAVED CHANGES MODAL
@@ -74,21 +73,16 @@ function UnsavedModal({ sectionName, onDiscard, onKeep}: UnsavedModalProps) {
 }
 
 
-
-// ─────────────────────────────────────────────
-// CENTER PANEL
-// — full column, scrolls itself top to bottom
-// ─────────────────────────────────────────────
-
 interface CenterPanelProps {
   activeSection: CollectionPayload;
   globalCardConfig: CardConfig;
   isDirty: boolean;
+  isSaving: boolean;
   onReset: () => void;
   onPublish: () => void;
 }
 
-function CenterPanel({ activeSection, globalCardConfig, isDirty, onReset, onPublish }: CenterPanelProps) {
+function CenterPanel({ activeSection, globalCardConfig, isDirty , isSaving, onReset, onPublish }: CenterPanelProps) {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
 
   return (
@@ -96,7 +90,6 @@ function CenterPanel({ activeSection, globalCardConfig, isDirty, onReset, onPubl
       className="flex-1 overflow-y-auto scrollbar-hide min-w-0"
       style={{ backgroundColor: theme.bg }}
     >
-      {/* Toolbar — sticky so it stays visible while scrolling */}
       <header
         className="sticky top-0 z-10 h-14 border-b flex items-center justify-between px-6"
         style={{ borderColor: theme.border, backgroundColor: theme.bg }}
@@ -128,7 +121,7 @@ function CenterPanel({ activeSection, globalCardConfig, isDirty, onReset, onPubl
 
           <button
             onClick={onPublish}
-            disabled={!isDirty}
+            disabled={!isDirty || isSaving}
             className={`
               flex items-center gap-2 px-6 py-1.5 text-[10px] font-black uppercase rounded
               transition-all duration-300
@@ -142,12 +135,11 @@ function CenterPanel({ activeSection, globalCardConfig, isDirty, onReset, onPubl
                 : 'none',
             }}
           >
-            <Save size={12} /> Publish Changes
+            <Save size={12} /> {isSaving ? 'Publishing...' : isDirty ? 'Publish Changes' : 'Saved'}
           </button>
         </div>
       </header>
 
-      {/* Preview content */}
       <div className="p-12">
         <div className="max-w-[1000px] mx-auto">
           <div className="mb-10">
@@ -212,24 +204,40 @@ function CenterPanel({ activeSection, globalCardConfig, isDirty, onReset, onPubl
   );
 }
 
-
 export default function CollectionEditor() {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
+  const { 
+    collections = COLLECTIONS_PAYLOAD, 
+    app_factory_config = FACTORY_PAYLOAD,
+    selectedCollection 
+  } = usePage().props as any;
+  const [isSaving, setIsSaving] = useState(false);
+  const [sections, setSections] = useState<CollectionPayload[]>(collections);
+  const [activeId, setActiveId] = useState<number>(selectedCollection?.id || collections[0].id);
+  const [globalCardConfig, setGlobalCardConfig] = useState<CardConfig>(
+    selectedCollection?.card_config || collections[0].card_config
+  );
+  
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(true);
+  const [pendingSwitchId, setPendingSwitchId] = useState<number | null>(null);
 
-  const [sections, setSections]                 = useState<CollectionPayload[]>(INITIAL_PAYLOAD);
-  const [globalCardConfig, setGlobalCardConfig] = useState<CardConfig>(INITIAL_PAYLOAD[0].card_config);
-  const [activeId, setActiveId]                 = useState<number>(1);
-  const [leftOpen, setLeftOpen]                 = useState(true);
-  const [rightOpen, setRightOpen]               = useState(true);
-  const [savedSnapshot, setSavedSnapshot]       = useState({
-    sections: INITIAL_PAYLOAD,
-    globalCardConfig: INITIAL_PAYLOAD[0].card_config,
+  useEffect(() => {
+    setSections(collections);
+    if (selectedCollection) {
+      setActiveId(selectedCollection.id);
+      setGlobalCardConfig(selectedCollection.card_config);
+    }
+  }, [collections, selectedCollection]);
+
+  const [savedSnapshot, setSavedSnapshot] = useState({
+    sections: collections,
+    globalCardConfig: selectedCollection?.card_config || collections[0].card_config,
   });
-  const [pendingSwitchId, setPendingSwitchId]   = useState<number | null>(null);
 
   const activeSection = sections.find((s) => s.id === activeId) ?? sections[0];
 
-  const isDirty = useMemo(
+  let isDirty = useMemo(
     () => JSON.stringify({ sections, globalCardConfig }) !== JSON.stringify(savedSnapshot),
     [sections, globalCardConfig, savedSnapshot]
   );
@@ -245,33 +253,59 @@ export default function CollectionEditor() {
 
   const handleSelectSection = (id: number) => {
     if (id === activeId) return;
-    isDirty ? setPendingSwitchId(id) : setActiveId(id);
+
+    if (isDirty) {
+      setPendingSwitchId(id);
+    } else {
+      const section = sections.find(s => s.id === id);
+      
+      router.visit(route('collections.edit', { collection: section?.slug }));
+    }
   };
 
   const handleDiscard = () => {
     if (pendingSwitchId !== null) {
       setSections(savedSnapshot.sections);
       setGlobalCardConfig(savedSnapshot.globalCardConfig);
-      setActiveId(pendingSwitchId);
+      router.visit(route('collections.edit', pendingSwitchId));
     }
     setPendingSwitchId(null);
   };
 
   const handlePublish = () => {
     if (!isDirty) return;
-    const payloadToSave = sections.map((s) => ({ ...s, card_config: globalCardConfig }));
+    
+    const payload = {
+       ...activeSection,
+       card_config: globalCardConfig,
+       order_manifest: sections.map((s, idx) => ({ id: s.id, order: idx }))
+    };
+
+    const collection = sections.find((s) => s.id === activeId);
     router.put(
-      '/admin/catalog/sections/update',
-      { sections: payloadToSave },
-      {
-        onSuccess: () => setSavedSnapshot({ sections: payloadToSave, globalCardConfig }),
+      route('collections.update', { collection: collection?.slug }),
+      payload,
+      { 
+        onBefore: () => setIsSaving(true),
+        onSuccess: (page) => {
+          const serverCollections = page.props.collections as CollectionPayload[]; // Ensure this matches what your controller returns
+          const serverFactoryConfig = page.props.app_factory_config as CollectionPayload[]; 
+          setSavedSnapshot({ 
+              sections: serverCollections, 
+              globalCardConfig: serverFactoryConfig 
+          });
+          
+          setSections(serverCollections);
+          setGlobalCardConfig(serverFactoryConfig);
+      },
+    onFinish: () => setIsSaving(false),
         preserveScroll: true,
       }
     );
   };
 
   const resetToFactory = () => {
-    const factory = FACTORY_PAYLOAD.find((f) => f.id === activeId);
+    const factory = app_factory_config.find((f: any) => f.id === activeId);
     if (factory) {
       updateSection({
         layout_config: { ...factory.layout_config },
@@ -283,11 +317,11 @@ export default function CollectionEditor() {
     }
   };
 
+  const handleReorderCollections = (slug : string, action: 'increment' | 'decrement' | 'start' | 'end') => {
+      router.patch(route('collections.reorder', { collection: slug }), { action });
+  };
+
   return (
-    /*
-     * Root: h-screen + overflow-hidden = hard viewport boundary, no outer scroll ever.
-     * Each child column is overflow-y-auto and scrolls entirely on its own.
-     */
     <div
       className="flex h-screen overflow-hidden"
       style={{ backgroundColor: theme.bg, color: theme.text }}
@@ -299,6 +333,7 @@ export default function CollectionEditor() {
         activeId={activeId}
         onSelect={handleSelectSection}
         dirtyId={isDirty ? activeId : null}
+        onReorder={(slug: string, action: 'increment' | 'decrement' | 'start' | 'end') => handleReorderCollections(slug , action)}
       />
 
       <CenterPanel
@@ -307,6 +342,7 @@ export default function CollectionEditor() {
         isDirty={isDirty}
         onReset={resetToFactory}
         onPublish={handlePublish}
+        isSaving={isSaving}
       />
 
       <CollectionEditorInspector
@@ -335,7 +371,8 @@ CollectionEditor.layout = (page: any) => <AdminLayout>{page}</AdminLayout>;
 const FACTORY_PAYLOAD: CollectionPayload[] = [
   {
     id: 1,
-    section_type: 'deals',
+    key: 'deals',
+    slug: 'top-deals',
     name: 'Top Deals',
     active: true,
     layout_config: { displayLimit: 4, gap: 16, paddingInline: 0 },
@@ -344,8 +381,9 @@ const FACTORY_PAYLOAD: CollectionPayload[] = [
   },
   {
     id: 2,
-    section_type: 'category',
+    key: 'category',
     name: 'Featured Footwear',
+    slug: 'featured-footwear',
     active: true,
     layout_config: { displayLimit: 3, gap: 24, paddingInline: 0 },
     card_config: { aspectRatio: '3/4', borderRadius: 12, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'zoom' },
@@ -353,11 +391,12 @@ const FACTORY_PAYLOAD: CollectionPayload[] = [
   },
 ];
 
-const INITIAL_PAYLOAD: CollectionPayload[] = [
+const COLLECTIONS_PAYLOAD: CollectionPayload[] = [
   {
     id: 1,
-    section_type: 'deals',
+    key: 'deals',
     name: 'Top Deals',
+    slug: 'top-deals',
     active: true,
     layout_config: { displayLimit: 2, gap: 32, paddingInline: 12 },
     card_config: { aspectRatio: '1/1', borderRadius: 40, showPrice: false, showBadge: true, textAlign: 'center', hoverEffect: 'none' },
@@ -365,8 +404,9 @@ const INITIAL_PAYLOAD: CollectionPayload[] = [
   },
   {
     id: 2,
-    section_type: 'category',
+    key: 'category',
     name: 'Featured Footwear',
+    slug: 'featured-footwear',
     active: true,
     layout_config: { displayLimit: 3, gap: 24, paddingInline: 0 },
     card_config: { aspectRatio: '3/4', borderRadius: 12, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'zoom' },

@@ -2,8 +2,9 @@
 
 interface CollectionPayload {
   id: number;
-  section_type: 'deals' | 'curated' | 'category' | 'new_arrivals';
+  key: 'deals' | 'curated' | 'category' | 'new_arrivals';
   name: string;
+  slug : string ;
   active: boolean;
   layout_config: {
     displayLimit: number;

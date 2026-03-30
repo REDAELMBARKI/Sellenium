@@ -30,71 +30,24 @@ interface BannerSection {
   images: BannerImage[];
 }
 
+// Props the page receives from the server (Inertia)
+interface BannerEditorProps {
+  /** Last saved state from the DB — this is what the user was editing */
+  initialSections: BannerSection[];
+  /** Developer-defined defaults — used only for "Reset to Factory" */
+  factorySections: BannerSection[];
+}
+
 // ─── Section Type Registry ────────────────────────────────────────────────────
 
 const SECTION_TYPES = [
-  { type: 'overlay',         label: 'Overlay',        Icon: Image,           description: 'Full-bleed image with text overlay' },
-  { type: 'lifestyle-inset', label: 'Lifestyle Inset', Icon: Layers,          description: 'Text panel + photo with floating inset card' },
-  { type: 'cinematic-hero',  label: 'Cinematic Hero',  Icon: Film,            description: 'Video-ready hero with bottom gradient' },
-  { type: 'editorial-text',  label: 'Editorial',       Icon: LayoutDashboard, description: 'Solid brand background, no media' },
-  { type: 'duotone-split',   label: 'Duotone Split',   Icon: Columns2,        description: 'Brand-colored left + photo right' },
-  { type: 'double-media',    label: 'Double Media',    Icon: LayoutGrid,      description: 'Side-by-side photos with overlapping text' },
+  { type: 'overlay',         label: 'Overlay',        Icon: Image           },
+  { type: 'lifestyle-inset', label: 'Lifestyle Inset', Icon: Layers          },
+  { type: 'cinematic-hero',  label: 'Cinematic Hero',  Icon: Film            },
+  { type: 'editorial-text',  label: 'Editorial',       Icon: LayoutDashboard },
+  { type: 'duotone-split',   label: 'Duotone Split',   Icon: Columns2        },
+  { type: 'double-media',    label: 'Double Media',    Icon: LayoutGrid      },
 ];
-
-// ─── Factory & Initial Payloads ───────────────────────────────────────────────
-
-const FACTORY_SECTIONS: BannerSection[] = [
-  {
-    id: 's1', type: 'overlay', isActive: true, order: 0, direction: null,
-    tag: 'New Season', title: 'MODERN MINIMALISM',
-    subtitle: 'Clean lines and timeless silhouettes for the sophisticated wardrobe.',
-    ctaLabel: 'EXPLORE',
-    images: [{ slot: 'main', url: 'https://images.unsplash.com/photo-1490481651871-ab68624d5517?q=80&w=2000', label: 'Background image' }],
-  },
-  {
-    id: 's2', type: 'lifestyle-inset', isActive: true, order: 1, direction: 'ltr',
-    tag: 'Craftsmanship', title: 'LUXURY IN DETAIL',
-    subtitle: 'Our artisans spend hundreds of hours perfecting every stitch.',
-    ctaLabel: 'COLLECTION',
-    images: [
-      { slot: 'main',      url: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200', label: 'Main photo' },
-      { slot: 'secondary', url: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=600',  label: 'Inset photo' },
-    ],
-  },
-  {
-    id: 's3', type: 'cinematic-hero', isActive: true, order: 2, direction: null,
-    tag: 'FW 2025', title: 'THE NEW COLLECTION',
-    subtitle: 'Where craft meets quiet luxury',
-    ctaLabel: 'DISCOVER',
-    images: [{ slot: 'main', url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=2000', label: 'Background image' }],
-  },
-  {
-    id: 's4', type: 'editorial-text', isActive: false, order: 3, direction: null,
-    tag: 'Editorial', title: 'QUIET LUXURY\nREDEFINED.',
-    subtitle: "A study in restraint. A devotion to material. The season's most anticipated edit.",
-    ctaLabel: 'READ MORE',
-    images: [],
-  },
-  {
-    id: 's5', type: 'duotone-split', isActive: true, order: 4, direction: 'ltr',
-    tag: 'Archive', title: 'THE ARCHIVE EDIT',
-    subtitle: 'Revisiting the codes that defined a generation.',
-    ctaLabel: 'SHOP NOW',
-    images: [{ slot: 'main', url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1400', label: 'Feature photo' }],
-  },
-  {
-    id: 's6', type: 'double-media', isActive: true, order: 5, direction: 'ltr',
-    tag: 'Duo', title: 'TWO WORLDS, ONE VISION',
-    subtitle: 'The contrast that defines the season.',
-    ctaLabel: 'VIEW ALL',
-    images: [
-      { slot: 'main',      url: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=1200', label: 'Left photo' },
-      { slot: 'secondary', url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200', label: 'Right photo' },
-    ],
-  },
-];
-
-const INITIAL_SECTIONS: BannerSection[] = JSON.parse(JSON.stringify(FACTORY_SECTIONS));
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -120,7 +73,12 @@ interface UnsavedModalProps {
   onKeep: () => void;
 }
 
-const MODAL_COPY: Record<ModalReason, { title: string; body: (name: string) => React.ReactNode; keep: string; discard: string }> = {
+const MODAL_COPY: Record<ModalReason, {
+  title: string;
+  body: (name: string) => React.ReactNode;
+  keep: string;
+  discard: string;
+}> = {
   switch: {
     title: 'You have unsaved changes',
     body: (name) => <>Changes to <strong>{name}</strong> will be lost if you switch without publishing first.</>,
@@ -142,61 +100,43 @@ const MODAL_COPY: Record<ModalReason, { title: string; body: (name: string) => R
 };
 
 function UnsavedModal({ sectionName, reason, onDiscard, onKeep }: UnsavedModalProps) {
-  const { state: { currentTheme: theme } } = useStoreConfigCtx();
+  const { state: { currentTheme: t } } = useStoreConfigCtx();
   const copy = MODAL_COPY[reason];
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div
-        style={{ position: 'absolute', inset: 0, background: theme.overlay, backdropFilter: 'blur(4px)' }}
-        onClick={onKeep}
-      />
+      <div style={{ position: 'absolute', inset: 0, background: t.overlay, backdropFilter: 'blur(4px)' }} onClick={onKeep} />
       <div style={{
         position: 'relative', zIndex: 10, width: 380,
-        borderRadius: 16, border: `1px solid ${theme.border}`,
-        padding: 24, boxShadow: theme.shadowLg,
-        backgroundColor: theme.bgSecondary,
+        borderRadius: 16, border: `1px solid ${t.border}`,
+        padding: 24, boxShadow: t.shadowLg, backgroundColor: t.bgSecondary,
       }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 24 }}>
           <div style={{
             flexShrink: 0, width: 36, height: 36, borderRadius: 10,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backgroundColor: `${theme.primary}20`,
+            backgroundColor: `${t.primary}20`,
           }}>
-            <AlertTriangle size={16} style={{ color: theme.primary }} />
+            <AlertTriangle size={16} style={{ color: t.primary }} />
           </div>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 6, color: theme.text }}>
-              {copy.title}
-            </p>
-            <p style={{ fontSize: 11, lineHeight: 1.6, color: theme.textSecondary }}>
-              {copy.body(sectionName)}
-            </p>
+            <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 6, color: t.text }}>{copy.title}</p>
+            <p style={{ fontSize: 11, lineHeight: 1.6, color: t.textSecondary }}>{copy.body(sectionName)}</p>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          <button
-            onClick={onKeep}
-            style={{
-              flex: 1, padding: '10px 0', fontSize: 10, fontWeight: 800,
-              textTransform: 'uppercase', letterSpacing: '0.08em',
-              borderRadius: 10, border: 'none', cursor: 'pointer',
-              backgroundColor: theme.primary, color: theme.textInverse,
-            }}
-          >
-            {copy.keep}
-          </button>
-          <button
-            onClick={onDiscard}
-            style={{
-              flex: 1, padding: '10px 0', fontSize: 10, fontWeight: 800,
-              textTransform: 'uppercase', letterSpacing: '0.08em',
-              borderRadius: 10, border: `1px solid ${theme.border}`,
-              background: 'transparent', cursor: 'pointer', color: theme.text,
-            }}
-          >
-            {copy.discard}
-          </button>
+          <button onClick={onKeep} style={{
+            flex: 1, padding: '10px 0', fontSize: 10, fontWeight: 800,
+            textTransform: 'uppercase', letterSpacing: '0.08em',
+            borderRadius: 10, border: 'none', cursor: 'pointer',
+            backgroundColor: t.primary, color: t.textInverse,
+          }}>{copy.keep}</button>
+          <button onClick={onDiscard} style={{
+            flex: 1, padding: '10px 0', fontSize: 10, fontWeight: 800,
+            textTransform: 'uppercase', letterSpacing: '0.08em',
+            borderRadius: 10, border: `1px solid ${t.border}`,
+            background: 'transparent', cursor: 'pointer', color: t.text,
+          }}>{copy.discard}</button>
         </div>
       </div>
     </div>
@@ -206,7 +146,10 @@ function UnsavedModal({ sectionName, reason, onDiscard, onKeep }: UnsavedModalPr
 // ─── Dots Menu ────────────────────────────────────────────────────────────────
 
 function DotsMenu({ isFirst, isLast, isActive, onAction }: {
-  isFirst: boolean; isLast: boolean; isActive: boolean;
+
+  isFirst: boolean;
+  isLast: boolean;
+  isActive: boolean;
   onAction: (action: string) => void;
 }) {
   const { state: { currentTheme: t } } = useStoreConfigCtx();
@@ -278,9 +221,15 @@ function DotsMenu({ isFirst, isLast, isActive, onAction }: {
 
 // ─── Sidebar Item ─────────────────────────────────────────────────────────────
 
-function SidebarItem({ section, index, isActive, isDirty, onSelect, onAction }: {
-  section: BannerSection; index: number; isActive: boolean; isDirty: boolean;
-  onSelect: (id: string) => void; onAction: (action: string) => void;
+function SidebarItem({ section, index, isFirst, isLast, isActive, isDirty, onSelect, onAction }: {
+  section: BannerSection;
+  index: number;
+  isFirst: boolean;   // ← passed from parent, no reference to sections array needed here
+  isLast: boolean;    // ← same
+  isActive: boolean;
+  isDirty: boolean;
+  onSelect: (id: string) => void;
+  onAction: (action: string) => void;
 }) {
   const { state: { currentTheme: t } } = useStoreConfigCtx();
 
@@ -305,8 +254,7 @@ function SidebarItem({ section, index, isActive, isDirty, onSelect, onAction }: 
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontSize: 12, fontWeight: 500,
-          color: isActive ? t.primary : t.text,
+          fontSize: 12, fontWeight: 500, color: isActive ? t.primary : t.text,
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>
           {section.title.replace(/\n/g, ' ')}
@@ -316,15 +264,10 @@ function SidebarItem({ section, index, isActive, isDirty, onSelect, onAction }: 
         </div>
       </div>
 
-      {/* dirty dot */}
       {isDirty && (
-        <span style={{
-          width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
-          backgroundColor: t.primary,
-        }} />
+        <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, backgroundColor: t.primary }} />
       )}
 
-      {/* live/hidden pill */}
       <span style={{
         display: 'flex', alignItems: 'center', gap: 4,
         padding: '2px 6px', borderRadius: 20,
@@ -332,14 +275,16 @@ function SidebarItem({ section, index, isActive, isDirty, onSelect, onAction }: 
         background: section.isActive ? 'rgba(29,158,117,0.14)' : t.secondary,
         color: section.isActive ? t.success : t.textMuted,
       }}>
-        <span style={{
-          width: 4, height: 4, borderRadius: '50%',
-          background: section.isActive ? t.success : t.textMuted,
-        }} />
+        <span style={{ width: 4, height: 4, borderRadius: '50%', background: section.isActive ? t.success : t.textMuted }} />
         {section.isActive ? 'live' : 'hidden'}
       </span>
 
-      <DotsMenu isFirst={index === 0} isLast={index === -1} isActive={section.isActive} onAction={onAction} />
+      <DotsMenu
+        isFirst={isFirst}
+        isLast={isLast}
+        isActive={section.isActive}
+        onAction={onAction}
+      />
     </div>
   );
 }
@@ -352,7 +297,7 @@ function BannerPreview({ section }: { section: BannerSection }) {
   const main = getImg(section, 'main');
   const secondary = getImg(section, 'secondary');
 
-  const ImgBox = ({ src, style, children }: { src: string; style?: React.CSSProperties; children?: React.ReactNode }) => (
+  const ImgBox = ({ src, style }: { src: string; style?: React.CSSProperties }) => (
     <div style={{ position: 'relative', background: t.card, ...style }}>
       {src
         ? <img src={src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
@@ -360,7 +305,6 @@ function BannerPreview({ section }: { section: BannerSection }) {
             <Upload size={20} style={{ color: t.textMuted, opacity: 0.4 }} />
           </div>
       }
-      {children}
     </div>
   );
 
@@ -400,7 +344,9 @@ function BannerPreview({ section }: { section: BannerSection }) {
       <div style={{ flex: 1, position: 'relative' }}>
         <ImgBox src={main} style={{ width: '100%', height: '100%' }} />
         <div style={{
-          position: 'absolute', bottom: 20, left: section.direction === 'rtl' ? 'auto' : 16, right: section.direction === 'rtl' ? 16 : 'auto',
+          position: 'absolute', bottom: 20,
+          left: section.direction === 'rtl' ? 'auto' : 16,
+          right: section.direction === 'rtl' ? 16 : 'auto',
           width: 100, height: 100, border: `3px solid ${t.card}`, borderRadius: 4, overflow: 'hidden',
         }}>
           <ImgBox src={secondary} style={{ width: '100%', height: '100%' }} />
@@ -510,9 +456,8 @@ function ImageSlot({ imageObj, label, onChange }: {
         onClick={() => !loading && fileRef.current?.click()}
         style={{
           width: '100%', height: 80, borderRadius: 8,
-          border: `0.5px dashed ${t.borderHover}`,
-          background: t.bgSecondary, overflow: 'hidden',
-          cursor: loading ? 'wait' : 'pointer', position: 'relative',
+          border: `0.5px dashed ${t.borderHover}`, background: t.bgSecondary,
+          overflow: 'hidden', cursor: loading ? 'wait' : 'pointer', position: 'relative',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >
@@ -520,10 +465,7 @@ function ImageSlot({ imageObj, label, onChange }: {
           ? <img src={imageObj.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
           : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-              {loading
-                ? <Loader2 size={18} style={{ color: t.textMuted }} />
-                : <Upload size={16} style={{ color: t.textMuted, opacity: 0.6 }} />
-              }
+              {loading ? <Loader2 size={18} style={{ color: t.textMuted }} /> : <Upload size={16} style={{ color: t.textMuted, opacity: 0.6 }} />}
               <span style={{ fontSize: 10, color: t.textMuted }}>{loading ? 'Uploading…' : 'Click to upload'}</span>
             </div>
           )
@@ -534,7 +476,7 @@ function ImageSlot({ imageObj, label, onChange }: {
   );
 }
 
-// ─── Right Content Editor (inner scroll body) ─────────────────────────────────
+// ─── Content Editor ───────────────────────────────────────────────────────────
 
 function ContentEditor({ section, onUpdate }: {
   section: BannerSection | undefined;
@@ -550,7 +492,7 @@ function ContentEditor({ section, onUpdate }: {
     width: '100%', padding: '7px 9px', fontSize: 12,
     border: `0.5px solid ${t.border}`, borderRadius: 8,
     background: t.bgSecondary, color: t.text,
-    outline: 'none', fontFamily: 'inherit', resize: 'none' as const,
+    outline: 'none', fontFamily: 'inherit', resize: 'none',
     transition: 'border-color 0.1s', boxSizing: 'border-box',
   };
 
@@ -570,7 +512,7 @@ function ContentEditor({ section, onUpdate }: {
   };
 
   const Sep = () => <div style={{ height: 0.5, background: t.border, margin: '14px 0' }} />;
-  const SectionTitle = ({ children }: { children: React.ReactNode }) => (
+  const Label = ({ children }: { children: React.ReactNode }) => (
     <div style={{ fontSize: 10, fontWeight: 600, color: t.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 10 }}>{children}</div>
   );
   const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -581,10 +523,10 @@ function ContentEditor({ section, onUpdate }: {
   );
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: 14 }}>
+    <>
       {imageSlotDefs.length > 0 && (
         <>
-          <SectionTitle>Images</SectionTitle>
+          <Label>Images</Label>
           {imageSlotDefs.map(def => (
             <ImageSlot
               key={def.slot}
@@ -597,8 +539,7 @@ function ContentEditor({ section, onUpdate }: {
         </>
       )}
 
-      <SectionTitle>Text</SectionTitle>
-
+      <Label>Text</Label>
       <Field label="Tag / eyebrow">
         <input style={inputStyle} value={section.tag || ''} onChange={e => onUpdate({ tag: e.target.value })} placeholder="e.g. New Season"
           onFocus={e => (e.target as HTMLElement).style.borderColor = t.primary}
@@ -625,7 +566,7 @@ function ContentEditor({ section, onUpdate }: {
       </Field>
 
       <Sep />
-      <SectionTitle>Settings</SectionTitle>
+      <Label>Settings</Label>
 
       {hasDirection && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -660,90 +601,93 @@ function ContentEditor({ section, onUpdate }: {
           }} />
         </button>
       </div>
-    </div>
+    </>
   );
 }
 
 // ─── Main Editor ──────────────────────────────────────────────────────────────
 
-export default function BannerEditor() {
+export default function BannerEditor({ initialSections, factorySections }: BannerEditorProps) {
   const { state: { currentTheme: t } } = useStoreConfigCtx();
 
-  const [sections, setSections]           = useState<BannerSection[]>([...INITIAL_SECTIONS].sort((a, b) => a.order - b.order));
-  const [activeId, setActiveId]           = useState<string>(INITIAL_SECTIONS[0].id);
-  const [rightOpen, setRightOpen]         = useState(true);
-  const [savedSnapshot, setSavedSnapshot] = useState<BannerSection[]>(JSON.parse(JSON.stringify(INITIAL_SECTIONS)));
+  // Live editing state — seeded from DB payload
+  const [sections, setSections] = useState<BannerSection[]>(
+    [...initialSections].sort((a, b) => a.order - b.order)
+  );
 
-  // modal state: tracks which trigger opened it + pending action target
-  const [modal, setModal] = useState<{ reason: ModalReason; pendingId?: string } | null>(null);
+  // Snapshot of what's been published — dirty = live !== snapshot
+  // Seeded from the same DB payload; advances only on successful publish
+  const [savedSnapshot, setSavedSnapshot] = useState<BannerSection[]>(
+    JSON.parse(JSON.stringify(initialSections))
+  );
+
+  const [activeId, setActiveId]   = useState<string>(initialSections[0]?.id ?? '');
+  const [rightOpen, setRightOpen] = useState(true);
+  const [modal, setModal]         = useState<{ reason: ModalReason; pendingId?: string } | null>(null);
 
   const activeSection = sections.find(s => s.id === activeId);
 
-  // ── Dirty check ────────────────────────────────────────────────────────────
   const isDirty = useMemo(
     () => JSON.stringify(sections) !== JSON.stringify(savedSnapshot),
     [sections, savedSnapshot]
   );
 
-  // ── browser beforeunload guard (navigate away) ─────────────────────────────
-  // Note: modern browsers show their own native dialog for beforeunload.
-  // We additionally intercept Inertia navigation via router.on('before').
+  // ── Browser / Inertia navigate-away guards ────────────────────────────────
   useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    const handle = (e: BeforeUnloadEvent) => {
       if (!isDirty) return;
       e.preventDefault();
-      e.returnValue = '';     // required for Chrome to show the native prompt
+      e.returnValue = '';
     };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('beforeunload', handle);
+    return () => window.removeEventListener('beforeunload', handle);
   }, [isDirty]);
 
-  // ── Inertia navigate-away guard ────────────────────────────────────────────
   useEffect(() => {
-    const removeHandler = router.on('before', (event) => {
+    const off = router.on('before', (event) => {
       if (!isDirty) return;
-      // Show our custom modal instead of following the navigation.
-      // We store the href so we can replay it after the user confirms.
       event.preventDefault();
       setModal({ reason: 'navigate', pendingId: (event.detail.visit as any).url?.href ?? '' });
     });
-    return () => removeHandler();
+    return () => off();
   }, [isDirty]);
 
-  // ── Section update ─────────────────────────────────────────────────────────
+  // ── Section updater ───────────────────────────────────────────────────────
   const updateSection = useCallback((id: string, updates: Partial<BannerSection>) => {
     setSections(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
   }, []);
 
-  // ── Sidebar reorder / toggle ───────────────────────────────────────────────
+  // ── Reorder / toggle via dots menu ────────────────────────────────────────
   const handleAction = useCallback((id: string, action: string) => {
     setSections(prev => {
-      const sorted = [...prev];
-      const idx = sorted.findIndex(s => s.id === id);
+      const list = [...prev];
+      const idx = list.findIndex(s => s.id === id);
       if (idx < 0) return prev;
+
       if (action === 'toggle') {
-        sorted[idx] = { ...sorted[idx], isActive: !sorted[idx].isActive };
-        return sorted.map((s, i) => ({ ...s, order: i }));
+        list[idx] = { ...list[idx], isActive: !list[idx].isActive };
+        return list.map((s, i) => ({ ...s, order: i }));
       }
-      let newIdx = idx;
-      if (action === 'up')     newIdx = Math.max(0, idx - 1);
-      if (action === 'down')   newIdx = Math.min(sorted.length - 1, idx + 1);
-      if (action === 'top')    newIdx = 0;
-      if (action === 'bottom') newIdx = sorted.length - 1;
-      if (newIdx === idx) return prev;
-      const [moved] = sorted.splice(idx, 1);
-      sorted.splice(newIdx, 0, moved);
-      return sorted.map((s, i) => ({ ...s, order: i }));
+
+      let next = idx;
+      if (action === 'up')     next = Math.max(0, idx - 1);
+      if (action === 'down')   next = Math.min(list.length - 1, idx + 1);
+      if (action === 'top')    next = 0;
+      if (action === 'bottom') next = list.length - 1;
+      if (next === idx) return prev;
+
+      const [moved] = list.splice(idx, 1);
+      list.splice(next, 0, moved);
+      return list.map((s, i) => ({ ...s, order: i }));
     });
   }, []);
 
-  // ── Section selection (dirty guard → switch modal) ─────────────────────────
+  // ── Section selection with dirty guard ───────────────────────────────────
   const handleSelectSection = (id: string) => {
     if (id === activeId) return;
     isDirty ? setModal({ reason: 'switch', pendingId: id }) : setActiveId(id);
   };
 
-  // ── Unified modal discard handler ──────────────────────────────────────────
   const handleModalDiscard = () => {
     if (!modal) return;
     if (modal.reason === 'switch' && modal.pendingId) {
@@ -751,25 +695,15 @@ export default function BannerEditor() {
       setActiveId(modal.pendingId);
     }
     if (modal.reason === 'navigate' && modal.pendingId) {
-      // Re-fire navigation after discarding — bypass the Inertia guard
-      // by visiting directly (the guard only fires when isDirty is true,
-      // and we've just reset to snapshot so it will be clean).
       setSections(JSON.parse(JSON.stringify(savedSnapshot)));
-      // Allow state to flush before navigating
       setTimeout(() => router.visit(modal.pendingId!), 0);
-    }
-    if (modal.reason === 'publish') {
-      // "Discard" on publish modal = cancel, do nothing
     }
     setModal(null);
   };
 
-  const handleModalKeep = () => setModal(null);
-
-  // ── Publish (with confirmation modal) ─────────────────────────────────────
+  // ── Publish ───────────────────────────────────────────────────────────────
   const handlePublish = () => {
     if (!isDirty) return;
-    // Show a publish-confirm modal before firing the request
     setModal({ reason: 'publish' });
   };
 
@@ -785,17 +719,42 @@ export default function BannerEditor() {
     );
   };
 
-  // ── Factory reset (active section only) ───────────────────────────────────
+  // ── Factory reset — uses the separate factorySections prop, never touches initialSections ──
   const handleFactoryReset = () => {
-    const factory = FACTORY_SECTIONS.find(f => f.id === activeId);
+    const factory = factorySections.find(f => f.id === activeId);
     if (!factory) return;
     setSections(prev => prev.map(s => s.id === activeId ? JSON.parse(JSON.stringify(factory)) : s));
   };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: t.bg, color: t.text, fontFamily: 'system-ui, sans-serif' }}>
+  // ── Shared column header style ────────────────────────────────────────────
+  const colHeader: React.CSSProperties = {
+    flexShrink: 0,
+    height: 56,
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 16px',
+    borderBottom: `1px solid ${t.border}`,
+    background: t.bg,
+    gap: 10,
+  };
 
-      {/* ── Top Bar ────────────────────────────────────────────────────────── */}
+  const colHeaderText: React.CSSProperties = {
+    fontSize: 11,
+    fontWeight: 800,
+    letterSpacing: '0.14em',
+    textTransform: 'uppercase',
+    color: t.text,
+    fontFamily: 'system-ui, sans-serif',
+  };
+
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column',
+      height: '100vh', overflow: 'hidden',
+      background: t.bg, color: t.text, fontFamily: 'system-ui, sans-serif',
+    }}>
+
+      {/* ── Global Top Bar ─────────────────────────────────────────────────── */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 20px', height: 52, flexShrink: 0,
@@ -807,7 +766,6 @@ export default function BannerEditor() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          {/* Reset to factory */}
           <button
             onClick={handleFactoryReset}
             style={{
@@ -822,7 +780,6 @@ export default function BannerEditor() {
             <RotateCcw size={12} /> Reset to Factory
           </button>
 
-          {/* Unsaved badge */}
           {isDirty && (
             <span style={{
               padding: '2px 8px', fontSize: 9, fontWeight: 800, textTransform: 'uppercase',
@@ -832,7 +789,6 @@ export default function BannerEditor() {
             </span>
           )}
 
-          {/* Publish */}
           <button
             onClick={handlePublish}
             disabled={!isDirty}
@@ -852,29 +808,28 @@ export default function BannerEditor() {
         </div>
       </div>
 
-      {/* ── Body ───────────────────────────────────────────────────────────── */}
+      {/* ── Three-column body ───────────────────────────────────────────────── */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
 
-        {/* ── Left Sidebar ────────────────────────────────────────────────── */}
+        {/* LEFT: Section nav */}
         <aside style={{
           width: 230, flexShrink: 0,
           borderRight: `1px solid ${t.border}`,
           display: 'flex', flexDirection: 'column',
           background: t.sidebarBg, overflow: 'hidden',
         }}>
-          <div style={{
-            padding: '10px 12px 8px', fontSize: 10, fontWeight: 600,
-            letterSpacing: '0.1em', textTransform: 'uppercase', color: t.textMuted,
-            borderBottom: `1px solid ${t.border}`, fontFamily: 'monospace', flexShrink: 0,
-          }}>
-            Sections
+          <div style={{ ...colHeader, background: t.sidebarBg }}>
+            <span style={colHeaderText}>Sections</span>
           </div>
+          {/* Scrollable list */}
           <div style={{ flex: 1, overflowY: 'auto' }}>
             {sections.map((s, i) => (
               <SidebarItem
                 key={s.id}
                 section={s}
                 index={i}
+                isFirst={i === 0}
+                isLast={i === sections.length - 1}  // ← computed here in the parent where `sections` is in scope
                 isActive={s.id === activeId}
                 isDirty={isDirty && s.id === activeId}
                 onSelect={handleSelectSection}
@@ -884,14 +839,23 @@ export default function BannerEditor() {
           </div>
         </aside>
 
-        {/* ── Center Preview ───────────────────────────────────────────────── */}
-        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: t.bgSecondary }}>
-          <div style={{
-            padding: '9px 16px', borderBottom: `1px solid ${t.border}`,
-            fontSize: 10, color: t.textMuted, background: t.bg, fontFamily: 'monospace', flexShrink: 0,
-          }}>
-            Editing: <strong style={{ color: t.primary, fontWeight: 500 }}>{typeLabel(activeSection?.type ?? '')}</strong>
+        {/* CENTER: Preview canvas */}
+        <main style={{
+          flex: 1, display: 'flex', flexDirection: 'column',
+          overflow: 'hidden', background: t.bgSecondary,
+        }}>
+          <div style={{ ...colHeader, background: t.bg, justifyContent: 'space-between' }}>
+            <span style={colHeaderText}>
+              {activeSection?.title.replace(/\n/g, ' ') ?? ''} Editor
+            </span>
+            <span style={{
+              fontSize: 10, fontFamily: 'monospace', color: t.textMuted,
+              background: t.secondary, padding: '2px 8px', borderRadius: 4,
+            }}>
+              {typeLabel(activeSection?.type ?? '')}
+            </span>
           </div>
+          {/* Scrollable preview */}
           <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {activeSection && <BannerPreview section={activeSection} />}
             <button
@@ -909,7 +873,7 @@ export default function BannerEditor() {
           </div>
         </main>
 
-        {/* ── Right Panel (collapsible) ────────────────────────────────────── */}
+        {/* RIGHT: Inspector */}
         <aside style={{
           width: rightOpen ? 240 : 40, flexShrink: 0,
           borderLeft: `1px solid ${t.border}`,
@@ -917,52 +881,43 @@ export default function BannerEditor() {
           background: t.bg, overflow: 'hidden',
           transition: 'width 0.3s ease',
         }}>
-          {/* Toggle row */}
           <div style={{
-            padding: '0 10px', height: 40, flexShrink: 0,
-            display: 'flex', alignItems: 'center',
-            borderBottom: `1px solid ${t.border}`,
-            background: t.bg,
+            ...colHeader,
             justifyContent: rightOpen ? 'space-between' : 'center',
           }}>
+            {rightOpen && <span style={colHeaderText}>Content</span>}
             <button
               onClick={() => setRightOpen(v => !v)}
               style={{
-                width: 22, height: 22, display: 'grid', placeItems: 'center',
+                width: 26, height: 26, display: 'grid', placeItems: 'center',
                 background: 'none', border: 'none', cursor: 'pointer',
-                color: t.textMuted, borderRadius: 5,
+                color: t.textMuted, borderRadius: 5, flexShrink: 0,
               }}
               onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = t.secondary}
               onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
             >
               {rightOpen ? <PanelRight size={16} /> : <ChevronLeft size={16} />}
             </button>
-            {rightOpen && (
-              <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: t.textMuted, fontFamily: 'monospace' }}>
-                Content
-              </span>
-            )}
           </div>
-
-          {/* Editor body */}
+          {/* Scrollable editor */}
           {rightOpen && (
-            <ContentEditor
-              section={activeSection}
-              onUpdate={(updates) => activeSection && updateSection(activeSection.id, updates)}
-            />
+            <div style={{ flex: 1, overflowY: 'auto', padding: 14 }}>
+              <ContentEditor
+                section={activeSection}
+                onUpdate={(updates) => activeSection && updateSection(activeSection.id, updates)}
+              />
+            </div>
           )}
         </aside>
       </div>
 
-      {/* ── Unsaved Changes / Publish Confirm / Navigate Away Modal ─────── */}
+      {/* ── Modal ──────────────────────────────────────────────────────────── */}
       {modal !== null && (
         <UnsavedModal
           sectionName={activeSection?.title.replace(/\n/g, ' ') ?? 'this section'}
           reason={modal.reason}
-          // For 'publish': primary button = confirm publish, secondary = cancel
-          // For 'switch' / 'navigate': primary button = keep/stay, secondary = discard/leave
-          onKeep={modal.reason === 'publish' ? confirmPublish : handleModalKeep}
-          onDiscard={modal.reason === 'publish' ? handleModalKeep : handleModalDiscard}
+          onKeep={modal.reason === 'publish' ? confirmPublish : () => setModal(null)}
+          onDiscard={modal.reason === 'publish' ? () => setModal(null) : handleModalDiscard}
         />
       )}
     </div>

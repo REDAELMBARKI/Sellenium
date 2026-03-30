@@ -114,7 +114,7 @@ export const menuItems: MenuItem[] = [
     title: "Store",
     icon: Store,
     subLinks: [
-      { title: "collections", icon: SectionIcon, href: "collections.create", disabled: true },
+      { title: "collections", icon: SectionIcon, href: "collections.index", disabled: true },
       { title: "banners", icon: SectionIcon, href: "banner.create", disabled: true },
     ]
   },
