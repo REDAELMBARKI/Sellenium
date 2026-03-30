@@ -46,6 +46,7 @@ class RuleBasedCollectionController extends Controller
        
     }
 
+
     public function reorder(Request $request, RuleBasedCollection $collection)
     {
         $action = $request->input('action');

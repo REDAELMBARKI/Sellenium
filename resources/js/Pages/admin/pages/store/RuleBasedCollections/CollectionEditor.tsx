@@ -21,7 +21,7 @@ interface UnsavedModalProps {
   onKeep: () => void;
 }
 
-function UnsavedModal({ sectionName, onDiscard, onKeep}: UnsavedModalProps) {
+function UnsavedModal({ sectionName, onDiscard, onKeep }: UnsavedModalProps) {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
 
   return (
@@ -72,33 +72,33 @@ function UnsavedModal({ sectionName, onDiscard, onKeep}: UnsavedModalProps) {
   );
 }
 
+// ─────────────────────────────────────────────
+// CENTER PANEL (PREVIEW)
+// ─────────────────────────────────────────────
 
 interface CenterPanelProps {
-  activeSection: CollectionPayload;
-  globalCardConfig: CardConfig;
+  activeSection: any;
+  globalCardConfig: any;
   isDirty: boolean;
   isSaving: boolean;
   onReset: () => void;
   onPublish: () => void;
 }
 
-function CenterPanel({ activeSection, globalCardConfig, isDirty , isSaving, onReset, onPublish }: CenterPanelProps) {
+function CenterPanel({ activeSection, globalCardConfig, isDirty, isSaving, onReset, onPublish }: CenterPanelProps) {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
 
+  // Safety guard for empty states
+  if (!activeSection) return null;
+
   return (
-    <main
-      className="flex-1 overflow-y-auto scrollbar-hide min-w-0"
-      style={{ backgroundColor: theme.bg }}
-    >
+    <main className="flex-1 overflow-y-auto scrollbar-hide min-w-0" style={{ backgroundColor: theme.bg }}>
       <header
         className="sticky top-0 z-10 h-14 border-b flex items-center justify-between px-6"
         style={{ borderColor: theme.border, backgroundColor: theme.bg }}
       >
         <div className="flex items-center gap-3">
-          <h1
-            className="text-xs font-black uppercase tracking-widest"
-            style={{ color: theme.textSecondary }}
-          >
+          <h1 className="text-xs font-black uppercase tracking-widest" style={{ color: theme.textSecondary }}>
             {activeSection.name} Editor
           </h1>
           {isDirty && (
@@ -122,17 +122,13 @@ function CenterPanel({ activeSection, globalCardConfig, isDirty , isSaving, onRe
           <button
             onClick={onPublish}
             disabled={!isDirty || isSaving}
-            className={`
-              flex items-center gap-2 px-6 py-1.5 text-[10px] font-black uppercase rounded
-              transition-all duration-300
-              ${isDirty ? 'opacity-100 active:scale-95' : 'opacity-25 cursor-not-allowed'}
-            `}
+            className={`flex items-center gap-2 px-6 py-1.5 text-[10px] font-black uppercase rounded transition-all duration-300 ${
+              isDirty ? 'opacity-100 active:scale-95' : 'opacity-25 cursor-not-allowed'
+            }`}
             style={{
               backgroundColor: theme.primary,
               color: theme.textInverse,
-              boxShadow: isDirty
-                ? `0 0 0 3px ${theme.primary}30, 0 4px 14px ${theme.primary}40`
-                : 'none',
+              boxShadow: isDirty ? `0 0 0 3px ${theme.primary}30, 0 4px 14px ${theme.primary}40` : 'none',
             }}
           >
             <Save size={12} /> {isSaving ? 'Publishing...' : isDirty ? 'Publish Changes' : 'Saved'}
@@ -144,9 +140,7 @@ function CenterPanel({ activeSection, globalCardConfig, isDirty , isSaving, onRe
         <div className="max-w-[1000px] mx-auto">
           <div className="mb-10">
             <h2 className="text-3xl font-black italic">{activeSection.name}</h2>
-            <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1">
-              Live Storefront Preview
-            </p>
+            <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1">Live Storefront Preview</p>
           </div>
 
           <div
@@ -159,7 +153,7 @@ function CenterPanel({ activeSection, globalCardConfig, isDirty , isSaving, onRe
             {[...Array(activeSection.layout_config.displayLimit)].map((_, i) => (
               <div key={i} className="flex-1 flex flex-col min-w-0">
                 <div
-                  className="w-full relative overflow-hidden group border transition-all"
+                  className="w-full relative overflow-hidden group border transition-all" // Fixed: Added overflow-hidden
                   style={{
                     aspectRatio: globalCardConfig.aspectRatio,
                     borderRadius: `${globalCardConfig.borderRadius}px`,
@@ -204,101 +198,111 @@ function CenterPanel({ activeSection, globalCardConfig, isDirty , isSaving, onRe
   );
 }
 
+// ─────────────────────────────────────────────
+// MAIN EDITOR COMPONENT
+// ─────────────────────────────────────────────
+
 export default function CollectionEditor() {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
-  const { 
-    collections = COLLECTIONS_PAYLOAD, 
-    app_factory_config = FACTORY_PAYLOAD,
-    selectedCollection 
+  const {
+    collections = [],
+    app_factory_config = [],
+    selectedCollection
   } = usePage().props as any;
+
   const [isSaving, setIsSaving] = useState(false);
-  const [sections, setSections] = useState<CollectionPayload[]>(collections);
-  const [activeId, setActiveId] = useState<number>(selectedCollection?.id || collections[0].id);
-  const [globalCardConfig, setGlobalCardConfig] = useState<CardConfig>(
-    selectedCollection?.card_config || collections[0].card_config
+  const [sections, setSections] = useState<any[]>(collections);
+  const [activeId, setActiveId] = useState<number>(selectedCollection?.id || collections[0]?.id);
+  const [globalCardConfig, setGlobalCardConfig] = useState<any>(
+    selectedCollection?.card_config || collections[0]?.card_config
   );
-  
+
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
   const [pendingSwitchId, setPendingSwitchId] = useState<number | null>(null);
 
+  // Snapshot for dirty checking
+  const [savedSnapshot, setSavedSnapshot] = useState({
+    sections: collections,
+    globalCardConfig: selectedCollection?.card_config || collections[0]?.card_config,
+  });
+
+  // Sync internal state when Inertia props refresh
   useEffect(() => {
     setSections(collections);
     if (selectedCollection) {
       setActiveId(selectedCollection.id);
       setGlobalCardConfig(selectedCollection.card_config);
+      setSavedSnapshot({
+        sections: collections,
+        globalCardConfig: selectedCollection.card_config,
+      });
     }
   }, [collections, selectedCollection]);
 
-  const [savedSnapshot, setSavedSnapshot] = useState({
-    sections: collections,
-    globalCardConfig: selectedCollection?.card_config || collections[0].card_config,
-  });
+  const activeSection = useMemo(() => 
+    sections.find((s) => s.id === activeId) ?? sections[0], 
+  [sections, activeId]);
 
-  const activeSection = sections.find((s) => s.id === activeId) ?? sections[0];
-
-  let isDirty = useMemo(
+  const isDirty = useMemo(
     () => JSON.stringify({ sections, globalCardConfig }) !== JSON.stringify(savedSnapshot),
     [sections, globalCardConfig, savedSnapshot]
   );
 
-  const updateSection = (updates: Partial<CollectionPayload>) =>
+  const updateSection = (updates: any) =>
     setSections((prev) => prev.map((s) => (s.id === activeId ? { ...s, ...updates } : s)));
 
-  const updateLayout = (updates: Partial<CollectionPayload['layout_config']>) =>
+  const updateLayout = (updates: any) =>
     updateSection({ layout_config: { ...activeSection.layout_config, ...updates } });
 
-  const updateGlobalCard = (updates: Partial<CardConfig>) =>
-    setGlobalCardConfig((prev) => ({ ...prev, ...updates }));
+  const updateGlobalCard = (updates: any) =>
+    setGlobalCardConfig((prev: any) => ({ ...prev, ...updates }));
 
   const handleSelectSection = (id: number) => {
     if (id === activeId) return;
-
     if (isDirty) {
       setPendingSwitchId(id);
     } else {
       const section = sections.find(s => s.id === id);
-      
       router.visit(route('collections.edit', { collection: section?.slug }));
     }
   };
 
   const handleDiscard = () => {
     if (pendingSwitchId !== null) {
-      setSections(savedSnapshot.sections);
-      setGlobalCardConfig(savedSnapshot.globalCardConfig);
-      router.visit(route('collections.edit', pendingSwitchId));
+      const target = sections.find(s => s.id === pendingSwitchId);
+      setPendingSwitchId(null);
+      router.visit(route('collections.edit', { collection: target?.slug }));
     }
-    setPendingSwitchId(null);
   };
 
   const handlePublish = () => {
     if (!isDirty) return;
-    
+
     const payload = {
-       ...activeSection,
-       card_config: globalCardConfig,
-       order_manifest: sections.map((s, idx) => ({ id: s.id, order: idx }))
+      ...activeSection,
+      card_config: globalCardConfig,
+      order_manifest: sections.map((s, idx) => ({ id: s.id, order: idx }))
     };
 
-    const collection = sections.find((s) => s.id === activeId);
     router.put(
-      route('collections.update', { collection: collection?.slug }),
+      route('collections.update', { collection: activeSection.slug }),
       payload,
-      { 
+      {
         onBefore: () => setIsSaving(true),
         onSuccess: (page) => {
-          const serverCollections = page.props.collections as CollectionPayload[]; // Ensure this matches what your controller returns
-          const serverFactoryConfig = page.props.app_factory_config as CollectionPayload[]; 
-          setSavedSnapshot({ 
-              sections: serverCollections, 
-              globalCardConfig: serverFactoryConfig 
+          const freshSections = page.props.collections as any[];
+          // Extract specific card_config for the current active section from refreshed data
+          const freshActiveConfig = freshSections.find(s => s.id === activeId)?.card_config;
+
+          setSavedSnapshot({
+            sections: freshSections,
+            globalCardConfig: freshActiveConfig
           });
-          
-          setSections(serverCollections);
-          setGlobalCardConfig(serverFactoryConfig);
-      },
-    onFinish: () => setIsSaving(false),
+          setSections(freshSections);
+          setGlobalCardConfig(freshActiveConfig);
+        },
+        onFinish: () => setIsSaving(false),
         preserveScroll: true,
       }
     );
@@ -317,15 +321,25 @@ export default function CollectionEditor() {
     }
   };
 
-  const handleReorderCollections = (slug : string, action: 'increment' | 'decrement' | 'start' | 'end') => {
-      router.patch(route('collections.reorder', { collection: slug }), { action });
+  const handleReorderCollections = (slug: string, action: string) => {
+    router.patch(route('collections.reorder', { collection: slug }), { action }, {
+      preserveScroll: true,
+      onSuccess: (page) => {
+        const freshSections = page.props.collections as any[];
+        const freshActiveConfig = freshSections.find(s => s.id === activeId)?.card_config;
+
+        setSections(freshSections);
+        setGlobalCardConfig(freshActiveConfig);
+        setSavedSnapshot({
+          sections: freshSections,
+          globalCardConfig: freshActiveConfig
+        });
+      },
+    });
   };
 
   return (
-    <div
-      className="flex h-screen overflow-hidden"
-      style={{ backgroundColor: theme.bg, color: theme.text }}
-    >
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: theme.bg, color: theme.text }}>
       <CollectionEditorNav
         open={leftOpen}
         onToggle={() => setLeftOpen((v) => !v)}
@@ -333,7 +347,7 @@ export default function CollectionEditor() {
         activeId={activeId}
         onSelect={handleSelectSection}
         dirtyId={isDirty ? activeId : null}
-        onReorder={(slug: string, action: 'increment' | 'decrement' | 'start' | 'end') => handleReorderCollections(slug , action)}
+        onReorder={handleReorderCollections}
       />
 
       <CenterPanel
@@ -357,7 +371,7 @@ export default function CollectionEditor() {
 
       {pendingSwitchId !== null && (
         <UnsavedModal
-          sectionName={activeSection.name}
+          sectionName={activeSection?.name || ""}
           onDiscard={handleDiscard}
           onKeep={() => setPendingSwitchId(null)}
         />
@@ -367,49 +381,3 @@ export default function CollectionEditor() {
 }
 
 CollectionEditor.layout = (page: any) => <AdminLayout>{page}</AdminLayout>;
-
-const FACTORY_PAYLOAD: CollectionPayload[] = [
-  {
-    id: 1,
-    key: 'deals',
-    slug: 'top-deals',
-    name: 'Top Deals',
-    active: true,
-    layout_config: { displayLimit: 4, gap: 16, paddingInline: 0 },
-    card_config: { aspectRatio: '3/4', borderRadius: 12, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'zoom' },
-    rules: [{ id: 'f1', field: 'discount', operator: '>=', value: '25' }],
-  },
-  {
-    id: 2,
-    key: 'category',
-    name: 'Featured Footwear',
-    slug: 'featured-footwear',
-    active: true,
-    layout_config: { displayLimit: 3, gap: 24, paddingInline: 0 },
-    card_config: { aspectRatio: '3/4', borderRadius: 12, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'zoom' },
-    rules: [{ id: 'f2', field: 'category_id', operator: '=', value: 'Menswear' }],
-  },
-];
-
-const COLLECTIONS_PAYLOAD: CollectionPayload[] = [
-  {
-    id: 1,
-    key: 'deals',
-    name: 'Top Deals',
-    slug: 'top-deals',
-    active: true,
-    layout_config: { displayLimit: 2, gap: 32, paddingInline: 12 },
-    card_config: { aspectRatio: '1/1', borderRadius: 40, showPrice: false, showBadge: true, textAlign: 'center', hoverEffect: 'none' },
-    rules: [{ id: '1', field: 'discount', operator: '>=', value: '25' }],
-  },
-  {
-    id: 2,
-    key: 'category',
-    name: 'Featured Footwear',
-    slug: 'featured-footwear',
-    active: true,
-    layout_config: { displayLimit: 3, gap: 24, paddingInline: 0 },
-    card_config: { aspectRatio: '3/4', borderRadius: 12, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'zoom' },
-    rules: [{ id: '2', field: 'category_id', operator: '=', value: 'Menswear' }],
-  },
-];
