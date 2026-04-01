@@ -144,7 +144,7 @@ interface ProductInfoProps {
   promotions?: Promotion[];
   colors: (Color & { variant_id: number })[];
   sizes: Size[];
-  attrs?: Attr[];
+  product_attributes?: Attr[];
   subCategories?: SubCategory[];
   variants?: Variant[];
   madeCountry?: string | { code: string; name: string };
@@ -204,7 +204,7 @@ function useCountdown(date: string | null) {
 export const ProductInfo: React.FC<ProductInfoProps> = ({
   name, brand, badgeText, badgeColor, price, compareAtPrice, stock, description,
   rating_average, rating_count, showCountdown = true, promotions = [],
-  colors, sizes, attrs, subCategories, variants, madeCountry,
+  colors, sizes, product_attributes, subCategories, variants, madeCountry,
   theme, onColorSelect, selectedColor,
 }) => {
   injectStyles();
@@ -406,10 +406,10 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         </div>
       )}
 
-      {/* ── attrs as tag pills ── */}
-      {attrs && attrs.length > 0 && (
+      {/* ── product_attributes as tag pills ── */}
+      {product_attributes && product_attributes.length > 0 && (
         <div className="pi-tags">
-          {attrs.map(attr => (
+          {product_attributes.map(attr => (
             <span key={attr.id} className="pi-tag" style={{ color: mutedColor }}>
               {attr.value}
             </span>

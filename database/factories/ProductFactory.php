@@ -14,6 +14,16 @@ class ProductFactory extends Factory
     return [
         'name'              => $this->faker->words(4, true),
         'brand'             => $this->faker->company(),
+        'product_attributes' => [
+            [
+                'key' => "material" ,
+                'values' => ["couton " , "delim"]
+            ] ,
+            [
+                'key' => "style" ,
+                'values' => ["casual" , "formal"]
+            ]
+        ] ,
         'category_niche_id' => Category::where('parent_id' , null)->first()->id,
         'description'       => $this->faker->paragraphs(2, true),
         'is_featured'        => $this->faker->boolean(),

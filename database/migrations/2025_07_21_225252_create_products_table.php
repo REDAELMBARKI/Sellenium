@@ -29,7 +29,7 @@ return new class extends Migration
             $table->unsignedInteger('rating_count')->default(0);
            
             $table->json('shipping')->nullable();
-            $table->json('attrs')->nullable(); 
+            $table->json('product_attributes')->nullable(); 
             $table->json('inventory')->nullable();
             $table->json('meta')->nullable();
             $table->json('vendor')->nullable();

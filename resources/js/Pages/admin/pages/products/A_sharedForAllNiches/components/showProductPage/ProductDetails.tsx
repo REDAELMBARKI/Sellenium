@@ -177,7 +177,7 @@ const DescriptionSection = ({ description, theme }: { description: string; theme
 const SpecsSection = ({ product, theme }: { product: any; theme: ThemePalette }) => {
   const t = theme;
   const rows = [
-    ...((product.attrs ?? []).map((a: any) => ({ label: a.key, value: a.value }))),
+    ...((product.product_attributes ?? []).map((a: any) => ({ label: a.key, value: a.value }))),
     product.madeCountry ? { label: "Made In", value: typeof product.madeCountry === "string" ? product.madeCountry : product.madeCountry?.name } : null,
     product.releaseDate ? { label: "Release Year", value: product.releaseDate } : null,
     product.brand ? { label: "Brand", value: product.brand } : null,
@@ -335,7 +335,7 @@ const ProductDetails = ({ onStepChange }: ProductDetailProps) => {
               description={product.description ?? ""}
               colors={product.colors ?? []}
               sizes={product.sizes ?? []}
-              attrs={product.attrs ?? []}
+              product_attributes={product.product_attributes ?? []}
               subCategories={product.sub_categories ?? []}
               variants={product.variants ?? []}
               madeCountry={product.madeCountry ?? undefined}

@@ -57,7 +57,7 @@ class Product extends Model
         'vendor'                => 'array',
         'faqs'                  => 'array',
         'related_product_ids'   => 'array',
-        'attrs' => 'array',
+        'product_attributes' => 'array',
     ];
 
     public function variants(){

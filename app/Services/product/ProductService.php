@@ -38,6 +38,9 @@ class ProductService {
             $this ->syncSubCategories($product , $payload['sub_categories'] ?? [] ) ;
             //store vedio iframe url if exists
             $this->mediaService->storeIframeVideo($product , $payload['video']);
+            // resolve attributes map the values with comma separated
+            $updated_product_attributes = $this->resolveProductAttributes($payload['product_attributes']);
+            $payload['product_attributes'] = $updated_product_attributes;
             // store variants
             $updatedVariants = $this -> resolveVariants($payload);
             $this-> storeVariants($product ,$updatedVariants );
@@ -350,5 +353,9 @@ class ProductService {
 
     }
 
-
+    private function resolveProductAttributes(array $product_attributes){
+        return  collect($product_attributes)->map(fn($item) => [
+            $item['key'] => array_map('trim', explode(',', $item['values']))
+        ]);
+    }
 }//class close tag

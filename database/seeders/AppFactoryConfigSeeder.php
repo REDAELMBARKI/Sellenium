@@ -80,8 +80,17 @@ class AppFactoryConfigSeeder extends Seeder
                     'name' => 'Summer Collection 2026',
                     'subname' => 'Experience the heat with our new arrivals.',
                     'is_active' => true,
-                    'main_media_url' => 'https://picsum.photos/seed/main_1/1920/1080',
-                    'secondary_media_url' => 'https://picsum.photos/seed/sec_1/800/600',
+                   'main_media' => [
+                        'url' => 'https://picsum.photos/seed/main/1920/1080',
+                        'collection' => 'banner',
+                        'media_type' => 'image',
+                    ],
+                    
+                    'secondary_media' => [
+                        'url' => 'https://picsum.photos/seed/side/800/600',
+                        'collection' => 'banner',
+                        'media_type' => 'image',
+                    ],
                 ]
             ],
             [
@@ -95,8 +104,18 @@ class AppFactoryConfigSeeder extends Seeder
                     'name' => 'Flash Sale',
                     'subname' => 'Up to 50% off for a limited time only.',
                     'is_active' => true,
-                    'main_media_url' => 'https://picsum.photos/seed/main_2/1920/1080',
-                    'secondary_media_url' => null,
+                    'main_media' => [
+                            'url' => 'https://picsum.photos/seed/main/1920/1080',
+                            'collection' => 'banner',
+                            'media_type' => 'image',
+                        ],
+                        
+                        // Define data for the Secondary Media row
+                        'secondary_media' => [
+                            'url' => 'https://picsum.photos/seed/side/800/600',
+                            'collection' => 'banner',
+                            'media_type' => 'image',
+                        ],
                 ]
             ],
         ];
