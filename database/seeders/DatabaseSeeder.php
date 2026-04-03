@@ -20,11 +20,13 @@ class DatabaseSeeder extends Seeder
 
        $this->call([
            AppFactoryConfigSeeder::class ,
+           MediaSeeder::class ,
            BannerSeeder::class, 
+           RuleBasedCollectionsSeeder::class , 
+           HomeLayoutOrcSeeder::class ,
            storeSettingSeeder::class,
            BadgeSeeder::class ,
            UserSeeder::class ,
-           MediaSeeder::class ,
            TagSeeder::class,
            CategorySeeder::class,
            ProductSeeder::class ,
@@ -37,7 +39,6 @@ class DatabaseSeeder extends Seeder
             ShippingZoneSeeder::class ,
             VariantOptionSeeder::class ,
             ReviewSeeder::class,
-            RuleBasedCollectionsSeeder::class , 
             
             
             // AttributesSeeder::class , 

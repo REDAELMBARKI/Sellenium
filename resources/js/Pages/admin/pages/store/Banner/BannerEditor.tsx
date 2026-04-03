@@ -1,243 +1,283 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { route } from 'ziggy-js';
 import { Banner } from '@/types/bannerTypes';
 import BannerNav from './Partials/BannerNav';
 import BannerCenterPanel from './Partials/BannerPreview';
 import BannerInspector from './Partials/BannerInspector';
-import UnsavedModal from '@/components/ui/UnsavedModal';
+import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 
-
-
+const FALLBACK_BANNERS: Banner[] = [
+  {
+    id: 101,
+    key: "spring_2026",
+    name: "Spring Collection 2026",
+    slug: "spring-2026",
+    is_active: true,
+    order: 0,
+    direction: 'ltr',
+    aspect_ratio: "21:9",
+    border_radius: "12px",
+    bg_color: "#1a1a1a",
+    slots: [
+      {
+        slot_key: "left",
+        is_visible: true,
+        width: "50",
+        bg_color: "#1a1a1a",
+        main_media: { id: null, url: '', media_type: 'image' },
+      },
+      {
+        slot_key: "middle",
+        is_visible: false,
+        width: "50",
+        bg_color: "#222222",
+        elements: {
+          eyebrow:   { text: "NEW ARRIVALS",  color: "#ffd700", visible: true },
+          title:     { text: "Premium Gear",  color: "#ffffff", visible: true },
+          paragraph: { text: "Discover the latest 2026 release.", color: "#cccccc", visible: true },
+          button:    { text: "Shop Now", bg_color: "#ffffff", text_color: "#000000", visible: true }
+        }
+      },
+      {
+        slot_key: "right",
+        is_visible: true,
+        width: "50",
+        bg_color: "#1a1a1a",
+        main_media: { id: 1, url: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f", media_type: 'image' }
+      }
+    ]
+  }
+];
 
 export default function BannerEditor() {
-  const { state: { currentTheme: t } } = useStoreConfigCtx();
+  const { state: { currentTheme: theme } } = useStoreConfigCtx();
+  const { banners = [], app_factory_config = [], selectedBanner, available_banner_templates = [] } = usePage().props as any;
 
-  const {
-    banners           = [],
-    app_factory_config = [],
-    selectedBanner,
-  } = usePage().props as any;
+  const initialData = useMemo(() => {
+    const data = banners.length > 0 ? banners : FALLBACK_BANNERS;
+    return [...data].sort((a: Banner, b: Banner) => a.order - b.order);
+  }, [banners]);
 
-  // ── Local state ────────────────────────────────────────────────────────────
-  const [localBanners, setLocalBanners] = useState<Banner[]>(
-    [...banners].sort((a, b) => a.order - b.order)
-  );
-  const [activeId, setActiveId] = useState<number>(
-    selectedBanner?.id ?? banners[0]?.id
-  );
-  const [leftOpen,  setLeftOpen]  = useState(true);
-  const [rightOpen, setRightOpen] = useState(true);
-  const [isSaving,  setIsSaving]  = useState(false);
-  const [pendingSwitchId, setPendingSwitchId] = useState<number | null>(null);
+  const [localBanners, setLocalBanners]     = useState<Banner[]>(initialData);
+  const [activeId, setActiveId]             = useState<number>(selectedBanner?.id ?? initialData[0]?.id);
+  const [activeSlotKey, setActiveSlotKey]   = useState<string>(initialData[0]?.slots[0]?.slot_key ?? 'left');
+  const [activeElementKey, setActiveElementKey] = useState<string | null>(null);
+  const [isSaving, setIsSaving]             = useState(false);
+  const [savedSnapshot, setSavedSnapshot]   = useState<string>(JSON.stringify(initialData));
+  const [leftOpen, setLeftOpen]             = useState(true);
+  const [rightOpen, setRightOpen]           = useState(true);
 
-  // Snapshot for dirty-checking (never contains File objects)
-  const [savedSnapshot, setSavedSnapshot] = useState<Banner[]>(
-    JSON.parse(JSON.stringify(banners))
-  );
-
-  // Side-ref for pending File uploads — kept outside state so they don't affect isDirty JSON diff
   const pendingFiles = useRef<Record<string, File>>({});
 
-  // ── Sync on Inertia re-hydrate ─────────────────────────────────────────────
+  // Sync when Inertia refreshes props after a server round-trip
   useEffect(() => {
-    const sorted = [...banners].sort((a, b) => a.order - b.order);
+    const sorted = [...banners].sort((a: Banner, b: Banner) => a.order - b.order);
     setLocalBanners(sorted);
-    setSavedSnapshot(JSON.parse(JSON.stringify(sorted)));
-    if (selectedBanner) setActiveId(selectedBanner.id);
+    if (selectedBanner) {
+      setActiveId(selectedBanner.id);
+      setSavedSnapshot(JSON.stringify(sorted));
+      setActiveSlotKey(selectedBanner.slots?.[0]?.slot_key ?? 'left');
+      setActiveElementKey(null);
+    }
   }, [banners, selectedBanner]);
 
   const activeBanner = useMemo(
-    () => localBanners.find(b => b.id === activeId) ?? localBanners[0],
+    () => localBanners.find(banner => banner.id === activeId) ?? localBanners[0],
     [localBanners, activeId]
   );
 
+  // ── Navigation ────────────────────────────────────────────────────────────────
+
+  const handleSelectBanner = (id: number) => {
+    const banner = localBanners.find(b => b.id === id);
+    setActiveId(id);
+    setActiveSlotKey(banner?.slots?.[0]?.slot_key ?? 'left');
+    setActiveElementKey(null);
+  };
+
+  /** Navigate to a slot — clears any element selection */
+  const handleSlotSelect = (slotKey: string) => {
+    setActiveSlotKey(slotKey);
+    setActiveElementKey(null);
+  };
+
+  /** Select a specific element inside a slot (from preview click or inspector) */
+  const handleElementSelect = (slotKey: string, elementKey: string) => {
+    setActiveSlotKey(slotKey);
+    setActiveElementKey(elementKey);
+  };
+
   const isDirty = useMemo(
-    () => JSON.stringify(localBanners) !== JSON.stringify(savedSnapshot),
+    () => JSON.stringify(localBanners) !== savedSnapshot,
     [localBanners, savedSnapshot]
   );
 
-  // ── Unload guard ───────────────────────────────────────────────────────────
-  useEffect(() => {
-    const handle = (e: BeforeUnloadEvent) => {
-      if (!isDirty) return;
-      e.preventDefault(); e.returnValue = '';
-    };
-    window.addEventListener('beforeunload', handle);
-    return () => window.removeEventListener('beforeunload', handle);
-  }, [isDirty]);
+  // ── Path-based updater ────────────────────────────────────────────────────────
+  const updateBanner = (bannerId: number, path: string, value: any) => {
+    setLocalBanners(prev => prev.map(banner => {
+      if (banner.id !== bannerId) return banner;
+      const updated = structuredClone(banner);
+      const keys = path.split('.');
+      let cursor: any = updated;
+      for (let i = 0; i < keys.length - 1; i++) cursor = cursor[keys[i]];
+      cursor[keys[keys.length - 1]] = value;
+      return updated;
+    }));
+  };
 
-  // ── Inertia navigate-away guard ────────────────────────────────────────────
-  useEffect(() => {
-    const off = router.on('before', (event) => {
-      if (!isDirty) return;
-      event.preventDefault();
-      setPendingSwitchId(-1); 
-    });
-    return () => off();
-  }, [isDirty]);
+  // ── Slot visibility toggle with equal width redistribution ────────────────────
+  const handleToggleSlotVisibility = (slotKey: string) => {
+    if (!activeBanner) return;
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
-  const updateBanner = (id: number, updates: Partial<Banner>) =>
-    setLocalBanners(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
+    setLocalBanners(prev => prev.map(banner => {
+      if (banner.id !== activeId) return banner;
+      const cloned = structuredClone(banner);
+      const target = cloned.slots.find(s => s.slot_key === slotKey);
+      if (!target) return banner;
 
-  const handleMediaChange = (slot: 'main' | 'secondary', file: File) => {
+      // Prevent hiding the last visible slot
+      const visibleCount = cloned.slots.filter(s => s.is_visible).length;
+      if (target.is_visible && visibleCount === 1) return banner;
+
+      target.is_visible = !target.is_visible;
+
+      // Redistribute 100% equally across all now-visible slots
+      const visible = cloned.slots.filter(s => s.is_visible);
+      const base    = Math.floor(100 / visible.length);
+      const rem     = 100 - base * visible.length;
+      visible.forEach((s, i) => {
+        s.width = String(base + (i === 0 ? rem : 0));
+      });
+
+      return cloned;
+    }));
+  };
+
+  // ── Media ─────────────────────────────────────────────────────────────────────
+  const handleMediaChange = (slotIndex: number, file: File, isSecondary = false) => {
     const previewUrl = URL.createObjectURL(file);
-    pendingFiles.current[`${activeId}_${slot}`] = file;
+    const slot       = activeBanner.slots[slotIndex];
+    const fileKey    = `${activeId}_slot_${slot.slot_key}_${isSecondary ? 'sec' : 'main'}`;
+    const mediaPath  = isSecondary
+      ? `slots.${slotIndex}.secondary_media.url`
+      : `slots.${slotIndex}.main_media.url`;
 
-    if (slot === 'main') {
-      updateBanner(activeId, {
-        mainMedia: {
-          ...(activeBanner?.mainMedia ?? { id: 0, media_type: 'image', collection: 'banner' } as any),
-          url: previewUrl,
-        },
-      });
-    } else {
-      updateBanner(activeId, {
-        secondaryMedia: {
-          ...(activeBanner?.secondaryMedia ?? { id: 0, media_type: 'image', collection: 'banner' } as any),
-          url: previewUrl,
-        },
-      });
-    }
+    pendingFiles.current[fileKey] = file;
+    updateBanner(activeId, mediaPath, previewUrl);
   };
 
-  // ── Dots menu ──────────────────────────────────────────────────────────────
-  const handleAction = (id: number, action: string) => {
-    setLocalBanners(prev => {
-      const list = [...prev];
-      const idx  = list.findIndex(b => b.id === id);
-      if (idx < 0) return prev;
-
-      if (action === 'toggle') {
-        list[idx] = { ...list[idx], is_active: !list[idx].is_active };
-        return list.map((b, i) => ({ ...b, order: i }));
-      }
-
-      let next = idx;
-      if (action === 'up')     next = Math.max(0, idx - 1);
-      if (action === 'down')   next = Math.min(list.length - 1, idx + 1);
-      if (action === 'top')    next = 0;
-      if (action === 'bottom') next = list.length - 1;
-      if (next === idx) return prev;
-
-      const [moved] = list.splice(idx, 1);
-      list.splice(next, 0, moved);
-      return list.map((b, i) => ({ ...b, order: i }));
-    });
-  };
-
-  // ── Select banner ──────────────────────────────────────────────────────────
-  const handleSelect = (id: number) => {
-    if (id === activeId) return;
-    if (isDirty) {
-      setPendingSwitchId(id);
-    } else {
-      const target = localBanners.find(b => b.id === id);
-      router.visit(route('banners.edit', { banner: target?.slug }));
-    }
-  };
-
-  // ── Discard ────────────────────────────────────────────────────────────────
-  const handleDiscard = () => {
-    if (pendingSwitchId === null) return;
-    setLocalBanners(JSON.parse(JSON.stringify(savedSnapshot)));
-    pendingFiles.current = {};
-    if (pendingSwitchId > 0) {
-      const target = localBanners.find(b => b.id === pendingSwitchId);
-      router.visit(route('banners.edit', { banner: target?.slug }));
-    }
-    setPendingSwitchId(null);
-  };
-
+  // ── Publish ───────────────────────────────────────────────────────────────────
   const handlePublish = () => {
     if (!isDirty || isSaving || !activeBanner) return;
 
     const form = new FormData();
-    form.append('name',           activeBanner.name);
-    form.append('subname',        activeBanner.subname);
-    form.append('direction',      activeBanner.direction);
-    form.append('is_active',      activeBanner.is_active ? '1' : '0');
-    form.append('order_manifest', JSON.stringify(
-      localBanners.map((b, i) => ({ id: b.id, order: i }))
-    ));
+    form.append('name',          activeBanner.name);
+    form.append('direction',     activeBanner.direction);
+    form.append('aspect_ratio',  activeBanner.aspect_ratio);
+    form.append('border_radius', activeBanner.border_radius);
+    form.append('bg_color',      activeBanner.bg_color);
+    form.append('slots',         JSON.stringify(activeBanner.slots));
+    form.append('_method',       'PUT');
 
-    const mainFile      = pendingFiles.current[`${activeId}_main`];
-    const secondaryFile = pendingFiles.current[`${activeId}_secondary`];
-    if (mainFile)      form.append('main_media',      mainFile);
-    if (secondaryFile) form.append('secondary_media', secondaryFile);
+    Object.entries(pendingFiles.current).forEach(([key, file]) => form.append(key, file));
 
-    form.append('_method', 'PUT');
-
-    router.post(
-      route('banners.update', { banner: activeBanner.slug }),
-      form,
-      {
-        onBefore:  () => setIsSaving(true),
-        onSuccess: (page) => {
-          const fresh = ([...(page.props as any).banners as Banner[]]).sort((a, b) => a.order - b.order);
-          setSavedSnapshot(JSON.parse(JSON.stringify(fresh)));
-          setLocalBanners(fresh);
-          pendingFiles.current = {};
-        },
-        onFinish:  () => setIsSaving(false),
-        preserveScroll: true,
-      }
-    );
+    router.post(route('banners.update', { banner: activeBanner.slug }), form, {
+      onBefore:  () => setIsSaving(true),
+      onSuccess: (page) => {
+        const freshBanners = (page.props.banners as Banner[]) ?? localBanners;
+        const sorted = [...freshBanners].sort((a, b) => a.order - b.order);
+        setLocalBanners(sorted);
+        setSavedSnapshot(JSON.stringify(sorted));
+        pendingFiles.current = {};
+      },
+      onFinish: () => setIsSaving(false),
+    });
   };
 
-  // ── Factory reset ──────────────────────────────────────────────────────────
-  const handleFactoryReset = () => {
-    const factory = app_factory_config.find((f: any) => f.id === activeId);
-    if (!factory) return;
-    setLocalBanners(prev =>
-      prev.map(b => b.id === activeId ? { ...b, ...JSON.parse(JSON.stringify(factory)) } : b)
-    );
+  // ── Add Banner ────────────────────────────────────────────────────────────────
+  const handleAddBanner = (templateKey: string) => {
+    router.post(route('banners.store'), { template_key: templateKey }, {
+      onSuccess: (page) => {
+        const freshBanners = (page.props.banners as Banner[]) ?? localBanners;
+        const sorted = [...freshBanners].sort((a, b) => a.order - b.order);
+        setLocalBanners(sorted);
+        setSavedSnapshot(JSON.stringify(sorted));
+        const newest = sorted[sorted.length - 1];
+        if (newest) {
+          setActiveId(newest.id);
+          setActiveSlotKey(newest.slots?.[0]?.slot_key ?? 'left');
+          setActiveElementKey(null);
+        }
+      },
+    });
   };
 
-  // ──────────────────────────────────────────────────────────────────────────
+  // ── Factory Reset ─────────────────────────────────────────────────────────────
+  const resetToFactory = () => {
+    const factoryRecord = app_factory_config.find(
+      (record: any) => record.config_key === `banners.${activeBanner.key}`
+    );
+    if (!factoryRecord) return;
+
+    const payload = factoryRecord.payload;
+
+    setLocalBanners(prev => prev.map(banner => {
+      if (banner.id !== activeId) return banner;
+      return {
+        ...banner,
+        name:          payload.name,
+        direction:     payload.direction,
+        is_active:     payload.is_active,
+        aspect_ratio:  payload.aspect_ratio,
+        border_radius: payload.border_radius,
+        bg_color:      payload.bg_color,
+        slots:         structuredClone(payload.slots),
+      };
+    }));
+
+    setActiveSlotKey(payload.slots?.[0]?.slot_key ?? 'left');
+    setActiveElementKey(null);
+    pendingFiles.current = {};
+  };
 
   return (
-    <div style={{
-      display: 'flex', height: '100vh', overflow: 'hidden',
-      background: t.bg, color: t.text, fontFamily: 'system-ui, sans-serif',
-    }}>
-
+    <div className="flex h-screen overflow-hidden" style={{ background: theme.bg, color: theme.text }}>
       <BannerNav
         open={leftOpen}
         onToggle={() => setLeftOpen(v => !v)}
         banners={localBanners}
         activeId={activeId}
-        dirtyId={isDirty ? activeId : null}
-        onSelect={handleSelect}
-        onAction={handleAction}
+        onSelect={handleSelectBanner}
       />
 
       <BannerCenterPanel
         activeBanner={activeBanner}
+        activeSlotKey={activeSlotKey}
+        activeElementKey={activeElementKey}
+        onSlotSelect={handleSlotSelect}
+        onElementSelect={handleElementSelect}
+        onToggleSlotVisibility={handleToggleSlotVisibility}
         isDirty={isDirty}
         isSaving={isSaving}
-        onReset={handleFactoryReset}
+        onReset={resetToFactory}
         onPublish={handlePublish}
+        onUpdate={(path: string, value: any) => updateBanner(activeBanner.id, path, value)}
+        onAddBanner={handleAddBanner}
+        availableBannerTemplates={available_banner_templates}
       />
 
       <BannerInspector
         open={rightOpen}
         onToggle={() => setRightOpen(v => !v)}
         banner={activeBanner}
-        onUpdate={(updates) => activeBanner && updateBanner(activeBanner.id, updates)}
+        activeSlotKey={activeSlotKey}
+        activeElementKey={activeElementKey}
+        onElementSelect={handleElementSelect}
+        onUpdate={(path: string, value: any) => updateBanner(activeBanner.id, path, value)}
         onMediaChange={handleMediaChange}
       />
-
-      {pendingSwitchId !== null && (
-        <UnsavedModal
-          bannerName={activeBanner?.name ?? 'this banner'}
-          onDiscard={handleDiscard}
-          onKeep={() => setPendingSwitchId(null)}
-        />
-      )}
     </div>
   );
 }

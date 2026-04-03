@@ -27,6 +27,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\HomeLayoutOrcController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Jobs\WelcomeBack;
 use Illuminate\Auth\Events\Login;
@@ -44,6 +45,9 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+// home layout orchestration
+Route::get('/store/home-editor', [HomeLayoutOrcController::class, 'index'])->name('home.editor.index');
+
 //collecctions
 Route::get('/store/collections', [RuleBasedCollectionController::class, 'index'])->name('collections.index');
 Route::get('/store/collections/{collection:slug}', [RuleBasedCollectionController::class, 'edit'])->name('collections.edit');

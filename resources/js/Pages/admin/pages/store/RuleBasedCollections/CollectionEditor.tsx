@@ -309,7 +309,7 @@ export default function CollectionEditor() {
   };
 
   const resetToFactory = () => {
-    const factory = app_factory_config.find((f: any) => f.id === activeId);
+    const factory = app_factory_config.find((f: any) => f.config_key === activeSection.key.startsWith("collections") ? activeSection.key : `collections.${activeSection.key}`);
     if (factory) {
       updateSection({
         layout_config: { ...factory.layout_config },
@@ -321,22 +321,6 @@ export default function CollectionEditor() {
     }
   };
 
-  const handleReorderCollections = (slug: string, action: string) => {
-    router.patch(route('collections.reorder', { collection: slug }), { action }, {
-      preserveScroll: true,
-      onSuccess: (page) => {
-        const freshSections = page.props.collections as any[];
-        const freshActiveConfig = freshSections.find(s => s.id === activeId)?.card_config;
-
-        setSections(freshSections);
-        setGlobalCardConfig(freshActiveConfig);
-        setSavedSnapshot({
-          sections: freshSections,
-          globalCardConfig: freshActiveConfig
-        });
-      },
-    });
-  };
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: theme.bg, color: theme.text }}>
@@ -347,7 +331,6 @@ export default function CollectionEditor() {
         activeId={activeId}
         onSelect={handleSelectSection}
         dirtyId={isDirty ? activeId : null}
-        onReorder={handleReorderCollections}
       />
 
       <CenterPanel

@@ -9,7 +9,7 @@ class AppFactoryConfig extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['config_key', 'description', 'payload', 'is_active'];
+    protected $fillable = [ 'description',  'is_active'];
 
     protected $casts = [
         'payload' => 'array',

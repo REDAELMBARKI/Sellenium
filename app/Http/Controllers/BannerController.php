@@ -17,7 +17,7 @@ class BannerController extends Controller
     }
     public function edit(Banner $banner)
     {
-        $banners = Banner::with('mainMedia', 'secondaryMedia')->orderBy('order')->get();
+        $banners = Banner::with('slots.mainMedia', 'slots.secondaryMedia')->orderBy('order')->get();
         $app_factory_config = AppFactoryConfig::where("config_key" , "LIKE", "banners.%")
                                                 ->where("config_key" , $banner->key)
                                                 ->get(['id' , 'payload'])

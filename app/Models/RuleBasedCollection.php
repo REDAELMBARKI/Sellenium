@@ -76,4 +76,10 @@ class RuleBasedCollection extends Model
        return RuleBasedCollection::count();
    }
 
+
+   public function homeLayoutOrcs()
+   {
+       return $this->morphMany(HomeLayoutOrc::class, 'sortable');
+   }
+
 }

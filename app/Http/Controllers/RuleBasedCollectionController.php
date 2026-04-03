@@ -22,7 +22,7 @@ class RuleBasedCollectionController extends Controller
         $collections = RuleBasedCollection::orderBy('order')->get();
         $app_factory_config = AppFactoryConfig::where("config_key" , "LIKE", "collections.%")
                                                 ->where("config_key" , $collection->key)
-                                                ->get(['id' , 'payload'])
+                                                ->get(['id' , 'config_key', 'payload'])
                                                 ->map(function($config) { return array_merge($config->payload , ["id" => $config->id]) ; })  ;
        
         return Inertia::render('admin/pages/store/RuleBasedCollections/CollectionEditor', [

@@ -30,4 +30,10 @@ class Promotion extends Model
     public function products(){
          return $this->hasMany(Promotion::class);
     }
+
+
+    public function homeLayoutOrcs()
+    {
+       return $this->morphMany(HomeLayoutOrc::class, 'sortable');
+    }
 }

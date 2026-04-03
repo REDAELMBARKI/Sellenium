@@ -17,7 +17,6 @@ interface CollectionEditorNavProps {
   activeId: number;
   onSelect: (id: number) => void;
   dirtyId: number | null;
-  onReorder: (slug: string, action: 'increment' | 'decrement' | 'start' | 'end') => void;
 }
 
 export default function CollectionEditorNav({
@@ -27,17 +26,11 @@ export default function CollectionEditorNav({
   activeId,
   onSelect,
   dirtyId,
-  onReorder,
 }: CollectionEditorNavProps) {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
 
-  const reorderActions = [
-    { label: "Move Top", action: "start", icon: ArrowUpToLine },
-    { label: "Move Up", action: "decrement", icon: ArrowUp },
-    { label: "Move Down", action: "increment", icon: ArrowDown },
-    { label: "Move Bottom", action: "end", icon: ArrowDownToLine },
-  ] as const;
+
 
   return (
     <aside
@@ -111,21 +104,7 @@ export default function CollectionEditorNav({
                     className="absolute right-2 top-10 z-30 w-36 rounded-xl border p-1 shadow-2xl animate-in fade-in zoom-in duration-150"
                     style={{ backgroundColor: theme.bgSecondary, borderColor: theme.border }}
                   >
-                    {reorderActions.map((item) => (
-                      <button
-                        key={item.action}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onReorder(s.slug, item.action);
-                          setMenuOpenId(null);
-                        }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-black/5 rounded-lg text-[10px] uppercase font-black transition-colors"
-                        style={{ color: theme.text }}
-                      >
-                        <item.icon size={12} style={{ color: theme.primary }} />
-                        {item.label}
-                      </button>
-                    ))}
+                   {/* some actions  */}
                   </div>
                 </>
               )}
