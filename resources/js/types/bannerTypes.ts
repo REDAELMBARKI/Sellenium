@@ -11,6 +11,7 @@ export interface BannerElement {
   visible: boolean;
   bg_color?: string; 
   text_color?: string;
+  link : string
 }
 
 export interface BannerSlot {

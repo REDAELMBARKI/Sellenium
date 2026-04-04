@@ -3,6 +3,45 @@
 @tailwind utilities;
 
 
+.scrollbar-thin {
+  scrollbar-width: thin;                          /* firefox */
+  scrollbar-color: rgba(120,120,120,0.28) transparent; /* firefox */
+}
+.scrollbar-thin::-webkit-scrollbar        { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track  { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb  {
+  background: rgba(120,120,120,0.28);
+  border-radius: 99px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(120,120,120,0.52);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 120, 120, 0.28) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 120, 0.28);
+  border-radius: 99px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 120, 0.52);
+}
+
+
+
 /* thin themed scrollbar */
 .themed-scroll::-webkit-scrollbar {
   width: 4px;

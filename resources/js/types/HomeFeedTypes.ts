@@ -1,4 +1,5 @@
 import { ProductClient } from '@/types/clientSideTypes';
+import { Banner } from './bannerTypes';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  PRODUCT SECTION
@@ -13,16 +14,6 @@ export interface ProductSection {
 // ─────────────────────────────────────────────────────────────────────────────
 //  PROMO BANNER  — full-width image + headline + CTA
 // ─────────────────────────────────────────────────────────────────────────────
-export interface PromoBannerBlock {
-  id: string;
-  image: string;
-  /** overlay text alignment: content sits left, center, or right over the image */
-  align?: 'left' | 'center' | 'right';
-  eyebrow?: string;       // small label above title  e.g. "Limited Time"
-  title: string;
-  subtitle?: string;
-  cta?: { label: string; href: string };
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  VIDEO SPLIT  — video one side, text the other
@@ -137,8 +128,8 @@ export interface AdSlotBlock {
 //  FEED ITEM  — the discriminated union the backend returns
 // ─────────────────────────────────────────────────────────────────────────────
 export type FeedItem =
-  | { type: 'product_section'; data: ProductSection      }
-  | { type: 'promo_banner';    data: PromoBannerBlock     }
+  | { type: 'collection'; data: ProductSection      }
+  | { type: 'banner';    data: Banner     }
   | { type: 'video_split';     data: VideoSplitBlock      }
   | { type: 'full_video';      data: FullVideoBlock       }
   | { type: 'countdown_deal';  data: CountdownDealBlock   }

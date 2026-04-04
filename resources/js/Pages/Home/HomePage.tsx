@@ -9,7 +9,6 @@ import CategoryBanners from './Partials/CategoryBanners';
 import { ScrollRow } from './Partials/ScrollRow';
 import {
   FeedItem,
-  PromoBannerBlock,
   VideoSplitBlock,
   FullVideoBlock,
   CountdownDealBlock,
@@ -22,105 +21,219 @@ import {
   
 } from '@/types/HomeFeedTypes' ;
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
+import BannerRenderer from '../admin/pages/store/Banner/Partials/BannerRenderer';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  FAKE FEED  — swap with real API response from backend
 //  Backend returns FeedItem[] — ordered, typed, ready to render
 // ─────────────────────────────────────────────────────────────────────────────
+const FAKE_PRODUCTS = {
+  galaxyS25:    { id: 1,  name: 'Samsung Galaxy S25',  brand: 'Samsung',      price: 799,   originalPrice: 999,  image: 'https://images.pexels.com/photos/47261/pexels-photo-47261.jpeg?auto=compress&cs=tinysrgb&w=400',    category: 'Electronics', rating: 4.7, reviews: 312, badge: 'new' },
+  iphone16pro:  { id: 2,  name: 'iPhone 16 Pro',        brand: 'Apple',        price: 1099,  originalPrice: 1199, image: 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=400',   category: 'Electronics', rating: 4.9, reviews: 540, badge: 'new' },
+  macbookM3:    { id: 3,  name: 'MacBook Air M3',       brand: 'Apple',        price: 1099,  originalPrice: 1299, image: 'https://images.pexels.com/photos/812264/pexels-photo-812264.jpeg?auto=compress&cs=tinysrgb&w=400',   category: 'Electronics', rating: 4.9, reviews: 410, badge: 'new' },
+  pointelleTop: { id: 4,  name: 'Pointelle Knit Top',   brand: 'Mango',        price: 29.99, originalPrice: 49,   image: 'https://images.pexels.com/photos/3622608/pexels-photo-3622608.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion',     rating: 4.6, reviews: 33,  badge: 'new' },
+  floralDress:  { id: 5,  name: 'Floral Midi Dress',    brand: 'ASOS',         price: 39.99, originalPrice: 65,   image: 'https://images.pexels.com/photos/2220316/pexels-photo-2220316.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion',     rating: 4.7, reviews: 44,  badge: 'new' },
+  vitaminC:     { id: 6,  name: 'Vitamin C Serum',      brand: 'The Ordinary', price: 12.99, originalPrice: 18,   image: 'https://images.pexels.com/photos/3685530/pexels-photo-3685530.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Beauty',      rating: 4.8, reviews: 502, badge: 'new' },
+  dellXPS:      { id: 7,  name: 'Dell XPS 15',          brand: 'Dell',         price: 1399,  originalPrice: 1799, image: 'https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400',            category: 'Electronics', rating: 4.7, reviews: 205 },
+  leatherTote:  { id: 8,  name: 'Leather Tote Bag',     brand: 'Coach',        price: 199,   originalPrice: 320,  image: 'https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Accessories', rating: 4.8, reviews: 95,  badge: 'sale' },
+  cottonShirt:  { id: 9,  name: 'Stretch Cotton Shirt', brand: 'COS',          price: 52.66, originalPrice: 111,  image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion',     rating: 4.4, reviews: 11 },
+  oneplus13:    { id: 10, name: 'OnePlus 13',            brand: 'OnePlus',      price: 549,   originalPrice: 699,  image: 'https://images.pexels.com/photos/5750001/pexels-photo-5750001.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Electronics', rating: 4.6, reviews: 120, badge: 'hot' },
+  satinDress:   { id: 11, name: 'Satin Wrap Dress',     brand: 'Reformation',  price: 89,    originalPrice: 130,  image: 'https://images.pexels.com/photos/2220316/pexels-photo-2220316.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion',     rating: 4.8, reviews: 67,  badge: 'hot' },
+  retinol:      { id: 12, name: 'Retinol Night Cream',  brand: 'RoC',          price: 24.5,  originalPrice: 35,   image: 'https://images.pexels.com/photos/3685530/pexels-photo-3685530.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Beauty',      rating: 4.6, reviews: 189 },
+  pixel9:       { id: 13, name: 'Google Pixel 9',       brand: 'Google',       price: 649,   originalPrice: 799,  image: 'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Electronics', rating: 4.5, reviews: 198 },
+  xiaomi15:     { id: 14, name: 'Xiaomi 15 Ultra',      brand: 'Xiaomi',       price: 499,   originalPrice: 699,  image: 'https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg?auto=compress&cs=tinysrgb&w=400',   category: 'Electronics', rating: 4.4, reviews: 87 },
+  thinkpad:     { id: 15, name: 'Lenovo ThinkPad X1',   brand: 'Lenovo',       price: 999,   originalPrice: 1299, image: 'https://images.pexels.com/photos/374074/pexels-photo-374074.jpeg?auto=compress&cs=tinysrgb&w=400',   category: 'Electronics', rating: 4.6, reviews: 178 },
+  rogZephyrus:  { id: 16, name: 'ASUS ROG Zephyrus',    brand: 'ASUS',         price: 1599,  originalPrice: 1999, image: 'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Electronics', rating: 4.8, reviews: 290, badge: 'hot' },
+  ruffleShirt:  { id: 17, name: 'Esprit Ruffle Shirt',  brand: 'Esprit',       price: 16.64, originalPrice: 23,   image: 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=400',   category: 'Fashion',     rating: 4.5, reviews: 12,  badge: 'new' },
+  printedBlouse:{ id: 18, name: 'Metallic Printed Blouse', brand: 'Zara',      price: 34.75, originalPrice: 55,   image: 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion',     rating: 4.3, reviews: 9 },
+  linenBlazer:  { id: 19, name: 'Linen Cropped Blazer', brand: 'H&M',          price: 44.5,  originalPrice: 69,   image: 'https://images.pexels.com/photos/2220316/pexels-photo-2220316.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion',     rating: 4.5, reviews: 21 },
+  lipstickSet:  { id: 22, name: 'Matte Lipstick Set',   brand: 'MAC',          price: 18,    originalPrice: 22,   image: 'https://images.pexels.com/photos/2533266/pexels-photo-2533266.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Beauty',      rating: 4.7, reviews: 340, badge: 'new' },
+  fentyFoundation: { id: 23, name: 'Foundation SPF 30', brand: 'Fenty Beauty', price: 38,   originalPrice: 48,   image: 'https://images.pexels.com/photos/2533266/pexels-photo-2533266.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Beauty',      rating: 4.9, reviews: 780, badge: 'hot' },
+};
+
 const FAKE_FEED: FeedItem[] = [
-  // ── 1. Product section ───────────────────────────────────────────────────
+  // ── 1. Collection ──────────────────────────────────────────────────────────
   {
-    type: 'product_section',
+    type: 'collection',
     data: {
-      key: 'new-arrivals',
+      id: 1,
       name: 'New Arrivals',
-      emoji: '✨',
+      slug: 'new-arrivals',
+      key: 'collections.new_arrivals',
+      is_active: true,
+      order: 1,
+      layout_config: { displayLimit: 6, gap: 0, paddingInline: 0 },
+      card_config: { aspectRatio: '3/4', borderRadius: 0, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'zoom' },
+      rules: [{ field: 'badge', operator: '=', value: 'new' }],
       products: [
-        { id: 1,  name: 'Samsung Galaxy S25', brand: 'Samsung',      price: 799,   originalPrice: 999,  image: 'https://images.pexels.com/photos/47261/pexels-photo-47261.jpeg?auto=compress&cs=tinysrgb&w=400',    category: 'Electronics', rating: 4.7, reviews: 312, badge: 'new' },
-        { id: 2,  name: 'iPhone 16 Pro',       brand: 'Apple',        price: 1099,  originalPrice: 1199, image: 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=400',   category: 'Electronics', rating: 4.9, reviews: 540, badge: 'new' },
-        { id: 3,  name: 'MacBook Air M3',      brand: 'Apple',        price: 1099,  originalPrice: 1299, image: 'https://images.pexels.com/photos/812264/pexels-photo-812264.jpeg?auto=compress&cs=tinysrgb&w=400',   category: 'Electronics', rating: 4.9, reviews: 410, badge: 'new' },
-        { id: 4,  name: 'Pointelle Knit Top',  brand: 'Mango',        price: 29.99, originalPrice: 49,   image: 'https://images.pexels.com/photos/3622608/pexels-photo-3622608.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion',     rating: 4.6, reviews: 33,  badge: 'new' },
-        { id: 5,  name: 'Floral Midi Dress',   brand: 'ASOS',         price: 39.99, originalPrice: 65,   image: 'https://images.pexels.com/photos/2220316/pexels-photo-2220316.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion',     rating: 4.7, reviews: 44,  badge: 'new' },
-        { id: 6,  name: 'Vitamin C Serum',     brand: 'The Ordinary', price: 12.99, originalPrice: 18,   image: 'https://images.pexels.com/photos/3685530/pexels-photo-3685530.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Beauty',      rating: 4.8, reviews: 502, badge: 'new' },
+        FAKE_PRODUCTS.galaxyS25,
+        FAKE_PRODUCTS.iphone16pro,
+        FAKE_PRODUCTS.macbookM3,
+        FAKE_PRODUCTS.pointelleTop,
+        FAKE_PRODUCTS.floralDress,
+        FAKE_PRODUCTS.vitaminC,
       ],
     },
   },
 
-  // ── 2. Promo banner ──────────────────────────────────────────────────────
+  // ── 2. Banner (Spring Sale) ────────────────────────────────────────────────
   {
-    type: 'promo_banner',
+    type: 'banner',
     data: {
-      id: 'spring-sale',
-      image: 'https://images.pexels.com/photos/1884581/pexels-photo-1884581.jpeg?auto=compress&cs=tinysrgb&w=1400',
-      align: 'right',
-      eyebrow: 'Limited Time',
-      title: 'Spring Sale — Up to 50% Off',
-      subtitle: 'Fresh styles for the new season. Shop before it ends.',
-      cta: { label: 'Shop Now', href: '/sale' },
+      id: 1,
+      key: 'spring_sale_2026',
+      name: 'Spring Sale',
+      slug: 'spring-sale-2026',
+      is_active: true,
+      order: 1,
+      direction: 'ltr',
+      aspect_ratio: '21:9',
+      border_radius: '0px',
+      bg_color: '#0d0d0d',
+      slots: [
+        {
+          slot_key: 'left',
+          is_visible: true,
+          width: '55',
+          bg_color: '#0d0d0d',
+          elements: {
+            eyebrow:   { text: 'Limited Time',                              color: '#d4a853', visible: true },
+            title:     { text: 'Spring Sale — Up to 50% Off',              color: '#efefed', visible: true },
+            paragraph: { text: 'Fresh styles for the new season. Shop before it ends.', color: '#888885', visible: true },
+            button:    { text: 'Shop Now', bg_color: '#d4a853', text_color: '#0d0d0d' , link : '/' , visible: true },
+          },
+        },
+        {
+          slot_key: 'middle',
+          is_visible: false,
+          width: '0',
+          bg_color: '#0d0d0d',
+        },
+        {
+          slot_key: 'right',
+          is_visible: true,
+          width: '45',
+          bg_color: '#0d0d0d',
+          main_media: { id: 1, url: 'https://images.pexels.com/photos/1884581/pexels-photo-1884581.jpeg?auto=compress&cs=tinysrgb&w=1400', media_type: 'image' },
+        },
+      ],
     },
   },
 
-  // ── 2b. Inset promo banner ───────────────────────────────────────────────
+  // ── 3. Banner (Collections Discount — inset style, rtl) ───────────────────
   {
-    type: 'inset_promo',
+    type: 'banner',
     data: {
-      id: 'collections-discount',
-      image: 'https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=1400',
-      eyebrow: 'Collections Discount',
-      title: 'Up to 40% off our collections',
-      cta: { label: 'Shop Now', href: '/collections' },
+      id: 2,
+      key: 'collections_discount',
+      name: 'Collections Discount',
+      slug: 'collections-discount',
+      is_active: true,
+      order: 2,
+      direction: 'rtl',
+      aspect_ratio: '21:9',
+      border_radius: '12px',
+      bg_color: '#0a0a10',
+      slots: [
+        {
+          slot_key: 'left',
+          is_visible: true,
+          width: '50',
+          bg_color: '#0a0a10',
+          elements: {
+            eyebrow:   { text: 'Collections Discount',           color: '#a094cc', visible: true },
+            title:     { text: 'Up to 40% off our collections', color: '#efefed', visible: true },
+            paragraph: { text: '',                               color: '#888885', visible: false },
+            button:    { text: 'Shop Now', bg_color: '#a094cc', link : '/' , text_color: '#0a0a10', visible: true },
+          },
+        },
+        {
+          slot_key: 'middle',
+          is_visible: false,
+          width: '0',
+          bg_color: '#0a0a10',
+        },
+        {
+          slot_key: 'right',
+          is_visible: true,
+          width: '50',
+          bg_color: '#0a0a10',
+          main_media: { id: 2, url: 'https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=1400', media_type: 'image' },
+        },
+      ],
     },
   },
 
-  // ── 3. Product section ───────────────────────────────────────────────────
+  // ── 4. Collection (Best Deals) ────────────────────────────────────────────
   {
-    type: 'product_section',
+    type: 'collection',
     data: {
-      key: 'best-deals',
+      id: 2,
       name: 'Best Deals',
-      emoji: '🔥',
+      slug: 'best-deals',
+      key: 'collections.best_deals',
+      is_active: true,
+      order: 2,
+      layout_config: { displayLimit: 6, gap: 0, paddingInline: 0 },
+      card_config: { aspectRatio: '1/1', borderRadius: 0, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'none' },
+      rules: [{ field: 'discount', operator: '>=', value: '25' }],
       products: [
-        { id: 7,  name: 'Dell XPS 15',          brand: 'Dell',        price: 1399,  originalPrice: 1799, image: 'https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400',           category: 'Electronics', rating: 4.7, reviews: 205 },
-        { id: 8,  name: 'Leather Tote Bag',     brand: 'Coach',       price: 199,   originalPrice: 320,  image: 'https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Accessories', rating: 4.8, reviews: 95,  badge: 'sale' },
-        { id: 9,  name: 'Stretch Cotton Shirt', brand: 'COS',         price: 52.66, originalPrice: 111,  image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion',     rating: 4.4, reviews: 11 },
-        { id: 10, name: 'OnePlus 13',           brand: 'OnePlus',     price: 549,   originalPrice: 699,  image: 'https://images.pexels.com/photos/5750001/pexels-photo-5750001.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Electronics', rating: 4.6, reviews: 120, badge: 'hot' },
-        { id: 11, name: 'Satin Wrap Dress',     brand: 'Reformation', price: 89,    originalPrice: 130,  image: 'https://images.pexels.com/photos/3622608/pexels-photo-3622608.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion',     rating: 4.8, reviews: 67,  badge: 'hot' },
-        { id: 12, name: 'Retinol Night Cream',  brand: 'RoC',         price: 24.5,  originalPrice: 35,   image: 'https://images.pexels.com/photos/3685530/pexels-photo-3685530.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Beauty',      rating: 4.6, reviews: 189 },
+        FAKE_PRODUCTS.dellXPS,
+        FAKE_PRODUCTS.leatherTote,
+        FAKE_PRODUCTS.cottonShirt,
+        FAKE_PRODUCTS.oneplus13,
+        FAKE_PRODUCTS.satinDress,
+        FAKE_PRODUCTS.retinol,
       ],
     },
   },
 
-  // ── 4. Countdown deal ────────────────────────────────────────────────────
+  // ── 5. Promotion (Flash — percentage) ─────────────────────────────────────
   {
-    type: 'countdown_deal',
+    type: 'promotion',
     data: {
-      id: 'flash-deal-1',
-      endsAt: '2026-04-01T00:00:00Z',
-      eyebrow: 'Flash Sale',
-      title: "Today's Deal of the Day",
-      product: { id: 2, name: 'iPhone 16 Pro', brand: 'Apple', price: 899, originalPrice: 1199, image: 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Electronics', rating: 4.9, reviews: 540, badge: 'sale' },
+      id: 1,
+      name: 'Flash Sale — 30% Off Electronics',
+      value: 30,
+      minimum_order_amount: 100,
+      minimum_items: null,
+      max_uses: 500,
+      times_used: 123,
+      valid_from: '2026-04-01T00:00:00Z',
+      valid_until: '2026-04-07T23:59:59Z',
+      applicable_product_ids: null,
+      applicable_category_ids: ['Electronics'],
+      applicable_sub_category_ids: null,
+      is_active: true,
+      priority: 2,
     },
   },
 
-  // ── 5. Product section ───────────────────────────────────────────────────
+  // ── 6. Collection (Smartphones) ───────────────────────────────────────────
   {
-    type: 'product_section',
+    type: 'collection',
     data: {
-      key: 'smartphones',
+      id: 3,
       name: 'Smartphones',
-      emoji: '📱',
+      slug: 'smartphones',
+      key: 'collections.smartphones',
+      is_active: true,
+      order: 3,
+      layout_config: { displayLimit: 5, gap: 16, paddingInline: 0 },
+      card_config: { aspectRatio: '1/1', borderRadius: 8, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'zoom' },
+      rules: [{ field: 'category_id', operator: '=', value: 'Electronics' }],
       products: [
-        { id: 1,  name: 'Samsung Galaxy S25', brand: 'Samsung', price: 799,  originalPrice: 999,  image: 'https://images.pexels.com/photos/47261/pexels-photo-47261.jpeg?auto=compress&cs=tinysrgb&w=400',    category: 'Electronics', rating: 4.7, reviews: 312, badge: 'new' },
-        { id: 2,  name: 'iPhone 16 Pro',      brand: 'Apple',   price: 1099, originalPrice: 1199, image: 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=400',   category: 'Electronics', rating: 4.9, reviews: 540, badge: 'new' },
-        { id: 13, name: 'Google Pixel 9',     brand: 'Google',  price: 649,  originalPrice: 799,  image: 'https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Electronics', rating: 4.5, reviews: 198 },
-        { id: 10, name: 'OnePlus 13',         brand: 'OnePlus', price: 549,  originalPrice: 699,  image: 'https://images.pexels.com/photos/5750001/pexels-photo-5750001.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Electronics', rating: 4.6, reviews: 120, badge: 'hot' },
-        { id: 14, name: 'Xiaomi 15 Ultra',    brand: 'Xiaomi',  price: 499,  originalPrice: 699,  image: 'https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg?auto=compress&cs=tinysrgb&w=400',  category: 'Electronics', rating: 4.4, reviews: 87 },
+        FAKE_PRODUCTS.galaxyS25,
+        FAKE_PRODUCTS.iphone16pro,
+        FAKE_PRODUCTS.pixel9,
+        FAKE_PRODUCTS.oneplus13,
+        FAKE_PRODUCTS.xiaomi15,
       ],
     },
   },
 
-  // ── 6. Video split ───────────────────────────────────────────────────────
+  // ── 7. Video split ────────────────────────────────────────────────────────
   {
     type: 'video_split',
     data: {
@@ -134,86 +247,140 @@ const FAKE_FEED: FeedItem[] = [
     },
   },
 
-  // ── 7. Product section ───────────────────────────────────────────────────
+  // ── 8. Collection (Laptops) ───────────────────────────────────────────────
   {
-    type: 'product_section',
+    type: 'collection',
     data: {
-      key: 'laptops',
+      id: 4,
       name: 'Laptops',
-      emoji: '💻',
+      slug: 'laptops',
+      key: 'collections.laptops',
+      is_active: true,
+      order: 4,
+      layout_config: { displayLimit: 4, gap: 0, paddingInline: 0 },
+      card_config: { aspectRatio: '1/1', borderRadius: 0, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'none' },
+      rules: [{ field: 'category_id', operator: '=', value: 'Electronics' }],
       products: [
-        { id: 3,  name: 'MacBook Air M3',     brand: 'Apple',  price: 1099, originalPrice: 1299, image: 'https://images.pexels.com/photos/812264/pexels-photo-812264.jpeg?auto=compress&cs=tinysrgb&w=400',   category: 'Electronics', rating: 4.9, reviews: 410, badge: 'new' },
-        { id: 7,  name: 'Dell XPS 15',        brand: 'Dell',   price: 1399, originalPrice: 1799, image: 'https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400',           category: 'Electronics', rating: 4.7, reviews: 205 },
-        { id: 15, name: 'Lenovo ThinkPad X1', brand: 'Lenovo', price: 999,  originalPrice: 1299, image: 'https://images.pexels.com/photos/374074/pexels-photo-374074.jpeg?auto=compress&cs=tinysrgb&w=400',  category: 'Electronics', rating: 4.6, reviews: 178 },
-        { id: 16, name: 'ASUS ROG Zephyrus',  brand: 'ASUS',   price: 1599, originalPrice: 1999, image: 'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Electronics', rating: 4.8, reviews: 290, badge: 'hot' },
+        FAKE_PRODUCTS.macbookM3,
+        FAKE_PRODUCTS.dellXPS,
+        FAKE_PRODUCTS.thinkpad,
+        FAKE_PRODUCTS.rogZephyrus,
       ],
     },
   },
 
-  // ── 8. Brand spotlight ───────────────────────────────────────────────────
+  // ── 9. Banner (Brand Spotlight — Apple) ───────────────────────────────────
   {
-    type: 'brand_spotlight',
+    type: 'banner',
     data: {
-      id: 'apple-spotlight',
-      brandName: 'Apple',
-      image: 'https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=1400',
-      tagline: 'Think Different. Shop the full Apple ecosystem.',
-      cta: { label: 'Shop Apple', href: '/brand/apple' },
+      id: 3,
+      key: 'apple_spotlight',
+      name: 'Apple Spotlight',
+      slug: 'apple-spotlight',
+      is_active: true,
+      order: 3,
+      direction: 'ltr',
+      aspect_ratio: '21:9',
+      border_radius: '0px',
+      bg_color: '#0a0a0a',
+      slots: [
+        {
+          slot_key: 'left',
+          is_visible: true,
+          width: '40',
+          bg_color: '#0a0a0a',
+          elements: {
+            eyebrow:   { text: 'Brand Spotlight',                              color: '#888885', visible: true },
+            title:     { text: 'Think Different.',                             color: '#efefed', visible: true },
+            paragraph: { text: 'Shop the full Apple ecosystem.',               color: '#888885', visible: true },
+            button:    { text: 'Shop Apple', bg_color: '#efefed',link : '/'  , text_color: '#0a0a0a', visible: true },
+          },
+        },
+        {
+          slot_key: 'middle',
+          is_visible: false,
+          width: '0',
+          bg_color: '#0a0a0a',
+        },
+        {
+          slot_key: 'right',
+          is_visible: true,
+          width: '60',
+          bg_color: '#0a0a0a',
+          main_media: { id: 3, url: 'https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=1400', media_type: 'image' },
+        },
+      ],
     },
   },
 
-  // ── 9. Product section ───────────────────────────────────────────────────
+  // ── 10. Collection (Women's Tops) ─────────────────────────────────────────
   {
-    type: 'product_section',
+    type: 'collection',
     data: {
-      key: 'womens-tops',
+      id: 5,
       name: "Women's Tops",
-      emoji: '👗',
+      slug: 'womens-tops',
+      key: 'collections.womens_tops',
+      is_active: true,
+      order: 5,
+      layout_config: { displayLimit: 5, gap: 24, paddingInline: 0 },
+      card_config: { aspectRatio: '3/4', borderRadius: 12, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'zoom' },
+      rules: [{ field: 'category_id', operator: '=', value: 'Fashion' }],
       products: [
-        { id: 17, name: 'Esprit Ruffle Shirt',     brand: 'Esprit', price: 16.64, originalPrice: 23,  image: 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=400',   category: 'Fashion', rating: 4.5, reviews: 12, badge: 'new' },
-        { id: 9,  name: 'Stretch Cotton Shirt',    brand: 'COS',    price: 52.66, originalPrice: 111, image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion', rating: 4.4, reviews: 11 },
-        { id: 18, name: 'Metallic Printed Blouse', brand: 'Zara',   price: 34.75, originalPrice: 55,  image: 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion', rating: 4.3, reviews: 9 },
-        { id: 4,  name: 'Pointelle Knit Top',      brand: 'Mango',  price: 29.99, originalPrice: 49,  image: 'https://images.pexels.com/photos/3622608/pexels-photo-3622608.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion', rating: 4.6, reviews: 33, badge: 'new' },
-        { id: 19, name: 'Linen Cropped Blazer',    brand: 'H&M',    price: 44.5,  originalPrice: 69,  image: 'https://images.pexels.com/photos/2220316/pexels-photo-2220316.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Fashion', rating: 4.5, reviews: 21 },
+        FAKE_PRODUCTS.ruffleShirt,
+        FAKE_PRODUCTS.cottonShirt,
+        FAKE_PRODUCTS.printedBlouse,
+        FAKE_PRODUCTS.pointelleTop,
+        FAKE_PRODUCTS.linenBlazer,
       ],
     },
   },
 
-  // ── 10. Social proof strip ───────────────────────────────────────────────
+  // ── 11. Promotion (Free Shipping) ─────────────────────────────────────────
   {
-    type: 'social_proof',
+    type: 'promotion',
     data: {
-      id: 'social-proof-1',
-      stats: [
-        { value: '50k+',  label: 'Happy Customers' },
-        { value: '1,200+', label: 'Brands' },
-        { value: '4.8★',  label: 'Average Rating' },
-        { value: '24h',   label: 'Delivery' },
-      ],
-      quote: {
-        text: 'Best online shopping experience I have ever had. Fast delivery and amazing quality.',
-        author: 'Sarah M., Verified Buyer',
-      },
+      id: 2,
+      name: 'Free Shipping on Orders Over $50',
+      type: 'free_shipping',
+      value: 0,
+      minimum_order_amount: 50,
+      minimum_items: null,
+      max_uses: null,
+      times_used: 4210,
+      valid_from: '2026-01-01T00:00:00Z',
+      valid_until: '2026-12-31T23:59:59Z',
+      applicable_product_ids: null,
+      applicable_category_ids: null,
+      applicable_sub_category_ids: null,
+      is_active: true,
+      priority: 0,
     },
   },
 
-  // ── 11. Product section ──────────────────────────────────────────────────
+  // ── 12. Collection (Beauty) ───────────────────────────────────────────────
   {
-    type: 'product_section',
+    type: 'collection',
     data: {
-      key: 'beauty',
+      id: 6,
       name: 'Beauty',
-      emoji: '💄',
+      slug: 'beauty',
+      key: 'collections.beauty',
+      is_active: true,
+      order: 6,
+      layout_config: { displayLimit: 4, gap: 0, paddingInline: 0 },
+      card_config: { aspectRatio: '1/1', borderRadius: 0, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'zoom' },
+      rules: [{ field: 'category_id', operator: '=', value: 'Beauty' }],
       products: [
-        { id: 20, name: 'Vitamin C Serum 30ml',   brand: 'The Ordinary', price: 12.99, originalPrice: 18, image: 'https://images.pexels.com/photos/3685530/pexels-photo-3685530.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Beauty', rating: 4.8, reviews: 502, badge: 'new' },
-        { id: 21, name: 'Retinol Night Cream',    brand: 'RoC',          price: 24.5,  originalPrice: 35, image: 'https://images.pexels.com/photos/3685530/pexels-photo-3685530.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Beauty', rating: 4.6, reviews: 189 },
-        { id: 22, name: 'Matte Lipstick Set',     brand: 'MAC',          price: 18,    originalPrice: 22, image: 'https://images.pexels.com/photos/2533266/pexels-photo-2533266.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Beauty', rating: 4.7, reviews: 340, badge: 'new' },
-        { id: 23, name: 'Foundation SPF 30',      brand: 'Fenty Beauty', price: 38,    originalPrice: 48, image: 'https://images.pexels.com/photos/2533266/pexels-photo-2533266.jpeg?auto=compress&cs=tinysrgb&w=400', category: 'Beauty', rating: 4.9, reviews: 780, badge: 'hot' },
+        FAKE_PRODUCTS.vitaminC,
+        FAKE_PRODUCTS.retinol,
+        FAKE_PRODUCTS.lipstickSet,
+        FAKE_PRODUCTS.fentyFoundation,
       ],
     },
   },
 
-  // ── 12. UGC wall ─────────────────────────────────────────────────────────
+  // ── 13. UGC wall ─────────────────────────────────────────────────────────
   {
     type: 'ugc_wall',
     data: {
@@ -231,7 +398,29 @@ const FAKE_FEED: FeedItem[] = [
     },
   },
 
-  // ── 13. Lookbook grid ────────────────────────────────────────────────────
+  // ── 14. Promotion (Fixed — Fashion) ──────────────────────────────────────
+  {
+    type: 'promotion',
+    data: {
+      id: 3,
+      name: '$15 Off Fashion Orders',
+      type: 'fixed',
+      value: 15,
+      minimum_order_amount: 75,
+      minimum_items: 2,
+      max_uses: 200,
+      times_used: 58,
+      valid_from: '2026-04-01T00:00:00Z',
+      valid_until: '2026-04-30T23:59:59Z',
+      applicable_product_ids: null,
+      applicable_category_ids: ['Fashion'],
+      applicable_sub_category_ids: null,
+      is_active: true,
+      priority: 1,
+    },
+  },
+
+  // ── 15. Lookbook grid ────────────────────────────────────────────────────
   {
     type: 'lookbook_grid',
     data: {
@@ -246,52 +435,37 @@ const FAKE_FEED: FeedItem[] = [
     },
   },
 
-  // ── 14. Quiz CTA ─────────────────────────────────────────────────────────
+  // ── 16. Social proof ──────────────────────────────────────────────────────
+  {
+    type: 'social_proof',
+    data: {
+      id: 'social-proof-1',
+      stats: [
+        { value: '50k+',   label: 'Happy Customers' },
+        { value: '1,200+', label: 'Brands' },
+        { value: '4.8★',   label: 'Average Rating' },
+        { value: '24h',    label: 'Delivery' },
+      ],
+      quote: {
+        text: 'Best online shopping experience I have ever had. Fast delivery and amazing quality.',
+        author: 'Sarah M., Verified Buyer',
+      },
+    },
+  },
+
+  // ── 17. Quiz CTA ──────────────────────────────────────────────────────────
   {
     type: 'quiz_cta',
     data: {
       id: 'quiz-1',
-      title: "Not sure what to buy?",
-      subtitle: 'Take our 30-second quiz and we\'ll find the perfect product for you.',
+      title: 'Not sure what to buy?',
+      subtitle: "Take our 30-second quiz and we'll find the perfect product for you.",
       cta: { label: 'Start the Quiz', href: '/quiz' },
       image: 'https://images.pexels.com/photos/3622608/pexels-photo-3622608.jpeg?auto=compress&cs=tinysrgb&w=600',
     },
   },
-
-  // ── 15. Ad slot ──────────────────────────────────────────────────────────
-  {
-    type: 'ad_slot',
-    data: {
-      id: 'ad-1',
-      image: 'https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=1400',
-      href: '/campaign/summer',
-      alt: 'Summer Campaign',
-    },
-  },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  PLACEHOLDER BLOCK RENDERERS
-//  Each of these will be replaced with its own real component file later.
-//  For now they render a clearly labeled placeholder so you can see the layout.
-// ─────────────────────────────────────────────────────────────────────────────
-const PromoBannerRenderer: React.FC<{ data: PromoBannerBlock }> = ({ data }) => {
-  const { state: { currentTheme: theme } } = useStoreConfigCtx();
-  const alignMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
-  return (
-    <div style={{ position: 'relative', width: '100%', height: 380, overflow: 'hidden', marginBottom: '3rem' }}>
-      <img src={data.image} alt={data.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.1))', display: 'flex', alignItems: 'center', justifyContent: alignMap[data.align ?? 'left'], padding: '0 8vw' }}>
-        <div style={{ maxWidth: 480, textAlign: data.align === 'center' ? 'center' : 'left' }}>
-          {data.eyebrow && <p style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: theme.accent, marginBottom: 8 }}>{data.eyebrow}</p>}
-          <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: '2.4rem', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: 12 }}>{data.title}</h2>
-          {data.subtitle && <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', marginBottom: 24, lineHeight: 1.6 }}>{data.subtitle}</p>}
-          {data.cta && <a href={data.cta.href} style={{ display: 'inline-block', padding: '11px 28px', background: theme.accent, color: '#fff', borderRadius: theme.borderRadius, fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textDecoration: 'none', textTransform: 'uppercase' }}>{data.cta.label}</a>}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const VideoSplitRenderer: React.FC<{ data: VideoSplitBlock }> = ({ data }) => {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
@@ -457,17 +631,18 @@ const AdSlotRenderer: React.FC<{ data: AdSlotBlock }> = ({ data }) => (
 //  renderBlock  — the single switch that maps type → component
 // ─────────────────────────────────────────────────────────────────────────────
 const renderBlock = (item: FeedItem, onViewAll: (key: string) => void) => {
+  console.log(item.type)
   switch (item.type) {
-    case 'product_section': return <ScrollRow             key={item.data.key}  section={item.data} onViewAll={onViewAll} />;
-    case 'promo_banner':    return <PromoBannerRenderer    key={item.data.id}   data={item.data} />;
-    case 'video_split':     return <VideoSplitRenderer    key={item.data.id} data={item.data} />;
-    case 'countdown_deal':  return <CountdownDealRenderer key={item.data.id} data={item.data} />;
-    case 'ugc_wall':        return <UGCWallRenderer       key={item.data.id} data={item.data} />;
-    case 'brand_spotlight': return <BrandSpotlightRenderer key={item.data.id} data={item.data} />;
-    case 'quiz_cta':        return <QuizCTARenderer       key={item.data.id} data={item.data} />;
-    case 'social_proof':    return <SocialProofRenderer   key={item.data.id} data={item.data} />;
-    case 'lookbook_grid':   return <LookbookGridRenderer  key={item.data.id} data={item.data} />;
-    case 'ad_slot':         return <AdSlotRenderer        key={item.data.id} data={item.data} />;
+    case 'collection': return <ScrollRow             key={item.data.key}  section={item.data} onViewAll={onViewAll} />;
+    case 'banner':    return <BannerRenderer   isEditor={false} key={item.data.id}   banner={item.data} />;
+    // case 'video_split':     return <VideoSplitRenderer    key={item.data.id} data={item.data} />;
+    // case 'countdown_deal':  return <CountdownDealRenderer key={item.data.id} data={item.data} />;
+    // case 'ugc_wall':        return <UGCWallRenderer       key={item.data.id} data={item.data} />;
+    // case 'brand_spotlight': return <BrandSpotlightRenderer key={item.data.id} data={item.data} />;
+    // case 'quiz_cta':        return <QuizCTARenderer       key={item.data.id} data={item.data} />;
+    // case 'social_proof':    return <SocialProofRenderer   key={item.data.id} data={item.data} />;
+    // case 'lookbook_grid':   return <LookbookGridRenderer  key={item.data.id} data={item.data} />;
+    // case 'ad_slot':         return <AdSlotRenderer        key={item.data.id} data={item.data} />;
     case 'full_video':      return null; 
     default:                return null;
   }
@@ -491,9 +666,9 @@ const HomePage: React.FC<HomePageProps> = ({ feed = FAKE_FEED, onViewAll }) => {
   return (
     <Layout currentPage="home">
       {/* ── Fixed chrome — always here ── */}
-      <HeroSlider />
-      <PromoStrip />
-      <CategoryBanners />
+      {/* <HeroSlider /> */}
+      {/* <PromoStrip /> */}
+      {/* <CategoryBanners /> */}
 
       {/* ── Dynamic feed — backend controls everything below ── */}
       <section style={{ paddingBlock: '3rem' }}>
@@ -501,8 +676,8 @@ const HomePage: React.FC<HomePageProps> = ({ feed = FAKE_FEED, onViewAll }) => {
       </section>
 
       {/* ── Fixed chrome — always last ── */}
-      <FeatureStrip />
-      <NewsletterSection />
+      {/* <FeatureStrip /> */}
+      {/* <NewsletterSection /> */}
 
       <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
     </Layout>

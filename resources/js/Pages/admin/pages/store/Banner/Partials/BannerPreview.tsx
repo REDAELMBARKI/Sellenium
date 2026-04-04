@@ -2,8 +2,7 @@ import { useStoreConfigCtx } from "@/contextHooks/useStoreConfigCtx";
 import { Banner, BannerSlot } from "@/types/bannerTypes";
 import { RotateCcw, Save, Upload, Eye, EyeOff, Plus, X } from "lucide-react";
 import React, { useState } from "react";
-
-// ─── Add Banner Modal ─────────────────────────────────────────────────────────
+import BannerRenderer from "./BannerRenderer";
 
 function AddBannerModal({
   availableBanners,
@@ -100,259 +99,6 @@ function AddBannerModal({
   );
 }
 
-// ─── Element Wrapper (selectable/clickable element in preview) ────────────────
-
-function ElementWrapper({
-  elementKey,
-  activeElementKey,
-  onSelect,
-  children,
-  theme,
-  display = 'block',
-}: {
-  elementKey: string;
-  activeElementKey: string | null;
-  onSelect: (key: string) => void;
-  children: React.ReactNode;
-  theme: any;
-  display?: string;
-}) {
-  const isSelected = activeElementKey === elementKey;
-  return (
-    <div
-      onClick={(e) => { e.stopPropagation(); onSelect(elementKey); }}
-      onMouseEnter={(e) => {
-        if (!isSelected)
-          (e.currentTarget as HTMLElement).style.outlineColor = `${theme.primary}55`;
-      }}
-      onMouseLeave={(e) => {
-        if (!isSelected)
-          (e.currentTarget as HTMLElement).style.outlineColor = 'transparent';
-      }}
-      style={{
-        display,
-        cursor: 'pointer',
-        borderRadius: 4,
-        outline: isSelected ? `2px solid ${theme.primary}` : '2px solid transparent',
-        outlineOffset: 4,
-        transition: 'outline-color 0.15s',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-// ─── Slot Content ─────────────────────────────────────────────────────────────
-
-function SlotContent({
-  slot,
-  theme,
-  slotKey,
-  activeElementKey,
-  onElementSelect,
-}: {
-  slot: BannerSlot;
-  theme: any;
-  slotKey: string;
-  activeElementKey: string | null;
-  onElementSelect: (slotKey: string, elementKey: string) => void;
-}) {
-  const select = (key: string) => onElementSelect(slotKey, key);
-
-  if (slot.main_media?.url) {
-    return (
-      <>
-        <ElementWrapper elementKey="main_media" activeElementKey={activeElementKey} onSelect={select} theme={theme} display="block">
-          <img
-            src={slot.main_media.url}
-            alt=""
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          />
-        </ElementWrapper>
-        {slot.secondary_media?.url && (
-          <ElementWrapper elementKey="secondary_media" activeElementKey={activeElementKey} onSelect={select} theme={theme} display="block">
-            <div style={{
-              position: 'absolute', bottom: 16, right: 16,
-              width: 110, height: 88, borderRadius: 6, overflow: 'hidden',
-              border: `3px solid ${theme.card ?? '#fff'}`,
-              boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-            }}>
-              <img
-                src={slot.secondary_media.url}
-                alt=""
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-          </ElementWrapper>
-        )}
-      </>
-    );
-  }
-
-  if (slot.elements) {
-    return (
-      <div style={{
-        height: '100%', display: 'flex', flexDirection: 'column',
-        justifyContent: 'center', padding: '40px 36px', gap: 12,
-      }}>
-        {slot.elements.eyebrow?.visible && (
-          <ElementWrapper elementKey="eyebrow" activeElementKey={activeElementKey} onSelect={select} theme={theme} display="inline-block">
-            <span style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: '0.18em',
-              textTransform: 'uppercase', color: slot.elements.eyebrow.color,
-            }}>
-              {slot.elements.eyebrow.text}
-            </span>
-          </ElementWrapper>
-        )}
-        {slot.elements.title?.visible && (
-          <ElementWrapper elementKey="title" activeElementKey={activeElementKey} onSelect={select} theme={theme} display="block">
-            <h2 style={{
-              fontSize: 'clamp(1.4rem, 2.5vw, 2.2rem)', fontWeight: 700,
-              color: slot.elements.title.color, lineHeight: 1.15,
-              letterSpacing: '-0.02em', margin: 0,
-            }}>
-              {slot.elements.title.text}
-            </h2>
-          </ElementWrapper>
-        )}
-        {slot.elements.paragraph?.visible && (
-          <ElementWrapper elementKey="paragraph" activeElementKey={activeElementKey} onSelect={select} theme={theme} display="block">
-            <p style={{ fontSize: 13, color: slot.elements.paragraph.color, lineHeight: 1.7, margin: 0 }}>
-              {slot.elements.paragraph.text}
-            </p>
-          </ElementWrapper>
-        )}
-        {slot.elements.button?.visible && (
-          <ElementWrapper elementKey="button" activeElementKey={activeElementKey} onSelect={select} theme={theme} display="inline-block">
-            <button style={{
-              padding: '9px 22px',
-              background: slot.elements.button.bg_color,
-              color: slot.elements.button.text_color,
-              border: 'none', fontSize: 11, fontWeight: 700,
-              letterSpacing: '0.12em', cursor: 'pointer',
-              borderRadius: 3, textTransform: 'uppercase',
-            }}>
-              {slot.elements.button.text}
-            </button>
-          </ElementWrapper>
-        )}
-      </div>
-    );
-  }
-
-  // Empty placeholder
-  return (
-    <div style={{
-      width: '100%', height: '100%', minHeight: 200,
-      display: 'grid', placeItems: 'center',
-      background: theme.bgSecondary ?? '#f3f4f6',
-    }}>
-      <Upload size={24} style={{ opacity: 0.25 }} />
-    </div>
-  );
-}
-
-// ─── Banner Renderer ──────────────────────────────────────────────────────────
-
-function BannerRenderer({
-  banner,
-  activeSlotKey,
-  activeElementKey,
-  onSlotSelect,
-  onElementSelect,
-  onUpdate,
-}: {
-  banner: Banner;
-  activeSlotKey: string;
-  activeElementKey: string | null;
-  onSlotSelect: (key: string) => void;
-  onElementSelect: (slotKey: string, elementKey: string) => void;
-  onUpdate: (path: string, value: any) => void;
-}) {
-  const { state: { currentTheme: theme } } = useStoreConfigCtx();
-  const visibleSlots = banner.slots.filter(s => s.is_visible);
-
-  return (
-    <div style={{
-      display: 'flex',
-      flexDirection: banner.direction === 'rtl' ? 'row-reverse' : 'row',
-      borderRadius: banner.border_radius,
-      overflow: 'hidden',
-      minHeight: 320,
-      width: '100%',
-      position: 'relative',
-    }}>
-      {banner.slots.map((slot, idx) => {
-        const isActive  = slot.slot_key === activeSlotKey;
-        const isVisible = slot.is_visible;
-
-        const visibleIdx    = visibleSlots.findIndex(s => s.slot_key === slot.slot_key);
-        const isLastVisible = isVisible && visibleIdx === visibleSlots.length - 1;
-        const flexStyle     = !isVisible
-          ? '0 0 0%'
-          : isLastVisible
-            ? '1 0 0%'
-            : `0 0 ${slot.width}%`;
-
-        return (
-          <div
-            key={slot.slot_key}
-            onClick={() => onSlotSelect(slot.slot_key)}
-            style={{
-              flex: flexStyle,
-              overflow: 'hidden',
-              position: 'relative',
-              background: slot.bg_color ?? 'transparent',
-              transition: 'flex 0.35s ease, outline 0.15s',
-              cursor: 'pointer',
-              outline: isActive ? `2.5px solid ${theme.primary}` : '2.5px solid transparent',
-              outlineOffset: '-2.5px',
-              minWidth: !isVisible ? 0 : undefined,
-            }}
-          >
-            {isVisible && (
-              <SlotContent
-                slot={slot}
-                theme={theme}
-                slotKey={slot.slot_key}
-                activeElementKey={isActive ? activeElementKey : null}
-                onElementSelect={onElementSelect}
-              />
-            )}
-
-            {/* Slot label chip */}
-            <div style={{
-              position: 'absolute', top: 8, left: 8,
-              display: 'flex', alignItems: 'center', gap: 5,
-              background: isActive ? theme.primary : 'rgba(0,0,0,0.4)',
-              color: '#fff',
-              fontSize: 9, fontWeight: 800, letterSpacing: '0.1em',
-              padding: '3px 8px', borderRadius: 20,
-              textTransform: 'uppercase',
-              pointerEvents: 'none',
-            }}>
-              {slot.slot_key}
-              {!isVisible && <EyeOff size={10} />}
-            </div>
-
-            {/* Hidden slot overlay */}
-            {!isVisible && (
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: `${theme.bgSecondary}cc`,
-              }} />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Compound Slot Tab (navigate + visibility toggle) ─────────────────────────
-
 function SlotTab({
   slot,
   isActive,
@@ -430,8 +176,6 @@ function SlotTab({
     </div>
   );
 }
-
-// ─── Center Panel ─────────────────────────────────────────────────────────────
 
 export default function BannerCenterPanel({
   activeBanner,
@@ -560,6 +304,7 @@ export default function BannerCenterPanel({
           <div style={{ maxWidth: 960, margin: '0 auto' }}>
 
             <BannerRenderer
+              isEditor={true}
               banner={activeBanner}
               activeSlotKey={activeSlotKey}
               activeElementKey={activeElementKey}
