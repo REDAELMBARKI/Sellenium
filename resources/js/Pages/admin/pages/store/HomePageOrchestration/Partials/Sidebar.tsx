@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Section } from '@/types/homeEditor';
+import type { Section } from '@/types/homeEditorType';
 import { SidebarRow } from './SidebarRow';
 import { ThemePalette } from '@/types/ThemeTypes';
 

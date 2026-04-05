@@ -1,4 +1,6 @@
 import { Banner } from "./bannerTypes";
+import { ProductSchemaType } from '@/shemas/productSchema';
+import { Category, Cover } from "./inventoryTypes";
 
 export type MediaObject = {
   id: number;
@@ -25,20 +27,16 @@ export type BannerSlot = {
 
 
 
-export type Product = {
-  id: number;
-  name: string;
-  price: number;
-  thumbnail: string;
-};
+export type ProductClient =  Pick<ProductSchemaType  , 'id' | "rating_average" | 'brand' | 'name' | 'compare_price' | 'price'  > & {category : Category , reviews : number , badge : string , thumbnail : Cover }
 
 export type CollectionSortable = {
   id: number;
   name: string;
+  icon: string;
   key: string;
   slug: string;
   is_active: boolean;
-  layout_config: { displayLimit: number; gap: number; paddingInline: number };
+  layout_config: {titlePosition : "left" | "center" | "right" , CollectionPosition : "left" | "center" | "right" , displayLimit: number; gap: number; paddingInline: number , headerSpacing : number };
   card_config: {
     aspectRatio: string;
     borderRadius: number;
@@ -47,7 +45,7 @@ export type CollectionSortable = {
     textAlign: 'left' | 'center';
     hoverEffect: 'none' | 'zoom';
   };
-  products: Product[];
+  products: ProductClient[];
 };
 
 export type BannerSection = {

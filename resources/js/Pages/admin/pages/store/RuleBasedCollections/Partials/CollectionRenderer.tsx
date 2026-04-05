@@ -1,22 +1,25 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, icons } from 'lucide-react';
 import { ProductCardMaster } from '../../../../../Home/Partials/ProductCardMaster';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import { ProductSection } from '@/types/HomeFeedTypes';
+import { CollectionSection } from '@/types/homeEditorType';
+import DynamicIcon from '@/components/ui/DynamicIcon';
 
 const DEFAULT_CARDS_VISIBLE = 5;
 const CARD_GAP              = 24;   // px between cards
 const TRACK_PADDING         = 80;   // px left & right
 
 interface CollectionRendererProps {
-  section: ProductSection;
+  section: CollectionSection ;
   onViewAll?: (key: string) => void;
   cardsVisible?: number;
+  isEditor : boolean
 }
 
 export const CollectionRenderer: React.FC<CollectionRendererProps> = ({
   section,
   onViewAll,
+  isEditor ,
   cardsVisible = DEFAULT_CARDS_VISIBLE,
 }) => {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
@@ -26,8 +29,7 @@ export const CollectionRenderer: React.FC<CollectionRendererProps> = ({
   const [offset, setOffset] = useState(0);
   const [cardW,  setCardW]  = useState(0);
   const [visibleN, setVisible] = useState(cardsVisible);
-
-  const total     = section.products.length;
+  const total  = section.sortable?.products?.length;
 
   // ── Compute card width from the *window* element (already padded) ──────────
   useEffect(() => {
@@ -59,33 +61,46 @@ export const CollectionRenderer: React.FC<CollectionRendererProps> = ({
   const imageAreaHeight = cardW ? cardW * (4 / 3) : 300;
 
   return (
-    <div style={{ marginBottom: '3.5rem', position: 'relative' }}>
+    <div style={{ marginBottom: '3.5rem', position: 'relative' , userSelect : "none" }}>
 
       {/* ── Header ── */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: `28px ${TRACK_PADDING}px 22px`,
+        marginBottom: section.sortable.layout_config.headerSpacing ?? 0,
       }}>
-        <h2 style={{
-          fontFamily: '"Cormorant Garamond", "Playfair Display", Georgia, serif',
-          fontSize: '2rem',
-          fontWeight: 500,
-          color: theme.text,
-          margin: 0,
-          letterSpacing: '-0.01em',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-        }}>
-          {section.emoji && <span style={{ fontSize: '1.5rem' }}>{section.emoji}</span>}
-          {section.name}
-        </h2>
 
+        <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          justifyContent: section.sortable.layout_config.titlePosition === "left" ? 'flex-start' : section.sortable.layout_config.titlePosition === "right" ? 'flex-end' : 'center',
+        }}
+        >
+          <h2 style={{
+            fontFamily: '"Cormorant Garamond", "Playfair Display", Georgia, serif',
+            fontSize: '2rem',
+            fontWeight: 500,
+            color: theme.text,
+            margin: 0,
+            letterSpacing: '-0.01em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10, 
+            
+          }}>
+            {section.sortable.icon && <DynamicIcon name={section.sortable.icon as keyof typeof icons} size={24} />}
+            {section.sortable.name}
+          </h2>
+        </div>
         {onViewAll && (
           <button
-            onClick={() => onViewAll(section.key)}
+            onClick={() => {
+              if(isEditor) return ;
+              onViewAll(section.sortable.key)
+            
+            }}
             style={{
               padding: '11px 28px',
               borderRadius: theme.borderRadius,
@@ -96,16 +111,20 @@ export const CollectionRenderer: React.FC<CollectionRendererProps> = ({
               fontWeight: 600,
               letterSpacing: '0.1em',
               textTransform: 'uppercase' as const,
-              cursor: 'pointer',
+               
               transition: 'all 0.2s',
               whiteSpace: 'nowrap' as const,
+              pointerEvents: isEditor ? 'none' : 'auto',
+
             }}
             onMouseEnter={(e) => {
+              if(isEditor) return ;
               e.currentTarget.style.background  = theme.text;
               e.currentTarget.style.color       = theme.bg;
               e.currentTarget.style.borderColor = theme.text;
             }}
             onMouseLeave={(e) => {
+              if(isEditor) return ;
               e.currentTarget.style.background  = 'transparent';
               e.currentTarget.style.color       = theme.text;
               e.currentTarget.style.borderColor = theme.border;
@@ -117,10 +136,14 @@ export const CollectionRenderer: React.FC<CollectionRendererProps> = ({
       </div>
 
       {/* ── Arrow buttons — overlayed, centered on image area ── */}
-      {(['left', 'right'] as const).map((dir) => (
+      {!isEditor &&(['left', 'right'] as const).map((dir) => (
         <button
           key={dir}
-          onClick={() => scroll(dir)}
+          onClick={() => {
+              if(isEditor) return ;
+               scroll(dir)
+            }
+          }
           style={{
             position: 'absolute',
             top:       `calc(${28 + 22}px + ${imageAreaHeight * 0.42}px)`,   // header height + 42% into image
@@ -140,8 +163,9 @@ export const CollectionRenderer: React.FC<CollectionRendererProps> = ({
             transition: 'opacity 0.18s, border-color 0.18s',
             opacity: dir === 'left' ? (offset === 0 ? 0.25 : 1) : (offset >= maxOffset ? 0.25 : 1),
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = theme.text; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = theme.border; }}
+              
+          onMouseEnter={(e) => { if(isEditor) return ; e.currentTarget.style.borderColor = theme.text; }}
+          onMouseLeave={(e) => { if(isEditor) return ; e.currentTarget.style.borderColor = theme.border; }}
         >
           {dir === 'left' ? <ChevronLeft size={17} /> : <ChevronRight size={17} />}
         </button>
@@ -151,20 +175,22 @@ export const CollectionRenderer: React.FC<CollectionRendererProps> = ({
       <div
         ref={windowRef}
         style={{
-          marginInline: TRACK_PADDING,   // <-- padding lives HERE as margin
-          overflow: 'hidden',            // <-- clips exactly at padded boundary
+          overflow: 'hidden',    
+          pointerEvents: isEditor ? 'none' : 'auto',    
         }}
       >
         <div
           ref={sliderRef}
+          
           style={{
             display: 'flex',
+            justifyContent : section.sortable.layout_config.CollectionPosition === "center" ? 'center' : section.sortable.layout_config.CollectionPosition === "right" ? 'flex-end' : 'flex-start',
             gap: CARD_GAP,
             transition: 'transform 0.38s cubic-bezier(0.4, 0, 0.2, 1)',
             willChange: 'transform',
           }}
         >
-          {section.products.map((product) => (
+          {(section.sortable.products || []).map((product) => (
             <div
               key={product.id}
               style={{
@@ -174,7 +200,7 @@ export const CollectionRenderer: React.FC<CollectionRendererProps> = ({
               }}
             >
               <div className="sr-card-inner">
-                <ProductCardMaster product={product} />
+                <ProductCardMaster isEditor={isEditor} product={product} />
               </div>
             </div>
           ))}

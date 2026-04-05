@@ -61,7 +61,7 @@ class AppServiceProvider extends ServiceProvider
         // sortable -  mediable
         Relation::enforceMorphMap([
             'banner' => 'App\Models\Banner',
-            'collection' => 'App\Models\Collection',
+            'collection' => 'App\Models\RuleBasedCollection',
             'promotion' => 'App\Models\Promotion',
             'product' => 'App\Models\Product',
             'variant' => 'App\Models\ProductVariant',

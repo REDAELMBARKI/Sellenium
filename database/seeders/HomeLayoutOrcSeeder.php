@@ -18,23 +18,23 @@ class HomeLayoutOrcSeeder extends Seeder
         $sections = [
               [
                 "sortable_id" => 1 ,
-                "sortable_type" =>  RuleBasedCollection::class ,
+                "sortable_type" =>  'collection' ,
                 "order" => 1
               ],
               [
                 "sortable_id" => 1 ,
-                "sortable_type" =>  Banner::class ,
+                "sortable_type" =>  'banner' ,
                 "order" => 2
               ] ,
               [
                 "sortable_id" => 2 ,
-                "sortable_type" =>  RuleBasedCollection::class ,
-                "order" => 1
+                "sortable_type" =>  'collection' ,
+                "order" => 3
               ],
               [
                 "sortable_id" => 2 ,
-                "sortable_type" =>  Banner::class ,
-                "order" => 2
+                "sortable_type" =>  'banner' ,
+                "order" => 4
               ] ,
               ];
 

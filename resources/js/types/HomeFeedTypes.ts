@@ -1,15 +1,5 @@
-import { ProductClient } from '@/types/clientSideTypes';
 import { Banner } from './bannerTypes';
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  PRODUCT SECTION
-// ─────────────────────────────────────────────────────────────────────────────
-export interface ProductSection {
-  key: string;
-  name: string;
-  emoji?: string;
-  products: ProductClient[];
-}
+import { CollectionSection, CollectionSortable, ProductClient } from './homeEditorType';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  PROMO BANNER  — full-width image + headline + CTA
@@ -128,14 +118,14 @@ export interface AdSlotBlock {
 //  FEED ITEM  — the discriminated union the backend returns
 // ─────────────────────────────────────────────────────────────────────────────
 export type FeedItem =
-  | { type: 'collection'; data: ProductSection      }
-  | { type: 'banner';    data: Banner     }
-  | { type: 'video_split';     data: VideoSplitBlock      }
-  | { type: 'full_video';      data: FullVideoBlock       }
-  | { type: 'countdown_deal';  data: CountdownDealBlock   }
-  | { type: 'ugc_wall';        data: UGCWallBlock         }
-  | { type: 'brand_spotlight'; data: BrandSpotlightBlock  }
-  | { type: 'quiz_cta';        data: QuizCTABlock         }
-  | { type: 'social_proof';    data: SocialProofBlock     }
-  | { type: 'lookbook_grid';   data: LookbookGridBlock    }
-  | { type: 'ad_slot';         data: AdSlotBlock          };
+  | {id : number , order : number  ,  sortable_type: 'collection'; sortable: CollectionSortable      }
+  | {id : number , order : number  ,  sortable_type: 'banner';    sortable: Banner     }
+  | {id : number , order : number  ,  sortable_type: 'video_split';     sortable: VideoSplitBlock      }
+  | {id : number , order : number  ,  sortable_type: 'full_video';      sortable: FullVideoBlock       }
+  | {id : number , order : number  ,  sortable_type: 'countdown_deal';  sortable: CountdownDealBlock   }
+  | {id : number , order : number  ,  sortable_type: 'ugc_wall';        sortable: UGCWallBlock         }
+  | {id : number , order : number  ,  sortable_type: 'brand_spotlight'; sortable: BrandSpotlightBlock  }
+  | {id : number , order : number  ,  sortable_type: 'quiz_cta';        sortable: QuizCTABlock         }
+  | {id : number , order : number  ,  sortable_type: 'social_proof';    sortable: SocialProofBlock     }
+  | {id : number , order : number  ,  sortable_type: 'lookbook_grid';   sortable: LookbookGridBlock    }
+  | {id : number , order : number  ,  sortable_type: 'ad_slot';         sortable: AdSlotBlock          };

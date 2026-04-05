@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import type { Section } from '@/types/homeEditor';
+import type { Section } from '@/types/homeEditorType';
 import { Sidebar } from './Partials/Sidebar';
 import { PreviewPanel } from './Partials/PreviewPanel';
 
@@ -15,16 +15,20 @@ const fallbackSections: Section[] = [
     sortable: {
       id: 1,
       name: "Women's Shoes",
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+          </svg>`,
       key: 'collections.womens_shoes',
       slug: 'womens-shoes',
       is_active: true,
-      layout_config: { displayLimit: 4, gap: 0, paddingInline: 0 },
+      layout_config: {headerSpacing: 16 , titlePosition : "center" , CollectionPosition : "left" , displayLimit: 4, gap: 0,   paddingInline: 0 },
       card_config: { aspectRatio: '3/4', borderRadius: 0, showPrice: true, showBadge: true, textAlign: 'left', hoverEffect: 'zoom' },
       products: [
-        { id: 1, name: 'Air Runner',  price: 129, thumbnail: 'https://placehold.co/180x240/111115/333' },
-        { id: 2, name: 'Cloud Step',  price: 99,  thumbnail: 'https://placehold.co/180x240/111115/333' },
-        { id: 3, name: 'Trail Blaze', price: 149, thumbnail: 'https://placehold.co/180x240/111115/333' },
-        { id: 4, name: 'Soft Stride', price: 89,  thumbnail: 'https://placehold.co/180x240/111115/333' },
+        { id: 1, name: 'Air Runner',  brand: 'Nike',     price: 129, compare_price: 160, thumbnail: {  url: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400', alt: 'Air Runner'  }, category: { id: 5, name: 'Shoes' }, rating_average: 4.6, reviews: 88,  badge: 'new' },
+        { id: 2, name: 'Cloud Step',  brand: 'Adidas',   price: 99,  compare_price: 130, thumbnail: {  url: 'https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg?auto=compress&cs=tinysrgb&w=400', alt: 'Cloud Step'  }, category: { id: 5, name: 'Shoes' }, rating_average: 4.4, reviews: 54 },
+        { id: 3, name: 'Trail Blaze', brand: 'Salomon',  price: 149, compare_price: 190, thumbnail: {  url: 'https://images.pexels.com/photos/1032110/pexels-photo-1032110.jpeg?auto=compress&cs=tinysrgb&w=400', alt: 'Trail Blaze' }, category: { id: 5, name: 'Shoes' }, rating_average: 4.7, reviews: 120, badge: 'hot' },
+        { id: 4, name: 'Soft Stride', brand: 'Skechers', price: 89,  compare_price: 110, thumbnail: {  url: 'https://images.pexels.com/photos/336372/pexels-photo-336372.jpeg?auto=compress&cs=tinysrgb&w=400',   alt: 'Soft Stride' }, category: { id: 5, name: 'Shoes' }, rating_average: 4.3, reviews: 31 },
+        { id: 4, name: 'Soft Stride', brand: 'Skechers', price: 89,  compare_price: 110, thumbnail: {  url: 'https://images.pexels.com/photos/336372/pexels-photo-336372.jpeg?auto=compress&cs=tinysrgb&w=400',   alt: 'Soft Stride' }, category: { id: 5, name: 'Shoes' }, rating_average: 4.3, reviews: 31 },
       ],
     },
   },
@@ -49,9 +53,9 @@ const fallbackSections: Section[] = [
           is_visible: true,
           bg_color: '#111114',
           elements: {
-            eyebrow:   { text: 'New season',                           color: '#d4a853', visible: true },
-            title:     { text: 'Summer Sale Hero',                     color: '#efefed', visible: true },
-            paragraph: { text: 'Limited time offer on premium gear.',  color: '#6b6b68', visible: true },
+            eyebrow:   { text: 'New season',                          color: '#d4a853', visible: true },
+            title:     { text: 'Summer Sale Hero',                    color: '#efefed', visible: true },
+            paragraph: { text: 'Limited time offer on premium gear.', color: '#6b6b68', visible: true },
             button:    { text: 'Shop now →', bg_color: '#d4a853', text_color: '#0e0e0f', visible: true },
           },
         },
@@ -60,7 +64,7 @@ const fallbackSections: Section[] = [
           slot_key: 'right',
           width: '45',
           is_visible: true,
-          main_media: { id: 1,media_type : 'image' , url: 'https://placehold.co/480x220/0a0a10/222', alt: 'Summer Hero' },
+          main_media: { id: 1, media_type: 'image', url: 'https://placehold.co/480x220/0a0a10/222', alt: 'Summer Hero' },
         },
       ],
     },
@@ -73,15 +77,17 @@ const fallbackSections: Section[] = [
       id: 2,
       name: "Men's Jackets",
       key: 'collections.mens_jackets',
+      icon: 'Star',
       slug: 'mens-jackets',
       is_active: true,
-      layout_config: { displayLimit: 4, gap: 0, paddingInline: 0 },
+      layout_config: {titlePosition : "left" , CollectionPosition : "left"  , displayLimit: 4, gap: 0,headerSpacing: 6 , paddingInline: 0 },
       card_config: { aspectRatio: '1/1', borderRadius: 0, showPrice: true, showBadge: false, textAlign: 'left', hoverEffect: 'none' },
       products: [
-        { id: 5, name: 'Urban Parka', price: 229, thumbnail: 'https://placehold.co/200x200/111115/333' },
-        { id: 6, name: 'Trail Shell', price: 189, thumbnail: 'https://placehold.co/200x200/111115/333' },
-        { id: 7, name: 'City Bomber', price: 159, thumbnail: 'https://placehold.co/200x200/111115/333' },
-        { id: 8, name: 'Fleece Pro',  price: 139, thumbnail: 'https://placehold.co/200x200/111115/333' },
+        { id: 5, name: 'Urban Parka', brand: 'The North Face', price: 229, compare_price: 299, thumbnail: {  url: 'https://images.pexels.com/photos/1124468/pexels-photo-1124468.jpeg?auto=compress&cs=tinysrgb&w=400', alt: 'Urban Parka' }, category: { id: 6, name: 'Jackets' }, rating_average: 4.8, reviews: 210, badge: 'hot' },
+        { id: 6, name: 'Trail Shell', brand: 'Patagonia',      price: 189, compare_price: 249, thumbnail: {  url: 'https://images.pexels.com/photos/842811/pexels-photo-842811.jpeg?auto=compress&cs=tinysrgb&w=400',   alt: 'Trail Shell' }, category: { id: 6, name: 'Jackets' }, rating_average: 4.7, reviews: 145 },
+        { id: 7, name: 'City Bomber', brand: 'Zara',           price: 159, compare_price: 199, thumbnail: {  url: 'https://images.pexels.com/photos/1183266/pexels-photo-1183266.jpeg?auto=compress&cs=tinysrgb&w=400', alt: 'City Bomber' }, category: { id: 6, name: 'Jackets' }, rating_average: 4.5, reviews: 78,  badge: 'new' },
+        { id: 8, name: 'Fleece Pro',  brand: 'Columbia',       price: 139, compare_price: 179, thumbnail: {  url: 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg?auto=compress&cs=tinysrgb&w=400', alt: 'Fleece Pro'  }, category: { id: 6, name: 'Jackets' }, rating_average: 4.6, reviews: 93 },
+        { id: 8, name: 'Fleece Pro',  brand: 'Columbia',       price: 139, compare_price: 179, thumbnail: {  url: 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg?auto=compress&cs=tinysrgb&w=400', alt: 'Fleece Pro'  }, category: { id: 6, name: 'Jackets' }, rating_average: 4.6, reviews: 93 },
       ],
     },
   },
@@ -106,8 +112,8 @@ const fallbackSections: Section[] = [
           is_visible: true,
           bg_color: '#0d0d11',
           elements: {
-            eyebrow:   { text: 'Limited drop',                                    color: '#c9a227', visible: true },
-            title:     { text: 'New Arrivals',                                    color: '#efefed', visible: true },
+            eyebrow:   { text: 'Limited drop',                                     color: '#c9a227', visible: true },
+            title:     { text: 'New Arrivals',                                     color: '#efefed', visible: true },
             paragraph: { text: 'Street-ready essentials for the modern explorer.', color: '#6b6b68', visible: true },
             button:    { text: 'View drop →', bg_color: '#c9a227', text_color: '#0e0e0f', visible: true },
           },
@@ -117,17 +123,15 @@ const fallbackSections: Section[] = [
           slot_key: 'right',
           width: '40',
           is_visible: true,
-          main_media: { id: 2,media_type : 'image' , url: 'https://placehold.co/380x180/0a0a0e/222', alt: 'New Arrivals' },
+          main_media: { id: 2, media_type: 'image', url: 'https://placehold.co/380x180/0a0a0e/222', alt: 'New Arrivals' },
         },
       ],
     },
   },
 ];
 
-// ─── Mock Routing ─────────────────────────────────────────────────────────────
 
 const mockRouter = { get: (path: string) => { window.location.href = path; } };
-
 const mockRoute = (name: string, params: Record<string, string>) => {
   const routes: Record<string, (p: Record<string, string>) => string> = {
     'banner.edit':     (p) => `/banners/${p.banner}/edit`,
@@ -136,12 +140,11 @@ const mockRoute = (name: string, params: Record<string, string>) => {
   return routes[name]?.(params) || '';
 };
 
-// ─── HomeEditor ───────────────────────────────────────────────────────────────
+export default function HomeEditor({sectionss = []}: { sectionss: Section[] }) {
+  console.log(sectionss)
 
-export default function HomeEditor() {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
-
-  const [sections,      setSections]      = useState<Section[]>(fallbackSections);
+  const [sections,      setSections]      = useState<Section[]>([]);
   const [sidebarOpen,   setSidebarOpen]   = useState(true);
   const [openMenuId,    setOpenMenuId]    = useState<number | null>(null);
   const [draggedIndex,  setDraggedIndex]  = useState<number | null>(null);

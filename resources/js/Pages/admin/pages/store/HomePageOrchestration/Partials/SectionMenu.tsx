@@ -1,4 +1,4 @@
-import type { Section } from '@/types/homeEditor';
+import type { Section } from '@/types/homeEditorType';
 import { ThemePalette } from '@/types/ThemeTypes';
 
 type Action = 'move_to_start' | 'move_up' | 'move_down' | 'move_to_end';

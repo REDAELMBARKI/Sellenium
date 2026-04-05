@@ -1,4 +1,4 @@
-import type { BannerSection } from '@/types/homeEditor';
+import type { BannerSection } from '@/types/homeEditorType';
 import { ThemePalette } from '@/types/ThemeTypes';
 import { typePill } from './ThemeUtils';
 import { BannerSlotContent } from './BannerSlotContent';

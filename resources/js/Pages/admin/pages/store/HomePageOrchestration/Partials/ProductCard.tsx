@@ -1,4 +1,4 @@
-import type { Product, CollectionSortable } from '@/types/homeEditor';
+import type { Product, CollectionSortable } from '@/types/homeEditorType';
 import { ThemePalette } from '@/types/ThemeTypes';
 
 type ProductCardProps = {

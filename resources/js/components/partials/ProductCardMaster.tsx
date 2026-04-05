@@ -8,7 +8,7 @@ import Card3 from '@/Pages/admin/pages/settings/configStore/cardsConfig/cardsPro
 import Card4 from '@/Pages/admin/pages/settings/configStore/cardsConfig/cardsPrototypes/Card4'
 import { Card5 } from '@/Pages/admin/pages/settings/configStore/cardsConfig/cardsPrototypes/Card5'
 import { Card6 } from '@/Pages/admin/pages/settings/configStore/cardsConfig/cardsPrototypes/Card6'
-import { ProductClient } from '@/types/clientSideTypes'
+import { ProductClient } from '@/types/homeEditorType'
 import {  CardOption } from '@/types/StoreConfigTypes'
 
 export default function ProductCardMaster({product}:{product : ProductClient}) {

@@ -1,4 +1,4 @@
-import type { BannerSlotElements } from '@/types/homeEditor';
+import type { BannerSlotElements } from '@/types/homeEditorType';
 import { ThemePalette } from '@/types/ThemeTypes';
 
 type BannerSlotContentProps = {

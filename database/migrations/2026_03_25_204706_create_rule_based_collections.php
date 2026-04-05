@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('rule_based_collections', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();
-            $table->string('name')->unique(); // e.g., 'deals', 'category'
+            $table->string('name')->unique(); 
             $table->string('slug')->unique();
             $table->string('icon')->nullable();
             // Core Configs

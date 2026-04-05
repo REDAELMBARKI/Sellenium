@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { GripVertical, MoreVertical } from 'lucide-react';
-import type { Section, BannerSection, CollectionSection } from '@/types/homeEditor';
+import type { Section, BannerSection, CollectionSection } from '@/types/homeEditorType';
 import { ThemePalette } from '@/types/ThemeTypes';
 import { typePill } from './ThemeUtils';
 import { SectionMenu } from './SectionMenu';
@@ -45,7 +45,7 @@ export function SidebarRow({
   onDragEnd,
 }: SidebarRowProps) {
   const [hovered, setHovered] = useState(false);
-  const isBanner = section.sortable_type === 'App\\Models\\Banner';
+  const isBanner = section.sortable_type === 'banner';
 
   const subLabel = isBanner
     ? `${(section as BannerSection).sortable.slots.filter(s => s.is_visible && s.width !== '0').length} slots`

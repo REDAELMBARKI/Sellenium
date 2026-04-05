@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Heart, ShoppingCart, Eye, Star } from 'lucide-react';
-import { ProductClient } from '@/types/clientSideTypes';
+import { ProductClient } from '@/types/homeEditorType';
 
 interface ProductCardProps {
   product: ProductClient;
+  isEditor : boolean ,
   /** 'standard' = portrait card | 'featured' = wide 2-col editorial card */
   variant?: 'standard' | 'featured';
 }
@@ -16,7 +17,7 @@ const BADGE_MAP: Record<string, { label: string; bg: string; color: string }> = 
 
 function getBadge(product: ProductClient) {
   if (product.badge) return BADGE_MAP[product.badge];
-  if (product.originalPrice && product.originalPrice > product.price) return BADGE_MAP.sale;
+  if (product.compare_price && product.compare_price > (product.price ?? 0)) return BADGE_MAP.sale;
   return null;
 }
 
@@ -45,28 +46,30 @@ const Stars: React.FC<{ rating: number }> = ({ rating }) => {
 
 export const ProductCardMaster: React.FC<ProductCardProps> = ({
   product,
+  isEditor = false ,
   variant = 'standard',
 }) => {
   const [hovered, setHovered] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
   const badge = getBadge(product);
-
   if (variant === 'featured') {
     return (
       <div
         style={{
+          userSelect : "none" ,
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           background: 'var(--currenththeme-bgSecondary)',
           borderRadius: 'var(--currenththeme-border-radius, 8px)',
           overflow: 'hidden',
           border: '1px solid var(--currenththeme-border)',
+          cursor : isEditor ? "none" : "pointer"
         }}
       >
         {/* Image side */}
         <div style={{ position: 'relative', overflow: 'hidden', minHeight: 360 }}>
           <img
-            src={product.image}
+            src={product.thumbnail.url}
             alt={product.name}
             style={{
               width: '100%',
@@ -129,20 +132,9 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
           >
             {product.name}
           </h3>
-          {product.description && (
-            <p
-              style={{
-                fontSize: 13,
-                color: 'var(--currenththeme-textMuted)',
-                lineHeight: 1.7,
-                marginBottom: '1.2rem',
-              }}
-            >
-              {product.description}
-            </p>
-          )}
+         
           <div style={{ marginBottom: '1.2rem' }}>
-            <Stars rating={product.rating} />
+            <Stars rating={product.rating_average ?? 0} />
             <span
               style={{
                 fontSize: 11,
@@ -161,7 +153,7 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
               marginBottom: '1.2rem',
             }}
           >
-            {product.originalPrice && (
+            {product.compare_price && (
               <span
                 style={{
                   fontSize: '1rem',
@@ -171,10 +163,11 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
                   fontWeight: 400,
                 }}
               >
-                ${product.originalPrice.toFixed(2)}
+                ${product.compare_price.toFixed(2)}
               </span>
             )}
-            ${product.price.toFixed(2)}
+             {product.price && typeof product.price === 'number' && product.price.toFixed(2)}
+
           </p>
           <button
             style={{
@@ -202,11 +195,11 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
     );
   }
 
-  // Standard card
+
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+       onMouseEnter={() => !isEditor && setHovered(true)}
+       onMouseLeave={() => !isEditor && setHovered(false)}
       style={{
         background: 'var(--currenththeme-card)',
         borderRadius: 'var(--currenththeme-border-radius, 8px)',
@@ -231,7 +224,7 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
         }}
       >
         <img
-          src={product.image}
+          src={product.thumbnail.url}
           alt={product.name}
           style={{
             width: '100%',
@@ -266,7 +259,7 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
         )}
 
         {/* Discount badge */}
-        {product.originalPrice && (
+        {product.compare_price && (
           <div
             style={{
               position: 'absolute',
@@ -282,7 +275,7 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
               zIndex: 2,
             }}
           >
-            −{discountPct(product.originalPrice, product.price)}%
+            −{discountPct(product.compare_price, product.price ?? 0)}%
           </div>
         )}
 
@@ -391,7 +384,7 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
             marginBottom: 3,
           }}
         >
-          {product.brand ?? product.category}
+          {product.brand ?? product.category.name}
         </p>
         <p
           style={{
@@ -409,7 +402,7 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            {product.originalPrice && (
+            {product.compare_price && (
               <span
                 style={{
                   fontSize: 11,
@@ -418,7 +411,7 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
                   marginRight: 6,
                 }}
               >
-                ${product.originalPrice.toFixed(2)}
+                ${product.compare_price.toFixed(2)}
               </span>
             )}
             <span
@@ -428,12 +421,12 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
                 color: 'var(--currenththeme-priceText)',
               }}
             >
-              ${product.price.toFixed(2)}
+              {product.price && typeof product.price === 'number' && product.price.toFixed(2)}
             </span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Stars rating={product.rating} />
+            <Stars rating={product.rating_average ?? 0} />
             <span style={{ fontSize: 10, color: 'var(--currenththeme-textMuted)' }}>
               ({product.reviews})
             </span>

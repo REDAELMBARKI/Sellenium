@@ -1,7 +1,7 @@
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import type { Section, BannerSection, CollectionSection } from '@/types/homeEditor';
+import type { Section, BannerSection, CollectionSection } from '@/types/homeEditorType';
 import { BannerPreview } from './BannerPreview';
-import { CollectionPreview } from './CollectionPreview';
+import CollectionRenderer from '../../RuleBasedCollections/Partials/CollectionRenderer';
 
 type PreviewPanelProps = {
   sections: Section[];
@@ -107,7 +107,7 @@ export function PreviewPanel({ sections, onPublish, onDiscard }: PreviewPanelPro
           <div key={section.id}>
             {section.sortable_type === 'banner'
               ? <BannerPreview banner={section.sortable} />
-              : <CollectionPreview section={section as CollectionSection} theme={theme} />
+              : <CollectionRenderer isEditor={true} section={section as CollectionSection} />
             }
           </div>
         ))}

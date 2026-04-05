@@ -64,25 +64,3 @@ export type CategoryCode =
   | "baby";
 
 
-
-// For Inertia useForm (needs index signature)
-
-
-
-
-// Context type
-// export interface InventoryContextType {
-//     productVariants: ProductVariant[];
-//     setProductVariants: React.Dispatch<React.SetStateAction<ProductVariant[]>>;
-//     currentVariant: ProductVariant;
-//     setCurrentVariant: React.Dispatch<React.SetStateAction<ProductVariant>>;
-//     inventoryValid: boolean;
-//     setInventoryValid: React.Dispatch<React.SetStateAction<boolean>>;
-//     newSelectedColors: Color[];
-//     setNewSelectedColors: React.Dispatch<React.SetStateAction<Color[]>>;
-//     updateVariantMode: boolean;
-//     setUpdateVariantMode: React.Dispatch<React.SetStateAction<boolean>>;
-//     isCurrentVariantActive: boolean;
-//     setIsCurrentVariantActive: React.Dispatch<React.SetStateAction<boolean>>;
-//     variantFormRef: RefObject<HTMLFormElement | null>;
-// }

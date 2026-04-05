@@ -18,10 +18,12 @@ class RuleBasedCollectionsSeeder extends Seeder
                 'name' => 'Top Deals',
                 'slug' => 'top-deals',
                 'key' => 'collections.top_deals',
+                'icon' => "Start" ,
                 'is_active' => true,
-                'order' => 1,
-                // Matching your layout_config including the gap
                 'layout_config' => json_encode([
+                    'headerSpacing' => 16 , 
+                    'titlePosition' => "center" , 
+                    'CollectionPosition' => "left",
                     'displayLimit' => 2,
                     'gap' => 32,
                     'paddingInline' => 12
@@ -46,10 +48,13 @@ class RuleBasedCollectionsSeeder extends Seeder
                 'id' => 2,
                 'name' => 'Featured Footwear',
                 'slug' => 'featured-footwear',
+                'icon' => "Star" ,
                 'key' => 'collections.featured_footwear',
                 'is_active' => true,
-                'order' => 2,
                 'layout_config' => json_encode([
+                    'headerSpacing' => 16 ,
+                     'titlePosition' => "center" ,
+                      'CollectionPosition' => "left",
                     'displayLimit' => 3,
                     'gap' => 24,
                     'paddingInline' => 0
