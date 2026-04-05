@@ -11,7 +11,7 @@ const fallbackSections: Section[] = [
   {
     id: 1,
     order: 1,
-    sortable_type: 'App\\Models\\RuleBasedCollection',
+    sortable_type: 'collection',
     sortable: {
       id: 1,
       name: "Women's Shoes",
@@ -31,7 +31,7 @@ const fallbackSections: Section[] = [
   {
     id: 2,
     order: 2,
-    sortable_type: 'App\\Models\\Banner',
+    sortable_type: 'banner',
     sortable: {
       id: 1,
       name: 'Summer Sale Hero',
@@ -60,7 +60,7 @@ const fallbackSections: Section[] = [
           slot_key: 'right',
           width: '45',
           is_visible: true,
-          main_media: { id: 1, url: 'https://placehold.co/480x220/0a0a10/222', alt: 'Summer Hero' },
+          main_media: { id: 1,media_type : 'image' , url: 'https://placehold.co/480x220/0a0a10/222', alt: 'Summer Hero' },
         },
       ],
     },
@@ -68,7 +68,7 @@ const fallbackSections: Section[] = [
   {
     id: 3,
     order: 3,
-    sortable_type: 'App\\Models\\RuleBasedCollection',
+    sortable_type: 'collection',
     sortable: {
       id: 2,
       name: "Men's Jackets",
@@ -88,7 +88,7 @@ const fallbackSections: Section[] = [
   {
     id: 4,
     order: 4,
-    sortable_type: 'App\\Models\\Banner',
+    sortable_type: 'banner',
     sortable: {
       id: 2,
       name: 'New Arrivals Banner',
@@ -117,7 +117,7 @@ const fallbackSections: Section[] = [
           slot_key: 'right',
           width: '40',
           is_visible: true,
-          main_media: { id: 2, url: 'https://placehold.co/380x180/0a0a0e/222', alt: 'New Arrivals' },
+          main_media: { id: 2,media_type : 'image' , url: 'https://placehold.co/380x180/0a0a0e/222', alt: 'New Arrivals' },
         },
       ],
     },
@@ -209,7 +209,7 @@ export default function HomeEditor() {
   };
 
   const handleNavigate = (section: Section) => {
-    if (section.sortable_type === 'App\\Models\\Banner') {
+    if (section.sortable_type === 'banner') {
       mockRouter.get(mockRoute('banner.edit', { banner: section.sortable.slug }));
     } else {
       mockRouter.get(mockRoute('collection.edit', { collection: section.sortable.slug }));

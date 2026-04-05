@@ -105,7 +105,7 @@ export function PreviewPanel({ sections, onPublish, onDiscard }: PreviewPanelPro
       }}>
         {sections.map(section => (
           <div key={section.id}>
-            {section.sortable_type === 'App\\Models\\Banner'
+            {section.sortable_type === 'banner'
               ? <BannerPreview banner={section.sortable} />
               : <CollectionPreview section={section as CollectionSection} theme={theme} />
             }

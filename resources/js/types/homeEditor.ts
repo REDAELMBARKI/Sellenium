@@ -53,14 +53,14 @@ export type CollectionSortable = {
 export type BannerSection = {
   id: number;
   order: number;
-  sortable_type: 'App\\Models\\Banner';
+  sortable_type: 'banner';
   sortable: Banner;
 };
 
 export type CollectionSection = {
   id: number;
   order: number;
-  sortable_type: 'App\\Models\\RuleBasedCollection';
+  sortable_type: 'collection';
   sortable: CollectionSortable;
 };
 

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { ProductCardMaster } from './ProductCardMaster';
+import { ProductCardMaster } from '../../../../../Home/Partials/ProductCardMaster';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
 import { ProductSection } from '@/types/HomeFeedTypes';
 
@@ -8,13 +8,13 @@ const DEFAULT_CARDS_VISIBLE = 5;
 const CARD_GAP              = 24;   // px between cards
 const TRACK_PADDING         = 80;   // px left & right
 
-interface ScrollRowProps {
+interface CollectionRendererProps {
   section: ProductSection;
   onViewAll?: (key: string) => void;
   cardsVisible?: number;
 }
 
-export const ScrollRow: React.FC<ScrollRowProps> = ({
+export const CollectionRenderer: React.FC<CollectionRendererProps> = ({
   section,
   onViewAll,
   cardsVisible = DEFAULT_CARDS_VISIBLE,
@@ -207,4 +207,4 @@ export const ScrollRow: React.FC<ScrollRowProps> = ({
   );
 };
 
-export default ScrollRow;
+export default CollectionRenderer;

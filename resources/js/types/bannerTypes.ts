@@ -1,17 +1,18 @@
 export interface BannerMedia {
   id: number;
   url: string;
+  alt : string ;
   media_type: string; // e.g., 'image', 'video'
   collection?: string;
 }
 
 export interface BannerElement {
   text: string;
-  color: string;
+  color?: string;
   visible: boolean;
   bg_color?: string; 
   text_color?: string;
-  link : string
+  link?: string;
 }
 
 export interface BannerSlot {
@@ -37,7 +38,6 @@ export interface Banner {
   name: string;
   key: string;
   slug: string;
-  order: number;
   direction: 'ltr' | 'rtl';
   is_active: boolean;
   

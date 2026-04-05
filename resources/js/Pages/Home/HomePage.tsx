@@ -6,7 +6,7 @@ import FeatureStrip from './Partials/FeatureStrip';
 import NewsletterSection from './Partials/NewsletterSection';
 import PromoStrip from './Partials/PromoStrip';
 import CategoryBanners from './Partials/CategoryBanners';
-import { ScrollRow } from './Partials/ScrollRow';
+import CollectionRenderer, { ScrollRow } from '../admin/pages/store/RuleBasedCollections/Partials/CollectionRenderer';
 import {
   FeedItem,
   VideoSplitBlock,
@@ -631,9 +631,8 @@ const AdSlotRenderer: React.FC<{ data: AdSlotBlock }> = ({ data }) => (
 //  renderBlock  — the single switch that maps type → component
 // ─────────────────────────────────────────────────────────────────────────────
 const renderBlock = (item: FeedItem, onViewAll: (key: string) => void) => {
-  console.log(item.type)
   switch (item.type) {
-    case 'collection': return <ScrollRow             key={item.data.key}  section={item.data} onViewAll={onViewAll} />;
+    case 'collection': return <CollectionRenderer key={item.data.key}  section={item.data} onViewAll={onViewAll} />;
     case 'banner':    return <BannerRenderer   isEditor={false} key={item.data.id}   banner={item.data} />;
     // case 'video_split':     return <VideoSplitRenderer    key={item.data.id} data={item.data} />;
     // case 'countdown_deal':  return <CountdownDealRenderer key={item.data.id} data={item.data} />;
