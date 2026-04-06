@@ -16,8 +16,7 @@ return new class extends Migration
             $table->string('key')->index();
             $table->string('slug')->unique();
             $table->string('name');
-            $table->integer('order')->default(0)->index();
-            $table->string('direction', 3)->default('ltr'); // 'ltr' or 'rtl'
+            $table->string('direction', 3)->default('ltr'); 
             $table->string('aspect_ratio')->default('21:9');
             $table->string('border_radius')->default('12px');
             $table->string('bg_color')->default('#ffffff');

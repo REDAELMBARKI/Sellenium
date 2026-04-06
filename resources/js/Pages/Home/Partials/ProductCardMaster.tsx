@@ -69,7 +69,7 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
         {/* Image side */}
         <div style={{ position: 'relative', overflow: 'hidden', minHeight: 360 }}>
           <img
-            src={product.thumbnail.url}
+            src={product.thumbnail ? product.thumbnail.url : ''}
             alt={product.name}
             style={{
               width: '100%',
@@ -224,7 +224,7 @@ export const ProductCardMaster: React.FC<ProductCardProps> = ({
         }}
       >
         <img
-          src={product.thumbnail.url}
+          src={product.thumbnail ? product.thumbnail.url : ''}
           alt={product.name}
           style={{
             width: '100%',

@@ -63,6 +63,9 @@ class Product extends Model
     public function variants(){
       return   $this->hasMany(ProductVariant::class , 'product_id' , 'id') ;
     }
+    public function defaultVariant(){
+      return  $this->hasOne(ProductVariant::class)->where('is_default' , true);
+    }
 
     public function thumbnail(){
         return $this->morphOne(Media::class , 'mediaable')->where('collection' , 'thumbnail');
@@ -137,8 +140,6 @@ class Product extends Model
         ->pluck('count', 'rating')
         ->toArray() ;
     }
-
-
 
 
     public function badge(){

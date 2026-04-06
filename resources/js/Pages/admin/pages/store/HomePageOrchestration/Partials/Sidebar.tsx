@@ -13,7 +13,6 @@ type SidebarProps = {
   draggedIndex: number | null;
   dropIndicator: { index: number; position: 'top' | 'bottom' } | null;
   menuRef: React.RefObject<HTMLDivElement>;
-  onToggle: () => void;
   onToggleMenu: (id: number | null) => void;
   onMove: (id: number, action: Action) => void;
   onNavigate: (section: Section) => void;
@@ -31,7 +30,6 @@ export function Sidebar({
   draggedIndex,
   dropIndicator,
   menuRef,
-  onToggle,
   onToggleMenu,
   onMove,
   onNavigate,
@@ -43,7 +41,7 @@ export function Sidebar({
   return (
     <div
       style={{
-        width: isOpen ? 268 : 44,
+        width: isOpen ? 268 : 0,
         flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
@@ -77,30 +75,7 @@ export function Sidebar({
             Layout
           </span>
         )}
-        <button
-          onClick={onToggle}
-          title={isOpen ? 'Collapse' : 'Expand'}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: theme.sidebarMutedFg,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            padding: 4,
-            borderRadius: 4,
-            marginLeft: isOpen ? 0 : 'auto',
-            transition: 'color 0.1s',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.color = theme.sidebarMuted;
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.color = theme.sidebarMutedFg;
-          }}
-        >
-          {isOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
-        </button>
+        
       </div>
 
       {/* Section list */}

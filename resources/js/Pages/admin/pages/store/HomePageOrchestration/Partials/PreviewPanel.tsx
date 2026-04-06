@@ -1,15 +1,18 @@
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import type { Section, BannerSection, CollectionSection } from '@/types/homeEditorType';
+import type { Section, BannerSection, CollectionSection, CollectionSortable } from '@/types/homeEditorType';
 import { BannerPreview } from './BannerPreview';
 import CollectionRenderer from '../../RuleBasedCollections/Partials/CollectionRenderer';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 type PreviewPanelProps = {
   sections: Section[];
   onPublish: () => void;
   onDiscard: () => void;
+  onToggle: () => void;
+  isOpen: boolean;
 };
 
-export function PreviewPanel({ sections, onPublish, onDiscard }: PreviewPanelProps) {
+export function PreviewPanel({ sections, onPublish, onDiscard , onToggle , isOpen }: PreviewPanelProps) {
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
 
   return (
@@ -28,10 +31,37 @@ export function PreviewPanel({ sections, onPublish, onDiscard }: PreviewPanelPro
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 24px',
+          position: 'relative',
           borderBottom: `1px solid ${theme.border}`,
           flexShrink: 0,
         }}
-      >
+      > 
+      <button
+                onClick={onToggle}
+                title={isOpen ? 'Collapse' : 'Expand'}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: theme.sidebarMutedFg,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: 4,
+                  borderRadius: 4,
+                  marginLeft: isOpen ? 0 : 'auto',
+                  transition: 'color 0.1s',
+                  position: 'absolute',
+                  left: 0,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = theme.sidebarMuted;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = theme.sidebarMutedFg;
+                }}
+              >
+                {isOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+        </button>
         <span style={{
           fontSize: 11,
           letterSpacing: '0.10em',
@@ -107,7 +137,7 @@ export function PreviewPanel({ sections, onPublish, onDiscard }: PreviewPanelPro
           <div key={section.id}>
             {section.sortable_type === 'banner'
               ? <BannerPreview banner={section.sortable} />
-              : <CollectionRenderer isEditor={true} section={section as CollectionSection} />
+              : <CollectionRenderer  isLoading={section.sortable.products.length == 0} isEditor={true} collection={section.sortable as CollectionSortable} />
             }
           </div>
         ))}

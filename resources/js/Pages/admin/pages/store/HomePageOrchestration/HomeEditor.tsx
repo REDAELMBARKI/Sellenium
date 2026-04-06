@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { AdminLayout } from '@/admin/components/layout/AdminLayout';
 import { useStoreConfigCtx } from '@/contextHooks/useStoreConfigCtx';
-import type { Section } from '@/types/homeEditorType';
+import type { CollectionSection, CollectionSortable, Section } from '@/types/homeEditorType';
 import { Sidebar } from './Partials/Sidebar';
 import { PreviewPanel } from './Partials/PreviewPanel';
+import axios from 'axios';
+import { route } from 'ziggy-js';
+import { section } from 'framer-motion/client';
 
 // ─── Fallback Data ────────────────────────────────────────────────────────────
 
@@ -141,26 +144,78 @@ const mockRoute = (name: string, params: Record<string, string>) => {
 };
 
 export default function HomeEditor({sectionss = []}: { sectionss: Section[] }) {
-  console.log(sectionss)
-
   const { state: { currentTheme: theme } } = useStoreConfigCtx();
-  const [sections,      setSections]      = useState<Section[]>([]);
+  const [sections,      setSections]      = useState<Section[]>(sectionss);
   const [sidebarOpen,   setSidebarOpen]   = useState(true);
   const [openMenuId,    setOpenMenuId]    = useState<number | null>(null);
   const [draggedIndex,  setDraggedIndex]  = useState<number | null>(null);
   const [dropIndicator, setDropIndicator] = useState<{ index: number; position: 'top' | 'bottom' } | null>(null);
-
+  const [collectionCardsLimit , setCollectionCardsLimit] = useState<{collection_id :number , limit : number}[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
-
+  
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpenMenuId(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+     const getProducts = async () => {
+          const res = await axios.get(route('collections.limited-products'), {
+              params: {
+                  collections: sections.map(section => ({
+                      collection_id: section.sortable.id,
+                      limit: collectionCardsLimit.find(el => el.collection_id == section.sortable.id)?.limit || 5,
+                  })),
+              },
+           });
+          setSections(prev => {
+              return prev.map(sec => {
+                   if(sec.sortable_type !== 'collection') return sec ;
+                   const col = res.data.find(col => col.collection_id === sec.sortable.id) ;
+                   if(!col)  return sec ;
+                   return {
+                             ...sec , 
+                              sortable : {
+                                  ...sec.sortable ,
+                                  products : col.products ?? []
+                              }
+                         };
+               })
+          })
+     }
+     getProducts()
+
+  }, [sectionss , collectionCardsLimit]);
+  
+  // to be continued 
+  useEffect(() => {
+  const containerRef = document.getElementById('sections-container') // or use a ref
+
+  const handleResize = () => {
+    const containerWidth = containerRef?.offsetWidth ?? window.innerWidth
+    
+    const limits = sections
+      .filter(sec => sec.sortable_type === 'App\\Models\\RuleBasedCollection')
+      .map((sec: CollectionSection) => {
+        const cardConfig  = sec.sortable.card_config
+        const layoutConfig = sec.sortable.layout_config
+
+        // aspect ratio tells you h/w ratio — e.g. "3/4" means card is taller than wide
+        // but you need a base card width — use minCardWidth from config or a sensible default
+        const minCardWidth = cardConfig.minCardWidth ?? 160  // px — minimum before cards become too small
+        const gap          = layoutConfig.gap ?? 16
+
+        // how many cards fit at minimum width
+        const fitting = Math.floor((containerWidth + gap) / (minCardWidth + gap))
+
+        return {
+          collection_id: sec.sortable.id,
+          limit: Math.max(1, Math.min(fitting, layoutConfig.displayLimit ?? 6)),
+        }
+      })
+
+    setCollectionCardsLimit(limits)
+  }
+
+  handleResize() // fire once on mount too
+  window.addEventListener('resize', handleResize)
+  return () => window.removeEventListener('resize', handleResize)
+}, [sections])
 
   const reorder = (arr: Section[]): Section[] =>
     arr.map((s, i) => ({ ...s, order: i + 1 }));
@@ -229,13 +284,12 @@ export default function HomeEditor({sectionss = []}: { sectionss: Section[] }) {
     }}>
       <Sidebar
         sections={sections}
-        theme={theme}
         isOpen={sidebarOpen}
+        theme={theme}
         openMenuId={openMenuId}
         draggedIndex={draggedIndex}
         dropIndicator={dropIndicator}
         menuRef={menuRef}
-        onToggle={() => setSidebarOpen(v => !v)}
         onToggleMenu={setOpenMenuId}
         onMove={handleMove}
         onNavigate={handleNavigate}
@@ -245,6 +299,8 @@ export default function HomeEditor({sectionss = []}: { sectionss: Section[] }) {
         onDragEnd={handleDragEnd}
       />
       <PreviewPanel
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(v => !v)}
         sections={sections}
         onPublish={() => console.log('publish')}
         onDiscard={() => setSections(fallbackSections)}

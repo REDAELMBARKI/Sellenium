@@ -33,8 +33,7 @@ interface MenuItem {
 
 // Color Palette
 
-export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+export function Sidebar({ collapsed, setCollapsed }: { collapsed: boolean; setCollapsed: (collapsed: boolean) => void   }) {
   const [expandedItem, setExpandedItem] = useState<string | null>('Dashboard');
   const {url} = usePage()
         const {state :{currentTheme}} = useStoreConfigCtx()

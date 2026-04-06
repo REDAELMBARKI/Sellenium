@@ -17,13 +17,15 @@ class ProductSeeder extends Seeder
 
             // thumbnail
             $product->thumbnail()->create([
-                'url' => '/storage/products/1.jpg',
+                'collection' => "thumbnail" ,
+                'url' => 'https://picsum.photos/seed/' . rand(1, 1000) . '/600/400',
             ]);
 
             // covers
             $product->covers()->createMany([
-                ['url' =>  '/storage/products/2.jpg'],
-                ['url' =>  '/storage/products/3.jpg'],
+        
+                ['collection' => "gallery" ,'url' =>  'https://picsum.photos/seed/' . rand(1, 1000) . '/600/400'],
+                ['collection' => "gallery" ,'url' =>  'https://picsum.photos/seed/' . rand(1, 1000) . '/600/400'],
             ]);
 
 
